@@ -64,10 +64,14 @@ export function Header() {
           <span className="hidden md:block">
             <BrandLogo
               brand="smyc"
-              className="overflow-hidden md:max-w-[220px] lg:max-w-[280px]"
+              className={
+                isTransparent
+                  ? 'overflow-hidden md:max-w-[92px] lg:max-w-[112px]'
+                  : 'overflow-hidden md:max-w-[220px] lg:max-w-[280px]'
+              }
               size="lg"
               theme={isTransparent ? 'dark' : 'light'}
-              variant="full"
+              variant={isTransparent ? 'symbol' : 'full'}
               withSurface={false}
             />
           </span>

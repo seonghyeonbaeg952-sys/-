@@ -117,7 +117,7 @@ export function BrandLogo({
         'inline-flex min-w-0 items-center',
         shouldUseSurface &&
           (theme === 'dark'
-            ? 'rounded-[18px] border border-bg-warm-white/20 bg-bg-warm-white/76 px-2 py-1 shadow-none backdrop-blur-sm sm:px-2.5'
+            ? 'rounded-[16px] border border-bg-warm-white/42 bg-bg-warm-white/90 px-2.5 py-1.5 shadow-[0_10px_30px_rgb(0_0_0/0.14)] backdrop-blur-sm sm:px-3'
             : 'rounded-[18px] border border-line-default/70 bg-bg-warm-white/82 px-2.5 py-1 shadow-[0_8px_18px_rgb(7_21_38/0.06)] backdrop-blur-sm sm:px-3'),
         className,
       )}
