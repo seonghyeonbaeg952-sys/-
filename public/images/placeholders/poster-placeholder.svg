@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200" role="img" aria-labelledby="title desc">
+  <title id="title">Poster placeholder</title>
+  <desc id="desc">Concert poster placeholder.</desc>
+  <rect width="900" height="1200" fill="#FAF7F0"/>
+  <rect x="72" y="72" width="756" height="1056" rx="42" fill="#10233F"/>
+  <path d="M150 870h600" stroke="#C9A45C" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="450" cy="410" r="180" fill="#E7D5A3" opacity="0.45"/>
+</svg>

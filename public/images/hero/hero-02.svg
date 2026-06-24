@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Seoul Motet Youth Choir rehearsal image placeholder</title>
+  <desc id="desc">A soft blue and ivory rehearsal placeholder for future choir rehearsal photography.</desc>
+  <rect width="1600" height="1000" fill="#10233F"/>
+  <rect width="1600" height="1000" fill="#DDE8F6" opacity="0.22"/>
+  <circle cx="326" cy="310" r="226" fill="#E7D5A3" opacity="0.28"/>
+  <circle cx="782" cy="502" r="286" fill="#FFFDF8" opacity="0.12"/>
+  <path d="M0 812C260 690 520 652 800 760s524 88 800-84v324H0Z" fill="#071526" opacity="0.42"/>
+  <path d="M240 690h840" stroke="#C9A45C" stroke-width="10" stroke-linecap="round" opacity="0.32"/>
+</svg>

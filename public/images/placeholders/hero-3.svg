@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Choir stage placeholder</title>
+  <desc id="desc">Warm gold and midnight navy abstract stage placeholder.</desc>
+  <rect width="1600" height="1000" fill="#071526"/>
+  <path d="M0 0h1600v1000H0z" fill="#10233F" opacity="0.72"/>
+  <path d="M-80 240C260 120 470 140 790 280s560 120 900-10v730H-80Z" fill="#C9A45C" opacity="0.2"/>
+  <circle cx="1190" cy="620" r="430" fill="#E7D5A3" opacity="0.16"/>
+</svg>

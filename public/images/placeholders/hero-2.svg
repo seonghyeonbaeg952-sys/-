@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Choir rehearsal placeholder</title>
+  <desc id="desc">Soft blue and navy placeholder for a youth choir rehearsal image.</desc>
+  <rect width="1600" height="1000" fill="#10233F"/>
+  <rect x="0" y="0" width="1600" height="1000" fill="#DDE8F6" opacity="0.18"/>
+  <circle cx="330" cy="310" r="220" fill="#E7D5A3" opacity="0.24"/>
+  <circle cx="720" cy="500" r="260" fill="#FAF7F0" opacity="0.1"/>
+  <path d="M0 820C260 690 520 650 800 760s520 88 800-80v320H0Z" fill="#071526" opacity="0.4"/>
+</svg>

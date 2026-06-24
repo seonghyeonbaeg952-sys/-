@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Seoul Motet Youth Choir stage image placeholder</title>
+  <desc id="desc">A midnight navy abstract stage placeholder for future choir stage photography.</desc>
+  <rect width="1600" height="1000" fill="#071526"/>
+  <path d="M0 0h1600v1000H0z" fill="#10233F" opacity="0.72"/>
+  <path d="M-80 242C260 116 472 140 790 278s562 122 890-10v732H-80Z" fill="#C9A45C" opacity="0.22"/>
+  <circle cx="1192" cy="620" r="430" fill="#E7D5A3" opacity="0.18"/>
+  <path d="M500 704h690" stroke="#FFFDF8" stroke-width="9" stroke-linecap="round" opacity="0.24"/>
+</svg>
