@@ -33,7 +33,7 @@ export function AccessDenied({
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-bg-ivory px-5 py-12 text-text-charcoal">
+    <main className="admin-shell flex min-h-screen items-center justify-center bg-bg-ivory px-5 py-12 text-text-charcoal">
       <Card className="w-full max-w-xl p-8 text-center">
         <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-state-error/10 text-lg font-bold text-state-error">
           !

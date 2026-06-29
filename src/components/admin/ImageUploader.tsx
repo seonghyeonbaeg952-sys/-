@@ -7,8 +7,8 @@ import {
   type StorageFolder,
 } from '../../lib/storage'
 import { classNames } from '../../utils/classNames'
-import { hasImageSource } from '../../utils/imageFallback'
 import { Button } from '../common/Button'
+import { OptimizedImage } from '../common/OptimizedImage'
 
 type ImageUploaderProps = {
   accept?: string
@@ -29,29 +29,83 @@ type ImagePreviewProps = {
   src: string | null
 }
 
-function ImageUploaderPreview({ alt, src }: ImagePreviewProps) {
-  const [failedSrc, setFailedSrc] = useState<string | null>(null)
-  const shouldShowImage = hasImageSource(src) && failedSrc !== src
+type ImageUploadGuide = {
+  maxSizeHint: string
+  ratio: string
+  resolution: string
+}
 
+const defaultUploadGuide: ImageUploadGuide = {
+  maxSizeHint: '1MB 이하 권장',
+  ratio: '용도에 맞는 비율',
+  resolution: '긴 변 1600~2000px 권장',
+}
+
+function getImageUploadGuide(folder: string): ImageUploadGuide {
+  const normalizedFolder = folder.trim().toLowerCase()
+
+  if (normalizedFolder.includes('hero')) {
+    return {
+      maxSizeHint: '1MB 안팎 권장',
+      ratio: '16:9 또는 21:9',
+      resolution: '가로 5000px 이하 권장',
+    }
+  }
+
+  if (normalizedFolder.includes('concert') || normalizedFolder.includes('poster')) {
+    return {
+      maxSizeHint: '1MB 이하 권장',
+      ratio: '3:4 또는 포스터 비율',
+      resolution: '1200x1600 이상 권장',
+    }
+  }
+
+  if (
+    normalizedFolder.includes('conductor') ||
+    normalizedFolder.includes('accompanist') ||
+    normalizedFolder.includes('member')
+  ) {
+    return {
+      maxSizeHint: '700KB 이하 권장',
+      ratio: '4:5',
+      resolution: '1000x1250 권장',
+    }
+  }
+
+  if (normalizedFolder.includes('gallery')) {
+    return {
+      maxSizeHint: '1MB 이하 권장',
+      ratio: '자유 비율',
+      resolution: '긴 변 1600~2000px 권장',
+    }
+  }
+
+  return defaultUploadGuide
+}
+
+function ImageUploaderPreview({ alt, src }: ImagePreviewProps) {
   return (
-    <div className="relative aspect-[16/10] overflow-hidden rounded-card border border-line-default bg-linear-to-br from-blue-soft via-bg-ivory to-gold-soft shadow-sm">
-      {shouldShowImage ? (
-        <img
-          alt={alt}
-          className="size-full object-cover"
-          decoding="async"
-          loading="lazy"
-          onError={() => setFailedSrc(src)}
-          src={src}
-        />
-      ) : (
+    <OptimizedImage
+      alt={alt}
+      className="aspect-[16/10] rounded-balanced border border-line-default shadow-sm"
+      fallbackVariant="gallery"
+      sizes="(min-width: 1024px) 360px, calc(100vw - 40px)"
+      src={src}
+      transform={{
+        quality: 74,
+        resize: 'cover',
+        width: 640,
+        widths: [360, 520, 720],
+      }}
+    >
+      {!src ? (
         <div className="flex size-full flex-col items-center justify-center px-4 text-center text-sm font-semibold text-text-muted">
           <span className="mb-3 h-px w-14 bg-gold-warm/70" aria-hidden="true" />
           <span>이미지 미리보기</span>
           <span className="mt-1 text-xs font-normal">업로드 후 표시됩니다.</span>
         </div>
-      )}
-    </div>
+      ) : null}
+    </OptimizedImage>
   )
 }
 
@@ -97,6 +151,11 @@ export function ImageUploader({
       : 'image/jpeg,image/png,image/webp')
   const previewSource = previewUrl ?? value
   const isUploadDisabled = disabled || isUploading || !selectedFile
+  const uploadGuide = getImageUploadGuide(folder)
+  const selectedFileSizeMb = selectedFile
+    ? selectedFile.size / (1024 * 1024)
+    : 0
+  const shouldWarnLargeFile = selectedFileSizeMb > 1 && !allowSvg
 
   const clearPreviewObjectUrl = () => {
     if (previewObjectUrlRef.current) {
@@ -217,7 +276,7 @@ export function ImageUploader({
           aria-describedby={classNames(descriptionId, error ? errorId : undefined) || undefined}
           aria-label={`${label} 파일 선택`}
           className={classNames(
-            'flex min-h-44 flex-col items-center justify-center rounded-card border border-dashed px-5 py-6 text-center transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm',
+            'flex min-h-44 flex-col items-center justify-center rounded-formal border border-dashed px-5 py-6 text-center transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm',
             isDragging
               ? 'border-gold-warm bg-gold-soft/20'
               : 'border-line-default bg-bg-warm-white hover:border-gold-warm',
@@ -241,9 +300,19 @@ export function ImageUploader({
           <span className="mt-1 text-xs leading-5 text-text-muted">
             업로드 후 저장 버튼을 눌러야 public 화면에 반영됩니다.
           </span>
+          <span className="mt-3 rounded-button bg-bg-ivory px-3 py-2 text-xs leading-5 text-text-muted">
+            권장: {uploadGuide.ratio} · {uploadGuide.resolution} ·{' '}
+            {uploadGuide.maxSizeHint} · webp 권장
+          </span>
           {selectedFile ? (
             <span className="mt-3 max-w-full truncate rounded-pill bg-bg-ivory px-3 py-1 text-xs font-semibold text-navy-deep">
               {selectedFile.name}
+            </span>
+          ) : null}
+          {shouldWarnLargeFile ? (
+            <span className="mt-2 rounded-button bg-gold-soft/35 px-3 py-2 text-xs leading-5 text-navy-deep">
+              현재 파일은 {selectedFileSizeMb.toFixed(1)}MB입니다. 업로드 전 압축하면
+              public 화면 로딩이 더 안정적입니다.
             </span>
           ) : null}
         </button>

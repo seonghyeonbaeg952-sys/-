@@ -4,6 +4,7 @@ import type {
   HeroSlide,
   Notice,
   SiteSettings,
+  SupportSettings,
 } from '../types/content'
 
 export const heroSlides = [
@@ -151,6 +152,7 @@ export const mockGallery = Array.from({ length: 6 }, (_, index) => ({
   id: `gallery-${index + 1}`,
   title: `갤러리 이미지 ${index + 1}`,
   category: 'archive',
+  description: '',
   image_url: '/images/placeholders/gallery-placeholder.svg',
   image_alt: `서울모테트청소년합창단 갤러리 placeholder ${index + 1}`,
   is_visible: true,
@@ -164,8 +166,39 @@ export const mockSiteSettings = {
   site_title: '서울모테트청소년합창단',
   hero_title: '서울모테트청소년합창단',
   hero_subtitle: '맑은 목소리로 전하는 깊은 울림',
+  home_hero_eyebrow: 'SEOUL MOTET YOUTH CHOIR',
+  home_hero_description:
+    '청소년의 순수한 목소리와 클래식 합창의 깊이를 현대적인 무대 경험으로 전합니다.',
+  home_info_card_1_title: '2014 창단',
+  home_info_card_1_description:
+    '청소년아카데미 부설 합창단으로 시작한 음악 여정',
+  home_info_card_2_title: '정기연주회·초청연주',
+  home_info_card_2_description: '정기연주회 · 봉사연주 · 국내 초청연주',
+  home_info_card_3_title: '입단 및 공연 문의',
+  home_info_card_3_description: '입단 안내와 공연 섭외 문의를 한 곳에서 연결',
+  home_about_title: '청소년의 목소리로 전하는 깊은 울림',
+  home_about_button_label: '합창단 소개 보기',
+  home_concerts_title: '다가오는 공연',
+  home_concerts_description: '서울모테트청소년합창단의 무대를 만나보세요.',
+  home_concerts_button_label: '전체 공연 보기',
+  home_notices_title: '공지와 소식',
+  home_notices_description:
+    '입단, 공연, 갤러리 업데이트 등 중요한 소식을 먼저 안내합니다.',
+  home_notices_button_label: '공지사항 보기',
+  home_gallery_title: '무대의 순간',
+  home_gallery_description:
+    '연습과 공연, 초청 무대의 순간을 사진과 영상으로 아카이브합니다.',
+  home_gallery_button_label: '갤러리 보기',
+  home_join_title: '서울모테트청소년합창단과 함께 노래할 단원을 기다립니다',
+  home_join_button_label: '입단 안내 보기',
+  home_support_title: '공연 의뢰와 후원 문의를 통해 음악 여정에 함께해 주세요',
+  home_support_button_label: '문의하기',
   about_summary:
     '서울모테트음악재단 청소년아카데미 부설 합창단으로, 청소년들이 음악 안에서 지성과 인성을 함께 기르도록 돕습니다.',
+  support_text:
+    '서울모테트청소년합창단의 공연, 초청연주, 후원 문의는 공식 문의 페이지에서 이어집니다.',
+  join_cta_text:
+    '음악을 사랑하는 청소년들이 함께 배우고 성장할 수 있도록 입단 안내와 문의 흐름을 준비했습니다.',
   email: '',
   phone: '02-579-7295',
   fax: '02-579-7293',
@@ -174,3 +207,38 @@ export const mockSiteSettings = {
   youtube_url: '',
   updated_at: '2026-06-24T00:00:00.000Z',
 } satisfies SiteSettings
+
+export const mockSupportSettings = {
+  id: 'support-settings-default',
+  title: '한 사람의 목소리가 자라기 위해서는\n보이지 않는 많은 손길이 필요합니다.',
+  subtitle: '후원은 다음 세대가 음악 안에서 성장하도록 돕는 약정 접수입니다.',
+  description:
+    '후원은 단순한 재정 지원이 아닙니다. 다음 세대가 음악 안에서 자신을 발견하고, 함께 살아가는 법을 배우며, 신앙과 인성을 겸비한 사람으로 성장하도록 돕는 동행입니다.',
+  message:
+    '현재 후원 기능은 온라인 결제가 아니라 후원약정 접수입니다. 제출된 약정서는 관리자 확인 후 안내 절차에 따라 관리됩니다.',
+  individual_amounts: [10000, 20000, 30000, 50000],
+  corporate_amounts: [100000, 200000, 300000, 500000, 1000000],
+  allow_custom_amount: true,
+  bank_name: '',
+  bank_account_number: '',
+  bank_account_holder: '',
+  bank_note: '후원 계좌 정보는 관리자 CMS에서 등록한 뒤 표시됩니다.',
+  enable_online_submission: true,
+  form_note:
+    '입력한 후원약정 정보는 관리자에게만 전달되며 공개 화면에는 표시되지 않습니다.',
+  privacy_notice:
+    '작성하신 개인정보는 후원 안내 및 약정 확인 목적으로만 사용되며, 관리자만 조회할 수 있습니다.',
+  print_note:
+    '작성 후 인쇄하거나 PDF로 저장할 수 있습니다. 온라인 제출 시 동일한 내용이 관리자 CMS에 저장됩니다.',
+  print_button_label: '약정서 인쇄하기',
+  submit_button_label: '후원약정 제출',
+  success_message: '후원약정이 접수되었습니다. 확인 후 연락드리겠습니다.',
+  contact_phone: '',
+  contact_email: '',
+  homepage_url: '',
+  organization_name: '서울모테트청소년합창단',
+  footer_note:
+    '입력 내용은 관리자 CMS에 안전하게 저장되며 공개 화면에는 표시되지 않습니다.',
+  is_visible: true,
+  updated_at: '2026-06-24T00:00:00.000Z',
+} satisfies SupportSettings

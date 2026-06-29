@@ -4,6 +4,11 @@ export function extractYouTubeId(value: string | null | undefined) {
   }
 
   const trimmedValue = value.trim()
+  const rawIdPattern = /^[a-zA-Z0-9_-]{11}$/
+
+  if (rawIdPattern.test(trimmedValue)) {
+    return trimmedValue
+  }
 
   try {
     const url = new URL(trimmedValue)
@@ -27,4 +32,14 @@ export function extractYouTubeId(value: string | null | undefined) {
   }
 
   return ''
+}
+
+export function getYouTubeEmbedUrl(value: string | null | undefined) {
+  const videoId = extractYouTubeId(value)
+
+  if (!videoId) {
+    return ''
+  }
+
+  return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}`
 }

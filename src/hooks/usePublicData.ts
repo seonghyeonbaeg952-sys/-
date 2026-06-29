@@ -12,7 +12,9 @@ import {
   getPublicNoticeById,
   getPublicNotices,
   getPublicPosters,
+  getPublicPopupNotices,
   getPublicSiteSettings,
+  getPublicSponsors,
   getPublicVideos,
   publicFallbacks,
   type PublicAboutData,
@@ -22,14 +24,18 @@ import {
   type PublicJoinData,
 } from '../lib/publicData'
 import { legacyAboutSections } from '../constants/legacyContent'
+import { mockSupportSettings } from '../constants/mockData'
 import type {
   Concert,
   GalleryImage,
   HeroSlide,
   Notice,
+  PopupNotice,
   SiteSettings,
+  Sponsor,
 } from '../types/content'
 import type { AboutSectionRow } from '../types/cms'
+import { hasSupabaseConfig } from '../lib/supabase'
 
 type PublicDataState<TData> = {
   data: TData
@@ -91,7 +97,14 @@ export type HomeData = {
   gallery: GalleryImage[]
   heroSlides: HeroSlide[]
   notices: Notice[]
+  popupNotices: PopupNotice[]
   siteSettings: SiteSettings
+  sponsors: Sponsor[]
+}
+
+export type SpiritPageData = {
+  aboutSections: AboutSectionRow[]
+  heroSlides: HeroSlide[]
 }
 
 const homeFallbackData: HomeData = {
@@ -100,13 +113,26 @@ const homeFallbackData: HomeData = {
   gallery: publicFallbacks.gallery,
   heroSlides: publicFallbacks.heroSlides,
   notices: publicFallbacks.notices,
+  popupNotices: [],
   siteSettings: publicFallbacks.siteSettings,
+  sponsors: [],
+}
+
+const spiritFallbackData: SpiritPageData = {
+  aboutSections: legacyAboutSections,
+  heroSlides: publicFallbacks.heroSlides,
+}
+
+const liveHomeInitialData: HomeData = {
+  ...homeFallbackData,
+  heroSlides: [],
 }
 
 const aboutFallbackData: PublicAboutData = {
   aboutSections: legacyAboutSections,
-  accompanist: null,
+  accompanists: [],
   conductor: null,
+  galleryImages: [],
   history: [],
   location: null,
   members: [],
@@ -127,6 +153,8 @@ const joinFallbackData: PublicJoinData = {
 const contactFallbackData: PublicContactData = {
   location: null,
   siteSettings: publicFallbacks.siteSettings,
+  sponsors: [],
+  supportSettings: mockSupportSettings,
 }
 
 function combineErrors(results: Array<{ error: string | null }>) {
@@ -135,13 +163,24 @@ function combineErrors(results: Array<{ error: string | null }>) {
 
 export function useHomeData() {
   const loader = useCallback(async (): Promise<PublicDataResult<HomeData>> => {
-    const [siteSettings, slides, concerts, notices, gallery, aboutSections] = await Promise.all([
+    const [
+      siteSettings,
+      slides,
+      popupNotices,
+      concerts,
+      notices,
+      gallery,
+      aboutSections,
+      sponsors,
+    ] = await Promise.all([
       getPublicSiteSettings(),
-      getPublicHeroSlides(),
-      getPublicConcerts(),
-      getPublicNotices(),
-      getPublicGalleryImages(),
+      getPublicHeroSlides({ limit: 5 }),
+      getPublicPopupNotices({ limit: 3 }),
+      getPublicConcerts({ limit: 6 }),
+      getPublicNotices({ limit: 3 }),
+      getPublicGalleryImages({ limit: 6 }),
       getPublicAboutSections(),
+      getPublicSponsors({ homeOnly: true, limit: 8 }),
     ])
     const error = combineErrors([
       siteSettings,
@@ -149,6 +188,7 @@ export function useHomeData() {
       concerts,
       notices,
       gallery,
+      sponsors,
     ])
 
     if (error) {
@@ -160,18 +200,41 @@ export function useHomeData() {
         concerts: concerts.data ?? publicFallbacks.concerts,
         aboutSections: aboutSections.data ?? legacyAboutSections,
         gallery: gallery.data ?? publicFallbacks.gallery,
-        heroSlides:
-          slides.data && slides.data.length > 0
-            ? slides.data
-            : publicFallbacks.heroSlides,
+        heroSlides: slides.data ?? publicFallbacks.heroSlides,
         notices: notices.data ?? publicFallbacks.notices,
+        popupNotices: popupNotices.data ?? [],
         siteSettings: siteSettings.data ?? publicFallbacks.siteSettings,
+        sponsors: sponsors.data ?? [],
       },
       error: null,
     }
   }, [])
 
-  return usePublicLoader(homeFallbackData, loader)
+  return usePublicLoader(hasSupabaseConfig ? liveHomeInitialData : homeFallbackData, loader)
+}
+
+export function useSpiritPageData() {
+  const loader = useCallback(async (): Promise<PublicDataResult<SpiritPageData>> => {
+    const [aboutSections, slides] = await Promise.all([
+      getPublicAboutSections(),
+      getPublicHeroSlides({ limit: 1 }),
+    ])
+    const error = combineErrors([aboutSections, slides])
+
+    if (error) {
+      return { data: null, error }
+    }
+
+    return {
+      data: {
+        aboutSections: aboutSections.data ?? legacyAboutSections,
+        heroSlides: slides.data ?? publicFallbacks.heroSlides,
+      },
+      error: null,
+    }
+  }, [])
+
+  return usePublicLoader(spiritFallbackData, loader)
 }
 
 export function useAboutData() {

@@ -12,8 +12,10 @@ export interface CmsRecord {
 
 export type CmsTableName =
   | 'site_settings'
+  | 'support_settings'
   | 'about_sections'
   | 'hero_slides'
+  | 'popup_notices'
   | 'locations'
   | 'conductor'
   | 'accompanist'
@@ -27,11 +29,36 @@ export type CmsTableName =
   | 'join_info'
   | 'faq'
   | 'contacts'
+  | 'support_pledges'
+  | 'sponsors'
 
 export interface SiteSettingsRow extends CmsRecord {
   site_title: string | null
   hero_title: string | null
   hero_subtitle: string | null
+  home_hero_eyebrow?: string | null
+  home_hero_description?: string | null
+  home_info_card_1_title?: string | null
+  home_info_card_1_description?: string | null
+  home_info_card_2_title?: string | null
+  home_info_card_2_description?: string | null
+  home_info_card_3_title?: string | null
+  home_info_card_3_description?: string | null
+  home_about_title?: string | null
+  home_about_button_label?: string | null
+  home_concerts_title?: string | null
+  home_concerts_description?: string | null
+  home_concerts_button_label?: string | null
+  home_notices_title?: string | null
+  home_notices_description?: string | null
+  home_notices_button_label?: string | null
+  home_gallery_title?: string | null
+  home_gallery_description?: string | null
+  home_gallery_button_label?: string | null
+  home_join_title?: string | null
+  home_join_button_label?: string | null
+  home_support_title?: string | null
+  home_support_button_label?: string | null
   about_summary: string | null
   support_text: string | null
   join_cta_text: string | null
@@ -41,6 +68,33 @@ export interface SiteSettingsRow extends CmsRecord {
   address: string | null
   instagram_url: string | null
   youtube_url: string | null
+  is_visible: boolean
+}
+
+export interface SupportSettingsRow extends CmsRecord {
+  title: string | null
+  subtitle: string | null
+  description: string | null
+  message: string | null
+  individual_amounts: string | null
+  corporate_amounts: string | null
+  allow_custom_amount: boolean
+  bank_name: string | null
+  bank_account_number: string | null
+  bank_account_holder: string | null
+  bank_note: string | null
+  enable_online_submission: boolean
+  form_note: string | null
+  privacy_notice: string | null
+  print_note: string | null
+  print_button_label: string | null
+  submit_button_label: string | null
+  success_message: string | null
+  contact_phone: string | null
+  contact_email: string | null
+  homepage_url: string | null
+  organization_name: string | null
+  footer_note: string | null
   is_visible: boolean
 }
 
@@ -66,12 +120,28 @@ export interface HeroSlideRow extends CmsRecord {
   is_visible: boolean
 }
 
+export interface PopupNoticeRow extends CmsRecord {
+  title: string
+  content: string | null
+  image_url: string | null
+  image_alt: string | null
+  button_label: string | null
+  button_href: string | null
+  starts_on: string | null
+  ends_on: string | null
+  display_order: number
+  is_visible: boolean
+}
+
 export interface LocationRow extends CmsRecord {
   place_name: string | null
   address: string | null
   email?: string | null
   fax?: string | null
   map_embed_url?: string | null
+  image_url?: string | null
+  image_alt?: string | null
+  image_caption?: string | null
   naver_map_url: string | null
   kakao_map_url: string | null
   transit_info: string | null
@@ -84,16 +154,34 @@ export interface PersonProfileRow extends CmsRecord {
   name: string | null
   role: string | null
   photo_url: string | null
+  profile_image_alt?: string | null
   description: string | null
+  profile_summary?: string | null
+  profile_highlight?: string | null
+  hero_quote?: string | null
   bio: string | null
+  current_roles?: string | null
+  education_items?: string | null
+  career_items?: string | null
+  awards_items?: string | null
+  activities_items?: string | null
+  philosophy_title?: string | null
+  philosophy_body?: string | null
+  philosophy_quote?: string | null
+  teaching_principles?: string | null
   message: string | null
+  message_title?: string | null
+  message_body?: string | null
+  activity_images?: string | null
+  is_featured?: boolean | null
   is_visible: boolean
 }
 
 export interface MemberRow extends CmsRecord {
   name: string | null
   part: 'soprano' | 'alto' | 'tenor' | 'bass' | 'other'
-  group_type: 'elementary' | 'middle' | 'high' | 'alumni' | 'other'
+  group_type: 'elementary' | 'middle' | 'high' | 'university' | 'staff' | 'alumni'
+  member_status?: 'active' | 'alumni'
   photo_url: string | null
   description: string | null
   is_visible: boolean
@@ -199,10 +287,65 @@ export interface ContactRow extends CmsRecord {
   created_at: string
 }
 
+export interface SupportPledgeRow extends CmsRecord {
+  name: string
+  gender: 'female' | 'male' | 'none' | null
+  birth_date: string | null
+  phone: string
+  email: string
+  address: string | null
+  member_type: 'corporate' | 'individual'
+  amount: number
+  custom_amount: number | null
+  depositor: string | null
+  pledge_date: string | null
+  signature_image_url: string | null
+  signer_name: string | null
+  privacy_agreed: boolean
+  status: 'new' | 'in_progress' | 'done'
+  created_at: string
+}
+
+export interface SponsorRow extends CmsRecord {
+  name: string
+  display_name: string | null
+  category:
+    | 'corporate'
+    | 'church'
+    | 'institution'
+    | 'foundation'
+    | 'individual'
+    | 'media'
+    | 'other'
+  tier:
+    | 'main'
+    | 'education'
+    | 'performance'
+    | 'partner'
+    | 'in_kind'
+    | 'supporter'
+  description: string | null
+  logo_url: string | null
+  website_url: string | null
+  start_date: string | null
+  end_date: string | null
+  is_visible: boolean
+  consent_public: boolean
+  show_on_home: boolean
+  show_on_support: boolean
+  show_on_footer: boolean
+  display_order: number
+  internal_notes: string | null
+  created_at: string
+  updated_at?: string
+}
+
 export interface CmsRowsByTable {
   site_settings: SiteSettingsRow
+  support_settings: SupportSettingsRow
   about_sections: AboutSectionRow
   hero_slides: HeroSlideRow
+  popup_notices: PopupNoticeRow
   locations: LocationRow
   conductor: PersonProfileRow
   accompanist: PersonProfileRow
@@ -216,6 +359,8 @@ export interface CmsRowsByTable {
   join_info: JoinInfoRow
   faq: FaqRow
   contacts: ContactRow
+  support_pledges: SupportPledgeRow
+  sponsors: SponsorRow
 }
 
 export type CmsRowFor<TTable extends CmsTableName> = CmsRowsByTable[TTable]

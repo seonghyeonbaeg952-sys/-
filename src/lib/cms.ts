@@ -10,8 +10,10 @@ import type {
 
 export const CMS_TABLES = [
   'site_settings',
+  'support_settings',
   'about_sections',
   'hero_slides',
+  'popup_notices',
   'locations',
   'conductor',
   'accompanist',
@@ -25,7 +27,12 @@ export const CMS_TABLES = [
   'join_info',
   'faq',
   'contacts',
+  'support_pledges',
+  'sponsors',
 ] as const satisfies readonly CmsTableName[]
+
+const SUPPORT_SCHEMA_MIGRATION = '2026_fix_spirit_support_schema.sql'
+const SPONSORS_SCHEMA_MIGRATION = '2026_add_sponsors.sql'
 
 export type CmsOrderOption<TTable extends CmsTableName> = {
   column: Extract<keyof CmsRowFor<TTable>, string>
@@ -79,6 +86,56 @@ function getErrorStatus(error: unknown) {
   }
 
   return typeof code === 'string' ? code : ''
+}
+
+function isMissingColumnError(error: unknown, column: string) {
+  const message = getErrorMessage(error).toLowerCase()
+
+  return message.includes(column.toLowerCase()) && message.includes('schema cache')
+}
+
+function isMissingTableError(error: unknown, table: string) {
+  const message = getErrorMessage(error).toLowerCase()
+
+  return (
+    message.includes(table.toLowerCase()) &&
+    (message.includes('schema cache') ||
+      message.includes('does not exist') ||
+      message.includes('could not find the table'))
+  )
+}
+
+function getLegacyMemberPayload(payload: CmsMutationPayload) {
+  const nextPayload: CmsMutationPayload = { ...payload }
+
+  if (nextPayload.member_status === 'alumni') {
+    nextPayload.group_type = 'alumni'
+  }
+
+  delete nextPayload.member_status
+
+  return nextPayload
+}
+
+function getLegacyMemberFilters<TTable extends CmsTableName>(
+  filters: Array<CmsFilterOption<TTable>>,
+) {
+  return filters
+    .map((filter) => {
+      if (filter.column !== 'member_status') {
+        return filter
+      }
+
+      if (filter.value === 'alumni') {
+        return {
+          column: 'group_type' as Extract<keyof CmsRowFor<TTable>, string>,
+          value: 'alumni',
+        }
+      }
+
+      return null
+    })
+    .filter((filter): filter is CmsFilterOption<TTable> => Boolean(filter))
 }
 
 function toCmsError(error: unknown, fallback: string) {
@@ -151,6 +208,50 @@ export async function listRows<TTable extends CmsTableName>({
 
   const { data, error } = await query
 
+  if (error && table === 'support_settings' && isMissingTableError(error, table)) {
+    return { data: [], error: null }
+  }
+
+  if (error && table === 'support_pledges' && isMissingTableError(error, table)) {
+    return {
+      data: null,
+      error:
+        `후원 신청 테이블이 아직 없습니다. Supabase SQL Editor에서 ${SUPPORT_SCHEMA_MIGRATION} migration을 먼저 실행해 주세요.`,
+    }
+  }
+
+  if (error && table === 'sponsors' && isMissingTableError(error, table)) {
+    return {
+      data: null,
+      error:
+        `후원사 테이블이 아직 없습니다. Supabase SQL Editor에서 ${SPONSORS_SCHEMA_MIGRATION} migration을 먼저 실행해 주세요.`,
+    }
+  }
+
+  if (error && table === 'members' && isMissingColumnError(error, 'member_status')) {
+    let legacyQuery = clientResult.data.from(table).select(select)
+
+    for (const filter of getLegacyMemberFilters(filters)) {
+      if (filter.value !== undefined && filter.value !== '') {
+        legacyQuery = legacyQuery.eq(filter.column, filter.value)
+      }
+    }
+
+    if (search?.value.trim()) {
+      legacyQuery = legacyQuery.ilike(search.column, `%${search.value.trim()}%`)
+    }
+
+    if (order) {
+      legacyQuery = legacyQuery.order(order.column, { ascending: order.ascending ?? true })
+    }
+
+    const legacyResult = await legacyQuery
+
+    if (!legacyResult.error) {
+      return { data: normalizeRows<TTable>(legacyResult.data), error: null }
+    }
+  }
+
   if (error) {
     return {
       data: null,
@@ -198,13 +299,40 @@ export async function createRow<TTable extends CmsTableName>(
     return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
   }
 
-  const { data, error } = await clientResult.data
+  let { data, error } = await clientResult.data
     .from(table)
     .insert(payload)
     .select()
     .single()
 
+  if (error && table === 'members' && isMissingColumnError(error, 'member_status')) {
+    const legacyResult = await clientResult.data
+      .from(table)
+      .insert(getLegacyMemberPayload(payload))
+      .select()
+      .single()
+
+    data = legacyResult.data
+    error = legacyResult.error
+  }
+
   if (error) {
+    if (table === 'support_settings' && isMissingTableError(error, table)) {
+      return {
+        data: null,
+        error:
+          `후원약정 설정 테이블이 아직 없습니다. Supabase SQL Editor에서 ${SUPPORT_SCHEMA_MIGRATION} migration을 먼저 실행해 주세요.`,
+      }
+    }
+
+    if (table === 'sponsors' && isMissingTableError(error, table)) {
+      return {
+        data: null,
+        error:
+          `후원사 테이블이 아직 없습니다. Supabase SQL Editor에서 ${SPONSORS_SCHEMA_MIGRATION} migration을 먼저 실행해 주세요.`,
+      }
+    }
+
     return {
       data: null,
       error: toCmsError(error, '저장에 실패했습니다.'),
@@ -231,14 +359,42 @@ export async function updateRow<TTable extends CmsTableName>(
     return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
   }
 
-  const { data, error } = await clientResult.data
+  let { data, error } = await clientResult.data
     .from(table)
     .update(payload)
     .eq('id', id)
     .select()
     .single()
 
+  if (error && table === 'members' && isMissingColumnError(error, 'member_status')) {
+    const legacyResult = await clientResult.data
+      .from(table)
+      .update(getLegacyMemberPayload(payload))
+      .eq('id', id)
+      .select()
+      .single()
+
+    data = legacyResult.data
+    error = legacyResult.error
+  }
+
   if (error) {
+    if (table === 'support_settings' && isMissingTableError(error, table)) {
+      return {
+        data: null,
+        error:
+          `후원약정 설정 테이블이 아직 없습니다. Supabase SQL Editor에서 ${SUPPORT_SCHEMA_MIGRATION} migration을 먼저 실행해 주세요.`,
+      }
+    }
+
+    if (table === 'sponsors' && isMissingTableError(error, table)) {
+      return {
+        data: null,
+        error:
+          `후원사 테이블이 아직 없습니다. Supabase SQL Editor에서 ${SPONSORS_SCHEMA_MIGRATION} migration을 먼저 실행해 주세요.`,
+      }
+    }
+
     return {
       data: null,
       error: toCmsError(error, '수정에 실패했습니다.'),

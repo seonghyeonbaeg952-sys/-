@@ -5,7 +5,9 @@ import {
   mockGallery,
   mockNotices,
   mockSiteSettings,
+  mockSupportSettings,
 } from '../constants/mockData'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import type {
   Concert,
   ConcertStatus,
@@ -16,7 +18,10 @@ import type {
   Notice,
   NoticeCategory,
   Poster,
+  PopupNotice,
   SiteSettings,
+  Sponsor,
+  SupportSettings,
   VideoItem,
 } from '../types/content'
 import type {
@@ -32,7 +37,10 @@ import type {
   NoticeRow,
   PersonProfileRow,
   PosterRow,
+  PopupNoticeRow,
   SiteSettingsRow,
+  SponsorRow,
+  SupportSettingsRow,
   VideoRow,
 } from '../types/cms'
 
@@ -42,8 +50,9 @@ export type PublicDataResult<TData> =
 
 export type PublicAboutData = {
   aboutSections: AboutSectionRow[]
-  accompanist: PersonProfileRow | null
+  accompanists: PersonProfileRow[]
   conductor: PersonProfileRow | null
+  galleryImages: GalleryImage[]
   history: HistoryRow[]
   location: LocationRow | null
   members: MemberRow[]
@@ -64,6 +73,8 @@ export type PublicJoinData = {
 export type PublicContactData = {
   location: LocationRow | null
   siteSettings: SiteSettings
+  sponsors: Sponsor[]
+  supportSettings: SupportSettings
 }
 
 export type ContactMessageInput = {
@@ -76,6 +87,191 @@ export type ContactMessageInput = {
   type: 'concert_request' | 'general' | 'join' | 'support'
   website?: string | null
 }
+
+export type SupportPledgeInput = {
+  address: string | null
+  amount: number
+  birth_date: string | null
+  custom_amount: number | null
+  depositor: string | null
+  email: string
+  gender: 'female' | 'male' | 'none' | null
+  member_type: 'corporate' | 'individual'
+  name: string
+  phone: string
+  pledge_date: string | null
+  privacy_agreed: boolean
+  signature_image_url: string | null
+  signer_name: string | null
+  website?: string | null
+}
+
+type PublicListOptions = {
+  limit?: number
+}
+
+const SITE_SETTINGS_SELECT = '*'
+const SUPPORT_SETTINGS_SELECT = '*'
+
+const SPONSOR_SELECT = [
+  'id',
+  'name',
+  'display_name',
+  'category',
+  'tier',
+  'description',
+  'logo_url',
+  'website_url',
+  'show_on_home',
+  'show_on_support',
+  'show_on_footer',
+  'display_order',
+  'is_visible',
+  'created_at',
+].join(',')
+
+const POPUP_NOTICE_SELECT = [
+  'id',
+  'title',
+  'content',
+  'image_url',
+  'image_alt',
+  'button_label',
+  'button_href',
+  'starts_on',
+  'ends_on',
+  'display_order',
+  'is_visible',
+  'created_at',
+].join(',')
+
+const ABOUT_SECTION_SELECT = [
+  'id',
+  'section_key',
+  'title',
+  'content',
+  'display_order',
+  'is_visible',
+].join(',')
+
+const CONCERT_SELECT = [
+  'id',
+  'title',
+  'category',
+  'concert_date',
+  'concert_time',
+  'location',
+  'poster_url',
+  'description',
+  'program',
+  'performers',
+  'ticket_url',
+  'apply_url',
+  'status',
+  'is_visible',
+  'created_at',
+  'updated_at',
+].join(',')
+
+const NOTICE_SELECT = [
+  'id',
+  'title',
+  'category',
+  'content',
+  'cover_image_url',
+  'is_important',
+  'is_visible',
+  'created_at',
+  'updated_at',
+].join(',')
+
+const GALLERY_SELECT = [
+  'id',
+  'title',
+  'category',
+  'image_url',
+  'description',
+  'taken_at',
+  'related_concert_id',
+  'is_visible',
+  'display_order',
+  'created_at',
+  'updated_at',
+].join(',')
+
+const VIDEO_SELECT = [
+  'id',
+  'title',
+  'youtube_url',
+  'youtube_id',
+  'description',
+  'is_visible',
+  'display_order',
+  'created_at',
+  'updated_at',
+].join(',')
+
+const POSTER_SELECT = [
+  'id',
+  'title',
+  'image_url',
+  'concert_date',
+  'related_concert_id',
+  'is_visible',
+  'display_order',
+  'created_at',
+  'updated_at',
+].join(',')
+
+const PERSON_PROFILE_SELECT = '*'
+
+const LEGACY_MEMBER_SELECT = [
+  'id',
+  'name',
+  'part',
+  'group_type',
+  'photo_url',
+  'description',
+  'is_visible',
+  'name_display_type',
+  'display_order',
+].join(',')
+
+const HISTORY_SELECT = [
+  'id',
+  'year',
+  'month',
+  'title',
+  'content',
+  'image_url',
+  'is_visible',
+  'display_order',
+].join(',')
+
+const LOCATION_SELECT = '*'
+
+const JOIN_INFO_SELECT = [
+  'id',
+  'title',
+  'description',
+  'target',
+  'parts',
+  'audition_process',
+  'preparation',
+  'rehearsal_time',
+  'rehearsal_location',
+  'application_url',
+  'is_visible',
+].join(',')
+
+const FAQ_SELECT = [
+  'id',
+  'question',
+  'answer',
+  'category',
+  'display_order',
+  'is_visible',
+].join(',')
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
@@ -135,12 +331,31 @@ function toPublicError(error: unknown, fallback: string) {
   return message || fallback
 }
 
+async function getPublicVisibleLocation(client: SupabaseClient) {
+  return client
+    .from('locations')
+    .select(LOCATION_SELECT)
+    .eq('is_visible', true)
+    .limit(1)
+    .maybeSingle()
+}
+
 function normalizeRows<TRow>(data: unknown): TRow[] {
   return Array.isArray(data) ? (data as TRow[]) : []
 }
 
 function normalizeRow<TRow>(data: unknown): TRow | null {
   return isRecord(data) ? (data as TRow) : null
+}
+
+function normalizeLimit(limit: number | undefined) {
+  if (limit === undefined || !Number.isFinite(limit)) {
+    return null
+  }
+
+  const normalizedLimit = Math.trunc(limit)
+
+  return normalizedLimit > 0 ? normalizedLimit : null
 }
 
 function splitLines(value: string | null | undefined) {
@@ -150,8 +365,59 @@ function splitLines(value: string | null | undefined) {
     .filter(Boolean)
 }
 
+function splitAmountOptions(value: string | null | undefined, fallback: number[]) {
+  const amounts = (value ?? '')
+    .split(/[\n,]/)
+    .map((item) => Number(item.replace(/[^\d]/g, '')))
+    .filter((amount) => Number.isFinite(amount) && amount > 0)
+
+  return amounts.length > 0 ? amounts : fallback
+}
+
 function nullableString(value: string | null | undefined, fallback = '') {
   return value?.trim() || fallback
+}
+
+function isMissingSupportSettingsError(error: unknown) {
+  const message = getErrorMessage(error).toLowerCase()
+
+  return (
+    message.includes('support_settings') &&
+    (message.includes('schema cache') ||
+      message.includes('does not exist') ||
+      message.includes('could not find the table'))
+  )
+}
+
+function isMissingSupportPledgesError(error: unknown) {
+  const message = getErrorMessage(error).toLowerCase()
+
+  return (
+    message.includes('support_pledges') &&
+    (message.includes('schema cache') ||
+      message.includes('does not exist') ||
+      message.includes('could not find the table'))
+  )
+}
+
+function isMissingSponsorsError(error: unknown) {
+  const message = getErrorMessage(error).toLowerCase()
+
+  return (
+    message.includes('sponsors') &&
+    (message.includes('schema cache') ||
+      message.includes('does not exist') ||
+      message.includes('could not find the table'))
+  )
+}
+
+async function getPublicVisibleConductor(client: SupabaseClient) {
+  return client
+    .from('conductor')
+    .select(PERSON_PROFILE_SELECT)
+    .eq('is_visible', true)
+    .limit(1)
+    .maybeSingle()
 }
 
 function mapConcertStatus(status: ConcertRow['status']): ConcertStatus {
@@ -171,12 +437,14 @@ function mapConcertStatus(status: ConcertRow['status']): ConcertStatus {
 }
 
 function mapNoticeCategory(category: NoticeRow['category']): NoticeCategory {
-  if (category === 'press') {
-    return 'press'
-  }
-
-  if (category === 'news') {
-    return 'news'
+  if (
+    category === 'press' ||
+    category === 'news' ||
+    category === 'join' ||
+    category === 'concert' ||
+    category === 'rehearsal'
+  ) {
+    return category
   }
 
   return 'notice'
@@ -204,11 +472,170 @@ function mapSiteSettings(row: SiteSettingsRow): SiteSettings {
     fax: nullableString(row.fax, mockSiteSettings.fax),
     hero_subtitle: nullableString(row.hero_subtitle, mockSiteSettings.hero_subtitle),
     hero_title: nullableString(row.hero_title, mockSiteSettings.hero_title),
+    home_about_button_label: nullableString(
+      row.home_about_button_label,
+      mockSiteSettings.home_about_button_label,
+    ),
+    home_about_title: nullableString(
+      row.home_about_title,
+      mockSiteSettings.home_about_title,
+    ),
+    home_concerts_button_label: nullableString(
+      row.home_concerts_button_label,
+      mockSiteSettings.home_concerts_button_label,
+    ),
+    home_concerts_description: nullableString(
+      row.home_concerts_description,
+      mockSiteSettings.home_concerts_description,
+    ),
+    home_concerts_title: nullableString(
+      row.home_concerts_title,
+      mockSiteSettings.home_concerts_title,
+    ),
+    home_gallery_button_label: nullableString(
+      row.home_gallery_button_label,
+      mockSiteSettings.home_gallery_button_label,
+    ),
+    home_gallery_description: nullableString(
+      row.home_gallery_description,
+      mockSiteSettings.home_gallery_description,
+    ),
+    home_gallery_title: nullableString(
+      row.home_gallery_title,
+      mockSiteSettings.home_gallery_title,
+    ),
+    home_hero_description: nullableString(
+      row.home_hero_description,
+      mockSiteSettings.home_hero_description,
+    ),
+    home_hero_eyebrow: nullableString(
+      row.home_hero_eyebrow,
+      mockSiteSettings.home_hero_eyebrow,
+    ),
+    home_info_card_1_description: nullableString(
+      row.home_info_card_1_description,
+      mockSiteSettings.home_info_card_1_description,
+    ),
+    home_info_card_1_title: nullableString(
+      row.home_info_card_1_title,
+      mockSiteSettings.home_info_card_1_title,
+    ),
+    home_info_card_2_description: nullableString(
+      row.home_info_card_2_description,
+      mockSiteSettings.home_info_card_2_description,
+    ),
+    home_info_card_2_title: nullableString(
+      row.home_info_card_2_title,
+      mockSiteSettings.home_info_card_2_title,
+    ),
+    home_info_card_3_description: nullableString(
+      row.home_info_card_3_description,
+      mockSiteSettings.home_info_card_3_description,
+    ),
+    home_info_card_3_title: nullableString(
+      row.home_info_card_3_title,
+      mockSiteSettings.home_info_card_3_title,
+    ),
+    home_join_button_label: nullableString(
+      row.home_join_button_label,
+      mockSiteSettings.home_join_button_label,
+    ),
+    home_join_title: nullableString(
+      row.home_join_title,
+      mockSiteSettings.home_join_title,
+    ),
+    home_notices_button_label: nullableString(
+      row.home_notices_button_label,
+      mockSiteSettings.home_notices_button_label,
+    ),
+    home_notices_description: nullableString(
+      row.home_notices_description,
+      mockSiteSettings.home_notices_description,
+    ),
+    home_notices_title: nullableString(
+      row.home_notices_title,
+      mockSiteSettings.home_notices_title,
+    ),
+    home_support_button_label: nullableString(
+      row.home_support_button_label,
+      mockSiteSettings.home_support_button_label,
+    ),
+    home_support_title: nullableString(
+      row.home_support_title,
+      mockSiteSettings.home_support_title,
+    ),
+    join_cta_text: nullableString(row.join_cta_text, mockSiteSettings.join_cta_text),
     instagram_url: nullableString(row.instagram_url, mockSiteSettings.instagram_url),
     phone: nullableString(row.phone, mockSiteSettings.phone),
     site_title: nullableString(row.site_title, mockSiteSettings.site_title),
+    support_text: nullableString(row.support_text, mockSiteSettings.support_text),
     youtube_url: nullableString(row.youtube_url, mockSiteSettings.youtube_url),
     updated_at: row.updated_at ?? mockSiteSettings.updated_at,
+  }
+}
+
+function mapSupportSettings(row: SupportSettingsRow): SupportSettings {
+  return {
+    id: row.id,
+    title: nullableString(row.title, mockSupportSettings.title),
+    subtitle: nullableString(row.subtitle, mockSupportSettings.subtitle),
+    description: nullableString(row.description, mockSupportSettings.description),
+    message: nullableString(row.message, mockSupportSettings.message),
+    individual_amounts: splitAmountOptions(
+      row.individual_amounts,
+      mockSupportSettings.individual_amounts,
+    ),
+    corporate_amounts: splitAmountOptions(
+      row.corporate_amounts,
+      mockSupportSettings.corporate_amounts,
+    ),
+    allow_custom_amount: row.allow_custom_amount ?? mockSupportSettings.allow_custom_amount,
+    bank_name: nullableString(row.bank_name),
+    bank_account_number: nullableString(row.bank_account_number),
+    bank_account_holder: nullableString(row.bank_account_holder),
+    bank_note: nullableString(row.bank_note, mockSupportSettings.bank_note),
+    enable_online_submission:
+      row.enable_online_submission ?? mockSupportSettings.enable_online_submission,
+    form_note: nullableString(row.form_note, mockSupportSettings.form_note),
+    privacy_notice: nullableString(row.privacy_notice, mockSupportSettings.privacy_notice),
+    print_note: nullableString(row.print_note, mockSupportSettings.print_note),
+    print_button_label: nullableString(
+      row.print_button_label,
+      mockSupportSettings.print_button_label,
+    ),
+    submit_button_label: nullableString(
+      row.submit_button_label,
+      mockSupportSettings.submit_button_label,
+    ),
+    success_message: nullableString(row.success_message, mockSupportSettings.success_message),
+    contact_phone: nullableString(row.contact_phone),
+    contact_email: nullableString(row.contact_email),
+    homepage_url: nullableString(row.homepage_url),
+    organization_name: nullableString(
+      row.organization_name,
+      mockSupportSettings.organization_name,
+    ),
+    footer_note: nullableString(row.footer_note, mockSupportSettings.footer_note),
+    is_visible: row.is_visible,
+    updated_at: row.updated_at ?? mockSupportSettings.updated_at,
+  }
+}
+
+function mapSponsor(row: SponsorRow): Sponsor {
+  return {
+    id: row.id,
+    category: row.category,
+    description: nullableString(row.description),
+    display_name: nullableString(row.display_name, row.name),
+    display_order: row.display_order,
+    is_visible: row.is_visible,
+    logo_url: nullableString(row.logo_url),
+    name: row.name,
+    show_on_footer: row.show_on_footer,
+    show_on_home: row.show_on_home,
+    show_on_support: row.show_on_support,
+    tier: row.tier,
+    website_url: nullableString(row.website_url),
   }
 }
 
@@ -220,12 +647,28 @@ function mapHeroSlide(row: HeroSlideRow): HeroSlide {
     image_alt: nullableString(row.image_alt, nullableString(row.title, 'Hero 이미지')),
     image_url: nullableString(row.image_url),
     is_visible: row.is_visible,
-    primary_cta_href: nullableString(row.primary_cta_href, '/concerts'),
-    primary_cta_label: nullableString(row.primary_cta_label, '공연 일정 보기'),
-    secondary_cta_href: nullableString(row.secondary_cta_href, '/join'),
-    secondary_cta_label: nullableString(row.secondary_cta_label, '입단 안내 보기'),
+    primary_cta_href: nullableString(row.primary_cta_href),
+    primary_cta_label: nullableString(row.primary_cta_label),
+    secondary_cta_href: nullableString(row.secondary_cta_href),
+    secondary_cta_label: nullableString(row.secondary_cta_label),
     subtitle: nullableString(row.subtitle),
     title: nullableString(row.title, mockSiteSettings.hero_title),
+  }
+}
+
+function mapPopupNotice(row: PopupNoticeRow): PopupNotice {
+  return {
+    id: row.id,
+    title: row.title,
+    content: nullableString(row.content),
+    image_url: nullableString(row.image_url),
+    image_alt: nullableString(row.image_alt, nullableString(row.title, '홈 팝업 이미지')),
+    button_label: nullableString(row.button_label),
+    button_href: nullableString(row.button_href),
+    starts_on: row.starts_on ?? undefined,
+    ends_on: row.ends_on ?? undefined,
+    display_order: row.display_order,
+    is_visible: row.is_visible,
   }
 }
 
@@ -268,7 +711,9 @@ function mapGalleryImage(row: GalleryRow): GalleryImage {
   return {
     id: row.id,
     category: mapGalleryCategory(row.category),
+    concert_id: row.related_concert_id ?? undefined,
     created_at: row.created_at ?? '',
+    description: nullableString(row.description),
     display_order: row.display_order,
     image_alt: nullableString(row.title, '갤러리 이미지'),
     image_url: nullableString(row.image_url),
@@ -292,7 +737,7 @@ function mapVideo(row: VideoRow): VideoItem {
     thumbnail_url: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : '',
     title: row.title,
     updated_at: row.updated_at ?? '',
-    video_url: nullableString(row.youtube_url),
+    video_url: nullableString(row.youtube_url, youtubeId),
   }
 }
 
@@ -300,6 +745,7 @@ function mapPoster(row: PosterRow): Poster {
   return {
     id: row.id,
     concert_id: row.related_concert_id ?? undefined,
+    concert_date: row.concert_date ?? undefined,
     created_at: row.created_at ?? '',
     display_order: row.display_order,
     image_url: nullableString(row.image_url),
@@ -320,6 +766,14 @@ function mapFaq(row: FaqRow): FAQItem {
   }
 }
 
+async function getPublicMembers(client: SupabaseClient) {
+  return client
+    .from('members')
+    .select(LEGACY_MEMBER_SELECT)
+    .eq('is_visible', true)
+    .order('display_order', { ascending: true })
+}
+
 export async function getPublicSiteSettings(): Promise<
   PublicDataResult<SiteSettings | null>
 > {
@@ -331,7 +785,7 @@ export async function getPublicSiteSettings(): Promise<
 
   const { data, error } = await clientResult.data
     .from('site_settings')
-    .select('*')
+    .select(SITE_SETTINGS_SELECT)
     .eq('is_visible', true)
     .order('created_at', { ascending: true })
     .limit(1)
@@ -346,7 +800,9 @@ export async function getPublicSiteSettings(): Promise<
   return { data: row ? mapSiteSettings(row) : null, error: null }
 }
 
-export async function getPublicHeroSlides(): Promise<PublicDataResult<HeroSlide[]>> {
+export async function getPublicSupportSettings(): Promise<
+  PublicDataResult<SupportSettings | null>
+> {
   const clientResult = getSupabaseClientSafe()
 
   if (!clientResult.data) {
@@ -354,17 +810,157 @@ export async function getPublicHeroSlides(): Promise<PublicDataResult<HeroSlide[
   }
 
   const { data, error } = await clientResult.data
+    .from('support_settings')
+    .select(SUPPORT_SETTINGS_SELECT)
+    .eq('is_visible', true)
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) {
+    if (isMissingSupportSettingsError(error)) {
+      return { data: null, error: null }
+    }
+
+    return {
+      data: null,
+      error: toPublicError(error, '후원약정 정보를 불러오지 못했습니다.'),
+    }
+  }
+
+  const row = normalizeRow<SupportSettingsRow>(data)
+
+  return { data: row ? mapSupportSettings(row) : null, error: null }
+}
+
+export async function getPublicSponsors(
+  options: PublicListOptions & {
+    footerOnly?: boolean
+    homeOnly?: boolean
+    supportOnly?: boolean
+  } = {},
+): Promise<PublicDataResult<Sponsor[]>> {
+  const clientResult = getSupabaseClientSafe()
+
+  if (!clientResult.data) {
+    return { data: [], error: null }
+  }
+
+  let query = clientResult.data
+    .from('sponsors')
+    .select(SPONSOR_SELECT)
+    .eq('is_visible', true)
+    .eq('consent_public', true)
+    .order('display_order', { ascending: true })
+    .order('created_at', { ascending: false })
+
+  if (options.homeOnly) {
+    query = query.eq('show_on_home', true)
+  }
+
+  if (options.supportOnly) {
+    query = query.eq('show_on_support', true)
+  }
+
+  if (options.footerOnly) {
+    query = query.eq('show_on_footer', true)
+  }
+
+  const limit = normalizeLimit(options.limit)
+
+  if (limit) {
+    query = query.limit(limit)
+  }
+
+  const { data, error } = await query
+
+  if (error) {
+    if (isMissingSponsorsError(error)) {
+      return { data: [], error: null }
+    }
+
+    return { data: null, error: toPublicError(error, '후원사 정보를 불러오지 못했습니다.') }
+  }
+
+  return { data: normalizeRows<SponsorRow>(data).map(mapSponsor), error: null }
+}
+
+export async function getPublicHeroSlides(
+  options: PublicListOptions = {},
+): Promise<PublicDataResult<HeroSlide[]>> {
+  const clientResult = getSupabaseClientSafe()
+
+  if (!clientResult.data) {
+    return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
+  }
+
+  let query = clientResult.data
     .from('hero_slides')
-    .select('*')
+    .select(
+      [
+        'id',
+        'title',
+        'subtitle',
+        'description',
+        'image_url',
+        'image_alt',
+        'primary_cta_label',
+        'primary_cta_href',
+        'secondary_cta_label',
+        'secondary_cta_href',
+        'display_order',
+        'is_visible',
+        'created_at',
+      ].join(','),
+    )
     .eq('is_visible', true)
     .order('display_order', { ascending: true })
     .order('created_at', { ascending: true })
+
+  const limit = normalizeLimit(options.limit)
+
+  if (limit) {
+    query = query.limit(limit)
+  }
+
+  const { data, error } = await query
 
   if (error) {
     return { data: null, error: toPublicError(error, 'Hero 데이터를 불러오지 못했습니다.') }
   }
 
   return { data: normalizeRows<HeroSlideRow>(data).map(mapHeroSlide), error: null }
+}
+
+export async function getPublicPopupNotices(
+  options: PublicListOptions = {},
+): Promise<PublicDataResult<PopupNotice[]>> {
+  const clientResult = getSupabaseClientSafe()
+
+  if (!clientResult.data) {
+    return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
+  }
+
+  let query = clientResult.data
+    .from('popup_notices')
+    .select(POPUP_NOTICE_SELECT)
+    .eq('is_visible', true)
+    .order('display_order', { ascending: true })
+    .order('created_at', { ascending: false })
+
+  const limit = normalizeLimit(options.limit)
+
+  if (limit) {
+    query = query.limit(limit)
+  }
+
+  const { data, error } = await query
+
+  if (error) {
+    return { data: null, error: toPublicError(error, '홈 팝업을 불러오지 못했습니다.') }
+  }
+
+  return { data: normalizeRows<PopupNoticeRow>(data).map(mapPopupNotice), error: null }
 }
 
 export async function getPublicAboutSections(): Promise<
@@ -378,7 +974,7 @@ export async function getPublicAboutSections(): Promise<
 
   const { data, error } = await clientResult.data
     .from('about_sections')
-    .select('*')
+    .select(ABOUT_SECTION_SELECT)
     .eq('is_visible', true)
     .order('display_order', { ascending: true })
     .order('section_key', { ascending: true })
@@ -390,19 +986,29 @@ export async function getPublicAboutSections(): Promise<
   return { data: normalizeRows<AboutSectionRow>(data), error: null }
 }
 
-export async function getPublicConcerts(): Promise<PublicDataResult<Concert[]>> {
+export async function getPublicConcerts(
+  options: PublicListOptions = {},
+): Promise<PublicDataResult<Concert[]>> {
   const clientResult = getSupabaseClientSafe()
 
   if (!clientResult.data) {
     return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
   }
 
-  const { data, error } = await clientResult.data
+  let query = clientResult.data
     .from('concerts')
-    .select('*')
+    .select(CONCERT_SELECT)
     .eq('is_visible', true)
     .order('concert_date', { ascending: false })
     .order('created_at', { ascending: false })
+
+  const limit = normalizeLimit(options.limit)
+
+  if (limit) {
+    query = query.limit(limit)
+  }
+
+  const { data, error } = await query
 
   if (error) {
     return { data: null, error: toPublicError(error, '공연 목록을 불러오지 못했습니다.') }
@@ -423,7 +1029,7 @@ export async function getPublicConcertById(
 
   const { data, error } = await clientResult.data
     .from('concerts')
-    .select('*')
+    .select(CONCERT_SELECT)
     .eq('id', id)
     .eq('is_visible', true)
     .maybeSingle()
@@ -437,19 +1043,29 @@ export async function getPublicConcertById(
   return { data: row ? mapConcert(row) : null, error: null }
 }
 
-export async function getPublicNotices(): Promise<PublicDataResult<Notice[]>> {
+export async function getPublicNotices(
+  options: PublicListOptions = {},
+): Promise<PublicDataResult<Notice[]>> {
   const clientResult = getSupabaseClientSafe()
 
   if (!clientResult.data) {
     return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
   }
 
-  const { data, error } = await clientResult.data
+  let query = clientResult.data
     .from('notices')
-    .select('*')
+    .select(NOTICE_SELECT)
     .eq('is_visible', true)
     .order('is_important', { ascending: false })
     .order('created_at', { ascending: false })
+
+  const limit = normalizeLimit(options.limit)
+
+  if (limit) {
+    query = query.limit(limit)
+  }
+
+  const { data, error } = await query
 
   if (error) {
     return { data: null, error: toPublicError(error, '공지사항을 불러오지 못했습니다.') }
@@ -470,7 +1086,7 @@ export async function getPublicNoticeById(
 
   const { data, error } = await clientResult.data
     .from('notices')
-    .select('*')
+    .select(NOTICE_SELECT)
     .eq('id', id)
     .eq('is_visible', true)
     .maybeSingle()
@@ -484,21 +1100,29 @@ export async function getPublicNoticeById(
   return { data: row ? mapNotice(row) : null, error: null }
 }
 
-export async function getPublicGalleryImages(): Promise<
-  PublicDataResult<GalleryImage[]>
-> {
+export async function getPublicGalleryImages(
+  options: PublicListOptions = {},
+): Promise<PublicDataResult<GalleryImage[]>> {
   const clientResult = getSupabaseClientSafe()
 
   if (!clientResult.data) {
     return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
   }
 
-  const { data, error } = await clientResult.data
+  let query = clientResult.data
     .from('gallery')
-    .select('*')
+    .select(GALLERY_SELECT)
     .eq('is_visible', true)
     .order('display_order', { ascending: true })
     .order('taken_at', { ascending: false })
+
+  const limit = normalizeLimit(options.limit)
+
+  if (limit) {
+    query = query.limit(limit)
+  }
+
+  const { data, error } = await query
 
   if (error) {
     return { data: null, error: toPublicError(error, '갤러리 사진을 불러오지 못했습니다.') }
@@ -516,7 +1140,7 @@ export async function getPublicVideos(): Promise<PublicDataResult<VideoItem[]>> 
 
   const { data, error } = await clientResult.data
     .from('videos')
-    .select('*')
+    .select(VIDEO_SELECT)
     .eq('is_visible', true)
     .order('display_order', { ascending: true })
     .order('created_at', { ascending: false })
@@ -537,7 +1161,7 @@ export async function getPublicPosters(): Promise<PublicDataResult<Poster[]>> {
 
   const { data, error } = await clientResult.data
     .from('posters')
-    .select('*')
+    .select(POSTER_SELECT)
     .eq('is_visible', true)
     .order('display_order', { ascending: true })
     .order('concert_date', { ascending: false })
@@ -563,34 +1187,36 @@ export async function getPublicAboutData(): Promise<
     siteSettings,
     aboutSections,
     conductor,
-    accompanist,
+    accompanists,
     members,
     history,
     locations,
+    galleryImages,
   ] = await Promise.all([
     getPublicSiteSettings(),
     getPublicAboutSections(),
-    client.from('conductor').select('*').eq('is_visible', true).limit(1).maybeSingle(),
-    client.from('accompanist').select('*').eq('is_visible', true).limit(1).maybeSingle(),
+    getPublicVisibleConductor(client),
     client
-      .from('members')
-      .select('*')
+      .from('accompanist')
+      .select(PERSON_PROFILE_SELECT)
       .eq('is_visible', true)
-      .order('display_order', { ascending: true }),
+      .order('created_at', { ascending: true }),
+    getPublicMembers(client),
     client
       .from('history')
-      .select('*')
+      .select(HISTORY_SELECT)
       .eq('is_visible', true)
       .order('display_order', { ascending: true })
       .order('year', { ascending: false }),
-    client.from('locations').select('*').eq('is_visible', true).limit(1).maybeSingle(),
+    getPublicVisibleLocation(client),
+    getPublicGalleryImages({ limit: 3 }),
   ])
 
   const firstError =
     siteSettings.error ??
     aboutSections.error ??
     conductor.error ??
-    accompanist.error ??
+    accompanists.error ??
     members.error ??
     history.error ??
     locations.error
@@ -602,8 +1228,9 @@ export async function getPublicAboutData(): Promise<
   return {
     data: {
       aboutSections: aboutSections.data ?? [],
-      accompanist: normalizeRow<PersonProfileRow>(accompanist.data),
+      accompanists: normalizeRows<PersonProfileRow>(accompanists.data),
       conductor: normalizeRow<PersonProfileRow>(conductor.data),
+      galleryImages: galleryImages.data ?? [],
       history: normalizeRows<HistoryRow>(history.data),
       location: normalizeRow<LocationRow>(locations.data),
       members: normalizeRows<MemberRow>(members.data),
@@ -625,13 +1252,13 @@ export async function getPublicJoinData(): Promise<
   const [joinInfo, faqs] = await Promise.all([
     clientResult.data
       .from('join_info')
-      .select('*')
+      .select(JOIN_INFO_SELECT)
       .eq('is_visible', true)
       .limit(1)
       .maybeSingle(),
     clientResult.data
       .from('faq')
-      .select('*')
+      .select(FAQ_SELECT)
       .eq('is_visible', true)
       .order('display_order', { ascending: true }),
   ])
@@ -660,24 +1287,31 @@ export async function getPublicContactData(): Promise<
 
   if (!clientResult.data) {
     return {
-      data: { location: null, siteSettings: mockSiteSettings },
+      data: {
+        location: null,
+        siteSettings: mockSiteSettings,
+        sponsors: [],
+        supportSettings: mockSupportSettings,
+      },
       error: null,
     }
   }
 
-  const [settings, location] = await Promise.all([
+  const [settings, supportSettings, location, sponsors] = await Promise.all([
     getPublicSiteSettings(),
-    clientResult.data
-      .from('locations')
-      .select('*')
-      .eq('is_visible', true)
-      .limit(1)
-      .maybeSingle(),
+    getPublicSupportSettings(),
+    getPublicVisibleLocation(clientResult.data),
+    getPublicSponsors(),
   ])
 
   if (settings.error || location.error) {
     return {
-      data: { location: null, siteSettings: settings.data ?? mockSiteSettings },
+      data: {
+        location: null,
+        siteSettings: settings.data ?? mockSiteSettings,
+        sponsors: sponsors.data ?? [],
+        supportSettings: supportSettings.data ?? mockSupportSettings,
+      },
       error: null,
     }
   }
@@ -686,6 +1320,8 @@ export async function getPublicContactData(): Promise<
     data: {
       location: normalizeRow<LocationRow>(location.data),
       siteSettings: settings.data ?? mockSiteSettings,
+      sponsors: sponsors.data ?? [],
+      supportSettings: supportSettings.data ?? mockSupportSettings,
     },
     error: null,
   }
@@ -723,6 +1359,62 @@ export async function createContactMessage(
     return {
       data: null,
       error: toPublicError(error, '문의 전송에 실패했습니다. 잠시 후 다시 시도해 주세요.'),
+    }
+  }
+
+  return { data: true, error: null }
+}
+
+export async function createSupportPledge(
+  input: SupportPledgeInput,
+): Promise<PublicDataResult<true>> {
+  if (input.website?.trim()) {
+    return { data: true, error: null }
+  }
+
+  if (!input.privacy_agreed) {
+    return { data: null, error: '개인정보 수집 및 이용에 동의해 주세요.' }
+  }
+
+  const clientResult = getSupabaseClientSafe()
+
+  if (!clientResult.data) {
+    return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
+  }
+
+  const { error } = await clientResult.data.from('support_pledges').insert({
+    address: input.address,
+    amount: input.amount,
+    birth_date: input.birth_date,
+    custom_amount: input.custom_amount,
+    depositor: input.depositor,
+    email: input.email,
+    gender: input.gender,
+    member_type: input.member_type,
+    name: input.name,
+    phone: input.phone,
+    pledge_date: input.pledge_date,
+    privacy_agreed: true,
+    signature_image_url: input.signature_image_url,
+    signer_name: input.signer_name,
+    status: 'new',
+  })
+
+  if (error) {
+    if (isMissingSupportPledgesError(error)) {
+      return {
+        data: null,
+        error:
+          '후원약정 저장 테이블이 아직 없습니다. 관리자에게 Supabase migration 적용을 요청해 주세요.',
+      }
+    }
+
+    return {
+      data: null,
+      error: toPublicError(
+        error,
+        '후원약정 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+      ),
     }
   }
 

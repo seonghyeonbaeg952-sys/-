@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { useSearchParams } from 'react-router'
 
+import { SupportPledgeForm } from '../../components/contact/SupportPledgeForm'
+import { AnimatedSectionTabs } from '../../components/common/AnimatedSectionTabs'
 import { Button } from '../../components/common/Button'
 import { Card } from '../../components/common/Card'
 import { Container } from '../../components/common/Container'
@@ -9,6 +12,9 @@ import { LoadingState } from '../../components/common/LoadingState'
 import { MapPreview } from '../../components/common/MapPreview'
 import { PageHero } from '../../components/common/PageHero'
 import { Reveal } from '../../components/common/Reveal'
+import { SectionTitle } from '../../components/common/SectionTitle'
+import { ImageTile } from '../../components/home/ImageTile'
+import { SponsorsSection } from '../../components/sponsors/SponsorsSection'
 import { useContactData } from '../../hooks/usePublicData'
 import { createContactMessage, type ContactMessageInput } from '../../lib/publicData'
 
@@ -17,6 +23,57 @@ const inquiryTypes: Array<{ label: string; value: ContactMessageInput['type'] }>
   { label: '공연 의뢰', value: 'concert_request' },
   { label: '후원 문의', value: 'support' },
   { label: '일반 문의', value: 'general' },
+]
+
+type ContactSectionKey =
+  | 'all'
+  | 'join'
+  | 'location'
+  | 'performance'
+  | 'sponsors'
+  | 'support'
+
+const contactSections: Array<{
+  inquiryType?: ContactMessageInput['type']
+  label: string
+  value: Exclude<ContactSectionKey, 'all'>
+}> = [
+  {
+    inquiryType: 'support',
+    label: '후원 안내',
+    value: 'support',
+  },
+  {
+    label: '후원사',
+    value: 'sponsors',
+  },
+  {
+    inquiryType: 'concert_request',
+    label: '공연 문의',
+    value: 'performance',
+  },
+  {
+    inquiryType: 'join',
+    label: '입단 문의',
+    value: 'join',
+  },
+  {
+    label: '오시는 길·지도',
+    value: 'location',
+  },
+]
+
+const contactSectionTabs: Array<{
+  href: string
+  label: string
+  value: ContactSectionKey
+}> = [
+  { href: '/contact', label: '전체', value: 'all' },
+  ...contactSections.map((section) => ({
+    href: `/contact?section=${section.value}`,
+    label: section.label,
+    value: section.value,
+  })),
 ]
 
 type ContactFormValues = {
@@ -41,18 +98,64 @@ const initialFormValues: ContactFormValues = {
   website: '',
 }
 
+function getContactSection(value: string | null): ContactSectionKey {
+  if (
+    value === 'support' ||
+    value === 'sponsors' ||
+    value === 'performance' ||
+    value === 'join' ||
+    value === 'location'
+  ) {
+    return value
+  }
+
+  return 'all'
+}
+
+function getInitialInquiryType(section: ContactSectionKey): ContactMessageInput['type'] {
+  if (section === 'support') {
+    return 'support'
+  }
+
+  if (section === 'performance') {
+    return 'concert_request'
+  }
+
+  if (section === 'join') {
+    return 'join'
+  }
+
+  return 'general'
+}
+
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 }
 
 export function ContactPage() {
   const contactData = useContactData()
-  const [values, setValues] = useState<ContactFormValues>(initialFormValues)
+  const [searchParams] = useSearchParams()
+  const activeSection = getContactSection(searchParams.get('section'))
+  const [values, setValues] = useState<ContactFormValues>(() => ({
+    ...initialFormValues,
+    type: getInitialInquiryType(activeSection),
+  }))
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const settings = contactData.data.siteSettings
+  const supportSettings = contactData.data.supportSettings
   const location = contactData.data.location
+  const sponsors = contactData.data.sponsors
+  const showAll = activeSection === 'all'
+  const showSupport = showAll || activeSection === 'support'
+  const showSponsorPreview = activeSection === 'support'
+  const showSponsors = showAll || activeSection === 'sponsors'
+  const showForm =
+    showAll ||
+    activeSection === 'performance' ||
+    activeSection === 'join'
+  const showLocation = showAll || activeSection === 'location'
 
   const setValue = <TKey extends keyof ContactFormValues>(
     key: TKey,
@@ -112,6 +215,14 @@ export function ContactPage() {
   }
 
   const address = location?.address || settings.address
+  const formTitle =
+    activeSection === 'support'
+      ? '후원 문의 보내기'
+      : activeSection === 'performance'
+        ? '공연 문의 보내기'
+        : activeSection === 'join'
+          ? '입단 문의 보내기'
+          : '문의 보내기'
 
   return (
     <>
@@ -120,7 +231,7 @@ export function ContactPage() {
         eyebrow="HELP DESK"
         title="후원·문의"
       />
-      <Container className="py-section-mobile lg:py-section-desktop">
+      <Container className="page-main">
         {contactData.isLoading ? (
           <div className="mb-6">
             <LoadingState label="문의 정보를 불러오는 중입니다" />
@@ -133,45 +244,54 @@ export function ContactPage() {
           </div>
         ) : null}
 
-        <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-          <Reveal className="space-y-5">
-            <Card className="p-6">
-              <p className="text-sm font-semibold text-gold-warm">CONTACT</p>
-              <h2 className="mt-3 text-2xl font-semibold text-navy-deep">
-                공식 문의 채널
-              </h2>
-              <dl className="mt-5 grid gap-3 text-sm leading-6 text-text-muted">
-                <div>
-                  <dt className="font-semibold text-navy-deep">전화</dt>
-                  <dd>{settings.phone || '등록 예정'}</dd>
-                </div>
-                <div>
-                  <dt className="font-semibold text-navy-deep">FAX</dt>
-                  <dd>{settings.fax || '등록 예정'}</dd>
-                </div>
-                <div>
-                  <dt className="font-semibold text-navy-deep">이메일</dt>
-                  <dd>{settings.email || '등록 예정'}</dd>
-                </div>
-                <div>
-                  <dt className="font-semibold text-navy-deep">주소</dt>
-                  <dd>{address || '등록 예정'}</dd>
-                </div>
-              </dl>
-            </Card>
-            <MapPreview
-              address={address}
-              embedUrl={location?.map_embed_url}
-              kakaoMapUrl={location?.kakao_map_url}
-              naverMapUrl={location?.naver_map_url}
-              placeName={location?.place_name || '서울모테트음악재단'}
-            />
-          </Reveal>
+        <Reveal>
+          <AnimatedSectionTabs
+            activeValue={activeSection}
+            ariaLabel="후원 문의 섹션 선택"
+            className="mb-8 rounded-formal border border-line-default bg-bg-warm-white p-2 shadow-card"
+            onChange={(value) => {
+              const nextSection = contactSections.find((section) => section.value === value)
 
-          <Reveal>
-            <Card className="p-6 sm:p-7">
+              if (nextSection?.inquiryType) {
+                setValue('type', nextSection.inquiryType)
+              }
+            }}
+            tabs={contactSectionTabs}
+          />
+        </Reveal>
+
+        <div className="space-y-10 lg:space-y-14">
+          {showSupport ? (
+            <Reveal rootMargin="0px 0px -2% 0px" threshold={0.01}>
+              <div className="space-y-8">
+                {showSponsorPreview ? (
+                  <SponsorsSection compact showEmpty={false} sponsors={sponsors} />
+                ) : null}
+                <SupportPledgeForm
+                  settings={supportSettings}
+                  siteSettings={settings}
+                />
+              </div>
+            </Reveal>
+          ) : null}
+
+          {showSponsors ? (
+            <Reveal rootMargin="0px 0px -2% 0px" threshold={0.01}>
+              <SponsorsSection sponsors={sponsors} />
+            </Reveal>
+          ) : null}
+
+          {showForm ? (
+          <Reveal rootMargin="0px 0px -2% 0px" threshold={0.01}>
+            <div className="inquiry-layout">
+            <Card
+              className="relative overflow-hidden p-6 sm:p-7"
+              id={activeSection === 'join' ? 'join' : activeSection === 'performance' ? 'performance' : 'form'}
+              radius="formal"
+            >
+              <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-gold-warm via-gold-soft to-transparent" />
               <h2 className="text-2xl font-semibold text-navy-deep">
-                문의 보내기
+                {formTitle}
               </h2>
               <p className="mt-2 break-keep text-sm leading-6 text-text-muted">
                 보내주신 문의는 운영진에게만 전달되며 공개 화면에는 표시되지 않습니다.
@@ -299,7 +419,117 @@ export function ContactPage() {
                 </Button>
               </form>
             </Card>
+            <Card className="inquiry-guide-card p-6" radius="formal">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-gold-warm">
+                PRIVATE INQUIRY
+              </p>
+              <h2 className="mt-3 break-keep text-xl font-semibold leading-7 text-navy-deep">
+                문의 내용은 공개 화면에 표시되지 않습니다.
+              </h2>
+              <p className="mt-4 break-keep text-sm leading-7 text-text-muted">
+                보내주신 문의는 운영진에게만 전달되며, 문의 유형에 맞춰 확인 후 연락드립니다.
+              </p>
+              <ul className="mt-5 grid gap-3 text-sm leading-6 text-text-muted">
+                <li className="rounded-button border border-line-default bg-bg-ivory px-4 py-3">
+                  공연 의뢰는 일정, 장소, 요청 내용을 함께 적어 주세요.
+                </li>
+                <li className="rounded-button border border-line-default bg-bg-ivory px-4 py-3">
+                  입단 문의는 보호자 연락처와 희망 파트를 함께 남기면 확인이 빠릅니다.
+                </li>
+              </ul>
+            </Card>
+            </div>
           </Reveal>
+          ) : null}
+
+          {showLocation ? (
+            <Reveal rootMargin="0px 0px -2% 0px" threshold={0.01}>
+              <section id="location">
+                <SectionTitle
+                  description="주소, 교통 안내와 지도 앱 바로가기를 확인합니다."
+                  eyebrow="LOCATION"
+                  title="오시는 길"
+                />
+                <div className="location-grid mt-8">
+                  <div className="space-y-5">
+                    <Card className="relative overflow-hidden p-6" radius="formal">
+                      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-gold-warm via-gold-soft to-transparent" />
+                      <p className="text-sm font-semibold text-gold-warm">CONTACT</p>
+                      <h2 className="mt-3 text-2xl font-semibold text-navy-deep">
+                        공식 문의 채널
+                      </h2>
+                      <dl className="mt-5 grid gap-3 text-sm leading-6 text-text-muted sm:grid-cols-2">
+                        <div className="rounded-button border border-line-default bg-bg-ivory px-4 py-3">
+                          <dt className="font-semibold text-navy-deep">전화</dt>
+                          <dd>{settings.phone || '등록 예정'}</dd>
+                        </div>
+                        <div className="rounded-button border border-line-default bg-bg-ivory px-4 py-3">
+                          <dt className="font-semibold text-navy-deep">FAX</dt>
+                          <dd>{settings.fax || '등록 예정'}</dd>
+                        </div>
+                        <div className="rounded-button border border-line-default bg-bg-ivory px-4 py-3">
+                          <dt className="font-semibold text-navy-deep">이메일</dt>
+                          <dd>{settings.email || '등록 예정'}</dd>
+                        </div>
+                        <div className="rounded-button border border-line-default bg-bg-ivory px-4 py-3">
+                          <dt className="font-semibold text-navy-deep">주소</dt>
+                          <dd>{address || '등록 예정'}</dd>
+                        </div>
+                      </dl>
+                    </Card>
+                    {location?.transit_info || location?.parking_info ? (
+                      <Card className="p-6" radius="formal">
+                        <h3 className="text-xl font-semibold text-navy-deep">
+                          교통 안내
+                        </h3>
+                        {location.transit_info ? (
+                          <p className="mt-4 whitespace-pre-line break-keep text-sm leading-7 text-text-muted">
+                            {location.transit_info}
+                          </p>
+                        ) : null}
+                        {location.parking_info ? (
+                          <p className="mt-4 whitespace-pre-line break-keep text-sm leading-7 text-text-muted">
+                            {location.parking_info}
+                          </p>
+                        ) : null}
+                      </Card>
+                    ) : null}
+                  </div>
+                  <div className="space-y-5">
+                    {location?.image_url ? (
+                      <Card className="overflow-hidden" radius="balanced">
+                        <ImageTile
+                          alt={location.image_alt || `${location.place_name || '오시는 길'} 사진`}
+                          className="aspect-[16/10]"
+                          objectFit="cover"
+                          sizes="(min-width: 1024px) 50vw, calc(100vw - 40px)"
+                          src={location.image_url}
+                          transform={{
+                            quality: 78,
+                            resize: 'cover',
+                            width: 1200,
+                            widths: [640, 960, 1200],
+                          }}
+                        />
+                        {location.image_caption ? (
+                          <p className="border-t border-line-default bg-bg-warm-white p-4 text-sm leading-6 text-text-muted">
+                            {location.image_caption}
+                          </p>
+                        ) : null}
+                      </Card>
+                    ) : null}
+                    <MapPreview
+                      address={address}
+                      embedUrl={location?.map_embed_url}
+                      kakaoMapUrl={location?.kakao_map_url}
+                      naverMapUrl={location?.naver_map_url}
+                      placeName={location?.place_name || '서울모테트음악재단'}
+                    />
+                  </div>
+                </div>
+              </section>
+            </Reveal>
+          ) : null}
         </div>
       </Container>
     </>

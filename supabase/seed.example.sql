@@ -50,6 +50,95 @@ set
   is_visible = excluded.is_visible,
   updated_at = now();
 
+insert into public.support_settings (
+  id,
+  title,
+  subtitle,
+  description,
+  message,
+  individual_amounts,
+  corporate_amounts,
+  allow_custom_amount,
+  bank_name,
+  bank_account_number,
+  bank_account_holder,
+  bank_note,
+  enable_online_submission,
+  form_note,
+  privacy_notice,
+  print_note,
+  print_button_label,
+  submit_button_label,
+  success_message,
+  contact_phone,
+  contact_email,
+  homepage_url,
+  organization_name,
+  footer_note,
+  is_visible
+)
+values (
+  '00000000-0000-0000-0000-000000000151',
+  '후원약정',
+  '서울모테트청소년합창단을 후원하겠습니다.',
+  '청소년들이 음악을 통해 성장하고, 나눔과 사랑을 실천할 수 있도록 후원에 동참해 주세요.',
+  '여러분들의 후원이 다음 세대를 세웁니다. 청소년들이 창의적인 음악 교육과 공동체 훈련을 통해 음악적 능력과 인성을 함께 성장시킬 수 있도록 후원에 동참해 주세요.',
+  '10000
+20000
+30000
+50000',
+  '100000
+200000
+300000
+500000
+1000000',
+  true,
+  null,
+  null,
+  null,
+  '후원 계좌 정보는 관리자 CMS에서 등록한 뒤 표시됩니다.',
+  true,
+  '입력한 후원약정 정보는 관리자에게만 전달되며 공개 화면에는 표시되지 않습니다.',
+  '작성하신 개인정보는 후원 안내 및 약정 확인 목적으로만 사용되며, 관리자만 조회할 수 있습니다.',
+  '작성 후 인쇄하거나 PDF로 저장할 수 있습니다. 온라인 제출 시 동일한 내용이 관리자 CMS에 저장됩니다.',
+  '약정서 인쇄하기',
+  '후원약정 제출',
+  '후원약정이 접수되었습니다. 확인 후 연락드리겠습니다.',
+  null,
+  null,
+  null,
+  '서울모테트청소년합창단',
+  '입력 내용은 서버에 저장되지 않으며, 브라우저 인쇄 기능으로만 출력됩니다.',
+  true
+)
+on conflict (id) do update
+set
+  title = excluded.title,
+  subtitle = excluded.subtitle,
+  description = excluded.description,
+  message = excluded.message,
+  individual_amounts = excluded.individual_amounts,
+  corporate_amounts = excluded.corporate_amounts,
+  allow_custom_amount = excluded.allow_custom_amount,
+  bank_name = excluded.bank_name,
+  bank_account_number = excluded.bank_account_number,
+  bank_account_holder = excluded.bank_account_holder,
+  bank_note = excluded.bank_note,
+  enable_online_submission = excluded.enable_online_submission,
+  form_note = excluded.form_note,
+  privacy_notice = excluded.privacy_notice,
+  print_note = excluded.print_note,
+  print_button_label = excluded.print_button_label,
+  submit_button_label = excluded.submit_button_label,
+  success_message = excluded.success_message,
+  contact_phone = excluded.contact_phone,
+  contact_email = excluded.contact_email,
+  homepage_url = excluded.homepage_url,
+  organization_name = excluded.organization_name,
+  footer_note = excluded.footer_note,
+  is_visible = excluded.is_visible,
+  updated_at = now();
+
 insert into public.hero_slides (
   id,
   title,

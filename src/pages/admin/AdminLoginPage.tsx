@@ -64,7 +64,7 @@ export function AdminLoginPage() {
 
   if (adminAuth.isLoading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-bg-ivory px-5 py-12">
+      <main className="admin-shell flex min-h-screen items-center justify-center bg-bg-ivory px-5 py-12">
         <div className="w-full max-w-lg">
           <LoadingState label="로그인 상태를 확인하는 중입니다" />
         </div>
@@ -128,7 +128,7 @@ export function AdminLoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-bg-ivory px-5 py-12 text-text-charcoal">
+    <main className="admin-shell flex min-h-screen items-center justify-center bg-bg-ivory px-5 py-12 text-text-charcoal">
       <Card className="w-full max-w-md p-7 sm:p-8">
         <BrandLogo className="max-w-[230px]" size="lg" />
         <p className="mt-6 text-sm font-semibold text-gold-warm">관리자 CMS</p>

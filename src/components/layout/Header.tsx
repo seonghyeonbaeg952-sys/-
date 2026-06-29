@@ -1,18 +1,24 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { NavLink, useLocation } from 'react-router'
 
 import { publicNavigation } from '../../constants/navigation'
 import { BrandLogo } from '../common/BrandLogo'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
+import { MegaMenu } from './MegaMenu'
 import { MobileMenu } from './MobileMenu'
+
+const MEGA_MENU_ID = 'desktop-mega-menu'
 
 export function Header() {
   const location = useLocation()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [activeMegaMenuHref, setActiveMegaMenuHref] = useState<string | null>(null)
   const isHome = location.pathname === '/'
   const isTransparent = isHome && !isScrolled && !isMenuOpen
+  const activeMegaMenuItem =
+    publicNavigation.find((item) => item.href === activeMegaMenuHref) ?? null
 
   useEffect(() => {
     const updateScrolled = () => setIsScrolled(window.scrollY > 12)
@@ -26,13 +32,10 @@ export function Header() {
   }, [])
 
   useEffect(() => {
-    if (!isMenuOpen) {
-      return
-    }
-
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setIsMenuOpen(false)
+        setActiveMegaMenuHref(null)
       }
     }
 
@@ -41,7 +44,7 @@ export function Header() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [isMenuOpen])
+  }, [])
 
   const mutedColor = isTransparent ? 'text-bg-ivory/82' : 'text-text-muted'
 
@@ -50,11 +53,19 @@ export function Header() {
       className={[
         'fixed inset-x-0 top-0 z-50 transition duration-300',
         isTransparent
-          ? 'border-transparent bg-navy-midnight/20'
+          ? 'border-b border-transparent bg-navy-midnight/12 shadow-none'
           : 'border-b border-line-default/80 bg-bg-warm-white/96 shadow-header backdrop-blur',
       ].join(' ')}
+      onBlur={(event) => {
+        const nextFocus = event.relatedTarget
+
+        if (!(nextFocus instanceof Node) || !event.currentTarget.contains(nextFocus)) {
+          setActiveMegaMenuHref(null)
+        }
+      }}
+      onMouseLeave={() => setActiveMegaMenuHref(null)}
     >
-      <Container className="flex min-h-[72px] items-center justify-between gap-3 sm:gap-5">
+      <Container className="flex min-h-[72px] items-center justify-between gap-3 sm:gap-4">
         <NavLink
           aria-label="홈으로 이동"
           className="min-w-0 max-w-[calc(100%-3.5rem)] shrink transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm"
@@ -67,7 +78,7 @@ export function Header() {
               className={
                 isTransparent
                   ? 'overflow-hidden md:max-w-[92px] lg:max-w-[112px]'
-                  : 'overflow-hidden md:max-w-[220px] lg:max-w-[280px]'
+                  : 'overflow-hidden md:max-w-[190px] lg:max-w-[220px] xl:max-w-[270px]'
               }
               size="lg"
               theme={isTransparent ? 'dark' : 'light'}
@@ -87,36 +98,47 @@ export function Header() {
           </span>
         </NavLink>
 
-        <nav aria-label="방문자 메뉴" className="hidden items-center gap-7 lg:flex">
-          {publicNavigation.map((item) => (
-            <NavLink
-              className={({ isActive }) =>
-                [
-                  'group relative rounded-pill px-1 py-2 text-sm font-medium transition hover:text-gold-warm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm',
-                  isActive ? 'text-gold-warm' : mutedColor,
-                ].join(' ')
-              }
-              key={item.href}
-              to={item.href}
-            >
-              {({ isActive }) => (
-                <>
-                  <span>{item.label}</span>
-                  <span
-                    aria-hidden="true"
-                    className={[
-                      'absolute inset-x-0 -bottom-0.5 h-px origin-left scale-x-0 bg-gold-warm transition-transform duration-200 group-hover:scale-x-100',
-                      isActive ? 'scale-x-100' : '',
-                    ].join(' ')}
-                  />
-                </>
-              )}
-            </NavLink>
-          ))}
+        <nav aria-label="방문자 메뉴" className="hidden items-center gap-[clamp(18px,1.6vw,28px)] lg:flex">
+          {publicNavigation.map((item) => {
+            const hasChildren = Boolean(item.children?.length)
+            const isMegaMenuOpen = activeMegaMenuHref === item.href
+
+            return (
+              <NavLink
+                aria-controls={hasChildren ? MEGA_MENU_ID : undefined}
+                aria-expanded={hasChildren ? isMegaMenuOpen : undefined}
+                aria-haspopup={hasChildren ? 'true' : undefined}
+                className={({ isActive }) =>
+                  [
+                    'group relative flex min-h-11 items-center whitespace-nowrap rounded-pill px-1 py-2 text-[13px] font-medium transition hover:text-gold-warm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm xl:text-sm',
+                    isActive || isMegaMenuOpen ? 'text-gold-warm' : mutedColor,
+                  ].join(' ')
+                }
+                key={item.href}
+                onClick={() => setActiveMegaMenuHref(null)}
+                onFocus={() => setActiveMegaMenuHref(hasChildren ? item.href : null)}
+                onMouseEnter={() => setActiveMegaMenuHref(hasChildren ? item.href : null)}
+                to={item.href}
+              >
+                {({ isActive }) => (
+                  <>
+                    <span>{item.label}</span>
+                    <span
+                      aria-hidden="true"
+                      className={[
+                        'absolute inset-x-0 -bottom-0.5 h-px origin-left scale-x-0 bg-gold-warm transition-transform duration-200 group-hover:scale-x-100',
+                        isActive || isMegaMenuOpen ? 'scale-x-100' : '',
+                      ].join(' ')}
+                    />
+                  </>
+                )}
+              </NavLink>
+            )
+          })}
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">
-          <Button href="/join" size="sm" variant="gold">
+        <div className="hidden items-center gap-3 xl:flex">
+          <Button className="shadow-none" href="/join" showArrow={false} size="sm" variant="gold">
             입단 안내
           </Button>
         </div>
@@ -131,7 +153,10 @@ export function Header() {
               ? 'border-bg-warm-white/85 bg-bg-warm-white/14 text-bg-warm-white shadow-[0_8px_24px_rgb(0_0_0/0.24)] backdrop-blur-sm'
               : 'border-line-default bg-bg-warm-white text-navy-deep',
           ].join(' ')}
-          onClick={() => setIsMenuOpen((current) => !current)}
+          onClick={() => {
+            setActiveMegaMenuHref(null)
+            setIsMenuOpen((current) => !current)
+          }}
           type="button"
         >
           <span aria-hidden="true" className="flex w-5 flex-col gap-1.5">
@@ -157,6 +182,11 @@ export function Header() {
         </button>
       </Container>
 
+      <MegaMenu
+        id={MEGA_MENU_ID}
+        item={activeMegaMenuItem}
+        onNavigate={() => setActiveMegaMenuHref(null)}
+      />
       <MobileMenu isOpen={isMenuOpen} onNavigate={() => setIsMenuOpen(false)} />
     </header>
   )

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 
 import { getRecordTitle } from '../../lib/cms'
+import { useDebouncedValue } from '../../hooks/useDebouncedValue'
 import { useCrudList } from '../../hooks/useCrudList'
 import type {
   CmsFilterOption,
@@ -58,6 +59,7 @@ type AdminCrudListPageProps<TTable extends CmsTableName> = {
   ) => CmsMutationPayload
   searchColumn?: Extract<keyof CmsRowFor<TTable>, string>
   searchPlaceholder?: string
+  showVisibility?: boolean
   table: TTable
   title: string
 }
@@ -76,6 +78,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
   preparePayload,
   searchColumn,
   searchPlaceholder,
+  showVisibility = true,
   table,
   title,
 }: AdminCrudListPageProps<TTable>) {
@@ -84,6 +87,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
   const [editingRow, setEditingRow] = useState<CmsRowFor<TTable> | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<CmsRowFor<TTable> | null>(null)
+  const debouncedSearchValue = useDebouncedValue(searchValue.trim(), 300)
 
   const activeFilters = useMemo(() => {
     return filters
@@ -106,8 +110,8 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
     filters: activeFilters,
     order,
     search:
-      searchColumn && searchValue
-        ? { column: searchColumn, value: searchValue }
+      searchColumn && debouncedSearchValue
+        ? { column: searchColumn, value: debouncedSearchValue }
         : undefined,
     table,
   })
@@ -208,6 +212,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
           setIsFormOpen(true)
         }}
         rows={crud.rows}
+        showVisibility={showVisibility}
       />
 
       <AdminModal

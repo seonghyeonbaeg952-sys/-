@@ -16,6 +16,7 @@ export type AdminFieldType =
   | 'image'
   | 'number'
   | 'select'
+  | 'signature'
   | 'switch'
   | 'text'
   | 'textarea'
@@ -243,6 +244,38 @@ export function AdminRecordForm<TRow extends CmsRecord>({
                 name={field.name}
                 onChange={(checked) => setValue(field.name, checked)}
               />
+            )
+          }
+
+          if (field.type === 'signature') {
+            const signatureSrc = typeof value === 'string' ? value : ''
+
+            return (
+              <div className="md:col-span-2" key={field.name}>
+                <div className="mb-2">
+                  <span className="text-sm font-semibold text-navy-deep">
+                    {field.label}
+                  </span>
+                  {field.description ? (
+                    <p className="mt-1 text-xs leading-5 text-text-muted">
+                      {field.description}
+                    </p>
+                  ) : null}
+                </div>
+                <div className="rounded-formal border border-line-default bg-bg-warm-white p-4">
+                  {signatureSrc ? (
+                    <img
+                      alt={`${field.label} 이미지`}
+                      className="h-32 w-full rounded-button border border-line-default bg-bg-ivory object-contain"
+                      src={signatureSrc}
+                    />
+                  ) : (
+                    <p className="rounded-button border border-dashed border-line-default bg-bg-ivory px-4 py-8 text-center text-sm text-text-muted">
+                      저장된 서명 이미지가 없습니다.
+                    </p>
+                  )}
+                </div>
+              </div>
             )
           }
 

@@ -4,8 +4,10 @@ export type AdminRole = 'admin' | 'viewer'
 
 export type AdminResource =
   | 'site_settings'
+  | 'support_settings'
   | 'about_sections'
   | 'hero_slides'
+  | 'popup_notices'
   | 'conductor'
   | 'accompanist'
   | 'members'
@@ -18,6 +20,8 @@ export type AdminResource =
   | 'locations'
   | 'join_info'
   | 'contacts'
+  | 'support_pledges'
+  | 'sponsors'
   | 'account'
 
 export interface AdminProfile {

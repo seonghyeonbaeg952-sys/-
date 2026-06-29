@@ -56,8 +56,8 @@ export function AdminHeroSlidesPage() {
         is_visible: true,
         primary_cta_href: '/concerts',
         primary_cta_label: '공연 일정 보기',
-        secondary_cta_href: '/join',
-        secondary_cta_label: '입단 안내 보기',
+        secondary_cta_href: '',
+        secondary_cta_label: '',
       }}
       description="첫 화면에 노출되는 Hero 슬라이드의 사진, 문구, CTA, 공개 상태를 관리합니다."
       emptyMessage="등록된 Hero 슬라이드가 없습니다."

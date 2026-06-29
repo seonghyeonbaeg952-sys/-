@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 
+import { StaffSectionLabel } from './StaffSectionLabel'
+
 type SectionTitleProps = {
   action?: ReactNode
   description?: string
@@ -17,15 +19,15 @@ export function SectionTitle({
     <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
       <div>
         {eyebrow ? (
-          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-gold-warm">
+          <StaffSectionLabel className="mb-3 max-w-md">
             {eyebrow}
-          </p>
+          </StaffSectionLabel>
         ) : null}
-        <h2 className="text-3xl font-semibold leading-tight text-navy-deep md:text-4xl">
+        <h2 className="type-section-title text-navy-deep">
           {title}
         </h2>
         {description ? (
-          <p className="mt-4 max-w-2xl text-base leading-7 text-text-muted">
+          <p className="type-body mt-4 max-w-2xl text-text-muted">
             {description}
           </p>
         ) : null}

@@ -12,6 +12,9 @@ const HomePage = lazy(() =>
 const AboutPage = lazy(() =>
   import('./pages/public/AboutPage').then((module) => ({ default: module.AboutPage })),
 )
+const SpiritPage = lazy(() =>
+  import('./pages/public/SpiritPage').then((module) => ({ default: module.SpiritPage })),
+)
 const ConcertsPage = lazy(() =>
   import('./pages/public/ConcertsPage').then((module) => ({ default: module.ConcertsPage })),
 )
@@ -59,6 +62,11 @@ const AdminAboutPage = lazy(() =>
 const AdminHeroSlidesPage = lazy(() =>
   import('./pages/admin/AdminHeroSlidesPage').then((module) => ({
     default: module.AdminHeroSlidesPage,
+  })),
+)
+const AdminPopupNoticesPage = lazy(() =>
+  import('./pages/admin/AdminPopupNoticesPage').then((module) => ({
+    default: module.AdminPopupNoticesPage,
   })),
 )
 const AdminConductorPage = lazy(() =>
@@ -114,6 +122,21 @@ const AdminLocationPage = lazy(() =>
 const AdminJoinPage = lazy(() =>
   import('./pages/admin/AdminJoinPage').then((module) => ({ default: module.AdminJoinPage })),
 )
+const AdminSupportPage = lazy(() =>
+  import('./pages/admin/AdminSupportPage').then((module) => ({
+    default: module.AdminSupportPage,
+  })),
+)
+const AdminSponsorsPage = lazy(() =>
+  import('./pages/admin/AdminSponsorsPage').then((module) => ({
+    default: module.AdminSponsorsPage,
+  })),
+)
+const AdminSupportPledgesPage = lazy(() =>
+  import('./pages/admin/AdminSupportPledgesPage').then((module) => ({
+    default: module.AdminSupportPledgesPage,
+  })),
+)
 const AdminContactsPage = lazy(() =>
   import('./pages/admin/AdminContactsPage').then((module) => ({
     default: module.AdminContactsPage,
@@ -140,6 +163,7 @@ function App() {
         <Routes>
           <Route path="/" element={<PublicLayout />}>
             <Route index element={<HomePage />} />
+            <Route path="spirit" element={<SpiritPage />} />
             <Route path="about" element={<AboutPage />} />
             <Route path="concerts" element={<ConcertsPage />} />
             <Route path="concerts/:concertId" element={<ConcertDetailPage />} />
@@ -163,6 +187,7 @@ function App() {
             <Route index element={<AdminDashboardPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
             <Route path="hero-slides" element={<AdminHeroSlidesPage />} />
+            <Route path="popups" element={<AdminPopupNoticesPage />} />
             <Route path="about" element={<AdminAboutPage />} />
             <Route path="conductor" element={<AdminConductorPage />} />
             <Route path="accompanist" element={<AdminAccompanistPage />} />
@@ -175,6 +200,9 @@ function App() {
             <Route path="history" element={<AdminHistoryPage />} />
             <Route path="location" element={<AdminLocationPage />} />
             <Route path="join" element={<AdminJoinPage />} />
+            <Route path="support" element={<AdminSupportPage />} />
+            <Route path="sponsors" element={<AdminSponsorsPage />} />
+            <Route path="support-pledges" element={<AdminSupportPledgesPage />} />
             <Route path="contacts" element={<AdminContactsPage />} />
             <Route path="account" element={<AdminAccountPage />} />
           </Route>

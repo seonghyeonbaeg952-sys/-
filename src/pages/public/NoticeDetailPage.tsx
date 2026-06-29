@@ -57,12 +57,20 @@ export function NoticeDetailPage() {
             {notice.cover_image_url ? (
               <ImageTile
                 alt={`${notice.title} 대표 이미지`}
-                className="mt-8 aspect-[16/9] rounded-card shadow-card"
+                className="mt-8 aspect-[16/9] rounded-balanced shadow-card"
+                sizes="(min-width: 1024px) 896px, calc(100vw - 40px)"
                 src={notice.cover_image_url}
+                transform={{
+                  quality: 82,
+                  resize: 'cover',
+                  width: 1280,
+                  widths: [640, 960, 1280],
+                }}
               />
             ) : null}
-            <Card className="mt-8 p-6 sm:p-8">
-              <div className="whitespace-pre-line break-keep text-base leading-8 text-text-muted">
+            <Card className="relative mt-8 overflow-hidden p-6 sm:p-8" radius="formal">
+              <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-gold-warm via-gold-soft to-transparent" />
+              <div className="whitespace-pre-line break-keep text-base leading-8 text-text-muted sm:text-lg sm:leading-9">
                 {notice.content || '등록된 본문이 없습니다.'}
               </div>
             </Card>

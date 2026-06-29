@@ -5,6 +5,7 @@ const envPath = resolve(process.cwd(), '.env.local')
 const tableChecks = [
   'site_settings',
   'hero_slides',
+  'popup_notices',
   'about_sections',
   'history',
   'concerts',
@@ -15,12 +16,37 @@ const tableChecks = [
   'join_info',
   'faq',
   'locations',
+  'support_settings',
+  'sponsors',
 ]
 
 const columnChecks = [
   {
     path: '/rest/v1/locations?select=id,map_embed_url,email,fax&limit=1',
     target: 'columns:locations map/contact fields',
+  },
+  {
+    path: '/rest/v1/locations?select=id,image_url,image_alt,image_caption&limit=1',
+    target: 'columns:locations image fields',
+  },
+  {
+    path: '/rest/v1/site_settings?select=id,home_hero_eyebrow,home_info_card_3_title,home_gallery_title,home_support_title&limit=1',
+    target: 'columns:site_settings home content fields',
+  },
+  {
+    path: '/rest/v1/support_settings?select=id,enable_online_submission,form_note,privacy_notice,print_button_label,submit_button_label,success_message&limit=1',
+    target: 'columns:support_settings pledge format fields',
+  },
+  {
+    path: '/rest/v1/sponsors?select=id,name,display_name,category,tier,logo_url,website_url,consent_public,show_on_home,show_on_support,show_on_footer,display_order&is_visible=eq.true&consent_public=eq.true&limit=1',
+    target: 'columns:sponsors public consent fields',
+  },
+]
+
+const privateTableChecks = [
+  {
+    path: '/rest/v1/support_pledges?select=id&limit=1',
+    target: 'private-table:support_pledges',
   },
 ]
 
@@ -85,7 +111,7 @@ function getStatusLabel(result) {
   return '[failed]'
 }
 
-async function requestJson({ anonKey, body, method = 'GET', path, url }) {
+async function requestJsonOnce({ anonKey, body, method = 'GET', path, url }) {
   const { controller, timer } = createTimeoutSignal(12000)
 
   try {
@@ -112,6 +138,23 @@ async function requestJson({ anonKey, body, method = 'GET', path, url }) {
   } finally {
     clearTimeout(timer)
   }
+}
+
+function wait(timeoutMs) {
+  return new Promise((resolvePromise) => {
+    setTimeout(resolvePromise, timeoutMs)
+  })
+}
+
+async function requestJson(options) {
+  const firstResult = await requestJsonOnce(options)
+
+  if (firstResult.status !== 'network' && firstResult.status !== 'timeout') {
+    return firstResult
+  }
+
+  await wait(250)
+  return requestJsonOnce(options)
 }
 
 const envEntries = parseEnvFile(envPath)
@@ -153,6 +196,25 @@ for (const check of columnChecks) {
   })
 }
 
+for (const check of privateTableChecks) {
+  const result = await requestJson({
+    anonKey: supabaseAnonKey,
+    path: check.path,
+    url: supabaseUrl,
+  })
+
+  results.push({
+    status: result.status,
+    target: check.target,
+    verdict:
+      result.status === 401 || result.status === 403
+        ? '[ok-private]'
+        : result.ok
+          ? '[public-read-risk]'
+        : getStatusLabel(result),
+  })
+}
+
 const storageResult = await requestJson({
   anonKey: supabaseAnonKey,
   body: { limit: 1, prefix: 'hero' },
@@ -167,9 +229,25 @@ results.push({
   verdict: getStatusLabel(storageResult),
 })
 
+const sponsorStorageResult = await requestJson({
+  anonKey: supabaseAnonKey,
+  body: { limit: 1, prefix: 'sponsors' },
+  method: 'POST',
+  path: '/storage/v1/object/list/site-images',
+  url: supabaseUrl,
+})
+
+results.push({
+  status: sponsorStorageResult.status,
+  target: 'storage:site-images/sponsors',
+  verdict: getStatusLabel(sponsorStorageResult),
+})
+
 console.table(results)
 
-const hasFailure = results.some((result) => result.verdict !== '[ok]')
+const hasFailure = results.some(
+  (result) => result.verdict !== '[ok]' && result.verdict !== '[ok-private]',
+)
 
 if (hasFailure) {
   process.exitCode = 1

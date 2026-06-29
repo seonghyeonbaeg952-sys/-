@@ -26,7 +26,7 @@ export function AdminToolbar({
   searchValue = '',
 }: AdminToolbarProps) {
   return (
-    <div className="grid gap-3 rounded-card border border-line-default bg-bg-warm-white p-4 shadow-card md:grid-cols-[1fr_auto]">
+    <div className="grid gap-3 rounded-formal border border-line-default bg-bg-warm-white p-4 shadow-card md:grid-cols-[1fr_auto]">
       {onSearchChange ? (
         <label className="block">
           <span className="sr-only">검색</span>

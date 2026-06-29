@@ -13,6 +13,7 @@ export type StorageFolder =
   | 'posters'
   | 'notices'
   | 'history'
+  | 'locations'
   | 'brand'
 
 export type StorageActionResult<TData> =

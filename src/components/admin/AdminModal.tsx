@@ -47,6 +47,7 @@ export function AdminModal({
         <Card
           aria-modal="true"
           className="w-full overflow-hidden"
+          radius="formal"
           role="dialog"
         >
           <div className="flex items-start justify-between gap-4 border-b border-line-default px-5 py-4">

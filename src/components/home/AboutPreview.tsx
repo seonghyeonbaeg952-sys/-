@@ -1,16 +1,25 @@
+import type { GalleryImage } from '../../types/content'
 import { BrandLogo } from '../common/BrandLogo'
 import { Button } from '../common/Button'
 import { Card } from '../common/Card'
 import { Container } from '../common/Container'
 import { Reveal } from '../common/Reveal'
+import { StaffFrame } from '../common/StaffFrame'
+import { StaffLines } from '../common/StaffLines'
+import { StaffSectionLabel } from '../common/StaffSectionLabel'
+import { VisualArchivePanel } from '../common/VisualArchivePanel'
+import { ImageTile } from './ImageTile'
 
 type AboutPreviewProps = {
+  buttonLabel?: string
+  image?: GalleryImage
   summary?: string
+  title?: string
 }
 
 const aboutCards = [
   {
-    description: '서울모테트합창단의 음악적 유산을 다음 세대와 나눕니다.',
+    description: '서울모테트합창단의 음악적 유산을 다음 세대로 이어갑니다.',
     title: '창단 배경',
   },
   {
@@ -28,7 +37,7 @@ const aboutCards = [
 ] as const
 
 const fallbackSummary =
-  '서울모테트청소년합창단은 청소년들이 합창을 통해 음악의 가치와 함께하는 마음을 배우도록 돕습니다.'
+  '서울모테트청소년합창단은 청소년들이 합창을 통해 음악의 가치를 함께 나누는 마음을 배우도록 돕습니다.'
 
 function getSummaryParagraphs(summary?: string) {
   const paragraphs = summary
@@ -43,30 +52,39 @@ function getSummaryParagraphs(summary?: string) {
   return [fallbackSummary]
 }
 
-export function AboutPreview({ summary }: AboutPreviewProps) {
+export function AboutPreview({
+  buttonLabel = '합창단 소개 보기',
+  image,
+  summary,
+  title = '청소년의 목소리로 전하는 깊은 울림',
+}: AboutPreviewProps) {
   return (
-    <section className="bg-bg-ivory py-section-mobile lg:py-section-desktop">
+    <section className="home-section relative overflow-hidden bg-bg-ivory">
+      <div
+        aria-hidden="true"
+        className="side-score-rail absolute left-[max(1rem,calc(50%-680px))] top-20 hidden lg:block"
+      />
       <Container>
-        <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-          <Reveal>
+        <div className="home-about-grid relative">
+          <Reveal variant="fade-up">
             <div className="lg:sticky lg:top-28">
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold-warm">
+              <StaffSectionLabel className="max-w-sm">
                 ABOUT
-              </p>
-              <h2 className="mt-5 max-w-xl break-keep text-4xl font-bold leading-tight text-navy-deep md:text-5xl">
-                청소년의 목소리로 전하는 깊은 울림
+              </StaffSectionLabel>
+              <h2 className="type-section-title mt-5 max-w-[600px] text-navy-deep">
+                {title}
               </h2>
-              <div className="mt-6 max-w-xl space-y-4">
+              <div className="mt-6 max-w-[600px] space-y-4">
                 {getSummaryParagraphs(summary).map((paragraph) => (
                   <p
-                    className="break-keep text-base leading-8 text-text-muted md:text-lg"
+                    className="type-body text-text-muted"
                     key={paragraph}
                   >
                     {paragraph}
                   </p>
                 ))}
               </div>
-              <Card className="mt-7 p-5">
+              <Card className="mt-7 border-gold-warm/25 bg-bg-warm-white/92 p-5" radius="soft">
                 <BrandLogo
                   brand="smf"
                   className="max-w-[180px]"
@@ -78,20 +96,84 @@ export function AboutPreview({ summary }: AboutPreviewProps) {
                 </p>
               </Card>
               <Button className="mt-7" href="/about" variant="primary">
-                합창단 소개 보기
+                {buttonLabel}
               </Button>
             </div>
           </Reveal>
 
           <div className="grid gap-4 sm:grid-cols-2">
+            <Reveal className="sm:col-span-2" variant="soft-scale">
+              {image ? (
+                <a
+                  className="group block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm"
+                  href="/gallery"
+                >
+                  <StaffFrame className="shadow-card" linePosition="top" radius="balanced" variant="inverted">
+                    <ImageTile
+                      alt={image.image_alt}
+                      className="aspect-[16/11] rounded-formal bg-navy-deep sm:aspect-[3/2]"
+                      imgClassName="transition duration-500 group-hover:scale-[1.01] motion-reduce:group-hover:scale-100"
+                      objectFit="contain"
+                      sizes="(min-width: 1024px) 56vw, calc(100vw - 40px)"
+                      src={image.image_url}
+                      transform={{
+                        quality: 82,
+                        resize: 'contain',
+                        width: 1200,
+                        widths: [640, 960, 1200],
+                      }}
+                    >
+                      <div className="absolute inset-0 bg-linear-to-t from-navy-midnight/76 via-navy-midnight/10 to-transparent" />
+                      <div className="absolute inset-0 flex items-end p-6">
+                        <div>
+                          <p className="type-eyebrow text-gold-soft">
+                            CHOIR VISUAL
+                          </p>
+                          <h3 className="type-card-title mt-3 max-w-md text-bg-warm-white">
+                            {image.title}
+                          </h3>
+                          {image.description ? (
+                            <p className="mt-3 max-w-md break-keep text-sm leading-7 text-bg-ivory/82">
+                              {image.description}
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
+                    </ImageTile>
+                  </StaffFrame>
+                </a>
+              ) : (
+                <VisualArchivePanel
+                  className="min-h-[260px]"
+                  description="합창단의 공연과 연습 사진이 준비되면 첫 인상을 담는 대표 비주얼로 이어집니다."
+                  eyebrow="CHOIR VISUAL"
+                  title="공연과 연습의 장면을 담는 공간"
+                />
+              )}
+            </Reveal>
             {aboutCards.map((card, index) => (
-              <Reveal delayMs={index * 70} key={card.title}>
-                <Card className="relative min-h-48 overflow-hidden p-6 md:p-8" hoverable>
-                  <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-gold-warm via-gold-soft to-transparent" />
-                  <p className="text-sm font-semibold text-gold-warm">
+              <Reveal key={card.title} staggerIndex={index} variant="card-rise">
+                <Card
+                  className="relative min-h-44 overflow-hidden p-6"
+                  hoverable
+                  radius="balanced"
+                >
+                  <div className="absolute inset-x-0 top-0 h-10 bg-linear-to-r from-navy-deep via-gold-warm/35 to-transparent opacity-12" />
+                  <Reveal
+                    className="absolute inset-x-6 top-6"
+                    delay={80}
+                    variant="line-draw"
+                  >
+                    <StaffLines
+                      className="opacity-70 transition group-hover:opacity-100"
+                      density="light"
+                      variant="gold"
+                    />
+                  </Reveal>
+                  <p className="type-number text-sm text-gold-warm">
                     {String(index + 1).padStart(2, '0')}
                   </p>
-                  <h3 className="mt-4 break-keep text-2xl font-semibold text-navy-deep">
+                  <h3 className="type-card-title mt-4 text-navy-deep">
                     {card.title}
                   </h3>
                   <p className="mt-4 break-keep text-sm leading-7 text-text-muted">

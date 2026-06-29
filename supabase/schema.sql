@@ -49,6 +49,29 @@ create table if not exists public.site_settings (
   site_title text,
   hero_title text,
   hero_subtitle text,
+  home_hero_eyebrow text,
+  home_hero_description text,
+  home_info_card_1_title text,
+  home_info_card_1_description text,
+  home_info_card_2_title text,
+  home_info_card_2_description text,
+  home_info_card_3_title text,
+  home_info_card_3_description text,
+  home_about_title text,
+  home_about_button_label text,
+  home_concerts_title text,
+  home_concerts_description text,
+  home_concerts_button_label text,
+  home_notices_title text,
+  home_notices_description text,
+  home_notices_button_label text,
+  home_gallery_title text,
+  home_gallery_description text,
+  home_gallery_button_label text,
+  home_join_title text,
+  home_join_button_label text,
+  home_support_title text,
+  home_support_button_label text,
   about_summary text,
   support_text text,
   join_cta_text text,
@@ -61,6 +84,109 @@ create table if not exists public.site_settings (
   is_visible boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
+);
+
+create table if not exists public.support_settings (
+  id uuid primary key default gen_random_uuid(),
+  title text,
+  subtitle text,
+  description text,
+  message text,
+  individual_amounts text,
+  corporate_amounts text,
+  allow_custom_amount boolean not null default true,
+  bank_name text,
+  bank_account_number text,
+  bank_account_holder text,
+  bank_note text,
+  enable_online_submission boolean not null default true,
+  form_note text,
+  privacy_notice text,
+  print_note text,
+  print_button_label text,
+  submit_button_label text,
+  success_message text,
+  contact_phone text,
+  contact_email text,
+  homepage_url text,
+  organization_name text,
+  footer_note text,
+  is_visible boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.support_pledges (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  gender text,
+  birth_date date,
+  phone text not null,
+  email text not null,
+  address text,
+  member_type text not null default 'individual',
+  amount integer not null,
+  custom_amount integer,
+  depositor text,
+  pledge_date date,
+  signer_name text,
+  signature_image_url text,
+  privacy_agreed boolean not null default false,
+  status text not null default 'new',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint support_pledges_gender_check check (gender in ('male', 'female', 'none') or gender is null),
+  constraint support_pledges_member_type_check check (member_type in ('individual', 'corporate')),
+  constraint support_pledges_status_check check (status in ('new', 'in_progress', 'done')),
+  constraint support_pledges_name_not_blank_check check (length(btrim(name)) > 0),
+  constraint support_pledges_phone_not_blank_check check (length(btrim(phone)) > 0),
+  constraint support_pledges_email_not_blank_check check (length(btrim(email)) > 0),
+  constraint support_pledges_amount_positive_check check (amount > 0),
+  constraint support_pledges_signature_image_check check (
+    signature_image_url is null
+    or (
+      length(signature_image_url) <= 200000
+      and signature_image_url like 'data:image/png;base64,%'
+    )
+  )
+);
+
+create table if not exists public.sponsors (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  display_name text,
+  category text not null default 'other',
+  tier text not null default 'supporter',
+  description text,
+  logo_url text,
+  website_url text,
+  start_date date,
+  end_date date,
+  is_visible boolean not null default false,
+  consent_public boolean not null default false,
+  show_on_home boolean not null default false,
+  show_on_support boolean not null default true,
+  show_on_footer boolean not null default false,
+  display_order integer not null default 0,
+  internal_notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint sponsors_name_not_blank_check check (length(btrim(name)) > 0),
+  constraint sponsors_category_check check (
+    category in ('corporate', 'church', 'institution', 'foundation', 'individual', 'media', 'other')
+  ),
+  constraint sponsors_tier_check check (
+    tier in ('main', 'education', 'performance', 'partner', 'in_kind', 'supporter')
+  ),
+  constraint sponsors_date_range_check check (
+    start_date is null
+    or end_date is null
+    or start_date <= end_date
+  ),
+  constraint sponsors_website_url_check check (
+    website_url is null
+    or website_url ~* '^https?://'
+  )
 );
 
 create table if not exists public.hero_slides (
@@ -80,14 +206,52 @@ create table if not exists public.hero_slides (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.popup_notices (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  content text,
+  image_url text,
+  image_alt text,
+  button_label text,
+  button_href text,
+  starts_on date,
+  ends_on date,
+  display_order integer not null default 0,
+  is_visible boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint popup_notices_date_range_check check (
+    starts_on is null
+    or ends_on is null
+    or starts_on <= ends_on
+  )
+);
+
 create table if not exists public.conductor (
   id uuid primary key default gen_random_uuid(),
   name text,
   role text,
   photo_url text,
+  profile_image_alt text,
   description text,
+  profile_summary text,
+  profile_highlight text,
+  hero_quote text,
   bio text,
+  current_roles text,
+  education_items text,
+  career_items text,
+  awards_items text,
+  activities_items text,
+  philosophy_title text,
+  philosophy_body text,
+  philosophy_quote text,
+  teaching_principles text,
   message text,
+  message_title text,
+  message_body text,
+  activity_images text,
+  is_featured boolean not null default true,
   is_visible boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -110,7 +274,8 @@ create table if not exists public.members (
   id uuid primary key default gen_random_uuid(),
   name text,
   part text not null default 'other',
-  group_type text not null default 'other',
+  group_type text not null default 'middle',
+  member_status text not null default 'active',
   photo_url text,
   description text,
   is_visible boolean not null default true,
@@ -119,7 +284,8 @@ create table if not exists public.members (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint members_part_check check (part in ('soprano', 'alto', 'tenor', 'bass', 'other')),
-  constraint members_group_type_check check (group_type in ('elementary', 'middle', 'high', 'alumni', 'other')),
+  constraint members_group_type_check check (group_type in ('elementary', 'middle', 'high', 'university', 'staff')),
+  constraint members_member_status_check check (member_status in ('active', 'alumni')),
   constraint members_name_display_type_check check (name_display_type in ('full', 'partial', 'hidden'))
 );
 
@@ -148,6 +314,9 @@ create table if not exists public.locations (
   phone text,
   fax text,
   email text,
+  image_url text,
+  image_alt text,
+  image_caption text,
   is_visible boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -275,6 +444,7 @@ create table if not exists public.contacts (
 -- Indexes for public listing queries, RLS helper lookups, and foreign keys.
 create index if not exists profiles_role_idx on public.profiles (role);
 create index if not exists hero_slides_visible_order_idx on public.hero_slides (is_visible, display_order, created_at);
+create index if not exists popup_notices_visible_order_date_idx on public.popup_notices (is_visible, display_order, starts_on, ends_on);
 create index if not exists members_visible_part_order_idx on public.members (is_visible, part, display_order);
 create index if not exists concerts_visible_date_status_category_idx on public.concerts (is_visible, concert_date, status, category);
 create index if not exists notices_visible_important_created_category_idx on public.notices (is_visible, is_important, created_at desc, category);
@@ -283,12 +453,19 @@ create index if not exists videos_visible_order_idx on public.videos (is_visible
 create index if not exists posters_visible_order_date_idx on public.posters (is_visible, display_order, concert_date);
 create index if not exists faq_visible_order_idx on public.faq (is_visible, display_order);
 create index if not exists contacts_status_type_created_idx on public.contacts (status, type, created_at desc);
+create index if not exists support_pledges_status_created_idx on public.support_pledges (status, created_at desc);
+create index if not exists sponsors_public_home_order_idx on public.sponsors (show_on_home, display_order, created_at) where is_visible = true and consent_public = true;
+create index if not exists sponsors_public_support_order_idx on public.sponsors (show_on_support, display_order, created_at) where is_visible = true and consent_public = true;
+create index if not exists sponsors_public_footer_order_idx on public.sponsors (show_on_footer, display_order, created_at) where is_visible = true and consent_public = true;
+create index if not exists sponsors_admin_order_idx on public.sponsors (display_order, created_at);
 create index if not exists gallery_related_concert_id_idx on public.gallery (related_concert_id);
 create index if not exists videos_related_concert_id_idx on public.videos (related_concert_id);
 create index if not exists posters_related_concert_id_idx on public.posters (related_concert_id);
 
 -- Smaller helper indexes for the common public "visible only" filters.
 create index if not exists site_settings_public_visible_idx on public.site_settings (created_at) where is_visible = true;
+create index if not exists support_settings_public_visible_idx on public.support_settings (created_at) where is_visible = true;
+create index if not exists popup_notices_public_visible_idx on public.popup_notices (display_order) where is_visible = true;
 create index if not exists conductor_public_visible_idx on public.conductor (created_at) where is_visible = true;
 create index if not exists accompanist_public_visible_idx on public.accompanist (created_at) where is_visible = true;
 create index if not exists history_public_visible_order_idx on public.history (display_order, year) where is_visible = true;
@@ -303,7 +480,9 @@ begin
   foreach target_table in array array[
     'profiles',
     'site_settings',
+    'support_settings',
     'hero_slides',
+    'popup_notices',
     'conductor',
     'accompanist',
     'members',
@@ -316,7 +495,9 @@ begin
     'posters',
     'join_info',
     'faq',
-    'contacts'
+    'contacts',
+    'support_pledges',
+    'sponsors'
   ]
   loop
     execute format('drop trigger if exists set_updated_at on public.%I', target_table);
@@ -335,7 +516,9 @@ begin
   foreach target_table in array array[
     'profiles',
     'site_settings',
+    'support_settings',
     'hero_slides',
+    'popup_notices',
     'conductor',
     'accompanist',
     'members',
@@ -348,7 +531,9 @@ begin
     'posters',
     'join_info',
     'faq',
-    'contacts'
+    'contacts',
+    'support_pledges',
+    'sponsors'
   ]
   loop
     execute format('alter table public.%I enable row level security', target_table);
@@ -361,27 +546,9 @@ grant usage on schema public to anon, authenticated;
 
 grant select on
   public.site_settings,
+  public.support_settings,
   public.hero_slides,
-  public.conductor,
-  public.accompanist,
-  public.members,
-  public.history,
-  public.locations,
-  public.concerts,
-  public.notices,
-  public.gallery,
-  public.videos,
-  public.posters,
-  public.join_info,
-  public.faq
-to anon, authenticated;
-
-grant insert on public.contacts to anon, authenticated;
-
-grant select, insert, update, delete on
-  public.profiles,
-  public.site_settings,
-  public.hero_slides,
+  public.popup_notices,
   public.conductor,
   public.accompanist,
   public.members,
@@ -394,7 +561,33 @@ grant select, insert, update, delete on
   public.posters,
   public.join_info,
   public.faq,
-  public.contacts
+  public.sponsors
+to anon, authenticated;
+
+grant insert on public.contacts to anon, authenticated;
+grant insert on public.support_pledges to anon, authenticated;
+
+grant select, insert, update, delete on
+  public.profiles,
+  public.site_settings,
+  public.support_settings,
+  public.hero_slides,
+  public.popup_notices,
+  public.conductor,
+  public.accompanist,
+  public.members,
+  public.history,
+  public.locations,
+  public.concerts,
+  public.notices,
+  public.gallery,
+  public.videos,
+  public.posters,
+  public.join_info,
+  public.faq,
+  public.contacts,
+  public.support_pledges,
+  public.sponsors
 to authenticated;
 
 -- Public select policies for visible public content.
@@ -404,7 +597,9 @@ declare
 begin
   foreach target_table in array array[
     'site_settings',
+    'support_settings',
     'hero_slides',
+    'popup_notices',
     'conductor',
     'accompanist',
     'members',
@@ -434,7 +629,9 @@ declare
 begin
   foreach target_table in array array[
     'site_settings',
+    'support_settings',
     'hero_slides',
+    'popup_notices',
     'conductor',
     'accompanist',
     'members',
@@ -447,7 +644,9 @@ begin
     'posters',
     'join_info',
     'faq',
-    'contacts'
+    'contacts',
+    'support_pledges',
+    'sponsors'
   ]
   loop
     execute format('drop policy if exists admin_full_access on public.%I', target_table);
@@ -467,6 +666,35 @@ to anon, authenticated
 with check (
   privacy_agreed = true
   and status = 'new'
+);
+
+-- support_pledges: visitors may submit pledge data only after privacy agreement.
+drop policy if exists support_pledges_public_insert on public.support_pledges;
+create policy support_pledges_public_insert
+on public.support_pledges
+for insert
+to anon, authenticated
+with check (
+  privacy_agreed = true
+  and status = 'new'
+  and amount > 0
+  and (
+    signature_image_url is null
+    or (
+      length(signature_image_url) <= 200000
+      and signature_image_url like 'data:image/png;base64,%'
+    )
+  )
+);
+
+drop policy if exists sponsors_public_read_visible on public.sponsors;
+create policy sponsors_public_read_visible
+on public.sponsors
+for select
+to anon, authenticated
+using (
+  is_visible = true
+  and consent_public = true
 );
 
 -- profiles: users can read only their own row; admins can manage profile rows.
@@ -526,6 +754,7 @@ with check (
     array[
       'hero',
       'settings',
+      'popups',
       'conductor',
       'accompanist',
       'members',
@@ -534,7 +763,9 @@ with check (
       'posters',
       'notices',
       'history',
-      'brand'
+      'locations',
+      'brand',
+      'sponsors'
     ]
   )
 );
@@ -555,6 +786,7 @@ with check (
     array[
       'hero',
       'settings',
+      'popups',
       'conductor',
       'accompanist',
       'members',
@@ -563,7 +795,9 @@ with check (
       'posters',
       'notices',
       'history',
-      'brand'
+      'locations',
+      'brand',
+      'sponsors'
     ]
   )
 );

@@ -10,7 +10,8 @@ const fields = [
     type: 'text',
     required: true,
     placeholder: 'foundation',
-    description: '예: foundation, education, activities, mission',
+    description:
+      '예: foundation, education, activities, mission, spirit_hero, spirit_manifesto, spirit_motet, spirit_education, spirit_peace, spirit_cta, home_spirit',
   },
   {
     name: 'title',
@@ -53,10 +54,10 @@ export function AdminAboutPage() {
         is_visible: true,
         section_key: 'foundation',
       }}
-      description="방문자 화면에 표시되는 합창단 소개 문구를 관리합니다."
+      description="방문자 화면에 표시되는 합창단 소개, 정신과 교육철학, 홈 요약 문구를 관리합니다."
       emptyMessage="등록된 소개 섹션이 없습니다."
       fields={fields}
-      info="공개 화면에는 공개 여부가 켜진 섹션만 표시됩니다. 오래된 시점 표현은 운영 중 어색해지지 않도록 현재형 또는 지속형 문장으로 관리해 주세요."
+      info="공개 화면에는 공개 여부가 켜진 섹션만 표시됩니다. spirit_* 섹션은 /spirit과 /about?section=spirit에, home_spirit은 홈 정신 섹션에 반영됩니다. cta_label, cta_url, secondary_cta_label, secondary_cta_url 같은 구조화 문구를 본문 상단에 넣을 수 있습니다."
       order={{ column: 'display_order', ascending: true }}
       searchColumn="title"
       searchPlaceholder="제목 검색"

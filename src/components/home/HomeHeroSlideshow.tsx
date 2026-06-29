@@ -1,16 +1,35 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import type { Concert, HeroSlide, Notice } from '../../types/content'
-import { formatKoreanDate } from '../../utils/formatDate'
+import type { HeroSlide } from '../../types/content'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
+import { OptimizedImage } from '../common/OptimizedImage'
 import { Reveal } from '../common/Reveal'
 
 type HomeHeroSlideshowProps = {
-  featureNotice?: Notice | null
+  eyebrow?: string
+  fallbackDescription?: string
+  fallbackSubtitle?: string
+  fallbackTitle?: string
   intervalMs?: number
-  nextConcert?: Concert | null
   slides: HeroSlide[]
+}
+
+type ImageFetchPriority = 'auto' | 'high' | 'low'
+
+const heroCopy = {
+  body:
+    '서울모테트청소년합창단은 서울모테트합창단의 예술적·신앙적 전통을 바탕으로, 합창을 통해 지성·인성·영성·공동체성을 함께 배워가는 다음세대 음악교육 공동체입니다.',
+  eyebrow: 'SEOUL MOTET YOUTH CHOIR',
+  headline: (
+    <>
+      정직한 음악으로
+      <br />
+      다음 세대를 세웁니다
+    </>
+  ),
+  primaryCta: '합창단 정신 보기',
+  secondaryCta: '입단 안내',
 }
 
 const fallbackSlide: HeroSlide = {
@@ -18,15 +37,90 @@ const fallbackSlide: HeroSlide = {
   title: '서울모테트청소년합창단',
   subtitle: '맑은 목소리로 전하는 깊은 울림',
   description:
-    '청소년의 순수한 목소리와 클래식 합창의 깊이를 무대 위에서 전합니다.',
+    '청소년의 순수한 목소리와 클래식 합창의 깊이를 무대 경험으로 이어갑니다.',
   image_url: '',
   image_alt: '서울모테트청소년합창단 공연 이미지',
-  primary_cta_label: '공연 일정 보기',
-  primary_cta_href: '/concerts',
-  secondary_cta_label: '합창단 소개 보기',
-  secondary_cta_href: '/about',
+  primary_cta_label: heroCopy.primaryCta,
+  primary_cta_href: '/spirit',
+  secondary_cta_label: heroCopy.secondaryCta,
+  secondary_cta_href: '/join',
   display_order: 1,
   is_visible: true,
+}
+
+const heroMottoChips = ['정직한 음악', '함께 듣는 공동체', '지성 · 인성 · 영성']
+const warmedHeroImageUrls = new Set<string>()
+
+function getExternalImageOrigin(imageUrl: string) {
+  if (typeof window === 'undefined') {
+    return ''
+  }
+
+  try {
+    const parsedUrl = new URL(imageUrl, window.location.href)
+
+    return parsedUrl.origin === window.location.origin ? '' : parsedUrl.origin
+  } catch {
+    return ''
+  }
+}
+
+function hasHeadLink(rel: string, href: string) {
+  if (typeof document === 'undefined') {
+    return true
+  }
+
+  return Array.from(document.head.querySelectorAll<HTMLLinkElement>(`link[rel="${rel}"]`)).some(
+    (link) => link.href === href || link.getAttribute('href') === href,
+  )
+}
+
+function addHeadLink(
+  rel: 'preconnect' | 'preload',
+  href: string,
+  options?: { as?: string; fetchPriority?: ImageFetchPriority },
+) {
+  if (typeof document === 'undefined' || hasHeadLink(rel, href)) {
+    return
+  }
+
+  const link = document.createElement('link')
+  link.rel = rel
+  link.href = href
+
+  if (options?.as) {
+    link.as = options.as
+  }
+
+  if (options?.fetchPriority) {
+    link.setAttribute('fetchpriority', options.fetchPriority)
+  }
+
+  document.head.append(link)
+}
+
+function warmHeroImage(imageUrl: string, fetchPriority: ImageFetchPriority) {
+  const normalizedUrl = imageUrl.trim()
+
+  if (!normalizedUrl || typeof window === 'undefined' || warmedHeroImageUrls.has(normalizedUrl)) {
+    return
+  }
+
+  const externalOrigin = getExternalImageOrigin(normalizedUrl)
+
+  if (externalOrigin) {
+    addHeadLink('preconnect', externalOrigin)
+  }
+
+  addHeadLink('preload', normalizedUrl, { as: 'image', fetchPriority })
+
+  const image = new Image()
+  image.decoding = 'async'
+  image.loading = fetchPriority === 'high' ? 'eager' : 'lazy'
+  image.setAttribute('fetchpriority', fetchPriority)
+  image.src = normalizedUrl
+
+  warmedHeroImageUrls.add(normalizedUrl)
 }
 
 function usePrefersReducedMotion() {
@@ -47,22 +141,31 @@ function usePrefersReducedMotion() {
   return prefersReducedMotion
 }
 
-function HeroTitle({ title }: { title: string }) {
-  if (title === '서울모테트청소년합창단') {
-    return (
-      <>
-        <span className="block">서울모테트</span>
-        <span className="block">청소년합창단</span>
-      </>
-    )
-  }
+function useDocumentVisibility() {
+  const [isDocumentVisible, setIsDocumentVisible] = useState(() => {
+    if (typeof document === 'undefined') {
+      return true
+    }
 
-  return title
+    return !document.hidden
+  })
+
+  useEffect(() => {
+    const updateVisibility = () => setIsDocumentVisible(!document.hidden)
+
+    document.addEventListener('visibilitychange', updateVisibility)
+
+    return () => {
+      document.removeEventListener('visibilitychange', updateVisibility)
+    }
+  }, [])
+
+  return isDocumentVisible
 }
 
 function ChevronIcon({ direction }: { direction: 'next' | 'previous' }) {
   return (
-    <svg aria-hidden="true" className="size-4" fill="none" viewBox="0 0 24 24">
+    <svg aria-hidden="true" className="size-3.5" fill="none" viewBox="0 0 24 24">
       <path
         d={direction === 'next' ? 'm9 5 7 7-7 7' : 'm15 5-7 7 7 7'}
         stroke="currentColor"
@@ -74,72 +177,52 @@ function ChevronIcon({ direction }: { direction: 'next' | 'previous' }) {
   )
 }
 
-function FeaturePanel({
-  concert,
-  notice,
-}: {
-  concert?: Concert | null
-  notice?: Notice | null
-}) {
-  if (!concert && !notice) {
-    return null
-  }
-
-  if (concert) {
-    return (
-      <div className="rounded-card border border-bg-warm-white/16 bg-bg-warm-white/10 p-5 shadow-[0_24px_80px_rgb(0_0_0/0.24)] backdrop-blur-md md:p-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-soft">
-          NEXT PERFORMANCE
-        </p>
-        <div className="mt-5 flex gap-4">
-          <div className="flex min-w-20 flex-col items-center justify-center rounded-button border border-gold-warm/55 bg-navy-midnight/45 px-3 py-4 text-center">
-            <span className="text-xs font-semibold text-gold-soft">DATE</span>
-            <span className="mt-2 break-keep text-sm font-bold text-bg-warm-white">
-              {formatKoreanDate(concert.date)}
-            </span>
-          </div>
-          <div className="min-w-0">
-            <h2 className="break-keep text-xl font-semibold leading-7 text-bg-warm-white">
-              {concert.title}
-            </h2>
-            <p className="mt-2 break-keep text-sm leading-6 text-bg-ivory/76">
-              {concert.location}
-              {concert.time ? ` · ${concert.time}` : ''}
-            </p>
-          </div>
-        </div>
-        <Button className="mt-5 w-full" href={`/concerts/${concert.id}`} variant="gold">
-          자세히 보기
-        </Button>
-      </div>
-    )
-  }
-
+function PlaybackIcon({ isPaused }: { isPaused: boolean }) {
   return (
-    <div className="rounded-card border border-bg-warm-white/16 bg-bg-warm-white/10 p-5 shadow-[0_24px_80px_rgb(0_0_0/0.24)] backdrop-blur-md md:p-6">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-soft">
-        IMPORTANT NOTICE
-      </p>
-      <h2 className="mt-4 break-keep text-xl font-semibold leading-7 text-bg-warm-white">
-        {notice?.title}
-      </h2>
-      <Button className="mt-5 w-full" href={`/notices/${notice?.id}`} variant="gold">
-        공지 보기
-      </Button>
+    <svg aria-hidden="true" className="size-3.5" fill="currentColor" viewBox="0 0 24 24">
+      {isPaused ? (
+        <path d="M8 5.4v13.2c0 .8.9 1.3 1.6.8l9.2-6.6c.6-.4.6-1.2 0-1.6L9.6 4.6C8.9 4.1 8 4.6 8 5.4z" />
+      ) : (
+        <path d="M7 5.5c0-.8.6-1.5 1.5-1.5S10 4.7 10 5.5v13c0 .8-.6 1.5-1.5 1.5S7 19.3 7 18.5v-13zm7 0c0-.8.6-1.5 1.5-1.5S17 4.7 17 5.5v13c0 .8-.6 1.5-1.5 1.5S14 19.3 14 18.5v-13z" />
+      )}
+    </svg>
+  )
+}
+
+function MottoChips() {
+  return (
+    <div aria-label="합창단 핵심 가치" className="home-hero-motto-chips">
+      {heroMottoChips.map((chip) => (
+        <span className="home-hero-motto-chip" key={chip}>
+          {chip}
+        </span>
+      ))}
     </div>
   )
 }
 
 export function HomeHeroSlideshow({
-  featureNotice,
+  eyebrow,
+  fallbackDescription,
+  fallbackSubtitle,
+  fallbackTitle,
   intervalMs = 5000,
-  nextConcert,
   slides,
 }: HomeHeroSlideshowProps) {
   const [activeIndex, setActiveIndex] = useState(0)
-  const [isPaused, setIsPaused] = useState(false)
+  const [isInteractionPaused, setIsInteractionPaused] = useState(false)
+  const [isUserPaused, setIsUserPaused] = useState(false)
   const [failedImageIds, setFailedImageIds] = useState<Set<string>>(() => new Set())
+  const isDocumentVisible = useDocumentVisibility()
   const prefersReducedMotion = usePrefersReducedMotion()
+  const resolvedFallbackSlide = useMemo<HeroSlide>(() => {
+    return {
+      ...fallbackSlide,
+      description: fallbackDescription?.trim() || fallbackSlide.description,
+      subtitle: fallbackSubtitle?.trim() || fallbackSlide.subtitle,
+      title: fallbackTitle?.trim() || fallbackSlide.title,
+    }
+  }, [fallbackDescription, fallbackSubtitle, fallbackTitle])
 
   const visibleSlides = useMemo(() => {
     return [...slides]
@@ -147,15 +230,32 @@ export function HomeHeroSlideshow({
       .sort((first, second) => first.display_order - second.display_order)
   }, [slides])
 
-  const renderedSlides = visibleSlides.length > 0 ? visibleSlides : [fallbackSlide]
+  const renderedSlides = useMemo(() => {
+    return visibleSlides.length > 0 ? visibleSlides : [resolvedFallbackSlide]
+  }, [resolvedFallbackSlide, visibleSlides])
   const hasMultipleSlides = renderedSlides.length > 1
   const safeActiveIndex = activeIndex % renderedSlides.length
-  const currentSlide = renderedSlides[safeActiveIndex] ?? fallbackSlide
-  const heroTitle = currentSlide.title || fallbackSlide.title
-  const hasFeaturePanel = Boolean(nextConcert || featureNotice)
+  const isAutoplayPaused =
+    isInteractionPaused || isUserPaused || prefersReducedMotion
 
   useEffect(() => {
-    if (!hasMultipleSlides || isPaused || prefersReducedMotion) {
+    const first = renderedSlides[0]
+
+    if (first?.image_url && !failedImageIds.has(first.id)) {
+      warmHeroImage(first.image_url, 'high')
+    }
+  }, [failedImageIds, renderedSlides])
+
+  useEffect(() => {
+    const nextSlide = renderedSlides[(safeActiveIndex + 1) % renderedSlides.length]
+
+    if (nextSlide?.image_url && !failedImageIds.has(nextSlide.id)) {
+      warmHeroImage(nextSlide.image_url, 'low')
+    }
+  }, [failedImageIds, renderedSlides, safeActiveIndex])
+
+  useEffect(() => {
+    if (!hasMultipleSlides || isAutoplayPaused || !isDocumentVisible) {
       return
     }
 
@@ -166,7 +266,13 @@ export function HomeHeroSlideshow({
     return () => {
       window.clearInterval(timer)
     }
-  }, [hasMultipleSlides, intervalMs, isPaused, prefersReducedMotion, renderedSlides.length])
+  }, [
+    hasMultipleSlides,
+    intervalMs,
+    isDocumentVisible,
+    isAutoplayPaused,
+    renderedSlides.length,
+  ])
 
   const goToSlide = (nextIndex: number) => {
     setActiveIndex((nextIndex + renderedSlides.length) % renderedSlides.length)
@@ -174,8 +280,8 @@ export function HomeHeroSlideshow({
 
   return (
     <section
-      aria-label="홈 메인 슬라이드"
-      className="relative min-h-[720px] overflow-hidden bg-navy-midnight text-bg-warm-white md:min-h-[86vh]"
+      aria-label="홈 메인 비주얼"
+      className="home-hero-section relative isolate overflow-hidden bg-navy-midnight text-bg-warm-white"
       onBlurCapture={(event) => {
         const nextFocusedElement = event.relatedTarget
 
@@ -183,34 +289,43 @@ export function HomeHeroSlideshow({
           !(nextFocusedElement instanceof Node) ||
           !event.currentTarget.contains(nextFocusedElement)
         ) {
-          setIsPaused(false)
+          setIsInteractionPaused(false)
         }
       }}
-      onFocusCapture={() => setIsPaused(true)}
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
+      onFocusCapture={() => setIsInteractionPaused(true)}
+      onMouseEnter={() => setIsInteractionPaused(true)}
+      onMouseLeave={() => setIsInteractionPaused(false)}
     >
-      <div className="absolute inset-0 bg-linear-to-br from-navy-midnight via-navy-deep to-gold-warm" />
+      <div className="absolute inset-0 bg-linear-to-br from-navy-midnight via-navy-deep to-navy-midnight" />
+      <div aria-hidden="true" className="spotlight-glow home-spotlight-glow" />
+      <div aria-hidden="true" className="stage-staff-lines stage-staff-lines-hero" />
+
       {renderedSlides.map((slide, index) => {
         const isActive = index === safeActiveIndex
-        const hasImage = Boolean(slide.image_url) && !failedImageIds.has(slide.id)
+        const isPrioritySlide = index === 0
+        const hasImage =
+          Boolean(slide.image_url) &&
+          !failedImageIds.has(slide.id) &&
+          (isActive || isPrioritySlide)
 
         return (
           <div
             aria-hidden={!isActive}
             className={[
-              'absolute inset-0 transition-opacity duration-700 motion-reduce:transition-none',
-              isActive ? 'opacity-100' : 'opacity-0',
+              'home-hero-slide absolute inset-0 motion-reduce:transition-none',
+              isActive ? 'home-hero-slide-active' : '',
             ].join(' ')}
             key={slide.id}
           >
             {hasImage ? (
-              <img
-                alt={slide.image_alt}
-                className="size-full object-cover object-[center_36%]"
-                decoding="async"
-                fetchPriority={index === 0 ? 'high' : 'auto'}
-                loading={index === 0 ? 'eager' : 'lazy'}
+              <OptimizedImage
+                alt=""
+                className="home-hero-background-image absolute inset-0 size-full !bg-none"
+                decorative
+                fallbackVariant="hero"
+                imageClassName="object-center"
+                loading={isPrioritySlide ? 'eager' : 'lazy'}
+                objectFit="cover"
                 onError={() => {
                   setFailedImageIds((current) => {
                     const next = new Set(current)
@@ -218,86 +333,67 @@ export function HomeHeroSlideshow({
                     return next
                   })
                 }}
+                priority={isPrioritySlide}
+                sizes="100vw"
                 src={slide.image_url}
               />
             ) : null}
-            <div className="absolute inset-0 bg-linear-to-r from-navy-midnight via-navy-midnight/76 to-navy-deep/18" />
-            <div className="absolute inset-0 bg-linear-to-t from-navy-midnight/84 via-navy-midnight/10 to-navy-midnight/20" />
           </div>
         )
       })}
 
-      <Container
-        className={[
-          'relative grid min-h-[720px] items-center gap-10 pb-36 pt-28 md:min-h-[86vh] md:pb-28 md:pt-32',
-          hasFeaturePanel
-            ? 'md:grid-cols-[minmax(0,1fr)_360px] lg:grid-cols-[minmax(0,1fr)_410px]'
-            : 'md:grid-cols-1',
-        ].join(' ')}
-      >
-        <div className="min-w-0 max-w-3xl">
+      <div aria-hidden="true" className="home-hero-overlay absolute inset-0" />
+
+      <Container className="home-hero-layout relative z-20">
+        <div className="home-hero-copy min-w-0">
           <Reveal delayMs={0}>
             <div className="mb-6 h-1 w-16 rounded-full bg-gold-warm" />
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft md:text-sm">
-              SEOUL MOTET YOUTH CHOIR
+            <p className="type-eyebrow mb-4 text-gold-soft">
+              {eyebrow?.trim() || heroCopy.eyebrow}
             </p>
           </Reveal>
-          <Reveal delayMs={90}>
-            <h1 className="max-w-[14rem] break-keep text-[34px] font-bold leading-[1.12] tracking-normal text-bg-warm-white drop-shadow-[0_3px_16px_rgb(0_0_0/0.34)] sm:max-w-none sm:text-[48px] md:text-6xl">
-              <HeroTitle title={heroTitle} />
+          <Reveal delayMs={80}>
+            <h1 className="type-hero-title max-w-[12ch] text-bg-warm-white drop-shadow-[0_4px_20px_rgb(0_0_0/0.34)]">
+              {heroCopy.headline}
             </h1>
           </Reveal>
-          <Reveal delayMs={170}>
-            <p className="mt-5 max-w-2xl break-keep text-xl font-semibold leading-8 text-gold-soft md:text-2xl">
-              {currentSlide.subtitle || fallbackSlide.subtitle}
+          <Reveal delayMs={150}>
+            <p className="type-body mt-6 max-w-[560px] text-bg-ivory/88">
+              {heroCopy.body}
             </p>
           </Reveal>
-          <Reveal delayMs={240}>
-            <p className="mt-5 max-w-2xl break-keep text-base leading-8 text-bg-ivory/86 md:text-lg">
-              {currentSlide.description || fallbackSlide.description}
-            </p>
-          </Reveal>
-          <Reveal delayMs={320}>
-            <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-              <Button
-                className="w-full sm:w-auto"
-                href={currentSlide.primary_cta_href || '/concerts'}
-                size="lg"
-                variant="gold"
-              >
-                {currentSlide.primary_cta_label || '공연 일정 보기'}
+          <Reveal delayMs={220}>
+            <div className="mt-9 grid gap-3 sm:flex sm:flex-wrap">
+              <Button className="w-full sm:w-auto" href="/spirit" size="lg" variant="gold">
+                {heroCopy.primaryCta}
               </Button>
               <Button
-                className="w-full !border-bg-warm-white/80 !bg-bg-warm-white/10 !text-bg-warm-white hover:!border-bg-warm-white hover:!bg-bg-warm-white/18 hover:!text-gold-soft sm:w-auto"
-                href={currentSlide.secondary_cta_href || '/about'}
+                className="w-full !border-bg-warm-white/72 !bg-bg-warm-white/[0.07] !text-bg-warm-white hover:!border-bg-warm-white hover:!bg-bg-warm-white/[0.12] hover:!text-gold-soft sm:w-auto"
+                href="/join"
                 size="lg"
                 variant="secondary"
               >
-                {currentSlide.secondary_cta_label || '합창단 소개 보기'}
+                {heroCopy.secondaryCta}
               </Button>
             </div>
           </Reveal>
+          <Reveal delayMs={280}>
+            <MottoChips />
+          </Reveal>
 
-          {hasMultipleSlides ? (
-            <Reveal delayMs={390}>
-              <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
+            {hasMultipleSlides ? (
+              <div className="home-hero-controls" aria-label="Hero 슬라이드 선택">
                 <p className="sr-only" aria-live="polite">
                   현재 슬라이드 {safeActiveIndex + 1} / {renderedSlides.length}
                 </p>
-                <div
-                  aria-label="Hero 슬라이드 선택"
-                  className="inline-flex w-fit items-center gap-2 rounded-pill border border-bg-warm-white/18 bg-navy-midnight/42 px-3 py-3 shadow-[0_12px_36px_rgb(0_0_0/0.2)] backdrop-blur-md"
-                  role="tablist"
-                >
+                <div className="home-hero-dots" role="tablist">
                   {renderedSlides.map((slide, index) => (
                     <button
                       aria-label={`${index + 1}번째 슬라이드 보기: ${slide.title}`}
                       aria-selected={index === safeActiveIndex}
                       className={[
-                        'h-2.5 rounded-pill transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm',
-                        index === safeActiveIndex
-                          ? 'w-8 bg-gold-warm'
-                          : 'w-2.5 bg-bg-warm-white/42 hover:bg-bg-warm-white/72',
+                        'home-hero-dot',
+                        index === safeActiveIndex ? 'home-hero-dot-active' : '',
                       ].join(' ')}
                       key={slide.id}
                       onClick={() => goToSlide(index)}
@@ -306,20 +402,23 @@ export function HomeHeroSlideshow({
                     />
                   ))}
                 </div>
-                <div className="flex w-fit items-center gap-3 rounded-pill border border-bg-warm-white/18 bg-navy-midnight/42 p-2 shadow-[0_12px_36px_rgb(0_0_0/0.2)] backdrop-blur-md">
+                <div className="home-hero-arrow-group">
                   <button
                     aria-label={
-                      isPaused ? 'Hero 슬라이드 자동 재생' : 'Hero 슬라이드 일시 정지'
+                      isUserPaused
+                        ? 'Hero 슬라이드 자동 재생 시작'
+                        : 'Hero 슬라이드 자동 재생 일시정지'
                     }
-                    className="min-h-11 rounded-pill border border-bg-warm-white/32 px-4 text-xs font-semibold text-bg-warm-white transition hover:border-gold-soft hover:text-gold-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm"
-                    onClick={() => setIsPaused((current) => !current)}
+                    className="home-hero-arrow"
+                    disabled={prefersReducedMotion}
+                    onClick={() => setIsUserPaused((current) => !current)}
                     type="button"
                   >
-                    {isPaused ? 'PLAY' : 'PAUSE'}
+                    <PlaybackIcon isPaused={isUserPaused} />
                   </button>
                   <button
                     aria-label="이전 Hero 슬라이드 보기"
-                    className="flex size-11 items-center justify-center rounded-full border border-bg-warm-white/32 text-bg-warm-white transition hover:border-gold-soft hover:text-gold-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm"
+                    className="home-hero-arrow"
                     onClick={() => goToSlide(safeActiveIndex - 1)}
                     type="button"
                   >
@@ -327,7 +426,7 @@ export function HomeHeroSlideshow({
                   </button>
                   <button
                     aria-label="다음 Hero 슬라이드 보기"
-                    className="flex size-11 items-center justify-center rounded-full border border-bg-warm-white/32 text-bg-warm-white transition hover:border-gold-soft hover:text-gold-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm"
+                    className="home-hero-arrow"
                     onClick={() => goToSlide(safeActiveIndex + 1)}
                     type="button"
                   >
@@ -335,17 +434,9 @@ export function HomeHeroSlideshow({
                   </button>
                 </div>
               </div>
-            </Reveal>
-          ) : null}
+            ) : null}
         </div>
-
-        {hasFeaturePanel ? (
-          <Reveal className="md:self-end" delayMs={380}>
-            <FeaturePanel concert={nextConcert} notice={featureNotice} />
-          </Reveal>
-        ) : null}
       </Container>
-
     </section>
   )
 }

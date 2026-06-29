@@ -14,7 +14,7 @@ const setupItems = [
 
 export function AdminSetupRequired() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-bg-ivory px-5 py-12 text-text-charcoal">
+    <main className="admin-shell flex min-h-screen items-center justify-center bg-bg-ivory px-5 py-12 text-text-charcoal">
       <Card className="w-full min-w-0 max-w-xs overflow-hidden p-6 sm:max-w-2xl sm:p-8">
         <BrandLogo className="mb-6 max-w-[220px]" size="lg" />
         <p className="text-sm font-semibold text-gold-warm">관리자 CMS</p>
@@ -42,7 +42,7 @@ export function AdminSetupRequired() {
             VITE_SUPABASE_ANON_KEY
           </code>
         </div>
-        <div className="mt-5 rounded-card border border-line-default bg-bg-ivory p-4">
+        <div className="mt-5 rounded-formal border border-line-default bg-bg-ivory p-4">
           <p className="text-sm font-semibold text-navy-deep">
             운영 전 필수 확인
           </p>

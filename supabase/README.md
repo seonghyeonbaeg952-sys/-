@@ -8,10 +8,12 @@
 2. Dashboard에서 `SQL Editor`로 이동합니다.
 3. `supabase/schema.sql` 전체 내용을 새 query에 붙여넣고 실행합니다.
 4. `supabase/migrations/2026_add_about_sections.sql`을 실행해 소개 섹션 CMS 테이블을 추가합니다.
-5. 실행 후 Table Editor에서 테이블과 RLS 활성화 상태를 확인합니다.
-6. Storage에서 `site-images` bucket이 생성되었는지 확인합니다.
-7. 필요하면 `supabase/seed.example.sql`을 별도로 실행해 공개 placeholder 데이터만 넣습니다.
-8. 소개/연혁 예시 콘텐츠가 필요하면 `supabase/seed.about-history.example.sql`을 추가로 실행합니다.
+5. `supabase/migrations/2026_add_home_content_fields.sql`을 실행해 Home 문구 관리 필드를 추가합니다.
+6. `supabase/migrations/2026_add_location_image_fields.sql`을 실행해 오시는 길 이미지 필드와 `locations/` Storage 경로를 추가합니다.
+7. 실행 후 Table Editor에서 테이블과 RLS 활성화 상태를 확인합니다.
+8. Storage에서 `site-images` bucket이 생성되었는지 확인합니다.
+9. 필요하면 `supabase/seed.example.sql`을 별도로 실행해 공개 placeholder 데이터만 넣습니다.
+10. 소개/연혁 예시 콘텐츠가 필요하면 `supabase/seed.about-history.example.sql`을 추가로 실행합니다.
 
 ## 2. 관리자 계정
 
@@ -94,6 +96,7 @@ SQL Editor에서 bucket insert 권한 문제가 발생하면 Dashboard에서 직
 - `posters/`
 - `notices/`
 - `history/`
+- `locations/`
 - `brand/`
 
 Storage 업로드, 수정, 삭제는 `profiles.role = 'admin'`인 사용자만 가능합니다. 프론트엔드에서 `service_role` key를 사용하지 않습니다.

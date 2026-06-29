@@ -4,13 +4,22 @@ import { Card } from './Card'
 
 type EmptyStateProps = {
   action?: ReactNode
+  compact?: boolean
   description?: string
   title: string
 }
 
-export function EmptyState({ action, description, title }: EmptyStateProps) {
+export function EmptyState({
+  action,
+  compact = false,
+  description,
+  title,
+}: EmptyStateProps) {
   return (
-    <Card className="p-8 text-center sm:p-10">
+    <Card
+      className={compact ? 'empty-state compact text-center' : 'empty-state p-8 text-center sm:p-10'}
+      radius="balanced"
+    >
       <div className="mx-auto mb-5 flex size-12 items-center justify-center rounded-full border border-gold-soft/70 bg-bg-ivory text-gold-warm">
         <span aria-hidden="true" className="h-px w-5 bg-current" />
       </div>

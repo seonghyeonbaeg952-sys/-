@@ -23,6 +23,7 @@ type AdminTableProps<TRow extends CmsRecord> = {
   onDelete?: (row: TRow) => void
   onEdit?: (row: TRow) => void
   rows: TRow[]
+  showVisibility?: boolean
 }
 
 function renderCell<TRow extends CmsRecord>(
@@ -66,6 +67,7 @@ export function AdminTable<TRow extends CmsRecord>({
   onDelete,
   onEdit,
   rows,
+  showVisibility = true,
 }: AdminTableProps<TRow>) {
   if (loading) {
     return <AdminLoadingState />
@@ -91,7 +93,7 @@ export function AdminTable<TRow extends CmsRecord>({
                     {column.header}
                   </th>
                 ))}
-                <th className="px-4 py-3">공개</th>
+                {showVisibility ? <th className="px-4 py-3">공개</th> : null}
                 {(onEdit || onDelete) ? <th className="px-4 py-3">관리</th> : null}
               </tr>
             </thead>
@@ -103,9 +105,11 @@ export function AdminTable<TRow extends CmsRecord>({
                       {renderCell(column, row)}
                     </td>
                   ))}
-                  <td className="px-4 py-4 align-top">
-                    <VisibilityBadge value={row.is_visible} />
-                  </td>
+                  {showVisibility ? (
+                    <td className="px-4 py-4 align-top">
+                      <VisibilityBadge value={row.is_visible} />
+                    </td>
+                  ) : null}
                   {(onEdit || onDelete) ? (
                     <td className="px-4 py-4 align-top">
                       <div className="flex gap-2">
@@ -138,7 +142,7 @@ export function AdminTable<TRow extends CmsRecord>({
         {rows.map((row) => (
           <Card className="p-5" hoverable key={row.id}>
             <div className="mb-4 flex items-center justify-between gap-3">
-              <VisibilityBadge value={row.is_visible} />
+              {showVisibility ? <VisibilityBadge value={row.is_visible} /> : <span />}
               <div className="flex gap-2">
                 {onEdit ? (
                   <Button onClick={() => onEdit(row)} size="sm" variant="secondary">

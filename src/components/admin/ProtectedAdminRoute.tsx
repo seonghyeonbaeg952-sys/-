@@ -20,7 +20,7 @@ export function ProtectedAdminRoute({ children }: ProtectedAdminRouteProps) {
 
   if (adminAuth.isLoading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-bg-ivory px-5 py-12">
+      <main className="admin-shell flex min-h-screen items-center justify-center bg-bg-ivory px-5 py-12">
         <div className="w-full max-w-lg">
           <LoadingState label="관리자 권한을 확인하는 중입니다" />
         </div>

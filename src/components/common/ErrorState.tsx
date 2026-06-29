@@ -14,7 +14,10 @@ export function ErrorState({
   title = '내용을 불러오지 못했습니다',
 }: ErrorStateProps) {
   return (
-    <Card className="border-state-error/20 bg-bg-warm-white p-8 text-center sm:p-10">
+    <Card
+      className="border-state-error/20 bg-bg-warm-white p-8 text-center sm:p-10"
+      radius="balanced"
+    >
       <div className="mx-auto mb-5 flex size-12 items-center justify-center rounded-full bg-state-error/10 text-state-error">
         <span aria-hidden="true" className="text-xl font-semibold">
           !

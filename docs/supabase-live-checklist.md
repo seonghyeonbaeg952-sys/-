@@ -42,8 +42,10 @@ Supabase Dashboard > SQL Editor에서 아래 순서대로 실행한다.
 
 1. `supabase/schema.sql`
 2. `supabase/migrations/2026_add_about_sections.sql`
-3. `supabase/seed.example.sql` 선택 실행
-4. `supabase/seed.about-history.example.sql` 선택 실행
+3. `supabase/migrations/2026_add_home_content_fields.sql`
+4. `supabase/migrations/2026_add_location_image_fields.sql`
+5. `supabase/seed.example.sql` 선택 실행
+6. `supabase/seed.about-history.example.sql` 선택 실행
 
 seed 파일은 공개 가능한 예시 데이터만 넣는다. 실제 운영 DB에 seed를 넣기 전에는 문구, 날짜, 공개 여부를 반드시 확인한다. 실제 관리자 계정 정보는 seed에 넣지 않는다.
 
@@ -120,6 +122,7 @@ set role = 'admin',
 - `posters`
 - `notices`
 - `history`
+- `locations`
 - `brand`
 
 bucket 설정 확인 쿼리:

@@ -5,6 +5,7 @@ import { AdminErrorState } from '../../components/admin/AdminErrorState'
 import { AdminLoadingState } from '../../components/admin/AdminLoadingState'
 import { AdminPageTitle } from '../../components/admin/AdminPageTitle'
 import { AdminSwitch } from '../../components/admin/AdminSwitch'
+import { ImageUploader } from '../../components/admin/ImageUploader'
 import { Button } from '../../components/common/Button'
 import { Card } from '../../components/common/Card'
 import { MapPreview } from '../../components/common/MapPreview'
@@ -16,6 +17,9 @@ type LocationFormValues = {
   address: string
   email: string
   fax: string
+  image_alt: string
+  image_caption: string
+  image_url: string
   is_visible: boolean
   kakao_map_url: string
   map_embed_url: string
@@ -31,6 +35,9 @@ function toFormValues(row: LocationRow | null): LocationFormValues {
     address: row?.address ?? '',
     email: typeof row?.email === 'string' ? row.email : '',
     fax: typeof row?.fax === 'string' ? row.fax : '',
+    image_alt: typeof row?.image_alt === 'string' ? row.image_alt : '',
+    image_caption: typeof row?.image_caption === 'string' ? row.image_caption : '',
+    image_url: typeof row?.image_url === 'string' ? row.image_url : '',
     is_visible: row?.is_visible ?? true,
     kakao_map_url: row?.kakao_map_url ?? '',
     map_embed_url: row?.map_embed_url ?? '',
@@ -64,6 +71,9 @@ function isOptionalColumnError(error: string) {
     normalizedError.includes('map_embed_url') ||
     normalizedError.includes('email') ||
     normalizedError.includes('fax') ||
+    normalizedError.includes('image_url') ||
+    normalizedError.includes('image_alt') ||
+    normalizedError.includes('image_caption') ||
     normalizedError.includes('column') ||
     normalizedError.includes('schema cache')
   )
@@ -202,6 +212,10 @@ function LocationForm({
       optionalPayload.map_embed_url = values.map_embed_url.trim()
     }
 
+    optionalPayload.image_url = nullable(values.image_url)
+    optionalPayload.image_alt = nullable(values.image_alt)
+    optionalPayload.image_caption = nullable(values.image_caption)
+
     const result = await onSubmit({ ...payload, ...optionalPayload })
 
     if (
@@ -282,7 +296,38 @@ function LocationForm({
               </label>
             </div>
 
-            <details className="rounded-card border border-line-default bg-bg-ivory p-5">
+            <div className="rounded-formal border border-line-default bg-bg-ivory p-5">
+              <ImageUploader
+                description="방문자 오시는 길 섹션에 표시할 건물, 연습실 입구 또는 안내 사진입니다."
+                disabled={disabled}
+                folder="locations"
+                label="오시는 길 대표 사진"
+                onChange={(url) => updateValue('image_url', url ?? '')}
+                value={values.image_url || null}
+              />
+              <div className="mt-5 grid gap-5 md:grid-cols-2">
+                <label>
+                  <span className={labelClass()}>이미지 대체 텍스트</span>
+                  <input
+                    className={inputClass()}
+                    onChange={(event) => updateValue('image_alt', event.target.value)}
+                    placeholder="서울모테트음악재단 건물 입구"
+                    value={values.image_alt}
+                  />
+                </label>
+                <label>
+                  <span className={labelClass()}>이미지 설명 선택 사항</span>
+                  <input
+                    className={inputClass()}
+                    onChange={(event) => updateValue('image_caption', event.target.value)}
+                    placeholder="방문 시 확인할 수 있는 짧은 안내"
+                    value={values.image_caption}
+                  />
+                </label>
+              </div>
+            </div>
+
+            <details className="rounded-formal border border-line-default bg-bg-ivory p-5">
               <summary className="cursor-pointer text-sm font-semibold text-navy-deep">
                 지도 링크 직접 설정 선택 사항
               </summary>
@@ -336,7 +381,7 @@ function LocationForm({
               onChange={(checked) => updateValue('is_visible', checked)}
             />
 
-            <div className="rounded-card border border-line-default bg-bg-warm-white p-5">
+            <div className="rounded-formal border border-line-default bg-bg-warm-white p-5">
               <p className="text-sm font-semibold text-navy-deep">지도 미리보기</p>
               <ul className="mt-3 grid gap-1 text-sm leading-6 text-text-muted">
                 {statusMessages.map((message) => (

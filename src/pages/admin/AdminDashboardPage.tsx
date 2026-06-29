@@ -83,7 +83,7 @@ export function AdminDashboardPage() {
       >
         {dashboardCards.map((card) => (
           <Link
-            className="group block rounded-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
+            className="group block rounded-formal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
             key={card.href}
             to={card.href}
           >

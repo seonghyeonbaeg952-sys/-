@@ -32,7 +32,7 @@ export function AdminLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-bg-ivory text-text-charcoal lg:grid lg:grid-cols-[280px_1fr]">
+    <div className="admin-shell min-h-screen bg-bg-ivory text-text-charcoal lg:grid lg:grid-cols-[280px_1fr]">
       <AdminSidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}

@@ -48,7 +48,10 @@ export function ConcertDetailPage() {
           <article className="grid gap-8 lg:grid-cols-[420px_1fr]">
             <ImageTile
               alt={`${concert.title} 포스터`}
-              className="aspect-[3/4] rounded-card shadow-card"
+              className="aspect-[3/4] rounded-formal bg-bg-warm-white bg-none shadow-card"
+              fallbackVariant="poster"
+              objectFit="contain"
+              sizes="(min-width: 1024px) 420px, calc(100vw - 40px)"
               src={concert.poster_url}
             />
             <div>
@@ -61,29 +64,29 @@ export function ConcertDetailPage() {
               <h2 className="mt-5 text-3xl font-bold leading-tight text-navy-deep">
                 {concert.title}
               </h2>
-              <dl className="mt-6 grid gap-3 rounded-card border border-line-default bg-bg-warm-white p-5 text-sm leading-6 text-text-muted">
-                <div>
+              <dl className="mt-6 grid gap-3 rounded-formal border border-line-default bg-bg-warm-white p-5 text-sm leading-6 text-text-muted sm:grid-cols-2">
+                <div className="rounded-button bg-bg-ivory px-4 py-3">
                   <dt className="font-semibold text-navy-deep">일시</dt>
                   <dd>
                     {formatKoreanDate(concert.date)}
                     {concert.time ? ` · ${concert.time}` : ''}
                   </dd>
                 </div>
-                <div>
+                <div className="rounded-button bg-bg-ivory px-4 py-3">
                   <dt className="font-semibold text-navy-deep">장소</dt>
                   <dd>{concert.location}</dd>
                 </div>
               </dl>
 
               {concert.description ? (
-                <p className="mt-6 whitespace-pre-line text-base leading-8 text-text-muted">
+                <p className="mt-6 whitespace-pre-line break-keep text-base leading-8 text-text-muted">
                   {concert.description}
                 </p>
               ) : null}
 
               <div className="mt-8 grid gap-5">
                 {concert.program.length > 0 ? (
-                  <Card className="p-5">
+                  <Card className="p-5" radius="formal">
                     <h3 className="text-lg font-semibold text-navy-deep">프로그램</h3>
                     <ul className="mt-4 grid gap-2 text-sm leading-6 text-text-muted">
                       {concert.program.map((item) => (
@@ -93,7 +96,7 @@ export function ConcertDetailPage() {
                   </Card>
                 ) : null}
                 {concert.performers.length > 0 ? (
-                  <Card className="p-5">
+                  <Card className="p-5" radius="formal">
                     <h3 className="text-lg font-semibold text-navy-deep">출연</h3>
                     <ul className="mt-4 grid gap-2 text-sm leading-6 text-text-muted">
                       {concert.performers.map((item) => (

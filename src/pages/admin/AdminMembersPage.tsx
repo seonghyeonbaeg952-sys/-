@@ -1,24 +1,32 @@
 import { AdminCrudListPage } from '../../components/admin/AdminCrudListPage'
-import { AdminImagePreview } from '../../components/admin/AdminImagePreview'
 import type { AdminFieldConfig } from '../../components/admin/AdminRecordForm'
 import type { AdminTableColumn } from '../../components/admin/AdminTable'
 import type { MemberRow } from '../../types/cms'
-import { getMemberPartLabel, getProtectedMemberName } from '../../utils/memberName'
+import {
+  getMemberGroupLabel,
+  getMemberPartLabel,
+  getMemberStatusLabel,
+  getProtectedMemberName,
+} from '../../utils/memberName'
 
 const partOptions = [
   { label: '소프라노', value: 'soprano' },
   { label: '알토', value: 'alto' },
   { label: '테너', value: 'tenor' },
   { label: '베이스', value: 'bass' },
-  { label: '기타', value: 'other' },
 ]
 
 const groupOptions = [
   { label: '초등부', value: 'elementary' },
   { label: '중등부', value: 'middle' },
   { label: '고등부', value: 'high' },
-  { label: '졸업단원', value: 'alumni' },
-  { label: '기타', value: 'other' },
+  { label: '대학부', value: 'university' },
+  { label: '스태프', value: 'staff' },
+]
+
+const statusOptions = [
+  { label: '현재단원', value: 'active' },
+  { label: '역대단원', value: 'alumni' },
 ]
 
 const displayOptions = [
@@ -38,12 +46,11 @@ const fields = [
     required: true,
   },
   {
-    name: 'photo_url',
-    label: '단원 사진',
-    type: 'image',
-    folder: 'members',
-    description:
-      '청소년 개인정보 보호를 위해 공개 여부와 이름 공개 방식을 함께 확인하세요.',
+    name: 'member_status',
+    label: '활동 상태',
+    type: 'select',
+    options: statusOptions,
+    required: true,
   },
   { name: 'description', label: '짧은 소개', type: 'textarea', rows: 3 },
   {
@@ -59,17 +66,16 @@ const fields = [
 
 const columns = [
   {
-    header: '사진',
-    render: (row) => (
-      <AdminImagePreview
-        alt={`${getProtectedMemberName(row)} 사진`}
-        src={row.photo_url}
-      />
-    ),
-  },
-  {
     header: '공개 이름',
     render: (row) => getProtectedMemberName(row),
+  },
+  {
+    header: '그룹',
+    render: (row) => getMemberGroupLabel(row.group_type),
+  },
+  {
+    header: '활동 상태',
+    render: (row) => getMemberStatusLabel(row.member_status),
   },
   {
     header: '파트',
@@ -90,15 +96,28 @@ export function AdminMembersPage() {
       columns={columns}
       defaultValues={{
         display_order: 0,
-        group_type: 'other',
+        group_type: 'middle',
         is_visible: true,
+        member_status: 'active',
         name_display_type: 'hidden',
-        part: 'other',
+        part: 'soprano',
       }}
-      description="단원 정보를 관리합니다. 청소년 개인정보 보호를 위해 이름 공개 방식은 기본 비공개입니다."
+      description="현재단원, 스태프, 역대단원의 이름 공개 방식을 관리합니다. 청소년 개인정보 보호를 위해 이름 공개 방식은 기본 비공개입니다."
       emptyMessage="등록된 단원이 없습니다."
       fields={fields}
       filters={[
+        {
+          allLabel: '전체 그룹',
+          column: 'group_type',
+          label: '그룹',
+          options: groupOptions,
+        },
+        {
+          allLabel: '전체 활동 상태',
+          column: 'member_status',
+          label: '활동 상태',
+          options: statusOptions,
+        },
         {
           allLabel: '전체 파트',
           column: 'part',
@@ -115,7 +134,7 @@ export function AdminMembersPage() {
           ],
         },
       ]}
-      info="청소년 단원 개인정보 보호를 위해 방문자 화면에는 이름 공개 방식(full, partial, hidden)에 따라 표시됩니다."
+      info="방문자 화면에는 공개 상태가 켜진 단원만 표시되며, 이름은 full, partial, hidden 설정에 따라 보호 표시됩니다. 공개 화면의 역대단원 탭은 현재단원까지 포함한 전체 공개 단원 명단으로 표시되고, 활동 상태의 역대단원 값은 과거 활동 단원을 구분해 관리하는 용도입니다."
       order={{ column: 'display_order', ascending: true }}
       searchColumn="name"
       searchPlaceholder="단원 이름 검색"
