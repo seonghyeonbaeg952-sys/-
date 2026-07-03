@@ -385,7 +385,7 @@
   --book-final: 0;
   --cover-opacity: 1;
   position: relative;
-  height: 250svh;
+  height: 430vh;
   min-height: 640px;
   overflow: visible;
   border-block: 1px solid rgb(201 164 92 / 0.16);
@@ -403,7 +403,7 @@
   place-items: center;
   overflow: hidden;
   perspective: 2200px;
-  padding: 48px 28px 30px;
+  padding: 76px 32px 42px;
 }
 
 .motet-score-stage-label {
@@ -431,9 +431,9 @@
 .motet-score-book {
   position: relative;
   isolation: isolate;
-  width: min(860px, 76vw);
-  height: min(610px, 70svh);
-  min-height: 540px;
+  width: min(1180px, 84vw);
+  height: clamp(460px, 62vh, 600px);
+  min-height: 0;
   transform:
     translateX(calc((0.5 - var(--book-open)) * 2.4vw))
     rotateX(calc((1 - var(--book-open)) * 1.2deg));
@@ -461,7 +461,7 @@
   grid-template-columns: 1fr 1fr;
   overflow: hidden;
   border: 1px solid rgb(201 164 92 / 0.18);
-  border-radius: 24px;
+  border-radius: 30px;
   background: #fffefe;
   box-shadow: 0 36px 100px rgb(7 17 31 / 0.16);
   filter: saturate(calc(0.72 + var(--book-open) * 0.28));
@@ -476,7 +476,7 @@
   background:
     linear-gradient(90deg, rgb(6 20 38 / 0.035), transparent 9%, transparent 91%, rgb(6 20 38 / 0.035)),
     #fffefe;
-  padding: clamp(30px, 3.4vw, 44px);
+  padding: clamp(34px, 5vw, 66px);
 }
 
 .motet-score-page-left {
@@ -486,8 +486,8 @@
 .motet-score-page::before {
   content: "";
   position: absolute;
-  inset: 30px 38px auto;
-  height: 58px;
+  inset: 42px 44px auto;
+  height: 94px;
   background: repeating-linear-gradient(
     to bottom,
     rgb(201 164 92 / 0.2) 0 1px,
@@ -520,6 +520,7 @@
   letter-spacing: -0.045em;
   line-height: 0.72;
   pointer-events: none;
+  opacity: var(--book-final);
   text-transform: uppercase;
   user-select: none;
   white-space: nowrap;
@@ -551,7 +552,7 @@
   height: 100%;
   overflow: hidden;
   border: 1px solid rgb(255 255 255 / 0.16);
-  border-radius: 24px;
+  border-radius: 28px;
   backface-visibility: hidden;
   background:
     repeating-linear-gradient(to bottom, rgb(255 255 255 / 0.09) 0 1px, transparent 1px 11px),
@@ -569,7 +570,7 @@
   inset: 0;
   display: grid;
   align-content: end;
-  padding: clamp(30px, 4.2vw, 48px);
+  padding: clamp(34px, 5vw, 56px);
 }
 
 .motet-score-cover-inner p {
@@ -582,12 +583,12 @@
 
 .motet-score-cover-inner h2 {
   margin: 0;
-  max-width: 340px;
+  max-width: 420px;
   font-family: var(--font-heading-kr);
-  font-size: clamp(31px, 4.1vw, 50px);
+  font-size: clamp(34px, 4.4vw, 58px);
   font-weight: 620;
   letter-spacing: -0.028em;
-  line-height: 1.12;
+  line-height: 1.06;
   font-variation-settings: "wght" 620;
 }
 
@@ -646,8 +647,9 @@
 .motet-score-value-words {
   position: absolute;
   inset: 0;
-  z-index: 32;
-  overflow: visible;
+  z-index: 6;
+  overflow: hidden;
+  border-radius: 30px;
   pointer-events: none;
 }
 
@@ -657,7 +659,7 @@
   left: var(--word-left);
   display: grid;
   gap: 0.22rem;
-  max-width: 13rem;
+  max-width: 10.5rem;
   opacity: var(--word-opacity);
   transform:
     translate3d(var(--word-x), var(--word-y), 54px)
@@ -688,7 +690,7 @@
   overflow: hidden;
   border: 1px solid rgb(201 164 92 / 0.18);
   border-left: 0;
-  border-radius: 0 24px 24px 0;
+  border-radius: 0 28px 28px 0;
   backface-visibility: hidden;
   background:
     linear-gradient(90deg, rgb(6 20 38 / 0.06), transparent 9%, transparent 92%, rgb(6 20 38 / 0.04)),
@@ -698,17 +700,17 @@
 .motet-score-flutter-face-back {
   border-right: 0;
   border-left: 1px solid rgb(201 164 92 / 0.18);
-  border-radius: 24px 0 0 24px;
+  border-radius: 28px 0 0 28px;
   transform: rotateY(180deg);
 }
 
 .motet-score-flutter-face::before {
   content: "";
   position: absolute;
-  top: 46px;
-  right: 38px;
-  left: 38px;
-  height: 76px;
+  top: 56px;
+  right: 48px;
+  left: 48px;
+  height: 92px;
   background: repeating-linear-gradient(
     to bottom,
     rgb(201 164 92 / 0.22) 0 1px,
@@ -729,8 +731,8 @@
   position: relative;
   z-index: 3;
   padding-top: clamp(64px, 7vw, 88px);
-  opacity: 1;
-  transform: none;
+  opacity: var(--book-final);
+  transform: translateX(calc((1 - var(--book-final)) * 42px));
 }
 
 .motet-score-eyebrow {
@@ -1407,6 +1409,41 @@
   display: none !important;
 }
 
+.archive-folder-item {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.archive-folder-item > strong {
+  display: -webkit-box;
+  max-width: 100%;
+  overflow: hidden;
+  margin-top: 12px;
+  color: var(--color-navy-deep);
+  font-family: var(--font-heading-kr);
+  font-size: clamp(0.95rem, 1.05vw, 1.08rem);
+  font-weight: 680;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+@media (min-width: 1100px) {
+  .archive-folder-item {
+    height: 330px !important;
+  }
+
+  .archive-folder-image {
+    height: 198px !important;
+    flex: 0 0 auto;
+  }
+}
+
 @media (max-width: 900px) {
   .home-hero-layout {
     min-height: 100svh !important;
@@ -1487,7 +1524,7 @@
   .home-hero-controls {
     max-width: 100%;
     opacity: 0.52;
-    transform: scale(0.92);
+    transform: none;
   }
 
   .home-hero-arrow-group {
@@ -1495,8 +1532,8 @@
   }
 
   .home-hero-arrow {
-    width: 34px !important;
-    height: 34px !important;
+    width: 44px !important;
+    height: 44px !important;
   }
 
   .home-spotlight-glow,
@@ -1592,8 +1629,8 @@
   }
 }
 
-/* Section notes belong to the long conductor staff and keep document-fixed
-   positions. Scrolling changes only the active tone. */
+/* Section notes belong to the long conductor staff. On desktop the whole rail
+   is viewport-fixed, so scorebook page turns cannot drag the labels down. */
 .score-flow-section-marks {
   position: absolute;
   inset: 0;
@@ -1654,6 +1691,64 @@
 .score-flow-section-mark.is-active .score-flow-section-note {
   filter: drop-shadow(0 4px 10px rgb(201 164 92 / 0.3));
   transform: translateX(var(--score-note-x, 0)) translateY(-50%) scale(1.1);
+}
+
+@media (min-width: 1024px) {
+  .home-flow-body > .score-flow-rail {
+    position: fixed !important;
+    top: clamp(118px, 14vh, 152px) !important;
+    bottom: clamp(54px, 8vh, 92px) !important;
+    left: clamp(10px, 1.35vw, 24px) !important;
+    z-index: 34 !important;
+    width: 56px !important;
+    opacity: 0.74 !important;
+  }
+
+  .home-flow-body > .score-flow-rail .score-flow-section-marks {
+    inset: 6% -78px 8% 0;
+  }
+
+  .home-flow-body > .score-flow-rail .score-flow-section-mark {
+    width: 124px;
+  }
+
+  .home-flow-body > .score-flow-rail .score-flow-section-note {
+    opacity: 0.38;
+    font-size: 17px;
+  }
+
+  .home-flow-body > .score-flow-rail .score-flow-section-label {
+    left: 34px;
+    max-width: 70px;
+    opacity: 0;
+    transform: translate(-8px, -50%);
+  }
+
+  .home-flow-body > .score-flow-rail .score-flow-section-mark.is-active .score-flow-section-note {
+    opacity: 1;
+  }
+
+  .home-flow-body > .score-flow-rail .score-flow-section-mark.is-active .score-flow-section-label {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+}
+
+@media (min-width: 1440px) {
+  .home-flow-body > .score-flow-rail {
+    left: clamp(14px, 1.5vw, 28px) !important;
+  }
+}
+
+@media (min-width: 1024px) and (max-height: 760px) {
+  .home-flow-body > .score-flow-rail {
+    top: 108px !important;
+    bottom: 46px !important;
+  }
+
+  .home-flow-body > .score-flow-rail .score-flow-section-label {
+    font-size: 9px;
+  }
 }
 
 /* Only the card group overlaps the hero. The ivory page background still

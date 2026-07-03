@@ -11,7 +11,6 @@ type ArchivePageStackProps = {
   description: string
   images: GalleryImage[]
   posters?: Poster[]
-  title: string
   videos?: VideoItem[]
 }
 
@@ -79,7 +78,6 @@ export function ArchivePageStack({
   description,
   images,
   posters = [],
-  title,
   videos = [],
 }: ArchivePageStackProps) {
   const [isOpen, setIsOpen] = useState(false)
@@ -106,7 +104,7 @@ export function ArchivePageStack({
       <Reveal variant="fade-up">
         <div className="archive-preview-copy">
           <p className="type-eyebrow text-gold-warm">ARCHIVE BOOK</p>
-          <h3 className="type-section-title mt-4 text-navy-deep">{title}</h3>
+          <h3 className="type-section-title mt-4 text-navy-deep">기록 보관함</h3>
           <p className="type-body mt-5 text-text-muted">{description}</p>
           <Button className="mt-7" href="/gallery" variant="secondary">
             {buttonLabel}
@@ -125,6 +123,7 @@ export function ArchivePageStack({
 
             {archiveItems.map((item, index) => (
               <a
+                aria-label={`${item.title} 보기`}
                 className={`archive-folder-item archive-folder-item-${index + 1}`}
                 href={item.href}
                 key={item.id}
@@ -136,22 +135,19 @@ export function ArchivePageStack({
                   sizes="(min-width: 1100px) 230px, calc(100vw - 40px)"
                   src={item.src}
                 />
-                <span>{item.kind}</span>
                 <strong>{item.title}</strong>
               </a>
             ))}
 
-            <div aria-hidden="true" className="archive-folder-front">
-              <span>사진 · 영상 · 포스터</span>
-              <strong>{title}</strong>
-            </div>
+            <div aria-hidden="true" className="archive-folder-front" />
             <button
               aria-expanded={isOpen}
+              aria-label={isOpen ? '갤러리 기록 접기' : '갤러리 기록 펼치기'}
               className="archive-folder-toggle"
               onClick={() => setIsOpen((current) => !current)}
               type="button"
             >
-              {isOpen ? '기록 접기' : '기록 펼치기'}
+              {isOpen ? '접기' : '펼치기'}
             </button>
           </div>
         </div>

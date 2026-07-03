@@ -91,11 +91,20 @@ export function useHomeFlowProgress() {
       const nextState = readProgress()
 
       setState((currentState) => {
-        if (Math.abs(currentState.progress - nextState.progress) < 0.003) {
+        const progressChanged = Math.abs(currentState.progress - nextState.progress) >= 0.003
+        const activeChanged =
+          currentState.activeKey !== nextState.activeKey ||
+          currentState.activeIndex !== nextState.activeIndex
+
+        if (!progressChanged && !activeChanged) {
           return currentState
         }
 
-        return { ...currentState, progress: nextState.progress }
+        return {
+          progress: progressChanged ? nextState.progress : currentState.progress,
+          activeKey: nextState.activeKey,
+          activeIndex: nextState.activeIndex,
+        }
       })
     }
 

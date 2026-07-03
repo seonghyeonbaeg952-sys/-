@@ -12,6 +12,7 @@ import { PageHero } from '../../components/common/PageHero'
 import { Reveal } from '../../components/common/Reveal'
 import { SectionTitle } from '../../components/common/SectionTitle'
 import { SpiritStatementBlock } from '../../components/common/Spirit'
+import { JoinInquiryForm } from '../../components/join/JoinInquiryForm'
 import { joinSpiritCopy } from '../../constants/spiritContent'
 import { useJoinData } from '../../hooks/usePublicData'
 
@@ -33,7 +34,7 @@ const joinSections: Array<{
   { label: '오디션·절차', value: 'process' },
   { label: '연습 안내', value: 'practice' },
   { label: 'FAQ', value: 'faq' },
-  { label: '입단 문의', value: 'contact' },
+  { label: '입단지원서', value: 'contact' },
 ]
 
 const joinSectionTabs: Array<{
@@ -319,6 +320,19 @@ export function JoinPage() {
                 <Button href="/contact?section=performance" size="lg" variant="secondary">
                   공연 문의하기
                 </Button>
+              </div>
+            </section>
+            ) : null}
+
+            {showContact ? (
+            <section id="application">
+              <SectionTitle
+                description="서울모테트청소년합창단 입단을 희망하는 학생은 아래 지원서를 작성해 주세요."
+                eyebrow="APPLICATION"
+                title="입단지원서"
+              />
+              <div className="mt-8">
+                <JoinInquiryForm />
               </div>
             </section>
             ) : null}

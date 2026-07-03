@@ -839,7 +839,7 @@ export function SupportPledgeForm({
                     </p>
                   </div>
                   <button
-                    className="support-print-hidden min-h-9 shrink-0 rounded-button border border-line-default bg-bg-warm-white px-3 text-xs font-semibold text-text-muted transition hover:border-gold-warm hover:text-navy-deep focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
+                    className="support-print-hidden min-h-[44px] shrink-0 rounded-button border border-line-default bg-bg-warm-white px-4 text-xs font-semibold text-text-muted transition hover:border-gold-warm hover:text-navy-deep focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
                     onClick={clearSignatureDrawing}
                     type="button"
                   >

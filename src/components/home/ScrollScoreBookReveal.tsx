@@ -18,12 +18,12 @@ const valueWords = [
 ]
 
 const wordPositions = [
-  { left: '10%', top: '22%' },
-  { left: '23%', top: '47%' },
-  { left: '39%', top: '29%' },
-  { left: '54%', top: '58%' },
-  { left: '69%', top: '35%' },
-  { left: '80%', top: '63%' },
+  { left: '13%', top: '18%' },
+  { left: '24%', top: '24%' },
+  { left: '35%', top: '18%' },
+  { left: '57%', top: '18%' },
+  { left: '68%', top: '24%' },
+  { left: '79%', top: '18%' },
 ]
 
 type ScrollScoreBookRevealProps = {
@@ -212,11 +212,11 @@ function getWordStyle(progress: number, index: number): WordStyle {
 
   return {
     '--word-left': position.left,
-    '--word-opacity': (visible * 0.44).toFixed(4),
-    '--word-scale': (0.96 - local * 0.1).toFixed(4),
+    '--word-opacity': (visible * 0.38).toFixed(4),
+    '--word-scale': (0.94 - local * 0.08).toFixed(4),
     '--word-top': position.top,
-    '--word-x': `${(-26 + local * 148).toFixed(2)}px`,
-    '--word-y': `${(18 - Math.sin(local * Math.PI) * 34 - local * 16).toFixed(2)}px`,
+    '--word-x': `${(-12 + local * 58).toFixed(2)}px`,
+    '--word-y': `${(-4 - Math.sin(local * Math.PI) * 10 - local * 12).toFixed(2)}px`,
   }
 }
 

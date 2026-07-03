@@ -13,6 +13,7 @@ type BrandLogoSize = 'sm' | 'md' | 'lg'
 type BrandLogoProps = {
   brand?: BrandKey
   className?: string
+  loading?: 'eager' | 'lazy'
   size?: BrandLogoSize
   theme?: BrandLogoTheme
   variant?: BrandLogoVariant
@@ -70,6 +71,7 @@ function getImageCandidates(
 export function BrandLogo({
   brand = 'smyc',
   className,
+  loading = 'eager',
   size = 'md',
   theme = 'light',
   variant = 'full',
@@ -131,7 +133,7 @@ export function BrandLogo({
             : imageSizeClasses[brand][size],
         )}
         decoding="async"
-        loading="eager"
+        loading={loading}
         onError={() => {
           if (!imagePath) {
             return

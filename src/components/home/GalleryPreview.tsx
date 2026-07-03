@@ -16,15 +16,16 @@ type GalleryPreviewProps = {
 
 export function GalleryPreview({
   buttonLabel = '갤러리 보기',
-  description = '연습과 공연, 초청 무대의 순간을 사진과 영상으로 아카이브합니다.',
+  description = '무대와 연습, 기록의 장면을 차분하게 모았습니다.',
   eyebrow = 'GALLERY',
   images,
   posters = [],
-  title = '무대의 순간',
+  title = '무대의 시간',
   videos = [],
 }: GalleryPreviewProps) {
   return (
     <section
+      aria-label={title}
       className="flow-section home-section relative overflow-hidden bg-bg-warm-white"
       data-flow-section="archive-stack"
     >
@@ -41,7 +42,6 @@ export function GalleryPreview({
           description={description}
           images={images}
           posters={posters}
-          title={title}
           videos={videos}
         />
       </Container>

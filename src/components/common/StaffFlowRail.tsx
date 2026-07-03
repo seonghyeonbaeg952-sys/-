@@ -440,6 +440,7 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
                 'score-flow-section-mark',
                 section.key === activeKey && 'is-active',
               )}
+              data-section-key={section.key}
               key={section.key}
               style={
                 {

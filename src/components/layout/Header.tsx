@@ -68,7 +68,7 @@ export function Header() {
       <Container className="flex min-h-[72px] items-center justify-between gap-3 sm:gap-4">
         <NavLink
           aria-label="홈으로 이동"
-          className="min-w-0 max-w-[calc(100%-3.5rem)] shrink transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm"
+          className="inline-flex min-h-[44px] min-w-[44px] max-w-[calc(100%-3.5rem)] shrink items-center justify-center transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm"
           onClick={() => setIsMenuOpen(false)}
           to="/"
         >

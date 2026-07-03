@@ -83,7 +83,7 @@ export function Footer() {
       />
       <Container className="relative grid gap-8 py-10 lg:grid-cols-[1.2fr_0.8fr_0.8fr] lg:py-12">
         <section>
-          <BrandLogo size="lg" theme="dark" withSurface />
+          <BrandLogo loading="lazy" size="lg" theme="dark" withSurface />
           <StaffLines className="mt-5 max-w-sm opacity-65" density="light" variant="inverted" />
           <p className="mt-4 max-w-xl text-sm leading-7 text-bg-ivory/72">
             {footerDescription}
@@ -135,7 +135,7 @@ export function Footer() {
               {socialLinks.map((link) => (
                 <a
                   aria-label={`${link.label} 새 창으로 열기`}
-                  className="rounded-pill border border-bg-warm-white/25 px-3 py-2 text-bg-ivory/78 transition hover:border-gold-soft hover:text-gold-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
+                  className="inline-flex min-h-[44px] items-center rounded-pill border border-bg-warm-white/25 px-3 py-2 text-bg-ivory/78 transition hover:border-gold-soft hover:text-gold-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
                   href={link.href}
                   key={link.label}
                   rel="noreferrer noopener"
@@ -161,7 +161,7 @@ export function Footer() {
               서울모테트음악재단 청소년아카데미 부설
             </p>
             <StaffLines className="mb-4 max-w-44 opacity-45" density="light" variant="inverted" />
-            <BrandLogo brand="smf" size="md" theme="dark" withSurface />
+            <BrandLogo brand="smf" loading="lazy" size="md" theme="dark" withSurface />
           </div>
         </section>
       </Container>

@@ -1810,6 +1810,20 @@ section[role='tabpanel'] {
     padding-block: 40px;
   }
 
+  .animated-section-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow-x: visible;
+  }
+
+  .animated-section-tabs .section-tab {
+    min-width: 0;
+    width: 100%;
+    padding: 10px 12px;
+    line-height: 1.25;
+    white-space: normal;
+  }
+
   .section-tabs {
     flex-wrap: nowrap;
     padding: 12px;
@@ -2202,7 +2216,7 @@ section[role='tabpanel'] {
 .home-hero-dots,
 .home-hero-arrow-group {
   display: inline-flex;
-  gap: 7px;
+  gap: 2px;
   align-items: center;
   border: 1px solid rgb(255 253 248 / 0.16);
   border-radius: 999px;
@@ -2211,34 +2225,45 @@ section[role='tabpanel'] {
 }
 
 .home-hero-dots {
-  padding: 8px 10px;
+  padding: 0 4px;
 }
 
 .home-hero-arrow-group {
-  padding: 4px;
+  padding: 0;
 }
 
 .home-hero-dot {
-  width: 6px;
-  height: 6px;
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
   border: 0;
   border-radius: 999px;
-  background: rgb(255 253 248 / 0.42);
+  background: transparent;
   cursor: pointer;
+}
+
+.home-hero-dot::before {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgb(255 253 248 / 0.42);
+  content: "";
   transition:
     width 180ms ease,
     background-color 180ms ease;
 }
 
-.home-hero-dot-active {
+.home-hero-dot-active::before {
   width: 20px;
   background: var(--color-gold-warm);
 }
 
 .home-hero-arrow {
   display: inline-flex;
-  width: 28px;
-  height: 28px;
+  width: 44px;
+  height: 44px;
   align-items: center;
   justify-content: center;
   border: 1px solid rgb(255 253 248 / 0.18);
