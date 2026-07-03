@@ -118,8 +118,28 @@ function useScoreBookProgress() {
     let isRestoringScroll = false
     const lockTop = 72
     const wheelDistance = 1650
+    const lockTriggerViewportRatio = 0.62
+    const lockViewportCenterRatio = 0.6
+    const lockTopMinimumOffset = 78
+    const lockBottomPadding = 48
     const getScoreBookRect = () =>
       section.querySelector<HTMLElement>('.motet-score-book')?.getBoundingClientRect()
+    const getDesiredBookTop = (bookRect: DOMRect) => {
+      const centeredTop =
+        window.innerHeight * lockViewportCenterRatio - bookRect.height * 0.5
+      const lowerBoundTop = lockTop + lockTopMinimumOffset
+      const bottomSafeTop = window.innerHeight - bookRect.height - lockBottomPadding
+      const desiredTop = Math.min(Math.max(lowerBoundTop, centeredTop), bottomSafeTop)
+
+      return Math.max(lockTop + 24, desiredTop)
+    }
+    const getLockTriggerCenter = (bookRect: DOMRect) => {
+      const preferredCenter = window.innerHeight * lockTriggerViewportRatio
+      const fullyVisibleCenter =
+        window.innerHeight - bookRect.height * 0.5 - lockBottomPadding
+
+      return Math.min(preferredCenter, fullyVisibleCenter)
+    }
     const getScoreLockScrollY = () => {
       const bookRect = getScoreBookRect()
 
@@ -127,23 +147,24 @@ function useScoreBookProgress() {
         return window.scrollY
       }
 
-      const desiredBookTop = lockTop + 24
+      const desiredBookTop = getDesiredBookTop(bookRect)
 
       return window.scrollY + bookRect.top - desiredBookTop
     }
-    const isBookCenteredForLock = () => {
+    const isBookCenteredForLock = (projectedDeltaY = 0) => {
       const bookRect = getScoreBookRect()
 
       if (!bookRect) {
         const rect = section.getBoundingClientRect()
 
-        return rect.top <= lockTop + 260
+        return rect.top - Math.max(projectedDeltaY, 0) <= lockTop + 320
       }
 
-      const bookCenter = bookRect.top + bookRect.height * 0.5
-      const viewportCenter = window.innerHeight * 0.5
+      const bookCenter =
+        bookRect.top + bookRect.height * 0.5 - Math.max(projectedDeltaY, 0)
+      const triggerCenter = getLockTriggerCenter(bookRect)
 
-      return bookCenter <= viewportCenter + 24
+      return bookCenter <= triggerCenter
     }
 
     const isAtStart = () => target <= 0.001 && current <= 0.002
@@ -165,7 +186,7 @@ function useScoreBookProgress() {
       const isApproachingFromAbove =
         deltaY > 0 &&
         target < 0.999 &&
-        isBookCenteredForLock() &&
+        isBookCenteredForLock(deltaY) &&
         rect.bottom > lockTop + 220
       const isReturningFromBelow =
         deltaY < 0 &&
