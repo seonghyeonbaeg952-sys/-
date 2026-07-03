@@ -5,7 +5,7 @@ import { Header } from './Header'
 
 export function PublicLayout() {
   return (
-    <div className="min-h-screen bg-bg-warm-white text-text-charcoal">
+    <div className="public-shell min-h-screen bg-bg-warm-white text-text-charcoal">
       <a
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-button focus:bg-gold-warm focus:px-4 focus:py-3 focus:text-sm focus:font-semibold focus:text-navy-midnight"
         href="#main-content"

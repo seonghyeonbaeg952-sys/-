@@ -4,6 +4,7 @@ import {
   type SiteTextDefinition,
 } from '../constants/siteTextDefaults'
 import type { SiteTextRow } from '../types/cms'
+import { softenPublicCopy } from './softenPublicCopy'
 
 export type SiteTextMap = Record<string, string>
 
@@ -36,7 +37,7 @@ export function normalizeSiteText(
   const trimmedFallback = fallback.trim()
 
   if (!trimmedValue) {
-    return trimmedFallback
+    return softenPublicCopy(trimmedFallback)
   }
 
   if (
@@ -44,10 +45,10 @@ export function normalizeSiteText(
     hasBrokenCharacters(trimmedValue) ||
     hasHtmlTag(trimmedValue)
   ) {
-    return trimmedFallback
+    return softenPublicCopy(trimmedFallback)
   }
 
-  return trimmedValue
+  return softenPublicCopy(trimmedValue)
 }
 
 export function createSiteTextMap(rows: SiteTextRow[] = []): SiteTextMap {

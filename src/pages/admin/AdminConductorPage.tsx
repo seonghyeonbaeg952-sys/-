@@ -157,7 +157,7 @@ export function AdminConductorPage() {
           is_featured: true,
           is_visible: true,
           philosophy_body:
-            '합창은 서로의 소리를 들으며 함께 자라는 예술입니다. 청소년들은 노래 안에서 경청, 책임, 절제, 배려를 배우고, 정통 합창과 교회음악의 정신을 다음 세대의 언어로 이어갑니다.',
+            '합창은 서로의 소리를 들으며 함께 자라는 예술입니다. 청소년들은 노래 안에서 귀 기울임, 약속, 어울림, 따뜻한 마음을 배우고, 정통 합창과 교회음악의 정신을 다음 세대의 언어로 이어갑니다.',
           role: '지휘자',
         }}
         fields={fields}

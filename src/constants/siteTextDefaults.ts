@@ -386,7 +386,7 @@ export const siteTextDefinitions = [
   },
   {
     defaultValue:
-      '나의 목소리보다 우리의 울림을 먼저 생각하며 서로를 살피는 마음과 배려를 익혀갑니다.',
+      '나의 목소리보다 우리의 울림을 먼저 생각하며 서로를 살피는 마음과 어울림을 익혀갑니다.',
     description: 'Motet Score 오른쪽 본문입니다.',
     groupName: 'home.score',
     inputType: 'textarea',
@@ -414,7 +414,7 @@ export const siteTextDefinitions = [
     sortOrder: 590,
   },
   {
-    defaultValue: '귀 기울임, 배려, 꾸준함, 약속, 어울림, 꿈',
+    defaultValue: '귀 기울임, 꾸준함, 약속, 어울림, 꿈',
     description: '데스크톱 악보 전환 중 표시되는 가치 단어 목록입니다.',
     groupName: 'home.score',
     inputType: 'textarea',

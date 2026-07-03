@@ -12,11 +12,11 @@ const FLUTTER_PAGE_COUNT = 12
 
 const valueWords = [
   { word: '귀 기울임', body: '먼저 듣는 마음' },
-  { word: '배려', body: '서로의 자리를 살피는 마음' },
   { word: '꾸준함', body: '하루의 연습을 이어 가는 힘' },
   { word: '약속', body: '함께한 시간을 소중히 여기는 마음' },
   { word: '어울림', body: '다른 소리와 함께 숨 쉬는 일' },
   { word: '꿈', body: '노래 너머의 삶을 바라보는 눈' },
+  { word: '울림', body: '함께 만든 소리가 남기는 기억' },
 ]
 
 const wordPositions = [
@@ -491,7 +491,7 @@ export function ScrollScoreBookReveal({
                   {finalDescription ||
                     '합창은 소리를 맞추는 일을 넘어,\n사람을 세우는 교육입니다.'}
                 </p>
-                <p className="motet-score-keywords">귀 기울임 · 배려 · 꾸준함</p>
+                <p className="motet-score-keywords">귀 기울임 · 꾸준함 · 약속</p>
               </div>
             </article>
 

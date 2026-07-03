@@ -6,6 +6,7 @@ import { Button } from '../common/Button'
 import { Container } from '../common/Container'
 import { OptimizedImage } from '../common/OptimizedImage'
 import { Reveal } from '../common/Reveal'
+import { softenPublicCopy } from '../../utils/softenPublicCopy'
 
 type HomeHeroSlideshowProps = {
   body?: string
@@ -55,17 +56,12 @@ const fallbackSlide: HeroSlide = {
 }
 
 const heroMottoChips = ['마음을 담은 음악', '서로를 듣는 공동체', '음악 · 마음 · 성장']
-const softenedMottoChipMap = new Map([
-  ['정직한 음악', '마음을 담은 음악'],
-  ['함께 듣는 공동체', '서로를 듣는 공동체'],
-  ['지성 · 인성 · 영성', '음악 · 마음 · 성장'],
-])
 const warmedHeroImageUrls = new Set<string>()
 
 function softenMottoChip(chip: string) {
   const normalizedChip = chip.trim()
 
-  return softenedMottoChipMap.get(normalizedChip) ?? normalizedChip
+  return softenPublicCopy(normalizedChip)
 }
 
 function getExternalImageOrigin(imageUrl: string) {

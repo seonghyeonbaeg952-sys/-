@@ -45,6 +45,7 @@ import type {
   SupportSettingsRow,
   VideoRow,
 } from '../types/cms'
+import { softenPublicCopy } from '../utils/softenPublicCopy'
 
 export type PublicDataResult<TData> =
   | { data: TData; error: null }
@@ -416,7 +417,15 @@ function splitAmountOptions(value: string | null | undefined, fallback: number[]
 }
 
 function nullableString(value: string | null | undefined, fallback = '') {
-  return value?.trim() || fallback
+  return softenPublicCopy(value?.trim() || fallback)
+}
+
+function mapAboutSection(row: AboutSectionRow): AboutSectionRow {
+  return {
+    ...row,
+    content: softenPublicCopy(row.content),
+    title: row.title ? softenPublicCopy(row.title) : row.title,
+  }
 }
 
 function isMissingSupportSettingsError(error: unknown) {
@@ -1212,7 +1221,7 @@ export async function getPublicAboutSections(): Promise<
     return { data: null, error: toPublicError(error, '소개 문구를 불러오지 못했습니다.') }
   }
 
-  return { data: normalizeRows<AboutSectionRow>(data), error: null }
+  return { data: normalizeRows<AboutSectionRow>(data).map(mapAboutSection), error: null }
 }
 
 export async function getPublicConcerts(

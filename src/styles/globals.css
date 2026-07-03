@@ -1143,21 +1143,22 @@ section[role='tabpanel'] {
 
 .type-body {
   overflow-wrap: break-word;
-  font-family: var(--font-sans-kr);
+  font-family: var(--font-heading-kr);
   font-size: clamp(16px, 1.15vw, 18px);
-  font-weight: 400;
+  font-weight: 430;
   line-height: 1.78;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
   word-break: keep-all;
+  font-variation-settings: "wght" 430;
 }
 
 .type-body-strong {
   overflow-wrap: break-word;
-  font-family: var(--font-sans-kr);
+  font-family: var(--font-heading-kr);
   font-size: clamp(17px, 1.25vw, 20px);
   line-height: 1.72;
   font-weight: 620;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
   word-break: keep-all;
   font-variation-settings: "wght" 620;
 }
@@ -1185,13 +1186,13 @@ section[role='tabpanel'] {
 
 .type-card-title-sans {
   overflow-wrap: break-word;
-  font-family: var(--font-sans-kr);
+  font-family: var(--font-heading-kr);
   font-size: clamp(19px, 1.4vw, 24px);
-  font-weight: 800;
+  font-weight: 760;
   line-height: 1.32;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
   word-break: keep-all;
-  font-variation-settings: "wght" 800;
+  font-variation-settings: "wght" 760;
 }
 
 .type-display-en {
