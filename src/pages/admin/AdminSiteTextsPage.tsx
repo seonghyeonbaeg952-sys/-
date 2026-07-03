@@ -1,5 +1,8 @@
+import { useEffect, useState } from 'react'
+
 import { siteTextDefinitions } from '../../constants/siteTextDefaults'
 import { AdminCrudListPage } from '../../components/admin/AdminCrudListPage'
+import { getCurrentUser } from '../../lib/auth'
 import type { AdminFieldConfig } from '../../components/admin/AdminRecordForm'
 import type { AdminTableColumn } from '../../components/admin/AdminTable'
 import type { CmsMutationPayload, SiteTextRow } from '../../types/cms'
@@ -90,6 +93,39 @@ function shortText(value: string | null | undefined) {
   return normalized.length > 64 ? `${normalized.slice(0, 64)}...` : normalized
 }
 
+function formatDateTime(value: string | null | undefined) {
+  if (!value) {
+    return null
+  }
+
+  const date = new Date(value)
+
+  if (Number.isNaN(date.getTime())) {
+    return value
+  }
+
+  return new Intl.DateTimeFormat('ko-KR', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(date)
+}
+
+function getEditorName(
+  editorId: string | null | undefined,
+  currentUserId: string | null,
+  currentUserEmail: string | null,
+) {
+  if (!editorId) {
+    return '수정자 정보 없음'
+  }
+
+  if (editorId === currentUserId && currentUserEmail) {
+    return currentUserEmail
+  }
+
+  return '관리자'
+}
+
 const columns = [
   { header: '그룹', render: getGroupLabel },
   { header: '라벨', render: (row) => row.label || row.key },
@@ -101,6 +137,10 @@ const columns = [
     render: (row) => (row.is_active ? '사용' : '미사용'),
   },
   { header: '수정일', render: (row) => row.updated_at?.slice(0, 10) ?? '-' },
+  {
+    header: '수정자',
+    render: (row) => (row.updated_by ? '관리자' : '수정자 정보 없음'),
+  },
 ] satisfies Array<AdminTableColumn<SiteTextRow>>
 
 function hasHtmlTag(value: string) {
@@ -127,7 +167,10 @@ function isValidOptionalUrl(value: string) {
   }
 }
 
-function prepareSiteTextPayload(payload: CmsMutationPayload) {
+function prepareSiteTextPayload(
+  payload: CmsMutationPayload,
+  currentUserId: string | null,
+) {
   const key = typeof payload.key === 'string' ? payload.key.trim() : ''
   const groupName =
     typeof payload.group_name === 'string' ? payload.group_name.trim() : ''
@@ -142,7 +185,7 @@ function prepareSiteTextPayload(payload: CmsMutationPayload) {
       ? payload.default_value.trim()
       : definition?.defaultValue ?? ''
 
-  return {
+  const nextPayload: CmsMutationPayload = {
     ...payload,
     default_value: defaultValue,
     description:
@@ -165,7 +208,13 @@ function prepareSiteTextPayload(payload: CmsMutationPayload) {
         : definition?.sortOrder ?? 0,
     value,
     value_type: inputType === 'textarea' ? 'textarea' : 'text',
-  } satisfies CmsMutationPayload
+  }
+
+  if (currentUserId) {
+    nextPayload.updated_by = currentUserId
+  }
+
+  return nextPayload
 }
 
 function validateSiteTextPayload(payload: CmsMutationPayload) {
@@ -194,7 +243,59 @@ function validateSiteTextPayload(payload: CmsMutationPayload) {
   return null
 }
 
+function SiteTextMeta({
+  currentUserEmail,
+  currentUserId,
+  row,
+}: {
+  currentUserEmail: string | null
+  currentUserId: string | null
+  row: SiteTextRow
+}) {
+  return (
+    <section className="rounded-formal border border-line-default bg-bg-warm-white p-5">
+      <h3 className="text-sm font-semibold text-navy-deep">수정 이력</h3>
+      <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+        <div>
+          <dt className="text-xs font-semibold text-text-muted">마지막 수정일</dt>
+          <dd className="mt-1 text-navy-deep">
+            {formatDateTime(row.updated_at) ?? '수정일 정보 없음'}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs font-semibold text-text-muted">수정자</dt>
+          <dd className="mt-1 text-navy-deep">
+            {getEditorName(row.updated_by, currentUserId, currentUserEmail)}
+          </dd>
+        </div>
+      </dl>
+    </section>
+  )
+}
+
 export function AdminSiteTextsPage() {
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null)
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadCurrentUser() {
+      const result = await getCurrentUser()
+
+      if (isMounted) {
+        setCurrentUserId(result.data?.id ?? null)
+        setCurrentUserEmail(result.data?.email ?? null)
+      }
+    }
+
+    void loadCurrentUser()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
   return (
     <AdminCrudListPage
       canDelete={false}
@@ -235,7 +336,14 @@ export function AdminSiteTextsPage() {
       ]}
       info="빈 값으로 저장하면 기본 문구가 사용됩니다. HTML 태그는 사용할 수 없고, public 화면에는 TODO/undefined/null 같은 임시 문구가 노출되지 않습니다. 문구를 숨기려면 삭제 대신 사용 여부를 끄세요."
       order={{ column: 'sort_order', ascending: true }}
-      preparePayload={prepareSiteTextPayload}
+      preparePayload={(payload) => prepareSiteTextPayload(payload, currentUserId)}
+      renderBeforeForm={(row) => (
+        <SiteTextMeta
+          currentUserEmail={currentUserEmail}
+          currentUserId={currentUserId}
+          row={row}
+        />
+      )}
       searchColumn="key"
       searchPlaceholder="문구 키 검색"
       showVisibility={false}

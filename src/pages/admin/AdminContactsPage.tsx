@@ -66,6 +66,39 @@ function getTypeLabel(type: string | null | undefined) {
   return typeOptions.find((option) => option.value === type)?.label ?? '기타'
 }
 
+function formatDateTime(value: string | null | undefined) {
+  if (!value) {
+    return null
+  }
+
+  const date = new Date(value)
+
+  if (Number.isNaN(date.getTime())) {
+    return value
+  }
+
+  return new Intl.DateTimeFormat('ko-KR', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(date)
+}
+
+function getAdminDisplayName(
+  adminId: string | null | undefined,
+  currentUserId: string | null,
+  currentUserEmail: string | null,
+) {
+  if (!adminId) {
+    return null
+  }
+
+  if (adminId === currentUserId && currentUserEmail) {
+    return currentUserEmail
+  }
+
+  return '관리자'
+}
+
 function normalizeStatus(status: string | null | undefined): ContactStatus {
   if (status === 'in_progress') {
     return 'reviewing'
@@ -135,6 +168,43 @@ function validateContactPayload(payload: CmsMutationPayload) {
   return null
 }
 
+function ContactReplyMeta({
+  currentUserEmail,
+  currentUserId,
+  row,
+}: {
+  currentUserEmail: string | null
+  currentUserId: string | null
+  row: ContactRow
+}) {
+  const repliedAt = formatDateTime(row.replied_at)
+  const repliedBy = getAdminDisplayName(
+    row.replied_by,
+    currentUserId,
+    currentUserEmail,
+  )
+
+  return (
+    <section className="rounded-formal border border-line-default bg-bg-warm-white p-5">
+      <h3 className="text-sm font-semibold text-navy-deep">답변 저장 정보</h3>
+      <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+        <div>
+          <dt className="text-xs font-semibold text-text-muted">답변 저장 시간</dt>
+          <dd className="mt-1 text-navy-deep">
+            {repliedAt ?? '아직 답변 저장 전'}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs font-semibold text-text-muted">답변자</dt>
+          <dd className="mt-1 text-navy-deep">
+            {repliedBy ?? '아직 답변 저장 전'}
+          </dd>
+        </div>
+      </dl>
+    </section>
+  )
+}
+
 const columns = [
   { header: '제목', value: 'title' },
   { header: '이름', value: 'name' },
@@ -152,6 +222,7 @@ const columns = [
 
 export function AdminContactsPage() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null)
 
   useEffect(() => {
     let isMounted = true
@@ -161,6 +232,7 @@ export function AdminContactsPage() {
 
       if (isMounted) {
         setCurrentUserId(result.data?.id ?? null)
+        setCurrentUserEmail(result.data?.email ?? null)
       }
     }
 
@@ -200,6 +272,13 @@ export function AdminContactsPage() {
       preparePayload={(payload, row) =>
         createContactPayload(payload, row, currentUserId)
       }
+      renderBeforeForm={(row) => (
+        <ContactReplyMeta
+          currentUserEmail={currentUserEmail}
+          currentUserId={currentUserId}
+          row={row}
+        />
+      )}
       searchColumn="title"
       searchPlaceholder="문의 제목 검색"
       showVisibility={false}
