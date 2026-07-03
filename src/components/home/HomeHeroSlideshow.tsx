@@ -25,11 +25,11 @@ type ImageFetchPriority = 'auto' | 'high' | 'low'
 
 const heroCopy = {
   body:
-    '서울모테트청소년합창단은 서울모테트합창단의 예술적·신앙적 전통을 바탕으로, 합창을 통해 지성·인성·영성·공동체성을 함께 배워가는 다음세대 음악교육 공동체입니다.',
+    '서울모테트청소년합창단은 서울모테트합창단의 예술적·신앙적 전통을 바탕으로, 합창을 통해 음악과 마음, 공동체의 울림을 함께 배워가는 다음세대 음악교육 공동체입니다.',
   eyebrow: 'SEOUL MOTET YOUTH CHOIR',
   headline: (
     <>
-      정직한 음악으로
+      마음을 담은 음악으로
       <br />
       다음 세대를 세웁니다
     </>
@@ -54,8 +54,19 @@ const fallbackSlide: HeroSlide = {
   is_visible: true,
 }
 
-const heroMottoChips = ['정직한 음악', '함께 듣는 공동체', '지성 · 인성 · 영성']
+const heroMottoChips = ['마음을 담은 음악', '서로를 듣는 공동체', '음악 · 마음 · 성장']
+const softenedMottoChipMap = new Map([
+  ['정직한 음악', '마음을 담은 음악'],
+  ['함께 듣는 공동체', '서로를 듣는 공동체'],
+  ['지성 · 인성 · 영성', '음악 · 마음 · 성장'],
+])
 const warmedHeroImageUrls = new Set<string>()
+
+function softenMottoChip(chip: string) {
+  const normalizedChip = chip.trim()
+
+  return softenedMottoChipMap.get(normalizedChip) ?? normalizedChip
+}
 
 function getExternalImageOrigin(imageUrl: string) {
   if (typeof window === 'undefined') {
@@ -249,6 +260,7 @@ export function HomeHeroSlideshow({
   const isAutoplayPaused =
     isInteractionPaused || isUserPaused || prefersReducedMotion
   const visibleMottoChips = (mottoChips?.filter((chip) => chip.trim()) ?? heroMottoChips)
+    .map(softenMottoChip)
   const heroBody = body?.trim() || heroCopy.body
 
   useEffect(() => {

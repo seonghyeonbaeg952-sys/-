@@ -1,7 +1,13 @@
+import { useEffect, useState } from 'react'
+
 import { AdminCrudListPage } from '../../components/admin/AdminCrudListPage'
+import { Button } from '../../components/common/Button'
+import { getSignedStorageUrl } from '../../lib/storage'
 import type { AdminFieldConfig } from '../../components/admin/AdminRecordForm'
 import type { AdminTableColumn } from '../../components/admin/AdminTable'
 import type { CmsMutationPayload, JoinApplicationRow } from '../../types/cms'
+
+const JOIN_APPLICATION_FILES_BUCKET = 'join-application-files'
 
 const statusOptions = [
   { label: '신규', value: 'new' },
@@ -10,6 +16,10 @@ const statusOptions = [
   { label: '불합격', value: 'rejected' },
   { label: '보관', value: 'archived' },
 ]
+
+const statusLabels: Record<string, string> = Object.fromEntries(
+  statusOptions.map((option) => [option.value, option.label]),
+)
 
 const fields = [
   { name: 'applicant_name', label: '지원자 이름', type: 'text', readOnly: true },
@@ -35,11 +45,164 @@ const columns = [
   { header: '보호자', value: 'guardian_name' },
   {
     header: '상태',
-    render: (row) =>
-      statusOptions.find((option) => option.value === row.status)?.label ?? row.status,
+    render: (row) => statusLabels[row.status] ?? '상태 확인 필요',
   },
   { header: '접수일', value: 'created_at' },
 ] satisfies Array<AdminTableColumn<JoinApplicationRow>>
+
+function getFirstTextValue(row: JoinApplicationRow, keys: string[]) {
+  for (const key of keys) {
+    const value = row[key]
+
+    if (typeof value === 'string' && value.trim()) {
+      return value.trim()
+    }
+  }
+
+  return null
+}
+
+function isExternalUrl(value: string) {
+  return value.startsWith('https://') || value.startsWith('http://')
+}
+
+function JoinAttachmentAction({
+  emptyText,
+  label,
+  path,
+}: {
+  emptyText: string
+  label: string
+  path: string | null
+}) {
+  const [signedUrl, setSignedUrl] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadSignedUrl() {
+      if (!path) {
+        setSignedUrl(null)
+        setError(null)
+        setIsLoading(false)
+        return
+      }
+
+      if (isExternalUrl(path)) {
+        setSignedUrl(path)
+        setError(null)
+        setIsLoading(false)
+        return
+      }
+
+      setIsLoading(true)
+      setError(null)
+
+      const result = await getSignedStorageUrl(
+        path,
+        JOIN_APPLICATION_FILES_BUCKET,
+      )
+
+      if (!isMounted) {
+        return
+      }
+
+      setIsLoading(false)
+
+      if (!result.data) {
+        setSignedUrl(null)
+        setError(result.error)
+        return
+      }
+
+      setSignedUrl(result.data)
+    }
+
+    void loadSignedUrl()
+
+    return () => {
+      isMounted = false
+    }
+  }, [path])
+
+  if (!path) {
+    return (
+      <p className="rounded-button border border-line-default bg-bg-ivory px-4 py-3 text-sm text-text-muted">
+        {emptyText}
+      </p>
+    )
+  }
+
+  if (error) {
+    return (
+      <p className="rounded-button bg-state-error/10 px-4 py-3 text-sm leading-6 text-state-error" role="alert">
+        {error}
+      </p>
+    )
+  }
+
+  if (!signedUrl || isLoading) {
+    return (
+      <p className="rounded-button border border-line-default bg-bg-ivory px-4 py-3 text-sm text-text-muted" role="status">
+        첨부파일 링크를 준비하는 중입니다.
+      </p>
+    )
+  }
+
+  return (
+    <Button
+      href={signedUrl}
+      rel="noreferrer"
+      showArrow={false}
+      target="_blank"
+      variant="secondary"
+    >
+      {label}
+    </Button>
+  )
+}
+
+function JoinApplicationAttachments({ row }: { row: JoinApplicationRow }) {
+  const photoPath = getFirstTextValue(row, [
+    'photo_file_path',
+    'photo_path',
+    'photo_url',
+  ])
+  const recommendationPath = getFirstTextValue(row, [
+    'recommendation_file_path',
+    'recommendation_path',
+    'recommendation_file_url',
+  ])
+
+  return (
+    <section className="rounded-formal border border-line-default bg-bg-warm-white p-5">
+      <h3 className="text-sm font-semibold text-navy-deep">첨부파일 확인</h3>
+      <p className="mt-1 text-xs leading-5 text-text-muted">
+        첨부파일 링크는 관리자 권한으로만 짧은 시간 동안 열립니다. public 화면에는 표시되지 않습니다.
+      </p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div>
+          <p className="mb-2 text-xs font-semibold text-text-muted">사진 파일</p>
+          <JoinAttachmentAction
+            emptyText="사진 파일 없음"
+            label="사진 보기"
+            path={photoPath}
+          />
+        </div>
+        <div>
+          <p className="mb-2 text-xs font-semibold text-text-muted">추천서 파일</p>
+          <JoinAttachmentAction
+            emptyText="추천서 없음"
+            label="추천서 확인"
+            path={recommendationPath}
+          />
+        </div>
+      </div>
+    </section>
+  )
+}
 
 function preparePayload(payload: CmsMutationPayload) {
   return {
@@ -77,6 +240,7 @@ export function AdminJoinApplicationsPage() {
       info="지원서 원문은 관리자 화면에서만 확인합니다. public 화면에는 노출하지 않습니다."
       order={{ column: 'created_at', ascending: false }}
       preparePayload={preparePayload}
+      renderBeforeForm={(row) => <JoinApplicationAttachments row={row} />}
       searchColumn="applicant_name"
       searchPlaceholder="지원자 이름 검색"
       showVisibility={false}

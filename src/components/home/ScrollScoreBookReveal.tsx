@@ -6,25 +6,31 @@ import {
   type CSSProperties,
 } from 'react'
 
+import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
+
 const FLUTTER_PAGE_COUNT = 12
 
 const valueWords = [
-  { word: '경청', body: '먼저 듣는 마음' },
-  { word: '배려', body: '서로의 자리를 살피는 태도' },
-  { word: '성실', body: '약속한 시간을 지키는 힘' },
-  { word: '책임', body: '내 파트를 준비하는 마음' },
-  { word: '조화', body: '다른 소리와 함께 숨 쉬는 일' },
-  { word: '비전', body: '노래 너머의 삶을 바라보는 눈' },
+  { word: '귀 기울임', body: '먼저 듣는 마음' },
+  { word: '배려', body: '서로의 자리를 살피는 마음' },
+  { word: '꾸준함', body: '하루의 연습을 이어 가는 힘' },
+  { word: '약속', body: '함께한 시간을 소중히 여기는 마음' },
+  { word: '어울림', body: '다른 소리와 함께 숨 쉬는 일' },
+  { word: '꿈', body: '노래 너머의 삶을 바라보는 눈' },
 ]
 
 const wordPositions = [
-  { left: '13%', top: '18%' },
-  { left: '24%', top: '24%' },
-  { left: '35%', top: '18%' },
-  { left: '57%', top: '18%' },
-  { left: '68%', top: '24%' },
-  { left: '79%', top: '18%' },
+  { fromX: -260, fromY: -92, left: '13%', top: '18%' },
+  { fromX: -230, fromY: 88, left: '24%', top: '24%' },
+  { fromX: -120, fromY: -168, left: '35%', top: '18%' },
+  { fromX: 120, fromY: -168, left: '57%', top: '18%' },
+  { fromX: 230, fromY: 88, left: '68%', top: '24%' },
+  { fromX: 260, fromY: -92, left: '79%', top: '18%' },
 ]
+
+const PAGE_TURN_END_PROGRESS = 0.9
+const WORD_FADE_START_PROGRESS = 0.9
+const WORD_FADE_END_PROGRESS = 0.98
 
 type ScrollScoreBookRevealProps = {
   coverDescription?: string
@@ -43,6 +49,7 @@ type ScoreStyle = CSSProperties & {
 }
 
 type WordStyle = CSSProperties & {
+  '--word-blur': string
   '--word-left': string
   '--word-opacity': string
   '--word-scale': string
@@ -81,7 +88,10 @@ function useScoreBookProgress() {
     const query = window.matchMedia(
       '(min-width: 1024px) and (prefers-reduced-motion: no-preference)',
     )
-    const handleChange = () => setIsAnimatedDesktop(query.matches)
+    const handleChange = () => {
+      setIsAnimatedDesktop(query.matches)
+      setProgress(query.matches ? 0 : 1)
+    }
 
     handleChange()
     query.addEventListener('change', handleChange)
@@ -103,21 +113,71 @@ function useScoreBookProgress() {
     let animationFrame = 0
     let current = 0
     let target = 0
+    let lockedScrollY: number | null = null
+    let lastScrollY = window.scrollY
+    let isRestoringScroll = false
+    const lockTop = 72
+    const wheelDistance = 1650
+    const getScoreBookRect = () =>
+      section.querySelector<HTMLElement>('.motet-score-book')?.getBoundingClientRect()
+    const getScoreLockScrollY = () => {
+      const bookRect = getScoreBookRect()
 
-    const readTarget = () => {
-      const rect = section.getBoundingClientRect()
-      const scrollableDistance = rect.height - window.innerHeight
-
-      if (scrollableDistance <= 0) {
-        return 1
+      if (!bookRect) {
+        return window.scrollY
       }
 
-      return clamp(-rect.top / scrollableDistance)
+      const desiredBookTop = lockTop + 24
+
+      return window.scrollY + bookRect.top - desiredBookTop
+    }
+    const isBookCenteredForLock = () => {
+      const bookRect = getScoreBookRect()
+
+      if (!bookRect) {
+        const rect = section.getBoundingClientRect()
+
+        return rect.top <= lockTop + 260
+      }
+
+      const bookCenter = bookRect.top + bookRect.height * 0.5
+      const viewportCenter = window.innerHeight * 0.5
+
+      return bookCenter <= viewportCenter + 24
+    }
+
+    const isAtStart = () => target <= 0.001 && current <= 0.002
+    const isAtEnd = () => target >= 0.999 && current >= 0.998
+
+    const restoreLockedScroll = () => {
+      if (lockedScrollY === null) {
+        return
+      }
+
+      if (Math.abs(window.scrollY - lockedScrollY) > 1) {
+        isRestoringScroll = true
+        window.scrollTo(window.scrollX, lockedScrollY)
+      }
+    }
+
+    const shouldConsumeScrollDelta = (deltaY: number) => {
+      const rect = section.getBoundingClientRect()
+      const isApproachingFromAbove =
+        deltaY > 0 &&
+        target < 0.999 &&
+        isBookCenteredForLock() &&
+        rect.bottom > lockTop + 220
+      const isReturningFromBelow =
+        deltaY < 0 &&
+        target > 0.001 &&
+        rect.top < window.innerHeight * 0.64 &&
+        rect.bottom >= lockTop + 160
+
+      return isApproachingFromAbove || isReturningFromBelow
     }
 
     const animate = () => {
-      target = readTarget()
-      current += (target - current) * 0.105
+      current += (target - current) * 0.16
 
       if (Math.abs(target - current) < 0.0008) {
         current = target
@@ -135,24 +195,116 @@ function useScoreBookProgress() {
     }
 
     const requestUpdate = () => {
-      target = readTarget()
-
       if (animationFrame === 0) {
         animationFrame = window.requestAnimationFrame(animate)
       }
     }
 
-    requestUpdate()
-    window.addEventListener('scroll', requestUpdate, { passive: true })
-    window.addEventListener('resize', requestUpdate)
+    const keepScrollLocked = () => {
+      if (lockedScrollY === null) {
+        return
+      }
+
+      if (isAtStart() || isAtEnd()) {
+        lockedScrollY = null
+        return
+      }
+
+      restoreLockedScroll()
+    }
+
+    const handleWheel = (event: WheelEvent) => {
+      if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) {
+        return
+      }
+
+      const shouldConsumeWheel =
+        lockedScrollY !== null || shouldConsumeScrollDelta(event.deltaY)
+
+      if (!shouldConsumeWheel) {
+        return
+      }
+
+      if (event.deltaY > 0 && isAtEnd()) {
+        lockedScrollY = null
+        return
+      }
+
+      if (event.deltaY < 0 && isAtStart()) {
+        lockedScrollY = null
+        return
+      }
+
+      event.preventDefault()
+
+      if (lockedScrollY === null) {
+        lockedScrollY = getScoreLockScrollY()
+      }
+
+      target = clamp(target + event.deltaY / wheelDistance)
+      lastScrollY = lockedScrollY
+      restoreLockedScroll()
+      requestUpdate()
+    }
+
+    const handleScroll = () => {
+      if (isRestoringScroll) {
+        isRestoringScroll = false
+        lastScrollY = window.scrollY
+        return
+      }
+
+      const nextScrollY = window.scrollY
+      const deltaY = nextScrollY - lastScrollY
+
+      if (Math.abs(deltaY) < 0.5) {
+        lastScrollY = nextScrollY
+        return
+      }
+
+      if (lockedScrollY !== null) {
+        if (!isAtStart() && !isAtEnd()) {
+          target = clamp(target + deltaY / wheelDistance)
+          requestUpdate()
+        }
+
+        keepScrollLocked()
+        lastScrollY = lockedScrollY ?? window.scrollY
+        return
+      }
+
+      if (shouldConsumeScrollDelta(deltaY)) {
+        lockedScrollY = getScoreLockScrollY()
+        target = clamp(target + deltaY / wheelDistance)
+        restoreLockedScroll()
+        requestUpdate()
+        lastScrollY = lockedScrollY
+        return
+      }
+
+      lastScrollY = nextScrollY
+    }
+
+    const handleResize = () => {
+      lockedScrollY = null
+      lastScrollY = window.scrollY
+    }
+
+    window.addEventListener('wheel', handleWheel, {
+      capture: true,
+      passive: false,
+    })
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('resize', handleResize)
 
     return () => {
       if (animationFrame !== 0) {
         window.cancelAnimationFrame(animationFrame)
       }
 
-      window.removeEventListener('scroll', requestUpdate)
-      window.removeEventListener('resize', requestUpdate)
+      window.removeEventListener('wheel', handleWheel, { capture: true })
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('resize', handleResize)
     }
   }, [isAnimatedDesktop])
 
@@ -203,20 +355,28 @@ function getFlutterPageStyle(progress: number, index: number): CSSProperties {
 
 function getWordStyle(progress: number, index: number): WordStyle {
   const start = 0.2 + index * 0.062
-  const end = start + 0.24
-  const local = clamp((progress - start) / (end - start))
-  const enter = smoothstep(0, 0.22, local)
-  const exit = smoothstep(0.66, 1, local)
+  const local = clamp((progress - start) / (PAGE_TURN_END_PROGRESS - start))
+  const easedLocal = easeInOut(local)
+  const enter = smoothstep(0, 0.18, local)
+  const exit = smoothstep(
+    WORD_FADE_START_PROGRESS,
+    WORD_FADE_END_PROGRESS,
+    progress,
+  )
   const visible = enter * (1 - exit)
   const position = wordPositions[index]
+  const drawnInX = position.fromX * (1 - easedLocal) + easedLocal * 8
+  const drawnInY = position.fromY * (1 - easedLocal) - easedLocal * 8
+  const blur = 1.4 * (1 - local) + exit * 0.7
 
   return {
+    '--word-blur': `${blur.toFixed(2)}px`,
     '--word-left': position.left,
-    '--word-opacity': (visible * 0.38).toFixed(4),
-    '--word-scale': (0.94 - local * 0.08).toFixed(4),
+    '--word-opacity': (visible * 0.36).toFixed(4),
+    '--word-scale': (0.94 - easedLocal * 0.08).toFixed(4),
     '--word-top': position.top,
-    '--word-x': `${(-12 + local * 58).toFixed(2)}px`,
-    '--word-y': `${(-4 - Math.sin(local * Math.PI) * 10 - local * 12).toFixed(2)}px`,
+    '--word-x': `${drawnInX.toFixed(2)}px`,
+    '--word-y': `${drawnInY.toFixed(2)}px`,
   }
 }
 
@@ -254,8 +414,8 @@ export function ScrollScoreBookReveal({
     '--cover-opacity': (1 - smoothstep(0.18, 0.35, progress)).toFixed(4),
   }
   const coverLines = splitLines(coverTitle, [
-    '정직한 음악과',
-    '공동체의 울림을',
+    '마음을 담은 음악과',
+    '함께 빚는 울림을',
     '기록하는 악보집',
   ])
   const finalLines = splitLines(finalTitle, [
@@ -280,6 +440,12 @@ export function ScrollScoreBookReveal({
       style={scoreStyle}
     >
       <div className="motet-score-sticky-stage">
+        <HomeSectionStaffCue
+          className="home-section-staff-cue--score"
+          label="악보"
+          noteOffset={36}
+          symbol="♩"
+        />
         <div aria-hidden="true" className="motet-score-stage-label">
           MOTET SCORE
         </div>
@@ -304,7 +470,7 @@ export function ScrollScoreBookReveal({
                   {finalDescription ||
                     '합창은 소리를 맞추는 일을 넘어,\n사람을 세우는 교육입니다.'}
                 </p>
-                <p className="motet-score-keywords">경청 · 배려 · 성실</p>
+                <p className="motet-score-keywords">귀 기울임 · 배려 · 꾸준함</p>
               </div>
             </article>
 
@@ -320,9 +486,9 @@ export function ScrollScoreBookReveal({
                 </h3>
                 <p className="motet-score-final-body">
                   {rightBody ||
-                    '나의 소리보다 우리의 울림을 먼저 생각하며, 청소년들은 조화와 책임, 성실과 비전을 배워갑니다.'}
+                    '나의 소리보다 우리의 울림을 먼저 생각하며, 청소년들은 서로를 살피는 마음과 어울림을 배워갑니다.'}
                 </p>
-                <p className="motet-score-keywords">책임 · 조화 · 비전</p>
+                <p className="motet-score-keywords">약속 · 어울림 · 꿈</p>
               </div>
             </article>
           </div>
@@ -340,7 +506,7 @@ export function ScrollScoreBookReveal({
               <span />
               <strong>
                 {coverDescription ||
-                  '정직한 음악과 공동체의 울림을 한 권의 악보처럼 기록합니다.'}
+                  '마음을 담은 음악과 함께 빚는 울림을 한 권의 악보처럼 기록합니다.'}
               </strong>
             </div>
           </div>

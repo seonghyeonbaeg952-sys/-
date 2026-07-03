@@ -31,7 +31,7 @@ export const siteTextDefinitions = [
   },
   {
     defaultValue:
-      '서울모테트청소년합창단은 정직한 음악과 공동체의 울림으로 다음 세대를 세웁니다.',
+      '서울모테트청소년합창단은 마음을 담은 음악과 함께 빚는 울림으로 다음 세대를 세웁니다.',
     description: '히어로 제목 아래에 표시되는 보조 문구입니다.',
     groupName: 'home.hero',
     inputType: 'textarea',
@@ -49,7 +49,7 @@ export const siteTextDefinitions = [
     sortOrder: 40,
   },
   {
-    defaultValue: '정직한 음악',
+    defaultValue: '마음을 담은 음악',
     description: '히어로 하단 가치 칩 1입니다.',
     groupName: 'home.hero',
     inputType: 'text',
@@ -185,7 +185,7 @@ export const siteTextDefinitions = [
   },
   {
     defaultValue:
-      '서울모테트청소년합창단은 청소년들이 정직한 음악과 함께 부르는 공동체 안에서 지성, 인성, 영성을 균형 있게 기르도록 돕습니다.',
+      '서울모테트청소년합창단은 청소년들이 마음을 담은 음악과 함께 부르는 공동체 안에서 음악과 마음, 공동체의 울림을 함께 배워가도록 돕습니다.',
     description: '홈 앞쪽에 짧게 노출되는 합창단 소개 문구입니다.',
     groupName: 'home.about',
     inputType: 'textarea',
@@ -231,7 +231,7 @@ export const siteTextDefinitions = [
     sortOrder: 330,
   },
   {
-    defaultValue: '음악을 사랑하며 합창 활동에 성실히 참여할 청소년',
+    defaultValue: '음악을 사랑하며 꾸준히 함께 노래할 청소년',
     description: '입단 CTA의 모집 대상 요약입니다.',
     groupName: 'home.join',
     inputType: 'textarea',
@@ -330,7 +330,7 @@ export const siteTextDefinitions = [
     sortOrder: 470,
   },
   {
-    defaultValue: '정직한 음악과\n공동체의 울림을\n기록하는 악보집',
+    defaultValue: '마음을 담은 음악과\n함께 빚는 울림을\n기록하는 악보집',
     description: 'Motet Score 표지 제목입니다.',
     groupName: 'home.score',
     inputType: 'textarea',
@@ -339,7 +339,7 @@ export const siteTextDefinitions = [
     sortOrder: 510,
   },
   {
-    defaultValue: '정직한 음악과 공동체의 울림을 한 권의 악보처럼 기록합니다.',
+    defaultValue: '마음을 담은 음악과 함께 빚는 울림을 한 권의 악보처럼 기록합니다.',
     description: 'Motet Score 표지 설명입니다.',
     groupName: 'home.score',
     inputType: 'textarea',
@@ -357,7 +357,7 @@ export const siteTextDefinitions = [
     sortOrder: 530,
   },
   {
-    defaultValue: '정직한 음악',
+    defaultValue: '마음을 담은 음악',
     description: 'Motet Score 왼쪽 보조 제목입니다.',
     groupName: 'home.score',
     inputType: 'text',
@@ -367,7 +367,7 @@ export const siteTextDefinitions = [
   },
   {
     defaultValue:
-      '입단과 연습, 작품을 준비하는 과정 안에서 청소년들은 성실하게 준비하는 태도를 배웁니다.',
+      '입단과 연습, 작품을 준비하는 과정 안에서 청소년들은 꾸준히 듣고 맞추는 태도를 배웁니다.',
     description: 'Motet Score 왼쪽 본문입니다.',
     groupName: 'home.score',
     inputType: 'textarea',
@@ -386,7 +386,7 @@ export const siteTextDefinitions = [
   },
   {
     defaultValue:
-      '나의 목소리보다 우리의 울림을 먼저 생각하며 책임과 배려를 익혀갑니다.',
+      '나의 목소리보다 우리의 울림을 먼저 생각하며 서로를 살피는 마음과 배려를 익혀갑니다.',
     description: 'Motet Score 오른쪽 본문입니다.',
     groupName: 'home.score',
     inputType: 'textarea',
@@ -414,7 +414,7 @@ export const siteTextDefinitions = [
     sortOrder: 590,
   },
   {
-    defaultValue: '경청, 배려, 성실, 책임, 조화, 비전',
+    defaultValue: '귀 기울임, 배려, 꾸준함, 약속, 어울림, 꿈',
     description: '데스크톱 악보 전환 중 표시되는 가치 단어 목록입니다.',
     groupName: 'home.score',
     inputType: 'textarea',
@@ -641,7 +641,7 @@ export const siteTextDefinitions = [
   },
   {
     defaultValue:
-      '서울모테트청소년합창단은 정직한 음악과 공동체의 울림으로 다음 세대를 세웁니다.',
+      '서울모테트청소년합창단은 마음을 담은 음악과 함께 빚는 울림으로 다음 세대를 세웁니다.',
     description: '기존 키 호환용 히어로 설명입니다.',
     groupName: 'home.hero',
     inputType: 'textarea',
@@ -749,7 +749,7 @@ export const siteTextDefinitions = [
     sortOrder: 1070,
   },
   {
-    defaultValue: '정직한 음악과\n공동체의 울림을\n기록하는 악보집',
+    defaultValue: '마음을 담은 음악과\n함께 빚는 울림을\n기록하는 악보집',
     description: '기존 key 호환용 Motet Score 표지 제목입니다.',
     groupName: 'home.score',
     inputType: 'textarea',
@@ -758,7 +758,7 @@ export const siteTextDefinitions = [
     sortOrder: 1080,
   },
   {
-    defaultValue: '정직한 음악과 공동체의 울림을 한 권의 악보처럼 기록합니다.',
+    defaultValue: '마음을 담은 음악과 함께 빚는 울림을 한 권의 악보처럼 기록합니다.',
     description: '기존 key 호환용 Motet Score 표지 설명입니다.',
     groupName: 'home.score',
     inputType: 'textarea',

@@ -1,7 +1,8 @@
 import type { GalleryImage, Poster, VideoItem } from '../../types/content'
 import { Container } from '../common/Container'
+import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 import { Reveal } from '../common/Reveal'
-import { SectionTitle } from '../common/SectionTitle'
+import { StaffSectionLabel } from '../common/StaffSectionLabel'
 import { ArchivePageStack } from './ArchivePageStack'
 
 type GalleryPreviewProps = {
@@ -29,13 +30,22 @@ export function GalleryPreview({
       className="flow-section home-section relative overflow-hidden bg-bg-warm-white"
       data-flow-section="archive-stack"
     >
+      <HomeSectionStaffCue
+        className="home-section-staff-cue--archive"
+        label="기록"
+        noteOffset={39}
+        symbol="♬"
+      />
       <Container>
         <Reveal variant="fade-up">
-          <SectionTitle
-            description={description}
-            eyebrow={eyebrow}
-            title={title}
-          />
+          <div>
+            <StaffSectionLabel className="mb-3 max-w-md">
+              {eyebrow}
+            </StaffSectionLabel>
+            <p className="type-body max-w-2xl text-text-muted">
+              {description}
+            </p>
+          </div>
         </Reveal>
         <ArchivePageStack
           buttonLabel={buttonLabel}

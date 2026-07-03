@@ -1,5 +1,6 @@
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
+import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 import { Reveal } from '../common/Reveal'
 import { StaffLines } from '../common/StaffLines'
 import { StaffSectionLabel } from '../common/StaffSectionLabel'
@@ -17,7 +18,7 @@ type JoinCTAProps = {
 const joinSummary = [
   {
     label: '모집 대상',
-    value: '음악을 사랑하며 합창 활동에 성실히 참여할 청소년',
+    value: '음악을 사랑하며 꾸준히 함께 노래할 청소년',
   },
   {
     label: '연습 안내',
@@ -49,6 +50,12 @@ export function JoinCTA({
       className="flow-section home-section relative overflow-hidden bg-bg-ivory"
       data-flow-section="join-letter"
     >
+      <HomeSectionStaffCue
+        className="home-section-staff-cue--join"
+        label="입단"
+        noteOffset={30}
+        symbol="♬"
+      />
       <Container>
         <Reveal variant="card-rise">
           <div className="relative grid min-w-0 gap-7 overflow-hidden rounded-soft border border-line-default bg-linear-to-br from-bg-warm-white via-bg-warm-white to-gold-soft/45 p-6 shadow-card md:grid-cols-[minmax(0,1fr)_auto] md:items-center lg:p-8">
@@ -67,7 +74,7 @@ export function JoinCTA({
               </h2>
               <p className="mt-4 max-w-3xl whitespace-pre-line break-keep text-base leading-8 text-text-muted">
                 {text ||
-                  '서울모테트청소년합창단은 합창을 통해 청소년이 자신의 소리를 발견하고,\n타인의 소리를 존중하며, 공동체 안에서 책임 있게 성장하도록 돕습니다.'}
+                  '서울모테트청소년합창단은 합창을 통해 청소년이 자신의 소리를 발견하고,\n타인의 소리를 존중하며, 공동체 안에서 따뜻하게 성장하도록 돕습니다.'}
               </p>
               <dl className="mt-6 grid gap-3 sm:grid-cols-3">
                 {summaryItems.map((item) => (

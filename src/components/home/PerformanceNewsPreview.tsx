@@ -1,6 +1,7 @@
 import type { Concert, Notice } from '../../types/content'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
+import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 import { Reveal } from '../common/Reveal'
 import { BenchmarkConcertTemplate } from './benchmark/BenchmarkConcertTemplate'
 import { KineticHeadline } from './KineticHeadline'
@@ -52,6 +53,12 @@ export function PerformanceNewsPreview({
       className="flow-section home-section relative overflow-hidden bg-bg-warm-white"
       data-flow-section="concert-program"
     >
+      <HomeSectionStaffCue
+        className="home-section-staff-cue--concert"
+        label="공연"
+        noteOffset={13}
+        symbol="♪"
+      />
       <Container>
         <Reveal variant="fade-up">
           <div className="section-title">

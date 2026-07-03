@@ -18,7 +18,7 @@ export const publicNavigation = [
   {
     label: '합창단 정신',
     href: '/spirit',
-    description: '정직한 음악과 다음 세대 교육의 방향을 소개합니다.',
+    description: '마음을 담은 음악과 다음 세대 교육의 방향을 소개합니다.',
     children: [
       {
         label: '합창단 정신',

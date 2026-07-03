@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
 
 import { getRecordTitle } from '../../lib/cms'
 import { useDebouncedValue } from '../../hooks/useDebouncedValue'
@@ -58,6 +59,8 @@ type AdminCrudListPageProps<TTable extends CmsTableName> = {
     payload: CmsMutationPayload,
     row: CmsRowFor<TTable> | null,
   ) => CmsMutationPayload
+  prepareInitialData?: (row: CmsRowFor<TTable>) => Partial<CmsRowFor<TTable>>
+  renderBeforeForm?: (row: CmsRowFor<TTable>) => ReactNode
   searchColumn?: Extract<keyof CmsRowFor<TTable>, string>
   searchPlaceholder?: string
   showVisibility?: boolean
@@ -81,7 +84,9 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
   filters = [],
   info,
   order,
+  prepareInitialData,
   preparePayload,
+  renderBeforeForm,
   searchColumn,
   searchPlaceholder,
   showVisibility = true,
@@ -129,6 +134,8 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
     setEditingRow(null)
     setFormError(null)
   }
+  const formInitialData =
+    editingRow && prepareInitialData ? prepareInitialData(editingRow) : editingRow
 
   const handleSubmit = async (payload: CmsMutationPayload) => {
     const preparedPayload = preparePayload
@@ -184,7 +191,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
       />
 
       {info ? (
-        <Card className="border-gold-soft/60 bg-bg-warm-white p-5 text-sm leading-6 text-text-muted">
+        <Card className="whitespace-pre-line border-gold-soft/60 bg-bg-warm-white p-5 text-sm leading-6 text-text-muted">
           {info}
         </Card>
       ) : null}
@@ -248,11 +255,14 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
             {crud.error}
           </p>
         ) : null}
+        {editingRow && renderBeforeForm ? (
+          <div className="mb-5">{renderBeforeForm(editingRow)}</div>
+        ) : null}
         <AdminRecordForm
           defaultValues={defaultValues}
           disabled={crud.isMutating}
           fields={fields}
-          initialData={editingRow}
+          initialData={formInitialData}
           key={editingRow?.id ?? 'new'}
           onCancel={closeForm}
           onSubmit={handleSubmit}

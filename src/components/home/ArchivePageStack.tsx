@@ -39,6 +39,7 @@ function buildArchiveItems(
       src: image.image_url,
       title: image.title,
     }))
+
   const videoItems: ArchivePreviewItem[] = [...videos]
     .filter((video) => video.is_visible && video.thumbnail_url.trim())
     .sort((first, second) => first.display_order - second.display_order)
@@ -50,6 +51,7 @@ function buildArchiveItems(
       src: video.thumbnail_url,
       title: video.title,
     }))
+
   const posterItems: ArchivePreviewItem[] = [...posters]
     .filter((poster) => poster.is_visible && poster.image_url.trim())
     .sort((first, second) => first.display_order - second.display_order)
@@ -92,7 +94,7 @@ export function ArchivePageStack({
               {buttonLabel}
             </Button>
           }
-          description="새로운 공연과 연습 기록이 등록되면 이곳에서 소개합니다."
+          description="새로운 공연과 연습 기록이 등록되면 이 공간에 소개됩니다."
           title="등록된 갤러리 자료가 없습니다"
         />
       </div>
@@ -104,7 +106,7 @@ export function ArchivePageStack({
       <Reveal variant="fade-up">
         <div className="archive-preview-copy">
           <p className="type-eyebrow text-gold-warm">ARCHIVE BOOK</p>
-          <h3 className="type-section-title mt-4 text-navy-deep">기록 보관함</h3>
+          <h3 className="type-section-title mt-4 text-navy-deep">기록 펼치기</h3>
           <p className="type-body mt-5 text-text-muted">{description}</p>
           <Button className="mt-7" href="/gallery" variant="secondary">
             {buttonLabel}
@@ -147,7 +149,7 @@ export function ArchivePageStack({
               onClick={() => setIsOpen((current) => !current)}
               type="button"
             >
-              {isOpen ? '접기' : '펼치기'}
+              {isOpen ? '접기' : '기록 펼치기'}
             </button>
           </div>
         </div>

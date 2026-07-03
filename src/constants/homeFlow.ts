@@ -1,6 +1,6 @@
 export const HOME_FLOW_SECTIONS = [
   { key: 'hero', label: '시작', symbol: '♪', x: 3 },
-  { key: 'quick', label: '길잡이', symbol: '♩', x: 16 },
+  { key: 'quick', label: '안내', symbol: '♩', x: 16 },
   { key: 'about', label: '소개', symbol: '♫', x: 8 },
   { key: 'join-letter', label: '입단', symbol: '♬', x: 21 },
   { key: 'concert-program', label: '공연', symbol: '♪', x: 5 },

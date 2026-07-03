@@ -33,8 +33,8 @@ const heroVariantClasses: Record<SpiritHeroVariant, string> = {
   page: 'py-16 sm:py-20 lg:py-24',
 }
 
-const floatingMottoBadges = ['정직한 음악', '다음세대의 울림']
-const mobileMottoBadges = ['정직한 음악', '함께 듣는 공동체', '지성 · 인성 · 영성']
+const floatingMottoBadges = ['마음을 담은 음악', '다음세대의 울림']
+const mobileMottoBadges = ['마음을 담은 음악', '서로를 듣는 공동체', '음악 · 마음 · 성장']
 
 const voiceNodePositions = [
   { cx: 180, cy: 110 },
@@ -53,8 +53,8 @@ const voiceNodes = voiceConstellationCopy.voices.map((voice, index) => ({
 
 const voiceCenter = { cx: 360, cy: 210 }
 const manifestoStatementTitles = [
-  '정직하게 듣는 음악',
-  '함께 책임지는 공동체',
+  '마음을 담아 듣는 음악',
+  '서로를 살피는 공동체',
   '사람을 세우는 교육',
 ] as const
 

@@ -3,6 +3,7 @@ import { BrandLogo } from '../common/BrandLogo'
 import { Button } from '../common/Button'
 import { Card } from '../common/Card'
 import { Container } from '../common/Container'
+import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 import { Reveal } from '../common/Reveal'
 import { StaffFrame } from '../common/StaffFrame'
 import { StaffLines } from '../common/StaffLines'
@@ -24,7 +25,7 @@ const aboutCards = [
     title: '창단 목적',
   },
   {
-    description: '창의적인 음악교육과 인성의 균형을 함께 추구합니다.',
+    description: '창의적인 음악교육과 마음의 성장을 함께 추구합니다.',
     title: '교육 목적',
   },
   {
@@ -33,7 +34,7 @@ const aboutCards = [
   },
   {
     description: '함께 노래하며 음악의 가치와 나눔의 마음을 배웁니다.',
-    title: '음악의 비전',
+    title: '음악의 꿈',
   },
 ] as const
 
@@ -65,6 +66,12 @@ export function AboutPreview({
       className="flow-section home-section relative overflow-hidden bg-bg-ivory"
       data-flow-section="about"
     >
+      <HomeSectionStaffCue
+        className="home-section-staff-cue--about"
+        label="소개"
+        noteOffset={7}
+        symbol="♫"
+      />
       <div
         aria-hidden="true"
         className="side-score-rail absolute left-[max(1rem,calc(50%-680px))] top-20 hidden lg:block"

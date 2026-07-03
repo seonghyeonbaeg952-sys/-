@@ -249,6 +249,44 @@ export function getPublicImageUrl(
   return { data: data.publicUrl, error: null }
 }
 
+export async function getSignedStorageUrl(
+  path: string,
+  bucketName: string,
+  expiresInSeconds = 300,
+): Promise<StorageActionResult<string>> {
+  const clientResult = getSupabaseClientSafe()
+
+  if (!clientResult.data) {
+    return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
+  }
+
+  const storagePath = path.trim()
+
+  if (!storagePath) {
+    return { data: null, error: '첨부파일 경로가 비어 있습니다.' }
+  }
+
+  const { data, error } = await clientResult.data.storage
+    .from(bucketName)
+    .createSignedUrl(storagePath, expiresInSeconds)
+
+  if (error) {
+    return {
+      data: null,
+      error: toStorageError(
+        error,
+        '첨부파일 링크를 만들지 못했습니다. 관리자 권한 또는 Storage 정책을 확인해 주세요.',
+      ),
+    }
+  }
+
+  if (!data.signedUrl) {
+    return { data: null, error: '첨부파일 링크를 확인하지 못했습니다.' }
+  }
+
+  return { data: data.signedUrl, error: null }
+}
+
 export async function uploadImage({
   allowSvg = false,
   bucketName = DEFAULT_STORAGE_BUCKET,

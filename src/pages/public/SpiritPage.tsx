@@ -30,7 +30,7 @@ export function SpiritPage() {
     ...defaultSpiritHero,
     ctaLabel: '합창단 정신 보기',
     ctaUrl: '/spirit',
-    title: '정직한 음악으로\n다음 세대를 세웁니다',
+    title: '마음을 담은 음악으로\n다음 세대를 세웁니다',
   })
   const motetMeaning = getAboutSectionCopy(
     aboutSections,

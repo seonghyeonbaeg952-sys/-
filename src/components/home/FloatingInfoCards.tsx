@@ -1,5 +1,6 @@
 import { legacyActivitySummary, legacyChoirIntro } from '../../constants/legacyContent'
 import { Container } from '../common/Container'
+import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 import { Reveal } from '../common/Reveal'
 import { StaffLines } from '../common/StaffLines'
 
@@ -38,6 +39,12 @@ export function FloatingInfoCards({
       className="flow-section home-quick-actions relative z-50"
       data-flow-section="quick"
     >
+      <HomeSectionStaffCue
+        className="home-section-staff-cue--quick"
+        label="안내"
+        noteOffset={18}
+        symbol="♪"
+      />
       <Container>
         <div className="home-quick-action-grid">
           {cards.map((card, index) => (

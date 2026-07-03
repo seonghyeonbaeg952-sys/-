@@ -11,7 +11,7 @@ export const heroSlides = [
   {
     id: 'hero-slide-1',
     title: '마음을 다한 음악으로 다음 세대를 세웁니다',
-    subtitle: '정직한 음악과 공동체의 울림',
+    subtitle: '마음을 담은 음악과 함께 빚는 울림',
     description:
       '청소년의 목소리가 음악 안에서 자라도록 무대와 교육의 시간을 이어갑니다.',
     image_url: '/images/hero/hero-01.svg',
@@ -26,7 +26,7 @@ export const heroSlides = [
   {
     id: 'hero-slide-2',
     title: '함께 배우고 함께 노래하는 시간',
-    subtitle: '음악 안에서 자라는 지성과 인성',
+    subtitle: '음악 안에서 자라는 마음과 울림',
     description:
       '정기 연습과 무대 경험을 통해 청소년들이 음악의 가치와 공동체의 마음을 배웁니다.',
     image_url: '/images/hero/hero-02.svg',
@@ -166,7 +166,7 @@ export const mockSiteSettings = {
   id: 'site-settings-default',
   site_title: '서울모테트청소년합창단',
   hero_title: '마음을 다한 음악으로 다음 세대를 세웁니다',
-  hero_subtitle: '정직한 음악과 공동체의 울림',
+  hero_subtitle: '마음을 담은 음악과 함께 빚는 울림',
   home_hero_eyebrow: 'SEOUL MOTET YOUTH CHOIR',
   home_hero_description:
     '청소년의 목소리가 음악 안에서 자라도록 무대와 교육의 시간을 이어갑니다.',
@@ -193,7 +193,7 @@ export const mockSiteSettings = {
   home_support_title: '후원과 문의',
   home_support_button_label: '문의',
   about_summary:
-    '서울모테트청소년합창단은 청소년들이 정직한 음악과 함께 부르는 공동체 안에서 지성, 인성, 영성을 균형 있게 기르도록 돕습니다.',
+    '서울모테트청소년합창단은 청소년들이 마음을 담은 음악과 함께 부르는 공동체 안에서 음악과 마음, 공동체의 울림을 함께 배워가도록 돕습니다.',
   support_text:
     '서울모테트청소년합창단의 공연, 초청연주, 후원 상담은 공식 문의 페이지에서 이어집니다.',
   join_cta_text:

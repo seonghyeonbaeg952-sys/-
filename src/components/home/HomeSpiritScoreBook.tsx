@@ -9,6 +9,7 @@ import type { AboutSectionRow } from '../../types/cms'
 import { classNames } from '../../utils/classNames'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
+import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 import { Reveal } from '../common/Reveal'
 import { StaffLines } from '../common/StaffLines'
 import { KineticHeadline } from './KineticHeadline'
@@ -65,9 +66,15 @@ export function HomeSpiritScoreBook({ sections }: HomeSpiritScoreBookProps) {
   return (
     <section
       aria-labelledby="home-spirit-scorebook-title"
-      className="flow-section home-section spirit-scorebook-section bg-bg-ivory"
+      className="flow-section home-section spirit-scorebook-section relative bg-bg-ivory"
       data-flow-section="spirit"
     >
+      <HomeSectionStaffCue
+        className="home-section-staff-cue--spirit"
+        label="정신"
+        noteOffset={21}
+        symbol="♫"
+      />
       <Container>
         <Reveal>
           <KineticHeadline

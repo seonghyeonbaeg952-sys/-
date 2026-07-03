@@ -277,15 +277,28 @@ export interface FaqRow extends CmsRecord {
   is_visible: boolean
 }
 
+export type ContactStatus =
+  | 'answered'
+  | 'archived'
+  | 'done'
+  | 'in_progress'
+  | 'new'
+  | 'on_hold'
+  | 'reviewing'
+
 export interface ContactRow extends CmsRecord {
+  admin_note?: string | null
+  admin_reply?: string | null
   name: string
   email: string
   phone: string | null
-  type: 'join' | 'concert_request' | 'support' | 'general'
+  replied_at?: string | null
+  replied_by?: string | null
+  type: 'join' | 'concert_request' | 'support' | 'general' | 'other'
   title: string | null
   message: string
   privacy_agreed: boolean
-  status: 'new' | 'in_progress' | 'done'
+  status: ContactStatus
   created_at: string
 }
 

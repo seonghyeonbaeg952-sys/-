@@ -2,6 +2,7 @@ import { legacyLocationSeed } from '../../constants/legacyContent'
 import type { SiteSettings } from '../../types/content'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
+import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 import { Reveal } from '../common/Reveal'
 import { StaffLines } from '../common/StaffLines'
 import { StaffSectionLabel } from '../common/StaffSectionLabel'
@@ -38,9 +39,15 @@ export function SupportLetterFold({
 
   return (
     <section
-      className="flow-section support-letter-section home-section"
+      className="flow-section support-letter-section home-section relative"
       data-flow-section="support-letter"
     >
+      <HomeSectionStaffCue
+        className="home-section-staff-cue--support"
+        label="후원"
+        noteOffset={11}
+        symbol="♩"
+      />
       <div
         aria-hidden="true"
         className="stage-staff-lines stage-staff-lines-support"

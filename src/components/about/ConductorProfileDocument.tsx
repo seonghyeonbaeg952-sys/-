@@ -16,15 +16,15 @@ type ActivityImage = {
 
 const defaultTeachingPrinciples = [
   {
-    title: '경청',
+    title: '귀 기울임',
     description: '서로의 소리를 먼저 듣고 하나의 울림 안에서 자기 역할을 찾습니다.',
   },
   {
-    title: '책임',
-    description: '연습과 무대의 약속을 지키며 공동체 안에서 책임을 배웁니다.',
+    title: '약속',
+    description: '연습과 무대의 시간을 소중히 여기며 공동체 안에서 서로를 살핍니다.',
   },
   {
-    title: '성실',
+    title: '꾸준함',
     description: '악보와 텍스트를 정확히 읽고 꾸준히 다듬는 태도를 기릅니다.',
   },
   {

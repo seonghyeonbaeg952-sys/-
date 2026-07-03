@@ -48,8 +48,38 @@ const fieldClassName =
 const textareaClassName =
   'mt-2 min-h-20 w-full rounded-button border border-line-default bg-bg-warm-white px-3 py-3 text-sm outline-none transition focus:border-gold-warm focus:ring-2 focus:ring-gold-soft/60'
 
+const supportFallbackMessage =
+  '후원 관련 자세한 안내는 문의를 통해 도와드리겠습니다.'
+
+const forbiddenSupportValues = new Set([
+  '#',
+  'href="#"',
+  'placeholder',
+  'todo',
+  'undefined',
+  'null',
+  '관리자 등록 예정',
+  '등록 예정',
+  '미정',
+  '준비중',
+])
+
 function getTodayInputValue() {
   return new Date().toISOString().slice(0, 10)
+}
+
+function normalizeSupportDisplayText(value: string | null | undefined) {
+  const trimmedValue = value?.trim()
+
+  if (!trimmedValue) {
+    return null
+  }
+
+  if (forbiddenSupportValues.has(trimmedValue.toLowerCase())) {
+    return null
+  }
+
+  return trimmedValue
 }
 
 function formatAmount(amount: number) {
@@ -170,10 +200,38 @@ export function SupportPledgeForm({
       : settings.corporate_amounts
   }, [settings.corporate_amounts, settings.individual_amounts, values.memberType])
 
-  const contactPhone = settings.contact_phone || siteSettings.phone || '등록 예정'
-  const contactEmail = settings.contact_email || siteSettings.email || '등록 예정'
-  const homepageUrl = settings.homepage_url || '등록 예정'
-  const hasBankAccount = Boolean(settings.bank_account_number)
+  const bankName = normalizeSupportDisplayText(settings.bank_name)
+  const bankAccountNumber = normalizeSupportDisplayText(
+    settings.bank_account_number,
+  )
+  const bankAccountHolder = normalizeSupportDisplayText(
+    settings.bank_account_holder,
+  )
+  const bankNote = normalizeSupportDisplayText(settings.bank_note)
+  const hasBankAccount = Boolean(bankAccountNumber)
+  const hasCompleteBankAccount = Boolean(
+    bankName && bankAccountNumber && bankAccountHolder,
+  )
+  const contactItems = [
+    {
+      label: '문의 전화',
+      value: normalizeSupportDisplayText(
+        settings.contact_phone || siteSettings.phone,
+      ),
+    },
+    {
+      label: '문의 이메일',
+      value: normalizeSupportDisplayText(
+        settings.contact_email || siteSettings.email,
+      ),
+    },
+    {
+      label: '홈페이지',
+      value: normalizeSupportDisplayText(settings.homepage_url),
+    },
+  ].filter((item): item is { label: string; value: string } =>
+    Boolean(item.value),
+  )
 
   useEffect(() => {
     const canvas = signatureCanvasRef.current
@@ -262,7 +320,7 @@ export function SupportPledgeForm({
     }
 
     try {
-      await navigator.clipboard.writeText(settings.bank_account_number)
+      await navigator.clipboard.writeText(bankAccountNumber ?? '')
       setCopyStatus('계좌번호를 복사했습니다.')
     } catch {
       setCopyStatus('복사할 수 없습니다. 계좌번호를 직접 선택해 주세요.')
@@ -772,39 +830,49 @@ export function SupportPledgeForm({
         <div className="support-print-bank-confirm-grid mt-8 grid gap-5 lg:grid-cols-[1fr_0.8fr]">
           <div className="rounded-button border border-line-default bg-bg-ivory p-5">
             <h4 className="text-lg font-semibold text-navy-deep">후원 계좌 안내</h4>
-            <dl className="mt-4 grid gap-3 text-sm leading-6 text-text-muted">
-              <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
-                <dt className="font-semibold text-navy-deep">은행명</dt>
-                <dd>{settings.bank_name || '관리자 등록 예정'}</dd>
-              </div>
-              <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
-                <dt className="font-semibold text-navy-deep">계좌번호</dt>
-                <dd>{settings.bank_account_number || '관리자 등록 예정'}</dd>
-              </div>
-              <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
-                <dt className="font-semibold text-navy-deep">예금주</dt>
-                <dd>{settings.bank_account_holder || '관리자 등록 예정'}</dd>
-              </div>
-            </dl>
-            <p className="mt-4 whitespace-pre-line break-keep text-sm leading-6 text-text-muted">
-              {settings.bank_note}
-            </p>
-            <div className="support-print-hidden mt-4">
-              <Button
-                disabled={!hasBankAccount}
-                onClick={handleCopyAccount}
-                size="sm"
-                type="button"
-                variant="secondary"
-              >
-                계좌번호 복사
-              </Button>
-              {copyStatus ? (
-                <p className="mt-2 text-sm text-text-muted" role="status">
-                  {copyStatus}
-                </p>
-              ) : null}
-            </div>
+            {hasCompleteBankAccount ? (
+              <>
+                <dl className="mt-4 grid gap-3 text-sm leading-6 text-text-muted">
+                  <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
+                    <dt className="font-semibold text-navy-deep">은행명</dt>
+                    <dd>{bankName}</dd>
+                  </div>
+                  <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
+                    <dt className="font-semibold text-navy-deep">계좌번호</dt>
+                    <dd>{bankAccountNumber}</dd>
+                  </div>
+                  <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
+                    <dt className="font-semibold text-navy-deep">예금주</dt>
+                    <dd>{bankAccountHolder}</dd>
+                  </div>
+                </dl>
+                {bankNote ? (
+                  <p className="mt-4 whitespace-pre-line break-keep text-sm leading-6 text-text-muted">
+                    {bankNote}
+                  </p>
+                ) : null}
+                <div className="support-print-hidden mt-4">
+                  <Button
+                    disabled={!hasBankAccount}
+                    onClick={handleCopyAccount}
+                    size="sm"
+                    type="button"
+                    variant="secondary"
+                  >
+                    계좌번호 복사
+                  </Button>
+                  {copyStatus ? (
+                    <p className="mt-2 text-sm text-text-muted" role="status">
+                      {copyStatus}
+                    </p>
+                  ) : null}
+                </div>
+              </>
+            ) : (
+              <p className="mt-4 break-keep text-sm leading-6 text-text-muted">
+                {supportFallbackMessage}
+              </p>
+            )}
           </div>
 
           <div className="rounded-button border border-line-default bg-bg-warm-white p-5">
@@ -884,20 +952,18 @@ export function SupportPledgeForm({
         </div>
 
         <div className="mt-7 border-t border-line-default pt-5 text-sm leading-7 text-text-muted">
-          <dl className="grid gap-2 md:grid-cols-3">
-            <div>
-              <dt className="font-semibold text-navy-deep">문의 전화</dt>
-              <dd>{contactPhone}</dd>
-            </div>
-            <div>
-              <dt className="font-semibold text-navy-deep">문의 이메일</dt>
-              <dd>{contactEmail}</dd>
-            </div>
-            <div>
-              <dt className="font-semibold text-navy-deep">홈페이지</dt>
-              <dd>{homepageUrl}</dd>
-            </div>
-          </dl>
+          {contactItems.length > 0 ? (
+            <dl className="grid gap-2 md:grid-cols-3">
+              {contactItems.map((item) => (
+                <div key={item.label}>
+                  <dt className="font-semibold text-navy-deep">{item.label}</dt>
+                  <dd>{item.value}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : (
+            <p className="break-keep">{supportFallbackMessage}</p>
+          )}
           <p className="mt-4 whitespace-pre-line break-keep">{settings.footer_note}</p>
         </div>
         <div className="support-print-hidden mt-6">

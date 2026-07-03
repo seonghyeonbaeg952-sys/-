@@ -1,8 +1,6 @@
 import { classNames } from '../../utils/classNames'
 import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
-import { HOME_FLOW_SECTIONS } from '../../constants/homeFlow'
-import { useHomeFlowProgress } from '../../hooks/useHomeFlowProgress'
 
 type StaffFlowRailProps = {
   className?: string
@@ -17,7 +15,6 @@ type ScoreRailStyle = CSSProperties & {
 
 const lineIndexes = Array.from({ length: 5 }, (_, index) => index)
 const measureStops = [0.08, 0.22, 0.38, 0.56, 0.74, 0.92] as const
-const scrollFollowCurve = 1.14
 const conductorReleaseStartProgress = 0.96
 const conductorHandFrames = Array.from({ length: 20 }, (_, index) => index + 1)
 const conductorFrameDelaysMs = [
@@ -29,10 +26,6 @@ const conductorFrameDelaysMs = [
 
 function clampProgress(value: number) {
   return Math.min(1, Math.max(0, value))
-}
-
-function slowFollowProgress(value: number) {
-  return Math.pow(clampProgress(value), scrollFollowCurve)
 }
 
 type HandPath = {
@@ -287,7 +280,6 @@ function ConductorReleaseIcon({ className }: { className?: string }) {
 
 export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps) {
   const railRef = useRef<HTMLDivElement | null>(null)
-  const { activeKey } = useHomeFlowProgress()
   const [progress, setProgress] = useState(() => {
     if (typeof window === 'undefined') {
       return 0
@@ -309,7 +301,6 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
     tone === 'dark'
       ? 'from-gold-soft/0 via-gold-soft/16 to-gold-soft/0'
       : 'from-gold-warm/0 via-gold-warm/22 to-gold-warm/0'
-  const noteColor = tone === 'dark' ? 'text-gold-soft/58' : 'text-gold-warm/72'
   const isReleaseActive = progress >= conductorReleaseStartProgress
   const scoreStyle: ScoreRailStyle = {
     '--score-glow-opacity': (0.18 + progress * 0.34).toFixed(3),
@@ -335,14 +326,15 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
 
     const updateProgress = () => {
       frameId = 0
-      const scrollableHeight = Math.max(
-        1,
-        document.documentElement.scrollHeight - window.innerHeight,
+      const rect = rail.getBoundingClientRect()
+      const railTop = rect.top + window.scrollY
+      const railHeight = Math.max(1, rect.height)
+      const targetViewportY = window.innerHeight * 0.75
+      const nextProgress = clampProgress(
+        (window.scrollY + targetViewportY - railTop) / railHeight,
       )
-      const rawProgress = window.scrollY / scrollableHeight
-      const nextProgress = slowFollowProgress(rawProgress)
 
-      if (Math.abs(nextProgress - lastProgress) > 0.01) {
+      if (Math.abs(nextProgress - lastProgress) > 0.003) {
         lastProgress = nextProgress
         setProgress(nextProgress)
       }
@@ -359,6 +351,7 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
     updateProgress()
     window.addEventListener('scroll', requestUpdate, { passive: true })
     window.addEventListener('resize', requestUpdate)
+    prefersReducedMotion.addEventListener('change', requestUpdate)
 
     return () => {
       if (frameId !== 0) {
@@ -367,6 +360,7 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
 
       window.removeEventListener('scroll', requestUpdate)
       window.removeEventListener('resize', requestUpdate)
+      prefersReducedMotion.removeEventListener('change', requestUpdate)
     }
   }, [])
 
@@ -432,29 +426,6 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
             <span className={classNames('score-flow-final-barline-thin', dotColor)} />
             <span className={classNames('score-flow-final-barline-thick', dotColor)} />
           </span>
-        </div>
-        <div aria-hidden="true" className="score-flow-section-marks">
-          {HOME_FLOW_SECTIONS.map((section, index) => (
-            <span
-              className={classNames(
-                'score-flow-section-mark',
-                section.key === activeKey && 'is-active',
-              )}
-              data-section-key={section.key}
-              key={section.key}
-              style={
-                {
-                  '--score-note-x': `${section.x}px`,
-                  top: `${(index / Math.max(1, HOME_FLOW_SECTIONS.length - 1)) * 100}%`,
-                } as CSSProperties
-              }
-            >
-              <span className={classNames('score-flow-section-note', noteColor)}>
-                {section.symbol}
-              </span>
-              <span className="score-flow-section-label">{section.label}</span>
-            </span>
-          ))}
         </div>
         <ConductorReleaseIcon
           className={classNames(
