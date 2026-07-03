@@ -1,78 +1,21 @@
 import { AdminPageTitle } from '../../components/admin/AdminPageTitle'
 import type { AdminFieldConfig } from '../../components/admin/AdminRecordForm'
 import { AdminSingleRecordSection } from '../../components/admin/AdminSingleRecordSection'
-import type { LocationRow, SiteSettingsRow } from '../../types/cms'
+import type { CmsMutationPayload, LocationRow, SiteSettingsRow } from '../../types/cms'
 
-const siteSettingsFields = [
+const siteBasicFields = [
   { name: 'site_title', label: '사이트명', type: 'text', required: true },
-  { name: 'hero_title', label: 'Hero 기본 제목', type: 'text' },
-  { name: 'hero_subtitle', label: 'Hero 기본 부제', type: 'text' },
-  { name: 'home_hero_eyebrow', label: 'Home Hero 영문 라벨', type: 'text' },
   {
-    name: 'home_hero_description',
-    label: 'Home Hero 기본 설명',
-    type: 'textarea',
-    rows: 3,
-  },
-  { name: 'home_info_card_1_title', label: 'Home 정보 카드 1 제목', type: 'text' },
-  {
-    name: 'home_info_card_1_description',
-    label: 'Home 정보 카드 1 설명',
-    type: 'textarea',
-    rows: 2,
-  },
-  { name: 'home_info_card_2_title', label: 'Home 정보 카드 2 제목', type: 'text' },
-  {
-    name: 'home_info_card_2_description',
-    label: 'Home 정보 카드 2 설명',
-    type: 'textarea',
-    rows: 2,
-  },
-  { name: 'home_info_card_3_title', label: 'Home 정보 카드 3 제목', type: 'text' },
-  {
-    name: 'home_info_card_3_description',
-    label: 'Home 정보 카드 3 설명',
-    type: 'textarea',
-    rows: 2,
-  },
-  { name: 'home_about_title', label: 'Home 소개 섹션 제목', type: 'text' },
-  { name: 'home_about_button_label', label: 'Home 소개 버튼 문구', type: 'text' },
-  {
+    description: '푸터와 일부 fallback 화면에 사용하는 짧은 단체 소개입니다. 홈 섹션 문구는 “홈 문구 관리”에서 수정합니다.',
+    label: '사이트 소개 한 줄',
     name: 'about_summary',
-    label: '합창단 소개 요약',
     type: 'textarea',
     rows: 4,
   },
-  { name: 'home_concerts_title', label: 'Home 공연 섹션 제목', type: 'text' },
-  {
-    name: 'home_concerts_description',
-    label: 'Home 공연 섹션 설명',
-    type: 'textarea',
-    rows: 2,
-  },
-  { name: 'home_concerts_button_label', label: 'Home 공연 버튼 문구', type: 'text' },
-  { name: 'home_notices_title', label: 'Home 공지 섹션 제목', type: 'text' },
-  {
-    name: 'home_notices_description',
-    label: 'Home 공지 섹션 설명',
-    type: 'textarea',
-    rows: 2,
-  },
-  { name: 'home_notices_button_label', label: 'Home 공지 버튼 문구', type: 'text' },
-  { name: 'home_gallery_title', label: 'Home 갤러리 섹션 제목', type: 'text' },
-  {
-    name: 'home_gallery_description',
-    label: 'Home 갤러리 섹션 설명',
-    type: 'textarea',
-    rows: 2,
-  },
-  { name: 'home_gallery_button_label', label: 'Home 갤러리 버튼 문구', type: 'text' },
-  { name: 'home_join_title', label: 'Home 입단 CTA 제목', type: 'text' },
-  { name: 'support_text', label: '후원 안내 문구', type: 'textarea', rows: 4 },
-  { name: 'join_cta_text', label: '입단 CTA 문구', type: 'textarea', rows: 4 },
-  { name: 'home_join_button_label', label: 'Home 입단 CTA 버튼 문구', type: 'text' },
-  { name: 'home_support_title', label: 'Home 후원 CTA 제목', type: 'text' },
-  { name: 'home_support_button_label', label: 'Home 후원 CTA 버튼 문구', type: 'text' },
+  { name: 'is_visible', label: '공개 여부', type: 'switch' },
+] satisfies Array<AdminFieldConfig<SiteSettingsRow>>
+
+const contactFields = [
   { name: 'email', label: '대표 이메일', type: 'email' },
   { name: 'phone', label: '대표 전화', type: 'text' },
   { name: 'fax', label: 'FAX', type: 'text' },
@@ -91,7 +34,6 @@ const siteSettingsFields = [
     description: 'Footer 소셜 영역에 노출됩니다. https://로 시작하는 전체 주소를 입력하세요.',
     placeholder: 'https://www.instagram.com/...',
   },
-  { name: 'is_visible', label: '공개 여부', type: 'switch' },
 ] satisfies Array<AdminFieldConfig<SiteSettingsRow>>
 
 const locationFields = [
@@ -105,11 +47,38 @@ const locationFields = [
   { name: 'is_visible', label: '공개 여부', type: 'switch' },
 ] satisfies Array<AdminFieldConfig<LocationRow>>
 
+function isValidOptionalUrl(value: unknown) {
+  if (typeof value !== 'string' || !value.trim()) {
+    return true
+  }
+
+  try {
+    const url = new URL(value.trim())
+
+    return url.protocol === 'http:' || url.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+function validateUrlPayload(payload: CmsMutationPayload) {
+  const invalidUrlField = [
+    ['youtube_url', 'YouTube URL'],
+    ['instagram_url', 'Instagram URL'],
+    ['naver_map_url', '네이버 지도 URL'],
+    ['kakao_map_url', '카카오 지도 URL'],
+  ].find(([field]) => !isValidOptionalUrl(payload[field]))
+
+  return invalidUrlField
+    ? `${invalidUrlField[1]}은 http:// 또는 https://로 시작하는 주소만 저장할 수 있습니다.`
+    : null
+}
+
 export function AdminSettingsPage() {
   return (
     <div className="space-y-6">
       <AdminPageTitle
-        description="방문자 화면에 사용하는 기본 문구, 연락처, 소셜 링크를 관리합니다."
+        description="운영자가 자주 수정하는 사이트 기본 정보, 연락처, 오시는 길만 관리합니다. 홈 화면 문구는 홈 문구 관리에서 수정합니다."
         title="홈페이지 기본 설정"
       />
       <AdminSingleRecordSection
@@ -117,10 +86,18 @@ export function AdminSettingsPage() {
           is_visible: true,
           site_title: '서울모테트청소년합창단',
         }}
-        description="사이트 대표 정보가 없으면 새로 생성하고, 있으면 기존 정보를 수정합니다."
-        fields={siteSettingsFields}
+        description="사이트 대표명과 공통 소개 문구를 관리합니다. Hero, 입단 CTA, 갤러리 등 홈 전용 문구는 이 화면에서 분리했습니다."
+        fields={siteBasicFields}
         table="site_settings"
-        title="사이트 정보"
+        title="사이트 기본 정보"
+      />
+      <AdminSingleRecordSection
+        defaultValues={{ is_visible: true }}
+        description="푸터와 문의 화면에서 사용하는 대표 연락처와 외부 채널 링크입니다."
+        fields={contactFields}
+        table="site_settings"
+        title="연락처와 외부 링크"
+        validatePayload={validateUrlPayload}
       />
       <AdminSingleRecordSection
         defaultValues={{ is_visible: true }}
@@ -128,6 +105,7 @@ export function AdminSettingsPage() {
         fields={locationFields}
         table="locations"
         title="오시는 길 기본 정보"
+        validatePayload={validateUrlPayload}
       />
     </div>
   )

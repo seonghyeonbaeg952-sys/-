@@ -9,6 +9,8 @@ import { ImageTile } from './ImageTile'
 type ArchivePageStackProps = {
   buttonLabel: string
   description: string
+  emptyDescription?: string
+  emptyTitle?: string
   images: GalleryImage[]
   posters?: Poster[]
   videos?: VideoItem[]
@@ -80,6 +82,8 @@ function buildArchiveItems(
 export function ArchivePageStack({
   buttonLabel,
   description,
+  emptyDescription = '새로운 공연과 연습 기록이 등록되면 이 공간에 소개됩니다.',
+  emptyTitle = '등록된 갤러리 자료가 없습니다',
   images,
   posters = [],
   videos = [],
@@ -96,8 +100,8 @@ export function ArchivePageStack({
               {buttonLabel}
             </Button>
           }
-          description="새로운 공연과 연습 기록이 등록되면 이 공간에 소개됩니다."
-          title="등록된 갤러리 자료가 없습니다"
+          description={emptyDescription}
+          title={emptyTitle}
         />
       </div>
     )

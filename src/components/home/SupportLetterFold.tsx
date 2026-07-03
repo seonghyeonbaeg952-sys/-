@@ -25,6 +25,7 @@ const fallback = {
 }
 
 export function SupportLetterFold({
+  buttonLabel,
   cardDescription,
   cardTitle,
   secondaryButtonLabel,
@@ -68,7 +69,7 @@ export function SupportLetterFold({
               </p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Button href="/contact?section=support" size="lg" variant="gold">
-                  후원약정·기관문의
+                  {buttonLabel || '후원 상담 신청'}
                 </Button>
                 <Button
                   className="!border-bg-warm-white/24 !bg-bg-warm-white/[0.06] !text-bg-warm-white hover:!border-gold-soft hover:!text-gold-soft"

@@ -21,7 +21,7 @@ import { AdminModal } from './AdminModal'
 import { AdminPageTitle } from './AdminPageTitle'
 import { AdminRecordForm, type AdminFieldConfig } from './AdminRecordForm'
 import { AdminTable, type AdminTableColumn } from './AdminTable'
-import { AdminToolbar } from './AdminToolbar'
+import { AdminToolbar, type AdminToolbarFilter } from './AdminToolbar'
 import { DeleteConfirmDialog } from './DeleteConfirmDialog'
 
 type ListFilterConfig<TTable extends CmsTableName> = {
@@ -60,12 +60,14 @@ type AdminCrudListPageProps<TTable extends CmsTableName> = {
     row: CmsRowFor<TTable> | null,
   ) => CmsMutationPayload
   prepareInitialData?: (row: CmsRowFor<TTable>) => Partial<CmsRowFor<TTable>>
+  prepareRows?: (rows: Array<CmsRowFor<TTable>>) => Array<CmsRowFor<TTable>>
   renderBeforeForm?: (row: CmsRowFor<TTable>) => ReactNode
   searchColumn?: Extract<keyof CmsRowFor<TTable>, string>
   searchPlaceholder?: string
   showVisibility?: boolean
   table: TTable
   title: string
+  toolbarFilters?: AdminToolbarFilter[]
   validatePayload?: (
     payload: CmsMutationPayload,
     row: CmsRowFor<TTable> | null,
@@ -86,12 +88,14 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
   order,
   prepareInitialData,
   preparePayload,
+  prepareRows,
   renderBeforeForm,
   searchColumn,
   searchPlaceholder,
   showVisibility = true,
   table,
   title,
+  toolbarFilters = [],
   validatePayload,
 }: AdminCrudListPageProps<TTable>) {
   const [searchValue, setSearchValue] = useState('')
@@ -136,6 +140,10 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
   }
   const formInitialData =
     editingRow && prepareInitialData ? prepareInitialData(editingRow) : editingRow
+  const rows = useMemo(
+    () => (prepareRows ? prepareRows(crud.rows) : crud.rows),
+    [crud.rows, prepareRows],
+  )
 
   const handleSubmit = async (payload: CmsMutationPayload) => {
     const preparedPayload = preparePayload
@@ -196,21 +204,24 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
         </Card>
       ) : null}
 
-      {(searchColumn || filters.length > 0) ? (
+      {(searchColumn || filters.length > 0 || toolbarFilters.length > 0) ? (
         <AdminToolbar
-          filters={filters.map((filter) => ({
-            label: filter.label,
-            onChange: (value) =>
-              setFilterValues((current) => ({
-                ...current,
-                [filter.column]: value,
-              })),
-            options: [
-              { label: filter.allLabel, value: '' },
-              ...filter.options,
-            ],
-            value: filterValues[filter.column] ?? '',
-          }))}
+          filters={[
+            ...filters.map((filter) => ({
+              label: filter.label,
+              onChange: (value: string) =>
+                setFilterValues((current) => ({
+                  ...current,
+                  [filter.column]: value,
+                })),
+              options: [
+                { label: filter.allLabel, value: '' },
+                ...filter.options,
+              ],
+              value: filterValues[filter.column] ?? '',
+            })),
+            ...toolbarFilters,
+          ]}
           onSearchChange={searchColumn ? setSearchValue : undefined}
           searchPlaceholder={searchPlaceholder}
           searchValue={searchValue}
@@ -235,7 +246,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
           setFormError(null)
           setIsFormOpen(true)
         }}
-        rows={crud.rows}
+        rows={rows}
         showVisibility={showVisibility}
       />
 

@@ -17,6 +17,8 @@ const invalidLiteralValues = new Set([
   '준비중',
   '테스트',
   '임시',
+  '등록 예정',
+  '관리자 등록 예정',
 ])
 
 function hasBrokenCharacters(value: string) {
@@ -27,6 +29,22 @@ function hasBrokenCharacters(value: string) {
 
 function hasHtmlTag(value: string) {
   return /<\s*\/?\s*[a-z][^>]*>/i.test(value)
+}
+
+function hasForbiddenPublicLiteral(value: string) {
+  return [
+    /href\s*=\s*["']?#["']?/i,
+    /\bTODO\b/i,
+    /placeholder/i,
+    /undefined/i,
+    /\bnull\b/i,
+    /미정/,
+    /준비중/,
+    /테스트/,
+    /임시/,
+    /등록 예정/,
+    /관리자 등록 예정/,
+  ].some((pattern) => pattern.test(value))
 }
 
 export function normalizeSiteText(
@@ -42,6 +60,7 @@ export function normalizeSiteText(
 
   if (
     invalidLiteralValues.has(trimmedValue) ||
+    hasForbiddenPublicLiteral(trimmedValue) ||
     hasBrokenCharacters(trimmedValue) ||
     hasHtmlTag(trimmedValue)
   ) {

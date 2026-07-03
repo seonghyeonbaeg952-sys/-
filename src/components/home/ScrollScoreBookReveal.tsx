@@ -20,16 +20,17 @@ const valueWords = [
 ]
 
 const wordPositions = [
-  { fromX: -34, fromY: 30, left: '17%', tilt: -2.4, top: '25%' },
-  { fromX: -28, fromY: 30, left: '18%', tilt: 1.6, top: '43%' },
-  { fromX: -22, fromY: 30, left: '20%', tilt: -1.2, top: '61%' },
-  { fromX: 30, fromY: 30, left: '57%', tilt: 1.8, top: '25%' },
-  { fromX: 28, fromY: 30, left: '59%', tilt: -1.4, top: '43%' },
-  { fromX: 34, fromY: 30, left: '61%', tilt: 1.3, top: '61%' },
+  { fromX: -520, fromY: -172, left: '17%', tilt: -5.2, top: '25%' },
+  { fromX: -650, fromY: 8, left: '18%', tilt: 4.2, top: '43%' },
+  { fromX: -535, fromY: 188, left: '20%', tilt: -3.4, top: '61%' },
+  { fromX: 520, fromY: -166, left: '57%', tilt: 4.8, top: '25%' },
+  { fromX: 660, fromY: 14, left: '59%', tilt: -3.8, top: '43%' },
+  { fromX: 545, fromY: 184, left: '61%', tilt: 3.2, top: '61%' },
 ]
 
-const WORD_FADE_START_PROGRESS = 0.84
-const WORD_FADE_END_PROGRESS = 0.97
+const WORD_WAVE_COUNT = 1
+const WORD_WAVE_INTERVAL = 0.34
+const WORD_STAGGER_INTERVAL = 0.05
 
 type ScrollScoreBookRevealProps = {
   coverDescription?: string
@@ -58,6 +59,7 @@ type WordStyle = CSSProperties & {
   '--word-top': string
   '--word-x': string
   '--word-y': string
+  '--word-z': string
 }
 
 function clamp(value: number) {
@@ -376,34 +378,39 @@ function getFlutterPageStyle(progress: number, index: number): CSSProperties {
   }
 }
 
-function getWordStyle(progress: number, index: number): WordStyle {
-  const start = 0.32 + index * 0.052
-  const end = start + 0.24
+function getWordStyle(
+  progress: number,
+  index: number,
+  waveIndex: number,
+): WordStyle {
+  const stagger = index * WORD_STAGGER_INTERVAL
+  const start = 0.26 + waveIndex * WORD_WAVE_INTERVAL + stagger
+  const end = start + 0.38
   const localRaw = clamp((progress - start) / (end - start))
-  const settled = easeInOut(localRaw)
-  const enter = smoothstep(0, 0.38, localRaw)
-  const exit = smoothstep(
-    WORD_FADE_START_PROGRESS,
-    WORD_FADE_END_PROGRESS,
-    progress,
-  )
-  const visible = enter * (1 - exit)
+  const moveRaw = smoothstep(0.08, 0.88, localRaw)
+  const settled = easeInOut(moveRaw)
+  const enter = smoothstep(0.03, 0.2, localRaw)
+  const absorb = smoothstep(0.72, 1, localRaw)
+  const visible = enter * (1 - absorb)
   const position = wordPositions[index]
-  const drawnInX = position.fromX * (1 - settled)
-  const drawnInY = position.fromY * (1 - settled)
-  const blur = 0.9 * (1 - settled) + exit * 0.7
+  const waveDirection = waveIndex === 0 ? 1 : -1
+  const drawnInX = (position.fromX * 0.78 + waveDirection * 18) * (1 - settled)
+  const drawnInY = (position.fromY * 0.78 + waveDirection * 8) * (1 - settled)
+  const blur = 0.18 * (1 - settled) + absorb * 0.14
+  const depth = 18 + 96 * (1 - settled)
 
   return {
     '--word-blur': `${blur.toFixed(2)}px`,
     '--word-left': position.left,
     '--word-line-scale': visible.toFixed(4),
     '--word-note-opacity': (visible * 0.72).toFixed(4),
-    '--word-opacity': (visible * 0.82).toFixed(4),
-    '--word-rotate': `${(position.tilt * (1 - settled)).toFixed(2)}deg`,
-    '--word-scale': (0.985 + settled * 0.015 - exit * 0.02).toFixed(4),
+    '--word-opacity': Math.min(1, visible * 1.05).toFixed(4),
+    '--word-rotate': `${(position.tilt * 0.72 * (1 - settled)).toFixed(2)}deg`,
+    '--word-scale': (1.035 - settled * 0.025 - absorb * 0.015).toFixed(4),
     '--word-top': position.top,
     '--word-x': `${drawnInX.toFixed(2)}px`,
     '--word-y': `${drawnInY.toFixed(2)}px`,
+    '--word-z': `${depth.toFixed(2)}px`,
   }
 }
 
@@ -434,7 +441,7 @@ export function ScrollScoreBookReveal({
 }: ScrollScoreBookRevealProps) {
   const { isAnimatedDesktop, progress, sectionRef } = useScoreBookProgress()
   const open = smoothstep(0.02, 0.25, progress)
-  const final = smoothstep(0.68, 0.91, progress)
+  const final = smoothstep(0.94, 1, progress)
   const scoreStyle: ScoreStyle = {
     '--book-final': final.toFixed(4),
     '--book-open': open.toFixed(4),
@@ -498,6 +505,13 @@ export function ScrollScoreBookReveal({
                     '합창은 소리를 맞추는 일을 넘어,\n사람을 세우는 교육입니다.'}
                 </p>
                 <p className="motet-score-keywords">귀 기울임 · 꾸준함 · 약속</p>
+                <div className="motet-score-final-callout">
+                  <strong>연습이 남기는 것</strong>
+                  <p>
+                    한 곡을 완성하기까지 단원들은 음정과 박자, 숨과 발음을
+                    맞추며 서로를 듣는 시간을 쌓아갑니다.
+                  </p>
+                </div>
               </div>
             </article>
 
@@ -516,6 +530,13 @@ export function ScrollScoreBookReveal({
                     '나의 소리보다 우리의 울림을 먼저 생각하며, 청소년들은 서로를 살피는 마음과 어울림을 배워갑니다.'}
                 </p>
                 <p className="motet-score-keywords">약속 · 어울림 · 꿈</p>
+                <div className="motet-score-final-callout">
+                  <strong>무대가 이어 주는 것</strong>
+                  <p>
+                    준비한 목소리는 예배와 공연, 나눔의 자리에서 위로와 평화의
+                    메시지로 전해집니다.
+                  </p>
+                </div>
               </div>
             </article>
           </div>
@@ -540,16 +561,18 @@ export function ScrollScoreBookReveal({
 
           {isAnimatedDesktop ? (
             <div aria-hidden="true" className="motet-score-value-words">
-              {displayedValueWords.map((item, index) => (
-                <span
-                  className="motet-score-value-word"
-                  key={item.word}
-                  style={getWordStyle(progress, index)}
-                >
-                  <strong>{item.word}</strong>
-                  <small>{item.body}</small>
-                </span>
-              ))}
+              {Array.from({ length: WORD_WAVE_COUNT }).map((_, waveIndex) =>
+                displayedValueWords.map((item, index) => (
+                  <span
+                    className="motet-score-value-word"
+                    key={`${waveIndex}-${item.word}`}
+                    style={getWordStyle(progress, index, waveIndex)}
+                  >
+                    <strong>{item.word}</strong>
+                    <small>{item.body}</small>
+                  </span>
+                )),
+              )}
             </div>
           ) : null}
 

@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import { Card } from '../common/Card'
 import { useCrudItem } from '../../hooks/useCrudItem'
 import type {
@@ -17,6 +19,10 @@ type AdminSingleRecordSectionProps<TTable extends CmsTableName> = {
     payload: CmsMutationPayload,
     row: CmsRowFor<TTable> | null,
   ) => CmsMutationPayload
+  validatePayload?: (
+    payload: CmsMutationPayload,
+    row: CmsRowFor<TTable> | null,
+  ) => string | null
   table: TTable
   title: string
 }
@@ -28,11 +34,22 @@ export function AdminSingleRecordSection<TTable extends CmsTableName>({
   preparePayload,
   table,
   title,
+  validatePayload,
 }: AdminSingleRecordSectionProps<TTable>) {
   const crud = useCrudItem(table)
+  const [formError, setFormError] = useState<string | null>(null)
 
   const handleSubmit = async (payload: CmsMutationPayload) => {
-    await crud.saveItem(preparePayload ? preparePayload(payload, crud.item) : payload)
+    const preparedPayload = preparePayload ? preparePayload(payload, crud.item) : payload
+    const validationError = validatePayload?.(preparedPayload, crud.item) ?? null
+
+    if (validationError) {
+      setFormError(validationError)
+      return
+    }
+
+    setFormError(null)
+    await crud.saveItem(preparedPayload)
   }
 
   return (
@@ -47,6 +64,11 @@ export function AdminSingleRecordSection<TTable extends CmsTableName>({
       {crud.message ? (
         <p className="mb-5 rounded-button bg-state-success/10 px-4 py-3 text-sm text-state-success" role="status">
           {crud.message}
+        </p>
+      ) : null}
+      {formError ? (
+        <p className="mb-5 rounded-button bg-state-error/10 px-4 py-3 text-sm leading-6 text-state-error" role="alert">
+          {formError}
         </p>
       ) : null}
 

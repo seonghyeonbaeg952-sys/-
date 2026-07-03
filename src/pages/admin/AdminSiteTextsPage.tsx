@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { siteTextDefinitions } from '../../constants/siteTextDefaults'
 import { AdminCrudListPage } from '../../components/admin/AdminCrudListPage'
@@ -6,6 +6,8 @@ import { getCurrentUser } from '../../lib/auth'
 import type { AdminFieldConfig } from '../../components/admin/AdminRecordForm'
 import type { AdminTableColumn } from '../../components/admin/AdminTable'
 import type { CmsMutationPayload, SiteTextRow } from '../../types/cms'
+
+type SiteTextUsage = 'current' | 'legacy' | 'optional' | 'unknown'
 
 const groupLabels: Record<string, string> = {
   'common.button': '공통 버튼',
@@ -33,15 +35,81 @@ const inputTypeOptions = [
 ]
 
 const defaultDefinition = siteTextDefinitions[0]
+const legacyKeyPrefixes = [
+  'home.quick.1.',
+  'home.quick.2.',
+  'home.quick.3.',
+  'home.scorebook.',
+] as const
+const legacyKeys = new Set([
+  'home.hero.title',
+  'home.hero.description',
+  'home.concert.concertButton',
+  'home.concert.noticeButton',
+  'home.concert.sectionTitle',
+  'home.gallery.eyebrow',
+  'home.gallery.sectionTitle',
+  'home.gallery.sectionDescription',
+  'home.support.button',
+  'home.support.secondaryButton',
+  'home.support.cardTitle',
+  'home.support.cardDescription',
+])
+const optionalKeys = new Set([
+  'home.quick.gallery.title',
+  'home.quick.gallery.description',
+])
+
+const usageOptions = [
+  { label: '현재 홈 문구', value: 'current' },
+  { label: '전체 문구', value: 'all' },
+  { label: '선택 사용 문구', value: 'optional' },
+  { label: '미사용·호환 문구', value: 'legacy' },
+  { label: '정의 없는 문구', value: 'unknown' },
+]
+
+function getDefinition(row: SiteTextRow) {
+  return siteTextDefinitions.find((item) => item.key === row.key)
+}
+
+function getUsage(row: SiteTextRow): SiteTextUsage {
+  if (optionalKeys.has(row.key)) {
+    return 'optional'
+  }
+
+  if (
+    legacyKeys.has(row.key) ||
+    legacyKeyPrefixes.some((prefix) => row.key.startsWith(prefix))
+  ) {
+    return 'legacy'
+  }
+
+  return getDefinition(row) ? 'current' : 'unknown'
+}
+
+function getUsageLabel(row: SiteTextRow) {
+  const usage = getUsage(row)
+
+  if (!row.is_active) {
+    return '미사용'
+  }
+
+  if (usage === 'legacy') {
+    return '미사용·호환'
+  }
+
+  if (usage === 'optional') {
+    return '선택 사용'
+  }
+
+  if (usage === 'unknown') {
+    return '정의 없음'
+  }
+
+  return '현재 사용'
+}
 
 const fields = [
-  {
-    description: 'public 컴포넌트가 참조하는 고유 key입니다. 기존 key는 신중하게 변경하세요.',
-    label: '문구 키',
-    name: 'key',
-    required: true,
-    type: 'text',
-  },
   {
     description: '관리자 화면에서 묶어 볼 문구 그룹입니다.',
     label: '그룹',
@@ -56,13 +124,6 @@ const fields = [
     label: '현재 문구',
     name: 'value',
     rows: 5,
-    type: 'textarea',
-  },
-  {
-    description: '기본 fallback 문구입니다. public 화면이 비어 보이지 않도록 사용됩니다.',
-    label: '기본 문구',
-    name: 'default_value',
-    rows: 4,
     type: 'textarea',
   },
   {
@@ -128,13 +189,25 @@ function getEditorName(
 
 const columns = [
   { header: '그룹', render: getGroupLabel },
-  { header: '라벨', render: (row) => row.label || row.key },
-  { header: '키', value: 'key' },
-  { header: '현재 문구', render: (row) => shortText(row.value) },
-  { header: '기본 문구', render: (row) => shortText(row.default_value) },
   {
-    header: '상태',
-    render: (row) => (row.is_active ? '사용' : '미사용'),
+    header: '문구',
+    render: (row) => (
+      <div>
+        <p className="font-semibold text-navy-deep">
+          {row.label || getDefinition(row)?.label || row.key}
+        </p>
+        <p className="mt-1 text-xs text-text-muted">{row.key}</p>
+      </div>
+    ),
+  },
+  { header: '현재 문구', render: (row) => shortText(row.value) },
+  {
+    header: '기본 문구',
+    render: (row) => shortText(getDefinition(row)?.defaultValue || row.default_value),
+  },
+  {
+    header: '사용 위치',
+    render: getUsageLabel,
   },
   { header: '수정일', render: (row) => row.updated_at?.slice(0, 10) ?? '-' },
   {
@@ -149,6 +222,22 @@ function hasHtmlTag(value: string) {
 
 function hasScriptLikeValue(value: string) {
   return /javascript:|on\w+\s*=|<\s*(script|iframe|style)\b/i.test(value)
+}
+
+function hasForbiddenLiteral(value: string) {
+  return [
+    /href\s*=\s*["']?#["']?/i,
+    /\bTODO\b/i,
+    /placeholder/i,
+    /undefined/i,
+    /\bnull\b/i,
+    /미정/,
+    /준비중/,
+    /테스트/,
+    /임시/,
+    /등록 예정/,
+    /관리자 등록 예정/,
+  ].some((pattern) => pattern.test(value))
 }
 
 function isValidOptionalUrl(value: string) {
@@ -169,9 +258,13 @@ function isValidOptionalUrl(value: string) {
 
 function prepareSiteTextPayload(
   payload: CmsMutationPayload,
+  row: SiteTextRow | null,
   currentUserId: string | null,
 ) {
-  const key = typeof payload.key === 'string' ? payload.key.trim() : ''
+  const key =
+    typeof payload.key === 'string' && payload.key.trim()
+      ? payload.key.trim()
+      : row?.key ?? ''
   const groupName =
     typeof payload.group_name === 'string' ? payload.group_name.trim() : ''
   const definition = siteTextDefinitions.find((item) => item.key === key)
@@ -183,7 +276,7 @@ function prepareSiteTextPayload(
   const defaultValue =
     typeof payload.default_value === 'string'
       ? payload.default_value.trim()
-      : definition?.defaultValue ?? ''
+      : definition?.defaultValue ?? row?.default_value ?? ''
 
   const nextPayload: CmsMutationPayload = {
     ...payload,
@@ -236,6 +329,10 @@ function validateSiteTextPayload(payload: CmsMutationPayload) {
     return 'script, iframe, style 또는 javascript: 형식의 문구는 저장할 수 없습니다.'
   }
 
+  if (hasForbiddenLiteral(value) || hasForbiddenLiteral(defaultValue)) {
+    return 'TODO, placeholder, undefined, null, 미정, 준비중, 테스트, 임시, 등록 예정, href="#" 같은 임시 문구는 저장할 수 없습니다.'
+  }
+
   if (inputType === 'url' && !isValidOptionalUrl(value)) {
     return 'URL 문구는 http:// 또는 https://로 시작하는 주소만 저장할 수 있습니다.'
   }
@@ -257,6 +354,20 @@ function SiteTextMeta({
       <h3 className="text-sm font-semibold text-navy-deep">수정 이력</h3>
       <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
         <div>
+          <dt className="text-xs font-semibold text-text-muted">문구 key</dt>
+          <dd className="mt-1 break-all text-navy-deep">{row.key}</dd>
+        </div>
+        <div>
+          <dt className="text-xs font-semibold text-text-muted">사용 위치</dt>
+          <dd className="mt-1 text-navy-deep">{getUsageLabel(row)}</dd>
+        </div>
+        <div className="sm:col-span-2">
+          <dt className="text-xs font-semibold text-text-muted">기본 문구</dt>
+          <dd className="mt-1 whitespace-pre-line rounded-button bg-bg-ivory px-3 py-2 text-navy-deep">
+            {getDefinition(row)?.defaultValue || row.default_value || '-'}
+          </dd>
+        </div>
+        <div>
           <dt className="text-xs font-semibold text-text-muted">마지막 수정일</dt>
           <dd className="mt-1 text-navy-deep">
             {formatDateTime(row.updated_at) ?? '수정일 정보 없음'}
@@ -276,6 +387,7 @@ function SiteTextMeta({
 export function AdminSiteTextsPage() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null)
+  const [usageFilter, setUsageFilter] = useState('current')
 
   useEffect(() => {
     let isMounted = true
@@ -296,8 +408,25 @@ export function AdminSiteTextsPage() {
     }
   }, [])
 
+  const prepareRows = useCallback(
+    (rows: SiteTextRow[]) =>
+      rows.filter((row) => {
+        if (usageFilter === 'all') {
+          return true
+        }
+
+        if (!row.is_active) {
+          return usageFilter === 'legacy'
+        }
+
+        return getUsage(row) === usageFilter
+      }),
+    [usageFilter],
+  )
+
   return (
     <AdminCrudListPage
+      canCreate={false}
       canDelete={false}
       columns={columns}
       defaultValues={{
@@ -315,7 +444,7 @@ export function AdminSiteTextsPage() {
         value_type: 'text',
       }}
       description="홈페이지에 표시되는 주요 문구를 수정합니다."
-      emptyMessage="등록된 사이트 문구가 없습니다. 2026_add_site_texts.sql migration을 실행하면 기본 문구가 준비됩니다."
+      emptyMessage="조건에 맞는 문구가 없습니다. 전체 문구 또는 미사용·호환 문구 필터를 확인하세요."
       fields={fields}
       filters={[
         {
@@ -336,7 +465,23 @@ export function AdminSiteTextsPage() {
       ]}
       info="빈 값으로 저장하면 기본 문구가 사용됩니다. HTML 태그는 사용할 수 없고, public 화면에는 TODO/undefined/null 같은 임시 문구가 노출되지 않습니다. 문구를 숨기려면 삭제 대신 사용 여부를 끄세요."
       order={{ column: 'sort_order', ascending: true }}
-      preparePayload={(payload) => prepareSiteTextPayload(payload, currentUserId)}
+      prepareInitialData={(row) => {
+        const definition = getDefinition(row)
+
+        return {
+          ...row,
+          default_value: row.default_value || definition?.defaultValue || '',
+          description: row.description || definition?.description || '',
+          group_name: row.group_name || definition?.groupName || 'home.hero',
+          input_type: row.input_type || definition?.inputType || 'text',
+          label: row.label || definition?.label || row.key,
+          sort_order: row.sort_order || definition?.sortOrder || 0,
+        }
+      }}
+      preparePayload={(payload, row) =>
+        prepareSiteTextPayload(payload, row, currentUserId)
+      }
+      prepareRows={prepareRows}
       renderBeforeForm={(row) => (
         <SiteTextMeta
           currentUserEmail={currentUserEmail}
@@ -345,10 +490,18 @@ export function AdminSiteTextsPage() {
         />
       )}
       searchColumn="key"
-      searchPlaceholder="문구 키 검색"
+      searchPlaceholder="문구 key 검색"
       showVisibility={false}
       table="site_texts"
       title="홈 문구 관리"
+      toolbarFilters={[
+        {
+          label: '사용 위치',
+          onChange: setUsageFilter,
+          options: usageOptions,
+          value: usageFilter,
+        },
+      ]}
       validatePayload={validateSiteTextPayload}
     />
   )

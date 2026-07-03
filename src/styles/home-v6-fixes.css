@@ -401,7 +401,7 @@
   height: calc(100svh - 72px);
   min-height: 620px;
   place-items: center;
-  overflow: hidden;
+  overflow: visible;
   perspective: 2200px;
   padding: 76px 32px 42px;
 }
@@ -648,7 +648,7 @@
 .motet-score-value-words {
   position: absolute;
   inset: 0;
-  z-index: 12;
+  z-index: 22;
   overflow: visible;
   pointer-events: none;
 }
@@ -659,15 +659,21 @@
   left: var(--word-left);
   display: grid;
   gap: 0.22rem;
-  max-width: min(12rem, 36%);
-  padding-left: 1.05rem;
+  max-width: min(15rem, 40%);
+  padding-left: 1.08rem;
   opacity: var(--word-opacity);
-  filter: blur(var(--word-blur));
+  filter:
+    drop-shadow(0 12px 22px rgb(6 20 38 / 0.24))
+    blur(var(--word-blur));
   transform:
-    translate3d(var(--word-x), var(--word-y), 54px)
+    translate3d(var(--word-x), var(--word-y), var(--word-z))
     rotateZ(var(--word-rotate))
     scale(var(--word-scale));
   transform-origin: left center;
+  text-shadow:
+    0 1px 0 rgb(255 255 255 / 0.92),
+    0 0 14px rgb(255 253 248 / 0.82),
+    0 10px 20px rgb(6 20 38 / 0.26);
   will-change: filter, opacity, transform;
 }
 
@@ -700,16 +706,17 @@
 .motet-score-value-word strong {
   color: var(--color-gold-warm);
   font-family: var(--font-heading-kr);
-  font-size: clamp(1rem, 1.3vw, 1.4rem);
-  font-weight: 620;
+  font-size: clamp(1.36rem, 1.85vw, 2.05rem);
+  font-weight: 840;
   letter-spacing: 0;
   line-height: 1.2;
+  text-wrap: balance;
 }
 
 .motet-score-value-word small {
-  color: var(--color-navy-deep);
-  font-size: 0.72rem;
-  font-weight: 520;
+  color: rgb(13 29 52 / 0.82);
+  font-size: 0.82rem;
+  font-weight: 620;
   line-height: 1.5;
 }
 

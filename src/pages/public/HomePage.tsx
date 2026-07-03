@@ -185,6 +185,8 @@ export function HomePage() {
               t('home.gallery.sectionDescription', siteSettings.home_gallery_description),
             )}
             eyebrow={t('home.gallery.kicker', t('home.gallery.eyebrow'))}
+            emptyDescription={t('home.gallery.empty.description')}
+            emptyTitle={t('home.gallery.empty.title')}
             images={galleryPreviewImages}
             posters={posters}
             title={t(

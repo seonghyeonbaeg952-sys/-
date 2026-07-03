@@ -9,6 +9,8 @@ import { ArchivePageStack } from './ArchivePageStack'
 type GalleryPreviewProps = {
   buttonLabel?: string
   description?: string
+  emptyDescription?: string
+  emptyTitle?: string
   eyebrow?: string
   images: GalleryImage[]
   posters?: Poster[]
@@ -19,6 +21,8 @@ type GalleryPreviewProps = {
 export function GalleryPreview({
   buttonLabel = '갤러리 보기',
   description = '무대와 연습, 기록의 장면을 차분하게 모았습니다.',
+  emptyDescription,
+  emptyTitle,
   eyebrow = 'GALLERY',
   images,
   posters = [],
@@ -56,6 +60,8 @@ export function GalleryPreview({
         <ArchivePageStack
           buttonLabel={buttonLabel}
           description={description}
+          emptyDescription={emptyDescription}
+          emptyTitle={emptyTitle}
           images={images}
           posters={posters}
           videos={videos}

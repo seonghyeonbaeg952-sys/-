@@ -5,7 +5,7 @@ type ToolbarOption = {
   value: string
 }
 
-type ToolbarFilter = {
+export type AdminToolbarFilter = {
   label: string
   onChange: (value: string) => void
   options: ToolbarOption[]
@@ -13,7 +13,7 @@ type ToolbarFilter = {
 }
 
 type AdminToolbarProps = {
-  filters?: ToolbarFilter[]
+  filters?: AdminToolbarFilter[]
   onSearchChange?: (value: string) => void
   searchPlaceholder?: string
   searchValue?: string
