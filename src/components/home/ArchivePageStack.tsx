@@ -108,9 +108,15 @@ export function ArchivePageStack({
           <p className="type-eyebrow text-gold-warm">ARCHIVE BOOK</p>
           <h3 className="type-section-title mt-4 text-navy-deep">기록 펼치기</h3>
           <p className="type-body mt-5 text-text-muted">{description}</p>
-          <Button className="mt-7" href="/gallery" variant="secondary">
-            {buttonLabel}
-          </Button>
+          <button
+            aria-expanded={isOpen}
+            aria-label={isOpen ? '갤러리 기록 접기' : '갤러리 기록 펼치기'}
+            className="archive-inline-toggle mt-7"
+            onClick={() => setIsOpen((current) => !current)}
+            type="button"
+          >
+            {isOpen ? '접기' : '기록 펼치기'}
+          </button>
         </div>
       </Reveal>
 
@@ -142,15 +148,6 @@ export function ArchivePageStack({
             ))}
 
             <div aria-hidden="true" className="archive-folder-front" />
-            <button
-              aria-expanded={isOpen}
-              aria-label={isOpen ? '갤러리 기록 접기' : '갤러리 기록 펼치기'}
-              className="archive-folder-toggle"
-              onClick={() => setIsOpen((current) => !current)}
-              type="button"
-            >
-              {isOpen ? '접기' : '기록 펼치기'}
-            </button>
           </div>
         </div>
       </Reveal>

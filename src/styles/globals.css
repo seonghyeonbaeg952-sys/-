@@ -1229,6 +1229,14 @@ section[role='tabpanel'] {
   font-family: var(--font-sans-kr);
 }
 
+.public-shell :where(h1, h2, h3, h4) {
+  font-family: var(--font-heading-kr);
+}
+
+.public-shell :where(button, input, textarea, select) {
+  font-family: var(--font-sans-kr);
+}
+
 @media (max-width: 639px) {
   .type-hero-title {
     font-size: 40px;
@@ -2195,7 +2203,8 @@ section[role='tabpanel'] {
   font-weight: 700;
   letter-spacing: 0;
   backdrop-filter: blur(10px);
-  font-family: var(--font-sans-kr);
+  font-family: var(--font-heading-kr);
+  font-variation-settings: "wght" 700;
 }
 
 .home-hero-controls {

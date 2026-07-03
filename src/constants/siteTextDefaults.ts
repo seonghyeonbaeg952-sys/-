@@ -414,7 +414,7 @@ export const siteTextDefinitions = [
     sortOrder: 590,
   },
   {
-    defaultValue: '귀 기울임, 꾸준함, 약속, 어울림, 꿈',
+    defaultValue: '경청, 배려, 성실, 책임, 조화, 비전',
     description: '데스크톱 악보 전환 중 표시되는 가치 단어 목록입니다.',
     groupName: 'home.score',
     inputType: 'textarea',

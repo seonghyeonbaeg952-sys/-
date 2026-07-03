@@ -51,7 +51,7 @@ export function Footer() {
   const settings = contactData.data.siteSettings
   const siteTexts = createSiteTextMap(contactData.data.siteTexts)
   const t = (key: string, fallback?: string) => getSiteText(siteTexts, key, fallback)
-  const emailLabel = settings.email || '등록 예정'
+  const emailLabel = settings.email?.trim()
   const address = settings.address || FALLBACK_ADDRESS
   const footerDescription =
     settings.about_summary ||
@@ -104,10 +104,12 @@ export function Footer() {
               <dt className="w-12 shrink-0 text-gold-soft">FAX</dt>
               <dd>{settings.fax || mockSiteSettings.fax}</dd>
             </div>
-            <div className="flex gap-3 rounded-button border border-bg-warm-white/10 bg-bg-warm-white/[0.035] px-4 py-3">
-              <dt className="w-12 shrink-0 text-gold-soft">이메일</dt>
-              <dd>{emailLabel}</dd>
-            </div>
+            {emailLabel ? (
+              <div className="flex gap-3 rounded-button border border-bg-warm-white/10 bg-bg-warm-white/[0.035] px-4 py-3">
+                <dt className="w-12 shrink-0 text-gold-soft">이메일</dt>
+                <dd>{emailLabel}</dd>
+              </div>
+            ) : null}
           </dl>
         </section>
 
