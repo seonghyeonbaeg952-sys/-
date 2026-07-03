@@ -939,6 +939,13 @@ function mapGalleryImage(row: GalleryRow): GalleryImage {
 
 function mapVideo(row: VideoRow): VideoItem {
   const youtubeId = nullableString(row.youtube_id)
+  const youtubeThumbnailUrls = youtubeId
+    ? [
+        `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`,
+        `https://img.youtube.com/vi/${youtubeId}/sddefault.jpg`,
+        `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`,
+      ]
+    : []
 
   return {
     id: row.id,
@@ -947,7 +954,8 @@ function mapVideo(row: VideoRow): VideoItem {
     display_order: row.display_order,
     is_visible: row.is_visible,
     provider: 'youtube',
-    thumbnail_url: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : '',
+    thumbnail_fallback_urls: youtubeThumbnailUrls.slice(1),
+    thumbnail_url: youtubeThumbnailUrls[0] ?? '',
     title: row.title,
     updated_at: row.updated_at ?? '',
     video_url: nullableString(row.youtube_url, youtubeId),

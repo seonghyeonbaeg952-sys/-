@@ -356,19 +356,23 @@ function HistoryList({
 }) {
   if (history.length === 0 && shouldUseLegacyFallback) {
     return (
-      <div className="grid gap-4">
+      <div className="history-timeline history-timeline--legacy">
         {legacyHistorySeed.map((item) => (
-          <Card className="relative overflow-hidden p-5" key={item.id}>
-            <StaffLines className="absolute inset-x-5 top-5 !w-auto opacity-45" density="light" variant="gold" />
-            <p className="text-sm font-semibold text-gold-warm">{item.year}</p>
-            <h3 className="mt-2 text-lg font-semibold text-navy-deep">
-              {item.title}
-            </h3>
-            {item.description ? (
-              <p className="mt-2 text-sm leading-6 text-text-muted">
-                {item.description}
-              </p>
-            ) : null}
+          <Card className="history-timeline-card history-timeline-card--legacy" key={item.id}>
+            <StaffLines className="history-timeline-card__lines" density="light" variant="gold" />
+            <div className="history-timeline-card__date">
+              <p className="history-timeline-card__year">{item.year}</p>
+            </div>
+            <div className="history-timeline-card__body">
+              <h3 className="history-timeline-card__title">
+                {item.title}
+              </h3>
+              {item.description ? (
+                <p className="history-timeline-card__content">
+                  {item.description}
+                </p>
+              ) : null}
+            </div>
           </Card>
         ))}
       </div>
@@ -380,53 +384,53 @@ function HistoryList({
   }
 
   return (
-    <div className="relative grid gap-4 lg:pl-12">
+    <div aria-label="합창단 연혁" className="history-timeline">
       <StaffLines
-        className="absolute bottom-4 left-0 top-4 hidden h-auto opacity-70 lg:flex"
+        className="history-timeline__rail"
         density="light"
         direction="vertical"
         variant="gold"
       />
       {history.map((item) => (
         <Reveal key={item.id}>
-          <Card className="relative grid gap-4 p-5 md:grid-cols-[150px_1fr]" hoverable>
+          <Card className="history-timeline-card" hoverable>
             <span
               aria-hidden="true"
-              className="absolute -left-[33px] top-8 hidden size-4 rounded-full border-4 border-bg-warm-white bg-gold-warm shadow-[0_0_0_1px_rgb(201_164_92/0.45)] lg:block"
+              className="history-timeline-card__dot"
             />
             <StaffLines
-              className="absolute inset-x-5 top-5 !w-auto opacity-40 lg:hidden"
+              className="history-timeline-card__lines"
               density="light"
               variant="gold"
             />
-            <div className="flex items-baseline gap-3 md:block">
-              <p className="text-3xl font-bold leading-none text-gold-warm">{item.year}</p>
+            <div className="history-timeline-card__date">
+              <p className="history-timeline-card__year">{item.year}</p>
               {item.month ? (
-                <p className="mt-2 inline-flex rounded-pill border border-line-default bg-bg-ivory px-3 py-1 text-xs font-semibold text-text-muted">
+                <p className="history-timeline-card__month">
                   {item.month}
                 </p>
               ) : null}
             </div>
-            <div className={item.image_url ? 'grid gap-4 sm:grid-cols-[130px_1fr]' : ''}>
+            <div className={item.image_url ? 'history-timeline-card__body has-image' : 'history-timeline-card__body'}>
               {item.image_url ? (
                 <ImageTile
                   alt={`${item.year} ${item.title ?? '연혁'} 이미지`}
-                  className="aspect-[4/3] rounded-button shadow-[0_12px_26px_rgb(16_35_63/0.1)]"
-                  sizes="130px"
+                  className="history-timeline-card__image"
+                  sizes="(min-width: 768px) 168px, 100vw"
                   src={item.image_url}
                   transform={{
-                    quality: 74,
+                    quality: 84,
                     resize: 'cover',
-                    width: 320,
-                    widths: [180, 260, 360],
+                    width: 520,
+                    widths: [260, 380, 520, 720],
                   }}
                 />
               ) : null}
               <div>
-                <h3 className="break-keep text-lg font-semibold text-navy-deep">
+                <h3 className="history-timeline-card__title">
                   {item.title || item.content}
                 </h3>
-                <p className="mt-2 whitespace-pre-line break-keep text-sm leading-7 text-text-muted">
+                <p className="history-timeline-card__content">
                   {item.content}
                 </p>
               </div>

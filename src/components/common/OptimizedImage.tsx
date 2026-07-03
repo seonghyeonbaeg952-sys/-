@@ -26,6 +26,13 @@ type ImageTransform = {
   widths?: number[]
 }
 
+type ImageFailureState = {
+  activeSourceIndex: number
+  failedOriginalSrc: string
+  failedTransformedSrc: string
+  sourceCandidatesKey: string
+}
+
 type OptimizedImageProps = {
   alt?: string
   aspectRatio?: string
@@ -33,6 +40,7 @@ type OptimizedImageProps = {
   className?: string
   decorative?: boolean
   fallbackLabel?: string
+  fallbackSrcs?: string[]
   fallbackVariant?: ImageFallbackVariant
   imageClassName?: string
   loading?: 'eager' | 'lazy'
@@ -84,6 +92,7 @@ export function OptimizedImage({
   className,
   decorative = false,
   fallbackLabel,
+  fallbackSrcs = [],
   fallbackVariant = 'default',
   imageClassName,
   loading,
@@ -94,9 +103,29 @@ export function OptimizedImage({
   src,
   transform,
 }: OptimizedImageProps) {
-  const [failedOriginalSrc, setFailedOriginalSrc] = useState('')
-  const [failedTransformedSrc, setFailedTransformedSrc] = useState('')
-  const normalizedSrc = src?.trim() ?? ''
+  const [failureState, setFailureState] = useState<ImageFailureState>({
+    activeSourceIndex: 0,
+    failedOriginalSrc: '',
+    failedTransformedSrc: '',
+    sourceCandidatesKey: '',
+  })
+  const sourceCandidates = useMemo(() => {
+    return Array.from(
+      new Set([src, ...fallbackSrcs].map((source) => source?.trim() ?? '').filter(Boolean)),
+    )
+  }, [fallbackSrcs, src])
+  const sourceCandidatesKey = sourceCandidates.join('\n')
+  const activeFailureState =
+    failureState.sourceCandidatesKey === sourceCandidatesKey
+      ? failureState
+      : {
+          activeSourceIndex: 0,
+          failedOriginalSrc: '',
+          failedTransformedSrc: '',
+          sourceCandidatesKey,
+        }
+  const { activeSourceIndex, failedOriginalSrc, failedTransformedSrc } = activeFailureState
+  const normalizedSrc = sourceCandidates[activeSourceIndex] ?? ''
   const transformedSrc = useMemo(() => {
     if (!normalizedSrc || !transform) {
       return normalizedSrc
@@ -151,11 +180,27 @@ export function OptimizedImage({
           loading={renderedLoading}
           onError={() => {
             if (renderedSrc !== normalizedSrc) {
-              setFailedTransformedSrc(renderedSrc)
+              setFailureState({
+                ...activeFailureState,
+                failedTransformedSrc: renderedSrc,
+              })
               return
             }
 
-            setFailedOriginalSrc(normalizedSrc)
+            if (activeSourceIndex < sourceCandidates.length - 1) {
+              setFailureState({
+                ...activeFailureState,
+                activeSourceIndex: activeSourceIndex + 1,
+                failedOriginalSrc: '',
+                failedTransformedSrc: '',
+              })
+              return
+            }
+
+            setFailureState({
+              ...activeFailureState,
+              failedOriginalSrc: normalizedSrc,
+            })
             onError?.()
           }}
           sizes={sizes}

@@ -245,10 +245,10 @@ export function GalleryPage() {
                       sizes="(min-width: 1024px) 33vw, (min-width: 768px) 33vw, 50vw"
                       src={image.image_url}
                       transform={{
-                        quality: 76,
+                        quality: 84,
                         resize: 'contain',
-                        width: 560,
-                        widths: [320, 480, 640],
+                        width: 960,
+                        widths: [480, 720, 960, 1280],
                       }}
                     >
                       <div className="absolute inset-0 flex items-end bg-navy-midnight/70 p-4 opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
@@ -301,6 +301,7 @@ export function GalleryPage() {
                         <ImageTile
                           alt={`${video.title} 영상 썸네일`}
                           className="gallery-card-media aspect-video"
+                          fallbackSrcs={video.thumbnail_fallback_urls}
                           sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, calc(100vw - 40px)"
                           src={video.thumbnail_url}
                         />
@@ -362,10 +363,10 @@ export function GalleryPage() {
                           sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, calc(100vw - 40px)"
                           src={poster.image_url}
                           transform={{
-                            quality: 78,
+                            quality: 84,
                             resize: 'contain',
-                            width: 520,
-                            widths: [320, 480, 640],
+                            width: 760,
+                            widths: [420, 620, 760, 980],
                           }}
                         >
                           <div className="absolute inset-0 flex items-end bg-navy-midnight/70 p-4 opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">

@@ -6,6 +6,7 @@ type ImageTileProps = {
   alt: string
   children?: ReactNode
   className?: string
+  fallbackSrcs?: string[]
   fallbackVariant?: 'default' | 'gallery' | 'hero' | 'logo' | 'poster' | 'profile'
   imgClassName?: string
   loading?: 'eager' | 'lazy'
@@ -26,6 +27,7 @@ export function ImageTile({
   alt,
   children,
   className,
+  fallbackSrcs,
   fallbackVariant = 'gallery',
   imgClassName,
   loading = 'lazy',
@@ -39,6 +41,7 @@ export function ImageTile({
     <OptimizedImage
       alt={alt}
       className={className}
+      fallbackSrcs={fallbackSrcs}
       fallbackVariant={fallbackVariant}
       imageClassName={imgClassName}
       loading={loading}

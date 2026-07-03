@@ -16,6 +16,7 @@ type ArchivePageStackProps = {
 
 type ArchivePreviewItem = {
   alt: string
+  fallbackSrcs?: string[]
   href: string
   id: string
   kind: 'PHOTO' | 'POSTER' | 'VIDEO'
@@ -47,6 +48,7 @@ function buildArchiveItems(
       alt: `${video.title} 영상 썸네일`,
       href: '/gallery?tab=videos',
       id: `video-${video.id}`,
+      fallbackSrcs: video.thumbnail_fallback_urls,
       kind: 'VIDEO',
       src: video.thumbnail_url,
       title: video.title,
@@ -139,9 +141,20 @@ export function ArchivePageStack({
                 <ImageTile
                   alt={item.alt}
                   className="archive-folder-image"
+                  fallbackSrcs={item.fallbackSrcs}
                   objectFit="contain"
                   sizes="(min-width: 1100px) 230px, calc(100vw - 40px)"
                   src={item.src}
+                  transform={
+                    item.kind === 'VIDEO'
+                      ? undefined
+                      : {
+                          quality: 84,
+                          resize: 'contain',
+                          width: 720,
+                          widths: [360, 540, 720, 960],
+                        }
+                  }
                 />
                 <strong>{item.title}</strong>
               </a>

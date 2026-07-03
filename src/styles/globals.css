@@ -1708,6 +1708,199 @@ section[role='tabpanel'] {
   object-fit: contain;
 }
 
+.history-timeline {
+  position: relative;
+  display: grid;
+  gap: clamp(18px, 3vw, 28px);
+}
+
+.history-timeline__rail {
+  display: none;
+}
+
+.history-timeline-card {
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  overflow: hidden;
+  padding: clamp(22px, 4.5vw, 34px);
+  background:
+    linear-gradient(135deg, rgb(255 253 248 / 0.98), rgb(250 247 240 / 0.86)),
+    var(--color-bg-warm-white);
+  box-shadow:
+    0 18px 44px rgb(7 17 31 / 0.08),
+    0 1px 0 rgb(255 255 255 / 0.72) inset;
+}
+
+.history-timeline-card::after {
+  position: absolute;
+  right: clamp(18px, 4vw, 42px);
+  bottom: clamp(16px, 3vw, 30px);
+  width: min(240px, 54vw);
+  height: 48px;
+  background:
+    linear-gradient(90deg, transparent, rgb(201 164 92 / 0.18), transparent),
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 8px,
+      rgb(201 164 92 / 0.16) 8px,
+      rgb(201 164 92 / 0.16) 9px,
+      transparent 9px,
+      transparent 16px
+    );
+  content: '';
+  mask-image: linear-gradient(90deg, transparent, #000 20%, #000 78%, transparent);
+  pointer-events: none;
+}
+
+.history-timeline-card__dot {
+  display: none;
+}
+
+.history-timeline-card__lines {
+  position: absolute;
+  inset: 18px 22px auto;
+  width: auto !important;
+  opacity: 0.34;
+}
+
+.history-timeline-card__date,
+.history-timeline-card__body {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.history-timeline-card__date {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.history-timeline-card__year {
+  color: var(--color-gold-warm);
+  font-family: var(--font-heading-kr);
+  font-size: clamp(2.2rem, 10vw, 3.5rem);
+  font-weight: 680;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+}
+
+.history-timeline-card__month {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid rgb(201 164 92 / 0.28);
+  border-radius: 999px;
+  background: rgb(255 253 248 / 0.72);
+  color: rgb(34 34 34 / 0.68);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.history-timeline-card__body.has-image {
+  display: grid;
+  gap: 16px;
+}
+
+.history-timeline-card__image {
+  aspect-ratio: 4 / 3;
+  border-radius: 16px;
+  background: var(--color-navy-deep);
+  box-shadow: 0 16px 34px rgb(16 35 63 / 0.12);
+}
+
+.history-timeline-card__title {
+  color: var(--color-navy-deep);
+  font-family: var(--font-heading-kr);
+  font-size: clamp(1.2rem, 4.8vw, 1.55rem);
+  font-weight: 620;
+  letter-spacing: -0.025em;
+  line-height: 1.3;
+  word-break: keep-all;
+}
+
+.history-timeline-card__content {
+  margin-top: 10px;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.8;
+  white-space: pre-line;
+  word-break: keep-all;
+}
+
+@media (min-width: 768px) {
+  .history-timeline {
+    gap: 22px;
+  }
+
+  .history-timeline-card {
+    grid-template-columns: minmax(130px, 0.24fr) minmax(0, 1fr);
+    align-items: start;
+    padding: 30px 34px;
+  }
+
+  .history-timeline-card__date {
+    display: block;
+    padding-top: 2px;
+  }
+
+  .history-timeline-card__month {
+    margin-top: 14px;
+  }
+
+  .history-timeline-card__body.has-image {
+    grid-template-columns: 168px minmax(0, 1fr);
+    align-items: start;
+    gap: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .history-timeline {
+    padding-left: 68px;
+  }
+
+  .history-timeline__rail {
+    position: absolute;
+    z-index: 0;
+    top: 18px;
+    bottom: 18px;
+    left: 18px;
+    display: flex;
+    width: 42px;
+    height: auto;
+    opacity: 0.58;
+  }
+
+  .history-timeline-card {
+    border-color: rgb(201 164 92 / 0.22);
+  }
+
+  .history-timeline-card__dot {
+    position: absolute;
+    top: 36px;
+    left: -58px;
+    display: block;
+    width: 18px;
+    height: 18px;
+    border: 5px solid var(--color-bg-warm-white);
+    border-radius: 999px;
+    background: var(--color-gold-warm);
+    box-shadow:
+      0 0 0 1px rgb(201 164 92 / 0.48),
+      0 10px 22px rgb(7 17 31 / 0.12);
+  }
+
+  .history-timeline-card__lines {
+    opacity: 0;
+  }
+}
+
 .process-card {
   min-height: 168px;
 }
