@@ -57,7 +57,7 @@ function isPastConcert(concert: Concert) {
 
 function PosterFallback({ date, title }: { date?: string; title: string }) {
   return (
-    <div className="relative flex aspect-[3/4] flex-col justify-between overflow-hidden rounded-formal bg-linear-to-br from-navy-midnight via-navy-deep to-navy-midnight p-5 text-bg-warm-white">
+    <div className="relative mx-auto flex aspect-[3/4] w-full max-w-[180px] flex-col justify-between overflow-hidden rounded-formal bg-linear-to-br from-navy-midnight via-navy-deep to-navy-midnight p-4 text-bg-warm-white sm:max-w-[190px] sm:p-5 lg:max-w-[200px]">
       <StaffLines
         className="absolute inset-x-5 top-16 opacity-75"
         density="light"
@@ -75,7 +75,7 @@ function PosterFallback({ date, title }: { date?: string; title: string }) {
             {formatKoreanDate(date)}
           </p>
         ) : null}
-        <p className="break-keep text-xl font-semibold leading-7">{title}</p>
+        <p className="break-keep text-lg font-semibold leading-7">{title}</p>
       </div>
       <p className="text-xs uppercase tracking-[0.18em] text-bg-ivory/55">
         Concert
@@ -228,7 +228,7 @@ export function ConcertsPage() {
         ) : null}
 
         <div
-          className="collection-grid mt-8"
+          className="collection-grid concert-collection-grid mt-8"
           data-mode={concertLayoutMode}
         >
           {filteredConcerts.map((concert) => (
@@ -238,26 +238,26 @@ export function ConcertsPage() {
                   className="concert-collection-link h-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm"
                   href={`/concerts/${concert.id}`}
                 >
-                  <div className="concert-collection-media relative bg-linear-to-br from-bg-ivory via-bg-warm-white to-gold-soft/20 p-4">
+                  <div className="concert-collection-media relative bg-linear-to-br from-bg-ivory via-bg-warm-white to-gold-soft/20 p-3 sm:p-4">
                     {concert.poster_url ? (
                       <ImageTile
                         alt={`${concert.title} 포스터`}
-                        className="aspect-[3/4] rounded-formal bg-bg-warm-white bg-none shadow-[0_14px_30px_rgb(16_35_63/0.12)]"
+                        className="mx-auto aspect-[3/4] w-full max-w-[180px] rounded-formal bg-bg-warm-white bg-none shadow-[0_14px_30px_rgb(16_35_63/0.12)] sm:max-w-[190px] lg:max-w-[200px]"
                         fallbackVariant="poster"
                         imgClassName="transition duration-300 group-hover:scale-[1.015] motion-reduce:group-hover:scale-100"
                         objectFit="contain"
-                        sizes="(min-width: 1280px) 360px, (min-width: 768px) 50vw, calc(100vw - 64px)"
+                        sizes="(min-width: 1024px) 200px, (min-width: 640px) 190px, 180px"
                         src={concert.poster_url}
                       />
                     ) : (
                       <PosterFallback date={concert.date} title={concert.title} />
                     )}
-                    <div className="absolute left-7 top-7 rounded-button border border-bg-warm-white/75 bg-bg-warm-white/92 px-3 py-2 text-xs font-semibold leading-5 text-navy-deep shadow-sm backdrop-blur-sm">
+                    <div className="absolute left-5 top-5 rounded-button border border-bg-warm-white/75 bg-bg-warm-white/92 px-3 py-2 text-xs font-semibold leading-5 text-navy-deep shadow-sm backdrop-blur-sm sm:left-6 sm:top-6">
                       {formatKoreanDate(concert.date)}
                     </div>
                   </div>
-                  <div className="concert-collection-content relative p-6">
-                    <div className="absolute inset-x-6 top-0 h-px bg-linear-to-r from-gold-warm/55 to-transparent" />
+                  <div className="concert-collection-content relative p-5">
+                    <div className="absolute inset-x-5 top-0 h-px bg-linear-to-r from-gold-warm/55 to-transparent" />
                     <div className="flex flex-wrap gap-2">
                       <Badge variant="gold">
                         {categoryLabels[concert.category] ?? concert.category}
@@ -266,10 +266,10 @@ export function ConcertsPage() {
                         {statusLabels[concert.status]}
                       </Badge>
                     </div>
-                    <h2 className="mt-4 break-keep text-xl font-semibold leading-7 text-navy-deep">
+                    <h2 className="mt-3 break-keep text-lg font-semibold leading-7 text-navy-deep">
                       {concert.title}
                     </h2>
-                    <dl className="mt-4 grid gap-2 text-sm leading-6 text-text-muted">
+                    <dl className="mt-3 grid gap-2 text-sm leading-6 text-text-muted">
                       <div>
                         <dt className="sr-only">날짜</dt>
                         <dd>{formatKoreanDate(concert.date)}</dd>
@@ -285,7 +285,7 @@ export function ConcertsPage() {
                         <dd className="break-keep">{concert.location}</dd>
                       </div>
                     </dl>
-                    <span className="mt-5 inline-block text-sm font-semibold text-gold-warm">
+                    <span className="mt-4 inline-block text-sm font-semibold text-gold-warm">
                       자세히 보기
                     </span>
                   </div>

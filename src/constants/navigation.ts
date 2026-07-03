@@ -96,12 +96,16 @@ export const publicNavigation = [
     href: '/join',
     description: '입단 대상, 오디션 절차, 자주 묻는 질문을 안내합니다.',
     children: [
-      { label: '입단 안내', href: '/join?section=overview', description: '입단 안내 요약' },
+      { label: '입단 안내 전체', href: '/join', description: '입단 안내 전체 보기' },
       { label: '모집 대상', href: '/join?section=eligibility', description: '지원 가능 대상과 파트' },
       { label: '오디션·절차', href: '/join?section=process', description: '상담부터 활동 시작까지' },
       { label: '연습 안내', href: '/join?section=practice', description: '정기연습 시간과 장소' },
       { label: 'FAQ', href: '/join?section=faq', description: '자주 묻는 질문' },
-      { label: '입단 문의', href: '/join?section=contact', description: '입단 문의 연결' },
+      {
+        label: '입단지원서 작성',
+        href: '/join?section=contact#application',
+        description: '입단지원서 작성 영역으로 이동',
+      },
     ],
   },
   {
@@ -112,7 +116,7 @@ export const publicNavigation = [
       { label: '후원 안내', href: '/contact?section=support', description: '후원과 협력 문의' },
       { label: '후원사', href: '/contact?section=sponsors', description: '후원사와 협력기관' },
       { label: '공연 문의', href: '/contact?section=performance', description: '초청연주와 공연 의뢰' },
-      { label: '입단 문의', href: '/contact?section=join', description: '입단 상담과 신청' },
+      { label: '입단지원서 작성', href: '/contact?section=join', description: '후원 문의와 별도인 입단 지원' },
       { label: '오시는 길·지도', href: '/contact?section=location', description: '주소와 지도 바로가기' },
     ],
   },

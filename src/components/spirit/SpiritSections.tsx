@@ -210,6 +210,44 @@ export function SpiritHero({
       />
       <div aria-hidden="true" className="spotlight-glow" />
       <div aria-hidden="true" className="stage-staff-lines stage-staff-lines-hero" />
+      <svg
+        aria-hidden="true"
+        className="spirit-hero-score-lines"
+        preserveAspectRatio="none"
+        viewBox="0 0 1600 560"
+      >
+        <g transform="rotate(-4 800 280)">
+          {[120, 138, 156, 174, 192, 260, 278, 296, 314, 332, 400, 418, 436, 454, 472].map((y) => (
+            <line
+              className="spirit-hero-score-lines__line"
+              key={`staff-${y}`}
+              x1="-120"
+              x2="1720"
+              y1={y}
+              y2={y}
+            />
+          ))}
+          {[218, 358].map((y) => (
+            <line
+              className="spirit-hero-score-lines__line spirit-hero-score-lines__line--dashed"
+              key={`dash-${y}`}
+              x1="-80"
+              x2="1680"
+              y1={y}
+              y2={y}
+            />
+          ))}
+          {[230, 520, 820, 1120, 1370].map((x, index) => (
+            <circle
+              className={`spirit-hero-score-lines__dot spirit-hero-score-lines__dot--${index + 1}`}
+              cx={x}
+              cy={index % 2 === 0 ? 218 : 358}
+              key={`dot-${x}`}
+              r="3.5"
+            />
+          ))}
+        </g>
+      </svg>
       <StaffLines
         aria-hidden="true"
         className="absolute left-1/2 top-16 hidden w-[46rem] -translate-x-1/2 opacity-35 lg:flex"
@@ -618,8 +656,46 @@ export function SpiritCTA({ copy }: { copy: SpiritCopy }) {
     <section className="relative overflow-hidden py-14 sm:py-16 lg:py-20">
       <div aria-hidden="true" className="stage-staff-lines stage-staff-lines-support" />
       <Container>
-        <div className="spirit-final-cta rounded-[30px] border border-navy-deep/10 bg-navy-deep text-bg-warm-white shadow-[0_28px_100px_rgb(0_0_0/0.24)] lg:flex lg:items-center lg:justify-between lg:gap-12">
-          <div className="max-w-2xl">
+        <div className="spirit-final-cta relative isolate overflow-hidden rounded-[30px] border border-navy-deep/10 bg-navy-deep text-bg-warm-white shadow-[0_28px_100px_rgb(0_0_0/0.24)] lg:flex lg:items-center lg:justify-between lg:gap-12">
+          <svg
+            aria-hidden="true"
+            className="spirit-cta-score-lines"
+            preserveAspectRatio="none"
+            viewBox="0 0 1200 320"
+          >
+            <g transform="rotate(-2.5 600 160)">
+              {[74, 92, 110, 128, 146, 188, 206, 224, 242, 260].map((y) => (
+                <line
+                  className="spirit-cta-score-lines__line"
+                  key={`cta-staff-${y}`}
+                  x1="-80"
+                  x2="1280"
+                  y1={y}
+                  y2={y}
+                />
+              ))}
+              {[166, 282].map((y) => (
+                <line
+                  className="spirit-cta-score-lines__line spirit-cta-score-lines__line--dashed"
+                  key={`cta-dash-${y}`}
+                  x1="-60"
+                  x2="1260"
+                  y1={y}
+                  y2={y}
+                />
+              ))}
+              {[120, 360, 660, 940, 1120].map((x, index) => (
+                <circle
+                  className={`spirit-cta-score-lines__dot spirit-cta-score-lines__dot--${index + 1}`}
+                  cx={x}
+                  cy={index % 2 === 0 ? 166 : 282}
+                  key={`cta-dot-${x}`}
+                  r="3"
+                />
+              ))}
+            </g>
+          </svg>
+          <div className="relative z-10 max-w-2xl">
             <StaffSectionLabel className="max-w-sm" variant="inverted">
               {copy.eyebrow}
             </StaffSectionLabel>
@@ -630,7 +706,7 @@ export function SpiritCTA({ copy }: { copy: SpiritCopy }) {
               {copy.body}
             </p>
           </div>
-          <div className="mt-7 grid gap-3 sm:flex lg:mt-0">
+          <div className="relative z-10 mt-7 grid gap-3 sm:flex lg:mt-0">
             <Link
               className="inline-flex min-h-12 items-center justify-center rounded-pill bg-gold-warm px-6 font-bold text-navy-midnight transition hover:bg-gold-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-soft"
               to={copy.ctaUrl || '/join'}

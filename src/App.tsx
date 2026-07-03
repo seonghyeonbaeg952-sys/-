@@ -5,6 +5,7 @@ import { AdminLayout } from './components/admin/AdminLayout'
 import { ProtectedAdminRoute } from './components/admin/ProtectedAdminRoute'
 import { LoadingState } from './components/common/LoadingState'
 import { PublicLayout } from './components/layout/PublicLayout'
+import { RouteScrollManager } from './components/layout/RouteScrollManager'
 
 const HomeRoute = lazy(() =>
   import('./pages/public/HomeRoute').then((module) => ({ default: module.HomeRoute })),
@@ -169,6 +170,7 @@ function RouteFallback() {
 function App() {
   return (
     <BrowserRouter>
+      <RouteScrollManager />
       <Suspense fallback={<RouteFallback />}>
         <Routes>
           <Route path="/" element={<PublicLayout />}>

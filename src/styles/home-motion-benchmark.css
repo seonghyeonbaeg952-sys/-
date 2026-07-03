@@ -440,8 +440,9 @@
   }
 
   .motion-program-poster {
-    min-height: 170px;
-    max-height: 210px;
+    width: min(100%, 154px);
+    min-height: 116px;
+    max-height: 184px;
     margin-top: 16px;
     border-radius: 8px;
   }

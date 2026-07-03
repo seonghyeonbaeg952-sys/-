@@ -14,7 +14,7 @@ export function LoadingState({
       className={
         variant === 'inline'
           ? 'inline-flex items-center gap-3 rounded-pill border border-line-default bg-bg-warm-white px-4 py-2 text-text-muted shadow-card'
-          : 'loading-state flex min-h-40 flex-col items-center justify-center gap-5 rounded-balanced border border-line-default/90 bg-bg-warm-white p-8 text-text-muted shadow-card'
+          : 'loading-state flex min-h-[18rem] flex-col items-center justify-center gap-5 rounded-balanced border border-line-default/90 bg-bg-warm-white p-6 text-text-muted shadow-card sm:p-8'
       }
       role="status"
     >

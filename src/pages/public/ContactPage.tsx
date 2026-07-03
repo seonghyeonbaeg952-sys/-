@@ -56,7 +56,7 @@ const contactSections: Array<{
   },
   {
     inquiryType: 'join',
-    label: '입단지원서',
+    label: '입단지원서 작성',
     value: 'join',
   },
   {
@@ -240,7 +240,7 @@ export function ContactPage() {
   return (
     <>
       <PageHero
-        description="공연 관련 문의, 후원, 일반 문의를 공식 채널로 보내 주세요."
+        description="후원, 공연 의뢰, 일반 문의를 공식 채널로 보내 주세요. 입단지원서는 별도 양식으로 접수합니다."
         eyebrow="HELP DESK"
         title="후원·문의"
       />
@@ -473,15 +473,20 @@ export function ContactPage() {
                   />
                   <div className="relative">
                     <p className="text-xs font-bold tracking-[0.22em] text-gold-warm">
-                      JOIN INQUIRY
+                      JOIN APPLICATION
                     </p>
                     <h2 className="mt-4 break-keep text-2xl font-semibold text-navy-deep">
-                      입단지원서
+                      입단지원서 작성
                     </h2>
                     <p className="mt-5 break-keep text-base leading-8 text-text-muted">
                       서울모테트청소년합창단 입단을 희망하는 학생은 아래 지원서를 작성해 주세요.
-                      제출하신 내용을 확인한 후 담당자가 보호자 연락처로 안내드립니다.
+                      후원·공연 문의와 별도로 접수되며, 담당자가 확인한 후 보호자 연락처로 안내드립니다.
                     </p>
+                    <div className="mt-5">
+                      <Button href="/join?section=contact#application" variant="secondary">
+                        입단 안내에서 작성하기
+                      </Button>
+                    </div>
                     <div className="mt-6 grid gap-3 text-sm leading-6 text-text-muted">
                       <p className="rounded-button border border-line-default bg-bg-ivory px-4 py-3">
                         추천서는 선택 항목입니다. 추천서가 없어도 지원서를 제출할 수 있습니다.

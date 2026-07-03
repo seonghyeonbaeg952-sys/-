@@ -244,7 +244,7 @@ export function BenchmarkConcertTemplate({
                           className="motion-program-poster"
                           fallbackVariant="poster"
                           objectFit="contain"
-                          sizes="220px"
+                          sizes="160px"
                           src={concert.poster_url}
                         />
                       ) : null}

@@ -33,7 +33,7 @@ export function PageHero({
         className="absolute -right-28 top-10 -z-10 hidden h-72 w-72 rounded-full border border-bg-warm-white/10 bg-bg-warm-white/[0.035] lg:block"
       />
       <StaffLines
-        className="absolute left-1/2 top-24 -z-10 hidden max-w-[min(42rem,42vw)] -translate-x-1/2 opacity-70 lg:grid"
+        className="page-hero-staff-lines absolute left-1/2 top-24 -z-10 hidden max-w-[min(42rem,42vw)] -translate-x-1/2 opacity-70 lg:grid"
         direction="diagonal"
         variant="inverted"
       />

@@ -34,7 +34,7 @@ const joinSections: Array<{
   { label: '오디션·절차', value: 'process' },
   { label: '연습 안내', value: 'practice' },
   { label: 'FAQ', value: 'faq' },
-  { label: '입단지원서', value: 'contact' },
+  { label: '입단지원서 작성', value: 'contact' },
 ]
 
 const joinSectionTabs: Array<{
@@ -44,7 +44,10 @@ const joinSectionTabs: Array<{
 }> = [
   { href: '/join', label: '전체', value: 'all' },
   ...joinSections.map((section) => ({
-    href: `/join?section=${section.value}`,
+    href:
+      section.value === 'contact'
+        ? '/join?section=contact#application'
+        : `/join?section=${section.value}`,
     label: section.label,
     value: section.value,
   })),
@@ -183,6 +186,14 @@ export function JoinPage() {
                       </li>
                     ))}
                   </ul>
+                  <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                    <Button href="/join?section=contact#application" variant="gold">
+                      입단지원서 작성하기
+                    </Button>
+                    <Button href="/join?section=process" variant="secondary">
+                      입단 절차 보기
+                    </Button>
+                  </div>
                 </Card>
               </div>
             </Reveal>
@@ -304,21 +315,21 @@ export function JoinPage() {
             {showContact ? (
             <section id="contact">
               <SectionTitle
-                description="궁금한 점은 공식 문의 페이지에서 입단 문의 유형으로 남겨 주세요."
+                description="입단 안내를 확인한 뒤 아래 지원서 작성 영역으로 이동하거나, 별도 문의를 남길 수 있습니다."
                 eyebrow="CONTACT"
-                title="입단 문의"
+                title="입단지원서 작성과 입단 문의"
               />
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Button href="/join?section=contact#application" size="lg" variant="gold">
+                  입단지원서 작성하기
+                </Button>
                 {joinInfo.application_url ? (
-                  <Button href={joinInfo.application_url} size="lg" variant="gold">
-                    입단 신청하기
+                  <Button href={joinInfo.application_url} size="lg" variant="secondary">
+                    외부 신청 링크 열기
                   </Button>
                 ) : null}
-                <Button href="/contact?section=join" size="lg" variant="gold">
-                  입단 문의하기
-                </Button>
-                <Button href="/contact?section=performance" size="lg" variant="secondary">
-                  공연 문의하기
+                <Button href="/contact?section=join" size="lg" variant="secondary">
+                  입단 관련 문의하기
                 </Button>
               </div>
             </section>
