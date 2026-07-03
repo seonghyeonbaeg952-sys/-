@@ -51,16 +51,36 @@ export function normalizeSiteText(
   return softenPublicCopy(trimmedValue)
 }
 
+function normalizeSiteTextForComparison(value: string | null | undefined) {
+  return normalizeSiteText(value, '').replace(/\s+/g, ' ').trim()
+}
+
+function shouldUseCurrentDefault(row: SiteTextRow, currentDefault: string) {
+  const storedValue = normalizeSiteTextForComparison(row.value)
+  const storedDefault = normalizeSiteTextForComparison(row.default_value)
+  const normalizedCurrentDefault = normalizeSiteTextForComparison(currentDefault)
+
+  return Boolean(
+    storedValue &&
+      storedDefault &&
+      normalizedCurrentDefault &&
+      storedValue === storedDefault &&
+      storedDefault !== normalizedCurrentDefault,
+  )
+}
+
 export function createSiteTextMap(rows: SiteTextRow[] = []): SiteTextMap {
   const textMap: SiteTextMap = { ...siteTextDefaults }
 
   for (const row of rows) {
     const key = row.key.trim()
+    const currentDefault = siteTextDefaults[key] ?? ''
+    const storedDefault = normalizeSiteText(row.default_value, currentDefault)
     const fallback =
-      normalizeSiteText(row.default_value, siteTextDefaults[key]) ||
-      siteTextDefaults[key] ||
-      ''
-    const value = normalizeSiteText(row.value, fallback)
+      currentDefault || storedDefault
+    const value = shouldUseCurrentDefault(row, currentDefault)
+      ? normalizeSiteText(currentDefault, fallback)
+      : normalizeSiteText(row.value, fallback)
 
     if (key && value) {
       textMap[key] = value

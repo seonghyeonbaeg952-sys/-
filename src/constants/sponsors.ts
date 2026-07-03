@@ -2,7 +2,7 @@ import type { SponsorCategory, SponsorTier } from '../types/content'
 
 export const HOME_SPONSOR_COPY = {
   body:
-    '서울모테트청소년합창단의 다음세대 음악교육을 함께 세우는 후원사와 협력기관입니다.',
+    '청소년들이 안정적으로 배우고 무대에 설 수 있도록 곁에서 힘을 보태는 후원사와 협력기관입니다. 보이지 않는 응원이 연습과 공연, 다음 무대의 준비로 이어집니다.',
   ctaHref: '/contact?section=sponsors',
   ctaLabel: '후원사 전체 보기',
   eyebrow: 'WITH OUR SUPPORTERS',

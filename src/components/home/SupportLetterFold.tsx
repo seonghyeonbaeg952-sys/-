@@ -19,7 +19,7 @@ type SupportLetterFoldProps = {
 
 const fallback = {
   body:
-    '후원은 단순한 재정 지원이 아니라 다음 세대가 음악 안에서 자신을 발견하고 함께 살아가는 법을 배우도록 돕는 동행입니다.',
+    '후원은 단순한 재정 지원이 아니라 다음 세대가 음악 안에서 자신을 발견하고 함께 살아가는 법을 배우도록 돕는 동행입니다. 악보와 교육 자료, 연습과 공연 준비, 국제교류 활동까지 필요한 곳에 신중히 사용됩니다.',
   title:
     '한 사람의 목소리가 자라기 위해서는 보이지 않는 많은 손길이 필요합니다',
 }
@@ -91,7 +91,7 @@ export function SupportLetterFold({
               </h3>
               <p className="type-body mt-4 text-text-muted">
                 {cardDescription ||
-                  '공연 초청, 후원 약정, 입단 문의를 공식 문의 채널을 통해 접수합니다. 관리자 CMS에서 접수 상태를 확인하고 응답할 수 있습니다.'}
+                  '공연 초청, 후원 상담, 기관 후원, 입단 문의를 공식 문의 채널에서 함께 접수합니다. 남겨주신 내용은 담당자가 확인한 뒤 필요한 안내로 이어집니다.'}
               </p>
               <dl className="support-letter-contact">
                 <div>

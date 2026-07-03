@@ -31,7 +31,7 @@ export const siteTextDefinitions = [
   },
   {
     defaultValue:
-      '서울모테트청소년합창단은 마음을 담은 음악과 함께 빚는 울림으로 다음 세대를 세웁니다.',
+      '서울모테트청소년합창단은 마음을 담은 음악과 함께 빚는 울림으로 다음 세대를 세웁니다. 청소년들이 서로의 소리를 듣고, 한 무대 안에서 따뜻하게 성장하도록 돕습니다.',
     description: '히어로 제목 아래에 표시되는 보조 문구입니다.',
     groupName: 'home.hero',
     inputType: 'textarea',
@@ -103,7 +103,8 @@ export const siteTextDefinitions = [
     sortOrder: 110,
   },
   {
-    defaultValue: '모집 대상과 입단 절차를 빠르게 확인합니다.',
+    defaultValue:
+      '모집 대상, 연습 안내, 지원서 작성 흐름을 한눈에 확인하고 입단지원서로 바로 이어집니다.',
     description: '빠른 진입 카드의 입단 설명입니다.',
     groupName: 'home.quick',
     inputType: 'textarea',
@@ -121,7 +122,8 @@ export const siteTextDefinitions = [
     sortOrder: 130,
   },
   {
-    defaultValue: '다가오는 무대와 공지사항을 확인합니다.',
+    defaultValue:
+      '정기연주회와 초청연주 일정, 합창단의 최신 공지를 함께 확인할 수 있습니다.',
     description: '빠른 진입 카드의 공연 설명입니다.',
     groupName: 'home.quick',
     inputType: 'textarea',
@@ -139,7 +141,8 @@ export const siteTextDefinitions = [
     sortOrder: 150,
   },
   {
-    defaultValue: '후원 상담과 문의를 공식 채널로 연결합니다.',
+    defaultValue:
+      '후원 상담, 기관 후원, 일반 문의를 공식 접수 창구로 안전하게 연결합니다.',
     description: '빠른 진입 카드의 후원/문의 설명입니다.',
     groupName: 'home.quick',
     inputType: 'textarea',
@@ -185,7 +188,7 @@ export const siteTextDefinitions = [
   },
   {
     defaultValue:
-      '서울모테트청소년합창단은 청소년들이 마음을 담은 음악과 함께 부르는 공동체 안에서 음악과 마음, 공동체의 울림을 함께 배워가도록 돕습니다.',
+      '서울모테트청소년합창단은 청소년들이 마음을 담은 음악과 함께 부르는 공동체 안에서 자신의 목소리를 발견하도록 돕습니다.\n\n연습과 무대를 거치며 서로의 소리를 듣고, 음악 안에서 마음과 신앙, 공동체의 울림을 함께 배워갑니다.',
     description: '홈 앞쪽에 짧게 노출되는 합창단 소개 문구입니다.',
     groupName: 'home.about',
     inputType: 'textarea',
@@ -222,7 +225,7 @@ export const siteTextDefinitions = [
   },
   {
     defaultValue:
-      '모집 대상, 연습 안내, 입단 절차를 확인하고 입단지원서 작성으로 이어집니다.',
+      '합창을 처음 시작하는 청소년도, 더 깊이 배우고 싶은 청소년도 함께할 수 있습니다. 모집 대상과 연습 안내를 확인한 뒤 입단지원서를 작성하면 담당자가 순서대로 안내합니다.',
     description: '홈 조기 입단 CTA 본문입니다.',
     groupName: 'home.join',
     inputType: 'textarea',
@@ -231,7 +234,7 @@ export const siteTextDefinitions = [
     sortOrder: 330,
   },
   {
-    defaultValue: '음악을 사랑하며 꾸준히 함께 노래할 청소년',
+    defaultValue: '음악을 사랑하고, 친구들과 함께 듣고 맞추며 성장하고 싶은 청소년',
     description: '입단 CTA의 모집 대상 요약입니다.',
     groupName: 'home.join',
     inputType: 'textarea',
@@ -240,7 +243,7 @@ export const siteTextDefinitions = [
     sortOrder: 340,
   },
   {
-    defaultValue: '정기 연습 일정과 장소는 입단 안내에서 확인',
+    defaultValue: '정기 연습과 특별 연습, 공연 준비 일정은 입단 안내에서 차분히 확인',
     description: '입단 CTA의 연습 안내 요약입니다.',
     groupName: 'home.join',
     inputType: 'textarea',
@@ -249,7 +252,7 @@ export const siteTextDefinitions = [
     sortOrder: 350,
   },
   {
-    defaultValue: '지원서 작성 → 안내 연락 → 음역 확인',
+    defaultValue: '지원서 작성 → 보호자 연락처로 안내 → 간단한 음역 확인과 입단 상담',
     description: '입단 CTA의 절차 요약입니다.',
     groupName: 'home.join',
     inputType: 'textarea',
@@ -285,7 +288,8 @@ export const siteTextDefinitions = [
     sortOrder: 420,
   },
   {
-    defaultValue: '최신 공연과 공지사항을 확인합니다.',
+    defaultValue:
+      '다가오는 공연의 날짜와 장소, 준비 중인 무대 소식을 한곳에서 확인합니다. 공지사항에는 연습, 모집, 공연 안내처럼 놓치기 쉬운 소식도 함께 담습니다.',
     description: '공연·공지 섹션 보조 설명입니다.',
     groupName: 'home.concert',
     inputType: 'textarea',
@@ -339,7 +343,8 @@ export const siteTextDefinitions = [
     sortOrder: 510,
   },
   {
-    defaultValue: '마음을 담은 음악과 함께 빚는 울림을 한 권의 악보처럼 기록합니다.',
+    defaultValue:
+      '한 곡을 완성하기까지의 연습, 귀 기울임, 약속의 시간을 한 권의 악보처럼 기록합니다.',
     description: 'Motet Score 표지 설명입니다.',
     groupName: 'home.score',
     inputType: 'textarea',
@@ -367,7 +372,7 @@ export const siteTextDefinitions = [
   },
   {
     defaultValue:
-      '입단과 연습, 작품을 준비하는 과정 안에서 청소년들은 꾸준히 듣고 맞추는 태도를 배웁니다.',
+      '입단과 연습, 작품을 준비하는 과정 안에서 청소년들은 먼저 듣고 함께 맞추는 태도를 배웁니다.',
     description: 'Motet Score 왼쪽 본문입니다.',
     groupName: 'home.score',
     inputType: 'textarea',
@@ -405,7 +410,7 @@ export const siteTextDefinitions = [
   },
   {
     defaultValue:
-      '합창은 소리를 맞추는 일을 넘어,\n사람을 세우는 교육입니다.',
+      '합창은 소리를 맞추는 일을 넘어,\n서로를 듣고 함께 자라는 교육입니다.',
     description: 'Motet Score 최종 페이지 본문입니다.',
     groupName: 'home.score',
     inputType: 'textarea',
@@ -414,7 +419,7 @@ export const siteTextDefinitions = [
     sortOrder: 590,
   },
   {
-    defaultValue: '경청, 배려, 성실, 책임, 조화, 비전',
+    defaultValue: '귀 기울임, 어울림, 꾸준함, 약속, 조화, 비전',
     description: '데스크톱 악보 전환 중 표시되는 가치 단어 목록입니다.',
     groupName: 'home.score',
     inputType: 'textarea',
@@ -441,7 +446,8 @@ export const siteTextDefinitions = [
     sortOrder: 620,
   },
   {
-    defaultValue: '무대와 연습, 기록의 장면을 차분하게 모았습니다.',
+    defaultValue:
+      '무대 위의 순간뿐 아니라 연습실의 표정, 준비 과정, 포스터와 영상 기록까지 차분히 모았습니다.',
     description: '갤러리 섹션 설명입니다.',
     groupName: 'home.gallery',
     inputType: 'textarea',
@@ -468,7 +474,8 @@ export const siteTextDefinitions = [
     sortOrder: 710,
   },
   {
-    defaultValue: '후원은 청소년의 음악교육과 합창단의 지속 가능한 활동을 돕습니다.',
+    defaultValue:
+      '후원은 청소년 단원들이 안정적으로 배우고 무대에 설 수 있도록 돕는 동행입니다. 악보와 교육 자료, 연습과 공연 준비, 국제교류 활동까지 필요한 곳에 신중히 사용됩니다.',
     description: '후원·문의 섹션 본문입니다.',
     groupName: 'home.support',
     inputType: 'textarea',
@@ -495,7 +502,7 @@ export const siteTextDefinitions = [
     sortOrder: 740,
   },
   {
-    defaultValue: '후원과 문의를 한곳에서 연결합니다',
+    defaultValue: '후원과 문의를 한곳에서 차분히 연결합니다',
     description: '후원 카드 제목입니다.',
     groupName: 'home.support',
     inputType: 'text',
@@ -505,7 +512,7 @@ export const siteTextDefinitions = [
   },
   {
     defaultValue:
-      '공연 초청, 후원 약정, 입단 문의를 공식 문의 채널을 통해 함께 접수합니다.',
+      '공연 초청, 후원 상담, 기관 후원, 입단 문의를 공식 채널에서 함께 접수합니다. 남겨주신 내용은 담당자가 확인한 뒤 필요한 안내로 이어집니다.',
     description: '후원 카드 설명입니다.',
     groupName: 'home.support',
     inputType: 'textarea',
@@ -641,7 +648,7 @@ export const siteTextDefinitions = [
   },
   {
     defaultValue:
-      '서울모테트청소년합창단은 마음을 담은 음악과 함께 빚는 울림으로 다음 세대를 세웁니다.',
+      '서울모테트청소년합창단은 마음을 담은 음악과 함께 빚는 울림으로 다음 세대를 세웁니다. 청소년들이 서로의 소리를 듣고, 한 무대 안에서 따뜻하게 성장하도록 돕습니다.',
     description: '기존 키 호환용 히어로 설명입니다.',
     groupName: 'home.hero',
     inputType: 'textarea',
@@ -659,7 +666,8 @@ export const siteTextDefinitions = [
     sortOrder: 970,
   },
   {
-    defaultValue: '모집 대상과 입단 절차를 빠르게 확인합니다.',
+    defaultValue:
+      '모집 대상, 연습 안내, 지원서 작성 흐름을 한눈에 확인하고 입단지원서로 바로 이어집니다.',
     description: '기존 key 호환용 빠른 카드 1 설명입니다.',
     groupName: 'home.quick',
     inputType: 'textarea',
@@ -677,7 +685,8 @@ export const siteTextDefinitions = [
     sortOrder: 990,
   },
   {
-    defaultValue: '다가오는 무대와 공지사항을 확인합니다.',
+    defaultValue:
+      '정기연주회와 초청연주 일정, 합창단의 최신 공지를 함께 확인할 수 있습니다.',
     description: '기존 key 호환용 빠른 카드 2 설명입니다.',
     groupName: 'home.quick',
     inputType: 'textarea',
@@ -695,7 +704,8 @@ export const siteTextDefinitions = [
     sortOrder: 1010,
   },
   {
-    defaultValue: '후원 상담과 문의를 공식 채널로 연결합니다.',
+    defaultValue:
+      '후원 상담, 기관 후원, 일반 문의를 공식 접수 창구로 안전하게 연결합니다.',
     description: '기존 key 호환용 빠른 카드 3 설명입니다.',
     groupName: 'home.quick',
     inputType: 'textarea',
@@ -758,7 +768,8 @@ export const siteTextDefinitions = [
     sortOrder: 1080,
   },
   {
-    defaultValue: '마음을 담은 음악과 함께 빚는 울림을 한 권의 악보처럼 기록합니다.',
+    defaultValue:
+      '한 곡을 완성하기까지의 연습, 귀 기울임, 약속의 시간을 한 권의 악보처럼 기록합니다.',
     description: '기존 key 호환용 Motet Score 표지 설명입니다.',
     groupName: 'home.score',
     inputType: 'textarea',
@@ -777,7 +788,7 @@ export const siteTextDefinitions = [
   },
   {
     defaultValue:
-      '합창은 소리를 맞추는 일을 넘어,\n사람을 세우는 교육입니다.',
+      '합창은 소리를 맞추는 일을 넘어,\n서로를 듣고 함께 자라는 교육입니다.',
     description: '기존 key 호환용 Motet Score 최종 본문입니다.',
     groupName: 'home.score',
     inputType: 'textarea',
@@ -813,7 +824,8 @@ export const siteTextDefinitions = [
     sortOrder: 1140,
   },
   {
-    defaultValue: '무대와 연습, 기록의 장면을 차분하게 모았습니다.',
+    defaultValue:
+      '무대 위의 순간뿐 아니라 연습실의 표정, 준비 과정, 포스터와 영상 기록까지 차분히 모았습니다.',
     description: '기존 key 호환용 갤러리 설명입니다.',
     groupName: 'home.gallery',
     inputType: 'textarea',
@@ -840,7 +852,7 @@ export const siteTextDefinitions = [
     sortOrder: 1170,
   },
   {
-    defaultValue: '후원과 문의를 한곳에서 연결합니다',
+    defaultValue: '후원과 문의를 한곳에서 차분히 연결합니다',
     description: '기존 key 호환용 후원 카드 제목입니다.',
     groupName: 'home.support',
     inputType: 'text',
@@ -850,7 +862,7 @@ export const siteTextDefinitions = [
   },
   {
     defaultValue:
-      '공연 초청, 후원 약정, 입단 문의를 공식 문의 채널을 통해 함께 접수합니다.',
+      '공연 초청, 후원 상담, 기관 후원, 입단 문의를 공식 채널에서 함께 접수합니다. 남겨주신 내용은 담당자가 확인한 뒤 필요한 안내로 이어집니다.',
     description: '기존 key 호환용 후원 카드 설명입니다.',
     groupName: 'home.support',
     inputType: 'textarea',

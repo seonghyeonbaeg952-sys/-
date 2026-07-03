@@ -146,6 +146,7 @@ export function HomePage() {
               t('home.concert.concertButton'),
             )}
             concerts={concerts}
+            description={t('home.concert.description')}
             detailButtonLabel={t('home.concert.cta.more', t('common.cta.more'))}
             eyebrow={t('home.concert.kicker', t('home.concert.eyebrow'))}
             ghost={t('home.concert.ghost')}

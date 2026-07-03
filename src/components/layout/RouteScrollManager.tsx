@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router'
 
-const HASH_SCROLL_RETRY_LIMIT = 24
-const HASH_SCROLL_RETRY_DELAY = 80
+const HASH_SCROLL_RETRY_LIMIT = 80
+const HASH_SCROLL_RETRY_DELAY = 100
 
 function getHashTarget(hash: string) {
   const rawId = hash.replace(/^#/, '')

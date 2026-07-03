@@ -340,7 +340,7 @@ export function JoinPage() {
               <SectionTitle
                 description="서울모테트청소년합창단 입단을 희망하는 학생은 아래 지원서를 작성해 주세요."
                 eyebrow="APPLICATION"
-                title="입단지원서"
+                title="입단지원서 작성"
               />
               <div className="mt-8">
                 <JoinInquiryForm />

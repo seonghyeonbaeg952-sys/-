@@ -11,6 +11,7 @@ import '../../styles/home-motion-benchmark.css'
 type PerformanceNewsPreviewProps = {
   concertButtonLabel?: string
   concerts: Concert[]
+  description?: string
   detailButtonLabel?: string
   eyebrow?: string
   ghost?: string
@@ -24,6 +25,7 @@ type PerformanceNewsPreviewProps = {
 export function PerformanceNewsPreview({
   concertButtonLabel = '공연 일정 보기',
   concerts,
+  description = '다가오는 공연의 날짜와 장소, 준비 중인 무대 소식을 한곳에서 확인합니다.',
   detailButtonLabel = '자세히 보기',
   eyebrow = 'CONCERTS',
   ghost = 'PROGRAM',
@@ -62,7 +64,12 @@ export function PerformanceNewsPreview({
       <Container>
         <Reveal variant="fade-up">
           <div className="section-title">
-            <KineticHeadline eyebrow={eyebrow} ghost={ghost} lines={[title]} />
+            <KineticHeadline
+              body={description ? <p>{description}</p> : undefined}
+              eyebrow={eyebrow}
+              ghost={ghost}
+              lines={[title]}
+            />
             <div className="mt-6">
               <div className="flex flex-wrap gap-2">
                 <Button href="/concerts" variant="secondary">

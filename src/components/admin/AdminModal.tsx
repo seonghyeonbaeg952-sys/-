@@ -42,11 +42,11 @@ export function AdminModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-navy-midnight/55 px-4 py-4 sm:py-8">
-      <div className="flex min-h-full w-full max-w-3xl items-start sm:items-center">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-navy-midnight/55 px-4 py-4 sm:py-8">
+      <div className="mx-auto w-full max-w-3xl">
         <Card
           aria-modal="true"
-          className="flex max-h-[calc(100svh-2rem)] w-full flex-col overflow-hidden sm:max-h-[calc(100svh-4rem)]"
+          className="w-full overflow-hidden"
           radius="formal"
           role="dialog"
         >
@@ -56,9 +56,7 @@ export function AdminModal({
               ×
             </Button>
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5">
-            {children}
-          </div>
+          <div className="px-5 py-5">{children}</div>
           {footer ? (
             <div className="shrink-0 border-t border-line-default bg-bg-ivory px-5 py-4">
               {footer}

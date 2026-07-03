@@ -216,7 +216,7 @@ function validateJoinForm(values: JoinFormValues, photoFile: File | null): JoinF
 
   requiredFields.forEach(([key, label]) => {
     if (isMissingValue(values, key)) {
-      errors[key] = `${label}을(를) 입력해 주세요.`
+      errors[key] = `${label} 항목을 입력해 주세요.`
     }
   })
 
@@ -328,7 +328,9 @@ export function JoinInquiryForm() {
 
       if (kind === 'photo') {
         setPhotoFile(file)
-        clearFieldError('photo_file')
+        if (file) {
+          clearFieldError('photo_file')
+        }
       } else {
         setRecommendationFile(file)
       }
@@ -433,7 +435,7 @@ export function JoinInquiryForm() {
         APPLICATION
       </p>
       <h3 className="mt-3 break-keep text-2xl font-semibold text-navy-deep">
-        입단지원서
+        입단지원서 작성
       </h3>
       <p className="mt-3 break-keep text-sm leading-7 text-text-muted">
         서울모테트청소년합창단 입단을 희망하는 학생은 아래 지원서를 작성해 주세요.

@@ -11,26 +11,25 @@ import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 const FLUTTER_PAGE_COUNT = 12
 
 const valueWords = [
-  { word: '경청', body: '먼저 듣는 마음' },
-  { word: '배려', body: '서로의 자리를 살피는 태도' },
-  { word: '성실', body: '약속한 시간을 지키는 힘' },
-  { word: '책임', body: '내 파트를 준비하는 마음' },
+  { word: '귀 기울임', body: '먼저 듣는 마음' },
+  { word: '어울림', body: '서로의 자리를 살피는 태도' },
+  { word: '꾸준함', body: '약속한 시간을 지키는 힘' },
+  { word: '약속', body: '내 파트를 준비하는 마음' },
   { word: '조화', body: '다른 소리와 함께 숨 쉬는 일' },
   { word: '비전', body: '노래 너머의 삶을 바라보는 눈' },
 ]
 
 const wordPositions = [
-  { fromX: -260, fromY: -92, left: '13%', top: '18%' },
-  { fromX: -230, fromY: 88, left: '24%', top: '24%' },
-  { fromX: -120, fromY: -168, left: '35%', top: '18%' },
-  { fromX: 120, fromY: -168, left: '57%', top: '18%' },
-  { fromX: 230, fromY: 88, left: '68%', top: '24%' },
-  { fromX: 260, fromY: -92, left: '79%', top: '18%' },
+  { fromX: -34, fromY: 30, left: '17%', tilt: -2.4, top: '25%' },
+  { fromX: -28, fromY: 30, left: '18%', tilt: 1.6, top: '43%' },
+  { fromX: -22, fromY: 30, left: '20%', tilt: -1.2, top: '61%' },
+  { fromX: 30, fromY: 30, left: '57%', tilt: 1.8, top: '25%' },
+  { fromX: 28, fromY: 30, left: '59%', tilt: -1.4, top: '43%' },
+  { fromX: 34, fromY: 30, left: '61%', tilt: 1.3, top: '61%' },
 ]
 
-const PAGE_TURN_END_PROGRESS = 0.9
-const WORD_FADE_START_PROGRESS = 0.9
-const WORD_FADE_END_PROGRESS = 0.98
+const WORD_FADE_START_PROGRESS = 0.84
+const WORD_FADE_END_PROGRESS = 0.97
 
 type ScrollScoreBookRevealProps = {
   coverDescription?: string
@@ -51,7 +50,10 @@ type ScoreStyle = CSSProperties & {
 type WordStyle = CSSProperties & {
   '--word-blur': string
   '--word-left': string
+  '--word-line-scale': string
+  '--word-note-opacity': string
   '--word-opacity': string
+  '--word-rotate': string
   '--word-scale': string
   '--word-top': string
   '--word-x': string
@@ -375,10 +377,11 @@ function getFlutterPageStyle(progress: number, index: number): CSSProperties {
 }
 
 function getWordStyle(progress: number, index: number): WordStyle {
-  const start = 0.2 + index * 0.062
-  const local = clamp((progress - start) / (PAGE_TURN_END_PROGRESS - start))
-  const easedLocal = easeInOut(local)
-  const enter = smoothstep(0, 0.18, local)
+  const start = 0.32 + index * 0.052
+  const end = start + 0.24
+  const localRaw = clamp((progress - start) / (end - start))
+  const settled = easeInOut(localRaw)
+  const enter = smoothstep(0, 0.38, localRaw)
   const exit = smoothstep(
     WORD_FADE_START_PROGRESS,
     WORD_FADE_END_PROGRESS,
@@ -386,15 +389,18 @@ function getWordStyle(progress: number, index: number): WordStyle {
   )
   const visible = enter * (1 - exit)
   const position = wordPositions[index]
-  const drawnInX = position.fromX * (1 - easedLocal) + easedLocal * 8
-  const drawnInY = position.fromY * (1 - easedLocal) - easedLocal * 8
-  const blur = 1.4 * (1 - local) + exit * 0.7
+  const drawnInX = position.fromX * (1 - settled)
+  const drawnInY = position.fromY * (1 - settled)
+  const blur = 0.9 * (1 - settled) + exit * 0.7
 
   return {
     '--word-blur': `${blur.toFixed(2)}px`,
     '--word-left': position.left,
-    '--word-opacity': (visible * 0.36).toFixed(4),
-    '--word-scale': (0.94 - easedLocal * 0.08).toFixed(4),
+    '--word-line-scale': visible.toFixed(4),
+    '--word-note-opacity': (visible * 0.72).toFixed(4),
+    '--word-opacity': (visible * 0.82).toFixed(4),
+    '--word-rotate': `${(position.tilt * (1 - settled)).toFixed(2)}deg`,
+    '--word-scale': (0.985 + settled * 0.015 - exit * 0.02).toFixed(4),
     '--word-top': position.top,
     '--word-x': `${drawnInX.toFixed(2)}px`,
     '--word-y': `${drawnInY.toFixed(2)}px`,

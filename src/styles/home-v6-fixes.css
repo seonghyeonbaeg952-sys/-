@@ -659,14 +659,42 @@
   left: var(--word-left);
   display: grid;
   gap: 0.22rem;
-  max-width: 10.5rem;
+  max-width: min(12rem, 36%);
+  padding-left: 1.05rem;
   opacity: var(--word-opacity);
   filter: blur(var(--word-blur));
   transform:
     translate3d(var(--word-x), var(--word-y), 54px)
+    rotateZ(var(--word-rotate))
     scale(var(--word-scale));
   transform-origin: left center;
-  will-change: opacity, transform;
+  will-change: filter, opacity, transform;
+}
+
+.motet-score-value-word::before {
+  content: "";
+  position: absolute;
+  top: 0.58rem;
+  left: 0;
+  width: 0.44rem;
+  height: 0.44rem;
+  border-radius: 999px;
+  background: var(--color-gold-warm);
+  box-shadow: 0 0 0 4px rgb(201 164 92 / 0.13);
+  opacity: var(--word-note-opacity);
+}
+
+.motet-score-value-word::after {
+  content: "";
+  position: absolute;
+  right: 0.25rem;
+  bottom: -0.32rem;
+  left: 1.05rem;
+  height: 1px;
+  background: linear-gradient(90deg, rgb(201 164 92 / 0.55), transparent);
+  opacity: 0.75;
+  transform: scaleX(var(--word-line-scale));
+  transform-origin: left center;
 }
 
 .motet-score-value-word strong {
