@@ -23,7 +23,12 @@ export type NoticeCategory =
 
 export type GalleryCategory = 'concert' | 'practice' | 'event' | 'archive'
 
-export type ContactMessageStatus = 'new' | 'reviewing' | 'answered' | 'archived'
+export type ContactMessageStatus =
+  | 'answered'
+  | 'archived'
+  | 'new'
+  | 'on_hold'
+  | 'reviewing'
 
 export type ISODateTime = string
 
@@ -276,6 +281,7 @@ export interface VideoItem {
   title: string
   provider: 'youtube' | 'vimeo' | 'other'
   video_url: string
+  thumbnail_fallback_urls?: string[]
   thumbnail_url: string
   description: string
   is_visible: boolean
@@ -327,3 +333,4 @@ export interface ContactMessage {
   status: ContactMessageStatus
   created_at: ISODateTime
 }
+

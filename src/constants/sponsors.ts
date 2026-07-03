@@ -14,14 +14,14 @@ export const SPONSORS_PAGE_COPY = {
     '한 사람의 목소리가 자라기까지 보이지 않는 많은 손길이 함께합니다. 서울모테트청소년합창단의 연습과 공연, 교육과 나눔을 함께 세우는 후원사와 협력기관을 소개합니다.',
   emptyBody:
     '공개 동의가 완료된 후원사와 협력기관을 등록하면 이곳에 표시됩니다.',
-  emptyTitle: '후원사 정보가 준비 중입니다.',
+  emptyTitle: '후원사 정보가 등록되면 표시됩니다.',
   eyebrow: 'PARTNERS',
   title: '후원사 · 협력기관',
 }
 
 export const SUPPORT_SPONSOR_COPY = {
   body:
-    '후원사와 협력기관의 동행은 청소년들이 정직한 음악, 교회음악의 바른 이상, 공동체의 책임을 배우는 시간을 가능하게 합니다.',
+    '후원사와 협력기관의 동행은 청소년들이 진심을 담은 음악, 교회음악의 바른 이상, 함께 노래하는 공동체의 가치를 배우는 시간을 가능하게 합니다.',
   eyebrow: 'TOGETHER',
   title: '다음 세대의 울림을 함께 세우는 분들',
 }
@@ -52,3 +52,4 @@ export function getSponsorTierLabel(value: string | null | undefined) {
 export function getSponsorCategoryLabel(value: string | null | undefined) {
   return SPONSOR_CATEGORIES.find((category) => category.value === value)?.label ?? '기타'
 }
+

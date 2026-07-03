@@ -1,0 +1,1716 @@
+/* Home V6 repair layer. Loaded after globals.css to keep legacy home rules from clipping V6 scenes. */
+
+.home-quick-action-card {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.home-quick-action-card h2,
+.home-quick-action-card p {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+.home-quick-action-card p {
+  max-width: 100%;
+}
+
+.home-performance-news {
+  grid-template-columns: 1fr !important;
+  gap: clamp(22px, 3vw, 34px);
+}
+
+.score-book-scene.scroll-score-book {
+  min-height: auto !important;
+  overflow: hidden !important;
+  padding-block: clamp(56px, 7vw, 96px) !important;
+}
+
+.score-book-scene .book-stage {
+  display: block !important;
+  min-height: 0 !important;
+  perspective: none !important;
+  position: static !important;
+}
+
+.score-book-scene .book-shell {
+  align-items: stretch !important;
+  display: grid !important;
+  gap: clamp(18px, 2.4vw, 30px) !important;
+  grid-template-columns:
+    minmax(220px, 0.52fr)
+    minmax(0, 1.08fr)
+    minmax(0, 0.95fr) !important;
+  isolation: isolate !important;
+  min-height: 0 !important;
+  opacity: 1 !important;
+  position: relative !important;
+  transform: none !important;
+  transform-style: flat !important;
+  width: min(100%, 1180px) !important;
+}
+
+.score-book-scene .book-cover,
+.score-book-scene .book-left-page,
+.score-book-scene .book-right-page {
+  animation: none !important;
+  inset: auto !important;
+  min-height: clamp(440px, 38vw, 540px) !important;
+  opacity: 1 !important;
+  position: relative !important;
+  transform: none !important;
+  transform-style: flat !important;
+  width: auto !important;
+}
+
+.score-book-scene .book-cover {
+  align-content: end !important;
+  border-radius: 22px !important;
+  overflow: hidden !important;
+  z-index: 1 !important;
+}
+
+.score-book-scene .book-left-page,
+.score-book-scene .book-right-page {
+  border-radius: 22px !important;
+  z-index: 2 !important;
+}
+
+.score-book-scene .book-page-content {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.score-book-scene .book-cover-title {
+  display: grid;
+  font-size: clamp(2.05rem, 3.2vw, 3.6rem);
+  letter-spacing: -0.07em;
+  line-height: 1.04;
+  max-width: 100%;
+  gap: 0.12em;
+  overflow: hidden;
+  word-break: keep-all;
+}
+
+.score-book-scene .book-cover-title span {
+  display: block;
+  max-width: 100%;
+}
+
+.score-book-scene .book-cover p {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.score-book-scene .book-spine {
+  display: none !important;
+}
+
+.concert-template-panel {
+  width: 100%;
+  min-height: 0 !important;
+}
+
+.concert-template-panel__shell {
+  display: block !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  grid-template-columns: none !important;
+}
+
+.concert-template-panel__content {
+  display: grid !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  flex-direction: initial !important;
+  padding: 0 !important;
+}
+
+.concert-template-panel__leaf {
+  display: flex !important;
+  width: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: visible;
+}
+
+.concert-template-panel__leaf--note,
+.concert-template-panel__leaf--center,
+.concert-template-panel__leaf--guide {
+  grid-column: auto;
+}
+
+.concert-template-panel__summary,
+.concert-template-panel__facts,
+.concert-template-panel__program-list {
+  max-width: 100%;
+}
+
+.concert-template-panel__poster {
+  width: min(100%, 220px) !important;
+  max-height: 320px;
+  object-fit: contain;
+}
+
+.concert-template-panel__poster-fallback {
+  width: min(100%, 240px);
+  min-height: 280px;
+}
+
+.concert-template-panel__cover {
+  height: auto !important;
+  min-height: 100% !important;
+}
+
+@media (min-width: 1024px) {
+  .concert-template-panel__content {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr) minmax(240px, 0.78fr) !important;
+  }
+
+  .concert-template-panel__leaf {
+    min-height: 500px !important;
+  }
+
+  .concert-template-panel__leaf + .concert-template-panel__leaf {
+    border-top: 0 !important;
+    border-left: 1px solid rgb(201 164 92 / 0.16) !important;
+  }
+
+  .concert-template-panel[data-interactive='true'] .concert-template-panel__cover {
+    clip-path: inset(0 42% 0 0 round 28px) !important;
+  }
+
+  .concert-template-panel[data-interactive='true'][data-open='true'] .concert-template-panel__cover,
+  .concert-template-panel:hover .concert-template-panel__cover,
+  .concert-template-panel:focus-within .concert-template-panel__cover {
+    clip-path: inset(0 98% 0 0 round 28px) !important;
+  }
+
+  .concert-template-panel[data-interactive='true'][data-open='true'] .concert-template-panel__cover > *,
+  .concert-template-panel:hover .concert-template-panel__cover > *,
+  .concert-template-panel:focus-within .concert-template-panel__cover > * {
+    opacity: 0 !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .score-book-scene .book-shell {
+    grid-template-columns: 1fr !important;
+  }
+
+  .score-book-scene .book-cover,
+  .score-book-scene .book-left-page,
+  .score-book-scene .book-right-page {
+    min-height: auto !important;
+  }
+
+  .home-quick-action-card {
+    padding: 22px;
+  }
+
+  .concert-template-panel__content {
+    grid-template-columns: 1fr !important;
+  }
+
+  .concert-template-panel__leaf + .concert-template-panel__leaf {
+    border-top: 1px solid rgb(201 164 92 / 0.16) !important;
+    border-left: 0 !important;
+  }
+
+  .concert-template-panel__cover {
+    position: relative !important;
+    min-height: 220px !important;
+    clip-path: none !important;
+  }
+}
+
+@media (max-width: 639px) {
+  .spotlight-glow {
+    width: 220px;
+    height: 220px;
+    right: -88px;
+  }
+
+  .home-spotlight-glow {
+    right: -88px;
+    top: -64px;
+  }
+
+  .footer-spotlight-glow {
+    right: -104px;
+    top: -96px;
+  }
+
+  .home-quick-action-grid {
+    gap: 12px;
+  }
+
+  .home-quick-action-card {
+    padding: 20px;
+  }
+
+  .score-book-scene .book-cover-title {
+    font-size: clamp(1.9rem, 10vw, 2.4rem);
+  }
+
+  .concert-template-panel__leaf {
+    padding: 22px !important;
+  }
+
+  .concert-template-panel__title {
+    font-size: clamp(1.85rem, 9vw, 2.7rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .concert-template-panel__cover {
+    position: relative !important;
+    clip-path: none !important;
+    transition: none !important;
+  }
+}
+
+/* Motet Score: keep the restored three-panel visual, but let the section hold
+   the viewport until the scorebook cue is complete. */
+.score-book-scene.scroll-score-book {
+  --motet-score-open: 1;
+  --motet-score-pages: 1;
+  --motet-score-final: 1;
+}
+
+.spirit-scorebook-section {
+  overflow: visible !important;
+}
+
+.spirit-scorebook-section .kinetic-headline {
+  overflow: visible;
+  padding-top: clamp(46px, 5vw, 78px);
+}
+
+.spirit-scorebook-section .kinetic-headline__ghost {
+  font-size: clamp(4.4rem, 11vw, 9.75rem);
+  inset: 0.02em auto auto 0;
+  line-height: 1;
+}
+
+@media (min-width: 1024px) {
+  .score-book-scene.scroll-score-book {
+    min-height: 230svh !important;
+    overflow: visible !important;
+    padding-block: 0 !important;
+  }
+
+  .score-book-scene .book-stage {
+    display: grid !important;
+    height: calc(100svh - 96px) !important;
+    min-height: calc(100svh - 96px) !important;
+    align-items: center !important;
+    justify-items: center !important;
+    perspective: 1400px !important;
+    position: sticky !important;
+    top: 88px !important;
+  }
+
+  .score-book-scene .book-shell {
+    opacity: calc(0.9 + var(--motet-score-open) * 0.1) !important;
+    transform:
+      translateY(calc((1 - var(--motet-score-open)) * 28px))
+      scale(calc(0.982 + var(--motet-score-open) * 0.018)) !important;
+    transition: none !important;
+  }
+
+  .score-book-scene .book-cover,
+  .score-book-scene .book-left-page,
+  .score-book-scene .book-right-page {
+    transform: translateY(calc((1 - var(--motet-score-pages)) * 18px)) !important;
+  }
+
+  .score-book-scene .book-left-page {
+    opacity: calc(0.72 + var(--motet-score-pages) * 0.28) !important;
+  }
+
+  .score-book-scene .book-right-page {
+    opacity: calc(0.62 + var(--motet-score-final) * 0.38) !important;
+  }
+
+  .score-book-scene .book-page-lines {
+    transform: translateX(calc((1 - var(--motet-score-pages)) * 32px)) !important;
+  }
+}
+
+@media (max-width: 639px) {
+  .spirit-scorebook-section .kinetic-headline {
+    padding-top: 42px;
+  }
+
+  .spirit-scorebook-section .kinetic-headline__ghost {
+    font-size: clamp(4rem, 24vw, 6.5rem);
+    inset: 0.08em auto auto 0;
+    line-height: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .score-book-scene.scroll-score-book {
+    min-height: auto !important;
+    padding-block: clamp(56px, 7vw, 96px) !important;
+  }
+
+  .score-book-scene .book-stage {
+    min-height: 0 !important;
+    position: static !important;
+  }
+
+  .score-book-scene .book-shell,
+  .score-book-scene .book-cover,
+  .score-book-scene .book-left-page,
+  .score-book-scene .book-right-page,
+  .score-book-scene .book-page-lines {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* Motet Score liquid white scorebook. This is scoped away from the restored
+   HomeSpiritScoreBook so the choir-spirit section keeps its arrow controls. */
+.motet-score-scroll-section {
+  --book-open: 0;
+  --book-final: 0;
+  --cover-opacity: 1;
+  position: relative;
+  height: 250svh;
+  min-height: 640px;
+  overflow: visible;
+  border-block: 1px solid rgb(201 164 92 / 0.16);
+  background:
+    radial-gradient(circle at 88% 16%, rgb(201 164 92 / 0.13), transparent 34%),
+    linear-gradient(180deg, #f8f4ec 0%, var(--color-bg-warm-white) 42%, var(--color-bg-ivory) 100%);
+}
+
+.motet-score-sticky-stage {
+  position: sticky;
+  top: 72px;
+  display: grid;
+  height: calc(100svh - 72px);
+  min-height: 620px;
+  place-items: center;
+  overflow: hidden;
+  perspective: 2200px;
+  padding: 48px 28px 30px;
+}
+
+.motet-score-stage-label {
+  position: absolute;
+  top: clamp(24px, 4vw, 48px);
+  left: clamp(24px, 5vw, 72px);
+  z-index: 2;
+  color: rgb(16 35 63 / 0.48);
+  font-family: var(--font-display-en);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  pointer-events: none;
+}
+
+.motet-score-orbit {
+  position: absolute;
+  inset: auto 0 6vh;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(201 164 92 / 0.18), transparent);
+  opacity: 0.8;
+  transform: translateX(calc((var(--book-final) - 0.5) * 80px));
+}
+
+.motet-score-book {
+  position: relative;
+  isolation: isolate;
+  width: min(860px, 76vw);
+  height: min(610px, 70svh);
+  min-height: 540px;
+  transform:
+    translateX(calc((0.5 - var(--book-open)) * 2.4vw))
+    rotateX(calc((1 - var(--book-open)) * 1.2deg));
+  transform-style: preserve-3d;
+}
+
+.motet-score-shadow {
+  position: absolute;
+  bottom: -34px;
+  left: 50%;
+  z-index: -2;
+  width: calc(50% + var(--book-open) * 52%);
+  height: 56px;
+  border-radius: 999px;
+  background: radial-gradient(ellipse, rgb(7 17 31 / 0.22), transparent 70%);
+  filter: blur(10px);
+  opacity: calc(0.42 + var(--book-open) * 0.38);
+  transform: translateX(-50%) scaleX(calc(0.72 + var(--book-open) * 0.48));
+}
+
+.motet-score-spread {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+  border: 1px solid rgb(201 164 92 / 0.18);
+  border-radius: 24px;
+  background: #fffefe;
+  box-shadow: 0 36px 100px rgb(7 17 31 / 0.16);
+  filter: saturate(calc(0.72 + var(--book-open) * 0.28));
+  opacity: calc(0.08 + var(--book-open) * 0.92);
+  transform: scale(calc(0.945 + var(--book-open) * 0.055)) translateZ(-8px);
+}
+
+.motet-score-page {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgb(6 20 38 / 0.035), transparent 9%, transparent 91%, rgb(6 20 38 / 0.035)),
+    #fffefe;
+  padding: clamp(30px, 3.4vw, 44px);
+}
+
+.motet-score-page-left {
+  border-right: 1px solid rgb(6 20 38 / 0.08);
+}
+
+.motet-score-page::before {
+  content: "";
+  position: absolute;
+  inset: 30px 38px auto;
+  height: 58px;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgb(201 164 92 / 0.2) 0 1px,
+    transparent 1px 14px
+  );
+  opacity: calc(0.82 - var(--book-final) * 0.46);
+  transform: translateX(calc((1 - var(--book-open)) * 22px));
+}
+
+.motet-score-page::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 12%, rgb(255 255 255 / 0.85), transparent 28%),
+    repeating-linear-gradient(0deg, rgb(6 20 38 / 0.018) 0 1px, transparent 1px 8px);
+  opacity: 0.45;
+}
+
+.motet-score-page-ghost {
+  position: absolute;
+  top: clamp(14px, 2vw, 26px);
+  right: clamp(18px, 2.6vw, 34px);
+  z-index: 1;
+  color: rgb(7 17 31 / 0.07);
+  font-family: var(--font-display-en);
+  font-size: clamp(4.6rem, 9vw, 8.8rem);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 0.72;
+  pointer-events: none;
+  text-transform: uppercase;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.motet-score-crease {
+  position: absolute;
+  inset: 0 calc(50% - 18px);
+  z-index: 7;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(6 20 38 / 0.1) 44%,
+    rgb(255 255 255 / 0.98) 50%,
+    rgb(6 20 38 / 0.11) 56%,
+    transparent 100%
+  );
+  filter: blur(0.2px);
+  opacity: calc(0.32 + var(--book-open) * 0.22);
+}
+
+.motet-score-cover {
+  position: absolute;
+  top: 0;
+  left: calc(25% + var(--book-open) * 25%);
+  z-index: 14;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.16);
+  border-radius: 24px;
+  backface-visibility: hidden;
+  background:
+    repeating-linear-gradient(to bottom, rgb(255 255 255 / 0.09) 0 1px, transparent 1px 11px),
+    radial-gradient(circle at 86% 16%, rgb(201 164 92 / 0.18), transparent 34%),
+    var(--color-navy-deep);
+  box-shadow: 0 26px 76px rgb(7 17 31 / 0.28);
+  color: var(--color-bg-warm-white);
+  opacity: var(--cover-opacity);
+  transform: rotateY(calc(var(--book-open) * -168deg)) translateZ(18px);
+  transform-origin: left center;
+}
+
+.motet-score-cover-inner {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: end;
+  padding: clamp(30px, 4.2vw, 48px);
+}
+
+.motet-score-cover-inner p {
+  margin: 0 0 16px;
+  color: var(--color-gold-soft);
+  font-size: 12px;
+  font-weight: 720;
+  letter-spacing: 0.22em;
+}
+
+.motet-score-cover-inner h2 {
+  margin: 0;
+  max-width: 340px;
+  font-family: var(--font-heading-kr);
+  font-size: clamp(31px, 4.1vw, 50px);
+  font-weight: 620;
+  letter-spacing: -0.028em;
+  line-height: 1.12;
+  font-variation-settings: "wght" 620;
+}
+
+.motet-score-cover-inner h2 br,
+.motet-score-cover-inner strong br {
+  display: none;
+}
+
+.motet-score-cover-inner h2 span,
+.motet-score-cover-inner strong span {
+  display: block;
+  width: auto;
+  height: auto;
+  margin: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.motet-score-cover-inner h2 span + span {
+  margin-top: 0.04em;
+}
+
+.motet-score-cover-inner h2 span:nth-of-type(2) {
+  color: rgb(231 213 163 / 0.96);
+}
+
+.motet-score-cover-inner > span {
+  width: 72px;
+  height: 4px;
+  margin: 22px 0 20px;
+  border-radius: 999px;
+  background: var(--color-gold-warm);
+}
+
+.motet-score-cover-inner strong {
+  max-width: 320px;
+  color: rgb(255 253 248 / 0.82);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.76;
+}
+
+.motet-score-flutter-page {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 10;
+  width: 50%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+}
+
+.motet-score-value-words {
+  position: absolute;
+  inset: 0;
+  z-index: 32;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.motet-score-value-word {
+  position: absolute;
+  top: var(--word-top);
+  left: var(--word-left);
+  display: grid;
+  gap: 0.22rem;
+  max-width: 13rem;
+  opacity: var(--word-opacity);
+  transform:
+    translate3d(var(--word-x), var(--word-y), 54px)
+    scale(var(--word-scale));
+  transform-origin: left center;
+  will-change: opacity, transform;
+}
+
+.motet-score-value-word strong {
+  color: var(--color-gold-warm);
+  font-family: var(--font-heading-kr);
+  font-size: clamp(1rem, 1.3vw, 1.4rem);
+  font-weight: 620;
+  letter-spacing: 0;
+  line-height: 1.2;
+}
+
+.motet-score-value-word small {
+  color: var(--color-navy-deep);
+  font-size: 0.72rem;
+  font-weight: 520;
+  line-height: 1.5;
+}
+
+.motet-score-flutter-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border: 1px solid rgb(201 164 92 / 0.18);
+  border-left: 0;
+  border-radius: 0 24px 24px 0;
+  backface-visibility: hidden;
+  background:
+    linear-gradient(90deg, rgb(6 20 38 / 0.06), transparent 9%, transparent 92%, rgb(6 20 38 / 0.04)),
+    #fffefe;
+}
+
+.motet-score-flutter-face-back {
+  border-right: 0;
+  border-left: 1px solid rgb(201 164 92 / 0.18);
+  border-radius: 24px 0 0 24px;
+  transform: rotateY(180deg);
+}
+
+.motet-score-flutter-face::before {
+  content: "";
+  position: absolute;
+  top: 46px;
+  right: 38px;
+  left: 38px;
+  height: 76px;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgb(201 164 92 / 0.22) 0 1px,
+    transparent 1px 14px
+  );
+  opacity: 0.78;
+}
+
+.motet-score-flutter-face::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 18%, rgb(255 255 255 / 0.8), transparent 36%);
+  opacity: 0.6;
+}
+
+.motet-score-final-copy {
+  position: relative;
+  z-index: 3;
+  padding-top: clamp(64px, 7vw, 88px);
+  opacity: 1;
+  transform: none;
+}
+
+.motet-score-eyebrow {
+  margin: 0 0 18px;
+  color: var(--color-gold-warm);
+  font-size: 12px;
+  font-weight: 720;
+  letter-spacing: 0.22em;
+}
+
+.motet-score-final-copy h2,
+.motet-score-final-copy h3 {
+  margin: 0;
+  color: var(--color-navy-midnight);
+  font-family: var(--font-heading-kr);
+  font-size: clamp(32px, 3.35vw, 46px);
+  font-weight: 620;
+  letter-spacing: -0.028em;
+  line-height: 1.14;
+  font-variation-settings: "wght" 620;
+}
+
+.motet-score-final-copy h3 {
+  font-size: clamp(25px, 2.75vw, 36px);
+  letter-spacing: -0.022em;
+  line-height: 1.24;
+}
+
+.motet-score-final-copy h2 > span,
+.motet-score-final-copy h3 > span {
+  display: block;
+}
+
+.motet-score-final-body {
+  max-width: 430px;
+  margin: 18px 0 0;
+  color: rgb(6 20 38 / 0.74);
+  font-size: clamp(14px, 1.08vw, 16px);
+  line-height: 1.72;
+}
+
+.motet-score-keywords {
+  width: fit-content;
+  margin: 22px 0 0;
+  border-left: 2px solid rgb(201 164 92 / 0.58);
+  padding-left: 14px;
+  color: rgb(6 20 38 / 0.72);
+  font-size: clamp(12px, 0.9vw, 14px);
+  font-weight: 680;
+  letter-spacing: 0.08em;
+}
+
+.motet-score-quote-mark {
+  display: block;
+  margin-bottom: 18px;
+  color: rgb(201 164 92 / 0.28);
+  font-size: 64px;
+  font-weight: 600;
+  line-height: 0.55;
+}
+
+.motet-score-final-callout {
+  margin-top: 22px;
+  border-left: 2px solid rgb(201 164 92 / 0.58);
+  padding-left: 20px;
+}
+
+.motet-score-final-callout strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--color-navy-midnight);
+  font-size: 15px;
+  font-weight: 640;
+  font-variation-settings: "wght" 640;
+}
+
+.motet-score-final-callout p {
+  max-width: 410px;
+  margin: 0;
+  color: rgb(6 20 38 / 0.68);
+  font-size: 13.5px;
+  line-height: 1.72;
+}
+
+@media (max-width: 1023px) {
+  .motet-score-scroll-section {
+    height: auto;
+  }
+
+  .motet-score-sticky-stage {
+    position: relative;
+    height: auto;
+    min-height: auto;
+    padding: 64px 18px;
+  }
+
+  .motet-score-stage-label,
+  .motet-score-orbit,
+  .motet-score-cover,
+  .motet-score-flutter-page,
+  .motet-score-value-words {
+    display: none;
+  }
+
+  .motet-score-book {
+    width: min(100%, 720px);
+    height: auto;
+    min-height: auto;
+    transform: none !important;
+  }
+
+  .motet-score-spread {
+    position: relative;
+    grid-template-columns: 1fr;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .motet-score-crease {
+    display: none;
+  }
+
+  .motet-score-page {
+    min-height: 420px;
+    padding: 34px 26px;
+  }
+
+  .motet-score-page-left {
+    border-right: 0;
+    border-bottom: 1px solid rgb(6 20 38 / 0.08);
+  }
+
+  .motet-score-page::before {
+    opacity: 0.22;
+  }
+
+  .motet-score-final-copy {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motet-score-scroll-section {
+    height: auto;
+  }
+
+  .motet-score-sticky-stage {
+    position: relative;
+    height: auto;
+    min-height: auto;
+  }
+
+  .motet-score-cover,
+  .motet-score-flutter-page {
+    display: none;
+  }
+
+  .motet-score-book {
+    transform: none !important;
+  }
+
+  .motet-score-spread {
+    position: relative;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .motet-score-final-copy {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* Home chapter rhythm: keep sections visually connected instead of alternating
+   hard ivory/white blocks. */
+.home-flow-body {
+  background:
+    radial-gradient(circle at 9% 10%, rgb(201 164 92 / 0.1), transparent 27%),
+    radial-gradient(circle at 88% 34%, rgb(221 232 246 / 0.34), transparent 28%),
+    linear-gradient(
+      180deg,
+      var(--color-bg-ivory) 0%,
+      var(--color-bg-warm-white) 17%,
+      #f8f2e8 34%,
+      var(--color-bg-warm-white) 55%,
+      #f6efe3 74%,
+      var(--color-bg-ivory) 100%
+    );
+}
+
+.home-flow-body [data-flow-section="quick"],
+.home-flow-body [data-flow-section="about"],
+.home-flow-body [data-flow-section="spirit"],
+.home-flow-body [data-flow-section="concert-program"],
+.home-flow-body [data-flow-section="archive-stack"],
+.home-flow-body [data-flow-section="join-letter"],
+.home-flow-body [data-flow-section="sponsors"] {
+  background: transparent !important;
+}
+
+.home-flow-body [data-flow-section="score-book"] {
+  margin-block: clamp(28px, 4vw, 54px);
+}
+
+.home-flow-body [data-flow-section="about"],
+.home-flow-body [data-flow-section="spirit"],
+.home-flow-body [data-flow-section="concert-program"],
+.home-flow-body [data-flow-section="archive-stack"],
+.home-flow-body [data-flow-section="join-letter"] {
+  margin-top: clamp(24px, 3.4vw, 48px);
+}
+
+.home-flow-body [data-flow-section="sponsors"] {
+  margin-top: clamp(18px, 2.8vw, 36px);
+  margin-bottom: clamp(28px, 4vw, 56px);
+}
+
+.home-flow-body [data-flow-section="support-letter"] {
+  margin-top: clamp(34px, 5vw, 72px);
+}
+
+.home-flow-body .flow-section::after {
+  height: clamp(72px, 8vw, 128px);
+  opacity: 0.52;
+}
+
+.home-flow-body [data-flow-section="score-book"]::after,
+.home-flow-body [data-flow-section="spirit"]::after,
+.home-flow-body [data-flow-section="concert-program"]::after {
+  --section-handoff-wash: rgb(255 253 248 / 0.7);
+}
+
+.home-flow-body .motet-score-scroll-section {
+  border-block: 0;
+  background:
+    radial-gradient(circle at 82% 18%, rgb(201 164 92 / 0.1), transparent 32%),
+    radial-gradient(circle at 18% 84%, rgb(221 232 246 / 0.26), transparent 30%),
+    linear-gradient(
+      180deg,
+      rgb(250 247 240 / 0) 0%,
+      rgb(255 253 248 / 0.72) 24%,
+      rgb(248 242 232 / 0.84) 58%,
+      rgb(255 253 248 / 0.38) 100%
+    );
+}
+
+.home-flow-body .spirit-scorebook-section {
+  background:
+    radial-gradient(circle at 13% 18%, rgb(201 164 92 / 0.1), transparent 29%),
+    linear-gradient(
+      180deg,
+      rgb(255 253 248 / 0.08) 0%,
+      rgb(250 247 240 / 0.72) 45%,
+      rgb(255 253 248 / 0.16) 100%
+    ) !important;
+}
+
+@media (max-width: 900px) {
+  .home-flow-body [data-flow-section="score-book"],
+  .home-flow-body [data-flow-section="about"],
+  .home-flow-body [data-flow-section="spirit"],
+  .home-flow-body [data-flow-section="concert-program"],
+  .home-flow-body [data-flow-section="archive-stack"],
+  .home-flow-body [data-flow-section="join-letter"],
+  .home-flow-body [data-flow-section="support-letter"] {
+    margin-top: 28px;
+  }
+}
+
+/* Final home background unification: keep section identities, but remove hard
+   color jumps between the ivory body, support block, and footer. */
+.home-flow-body {
+  background:
+    radial-gradient(circle at 9% 8%, rgb(201 164 92 / 0.08), transparent 28rem),
+    radial-gradient(circle at 88% 32%, rgb(221 232 246 / 0.22), transparent 31rem),
+    linear-gradient(
+      180deg,
+      rgb(250 247 240) 0%,
+      rgb(255 253 248) 14%,
+      rgb(250 247 240) 34%,
+      rgb(255 253 248) 55%,
+      rgb(248 242 232) 72%,
+      rgb(236 226 208) 82%,
+      rgb(16 35 63) 91%,
+      rgb(7 21 38) 100%
+    );
+}
+
+.home-flow-body .flow-section:not([data-flow-section="hero"])::before {
+  opacity: 0.64;
+}
+
+.home-flow-body [data-flow-section="score-book"]::before,
+.home-flow-body [data-flow-section="about"]::before,
+.home-flow-body [data-flow-section="spirit"]::before,
+.home-flow-body [data-flow-section="concert-program"]::before,
+.home-flow-body [data-flow-section="archive-stack"]::before,
+.home-flow-body [data-flow-section="join-letter"]::before,
+.home-flow-body [data-flow-section="sponsors"]::before {
+  mask-image: linear-gradient(180deg, transparent 0, #000 14%, #000 86%, transparent 100%);
+}
+
+.home-flow-body .flow-section::after {
+  height: clamp(40px, 5vw, 78px);
+  opacity: 0.34;
+}
+
+.home-flow-body [data-flow-section="support-letter"] {
+  margin-top: 0;
+  padding-block: clamp(64px, 7vw, 108px) clamp(26px, 3.4vw, 46px);
+  background:
+    linear-gradient(
+      180deg,
+      rgb(250 247 240 / 0.42) 0%,
+      rgb(236 226 208 / 0.18) 8%,
+      rgb(16 35 63 / 0.94) 24%,
+      rgb(7 21 38) 100%
+    ) !important;
+}
+
+.home-flow-body [data-flow-section="support-letter"]::before {
+  background:
+    radial-gradient(circle at 78% 2%, rgb(255 253 248 / 0.16), transparent 22rem),
+    radial-gradient(circle at 80% 12%, rgb(201 164 92 / 0.14), transparent 30rem),
+    radial-gradient(circle at 14% 82%, rgb(221 232 246 / 0.06), transparent 28rem),
+    repeating-linear-gradient(
+      to bottom,
+      rgb(231 213 163 / 0.024) 0,
+      rgb(231 213 163 / 0.024) 1px,
+      transparent 1px,
+      transparent 18px
+    ),
+    linear-gradient(
+      180deg,
+      rgb(250 247 240 / 0.1) 0%,
+      rgb(16 35 63 / 0.58) 18%,
+      rgb(7 21 38 / 0.96) 38%,
+      rgb(7 21 38) 100%
+    ) !important;
+  opacity: 1;
+  mask-image: none;
+}
+
+.home-flow-body [data-flow-section="support-letter"]::after {
+  display: none;
+}
+
+.home-flow-body .support-letter-layout {
+  align-items: start;
+}
+
+.site-footer {
+  margin-top: -1px;
+  background:
+    radial-gradient(circle at 88% 0%, rgb(201 164 92 / 0.1), transparent 30rem),
+    linear-gradient(180deg, rgb(7 21 38) 0%, rgb(7 21 38) 72%, rgb(5 14 27) 100%) !important;
+}
+
+.site-footer::before {
+  opacity: 0.5;
+}
+
+.site-footer > .mx-auto {
+  padding-top: clamp(30px, 4vw, 54px);
+}
+
+.pre-footer-score-band {
+  height: 48px;
+  opacity: 0.48;
+}
+
+/* Chrome renders very thin rotated pseudo-element staff lines inconsistently.
+   Keep the support/footer handoff calm by using static, unrotated score lines. */
+.home-flow-body [data-flow-section="join-letter"]::after {
+  display: none;
+}
+
+.home-flow-body [data-flow-section="support-letter"] {
+  margin-top: clamp(-72px, -5vw, -44px);
+  padding-block: clamp(50px, 5.6vw, 78px) clamp(18px, 2.5vw, 32px);
+}
+
+.home-flow-body [data-flow-section="support-letter"] .stage-staff-lines-support::before {
+  left: clamp(24px, 5vw, 80px);
+  right: clamp(24px, 5vw, 80px);
+  top: clamp(24px, 7vw, 92px);
+  height: 118px;
+  opacity: 0.14;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgb(231 213 163 / 0.52) 0,
+      rgb(231 213 163 / 0.52) 1.5px,
+      transparent 1.5px,
+      transparent 18px
+    );
+  transform: none;
+  animation: none !important;
+  transition: none !important;
+}
+
+.site-footer .pre-footer-score-band {
+  display: none;
+}
+
+.site-footer .footer-spotlight-glow {
+  opacity: 0.16;
+  filter: blur(10px);
+}
+
+.site-footer > .mx-auto {
+  padding-top: clamp(24px, 3vw, 42px);
+}
+
+@media (min-width: 1100px) {
+  .home-flow-progress-staff {
+    display: block;
+    left: clamp(28px, 3vw, 56px);
+    width: 136px;
+  }
+}
+
+.home-flow-root[data-active-flow-section="footer"] .home-flow-progress-label {
+  color: rgb(255 253 248 / 0.52);
+  text-shadow: 0 1px 8px rgb(7 17 31 / 0.34);
+}
+
+.home-flow-root[data-active-flow-section="footer"] .home-flow-progress-mark.is-active .home-flow-progress-label {
+  color: rgb(231 213 163 / 0.92);
+}
+
+/* Support handoff: keep this as a full-width navy stage, with a short clean
+   transition from the previous ivory section. */
+.home-flow-body [data-flow-section="support-letter"] {
+  margin-top: 0;
+  padding-block: clamp(56px, 5.6vw, 86px) clamp(28px, 3.4vw, 48px);
+  background:
+    linear-gradient(
+      180deg,
+      rgb(16 35 63) 0%,
+      rgb(7 21 38) 100%
+    ) !important;
+}
+
+.home-flow-body [data-flow-section="support-letter"]::before {
+  inset: 0;
+  border: 0;
+  border-radius: 0;
+  background:
+    radial-gradient(circle at 82% 8%, rgb(255 253 248 / 0.08), transparent 24rem),
+    radial-gradient(circle at 18% 82%, rgb(221 232 246 / 0.055), transparent 28rem),
+    repeating-linear-gradient(
+      to bottom,
+      rgb(231 213 163 / 0.024) 0,
+      rgb(231 213 163 / 0.024) 1px,
+      transparent 1px,
+      transparent 18px
+    ),
+    linear-gradient(180deg, rgb(16 35 63 / 0.98) 0%, rgb(7 21 38 / 0.98) 54%, rgb(7 21 38) 100%) !important;
+  box-shadow: none;
+}
+
+.home-flow-body [data-flow-section="support-letter"] .stage-staff-lines-support {
+  inset: 0;
+  border-radius: 0;
+}
+
+.home-flow-body [data-flow-section="support-letter"] .stage-staff-lines-support::before {
+  left: clamp(28px, 4vw, 72px);
+  right: clamp(28px, 4vw, 72px);
+  top: clamp(42px, 7vw, 92px);
+  opacity: 0.12;
+}
+
+@media (max-width: 767px) {
+  .home-flow-body [data-flow-section="support-letter"] {
+    margin-top: 0;
+    padding-block: 54px 34px;
+  }
+
+  .home-flow-body [data-flow-section="support-letter"]::before,
+  .home-flow-body [data-flow-section="support-letter"] .stage-staff-lines-support {
+    inset: 0;
+    border-radius: 0;
+  }
+}
+
+/* Keep every light home chapter on one exact ivory plane. Navy support/footer
+   sections stay separate; all other section-level washes are removed so the
+   page no longer jumps between warm white, gray, and beige. */
+.home-flow-body {
+  --home-unified-ivory: rgb(250 247 240);
+  background: var(--home-unified-ivory) !important;
+}
+
+.home-flow-body [data-flow-section="quick"],
+.home-flow-body [data-flow-section="score-book"],
+.home-flow-body [data-flow-section="about"],
+.home-flow-body [data-flow-section="spirit"],
+.home-flow-body [data-flow-section="concert-program"],
+.home-flow-body [data-flow-section="archive-stack"],
+.home-flow-body [data-flow-section="join-letter"],
+.home-flow-body [data-flow-section="sponsors"],
+.home-flow-body .motet-score-scroll-section,
+.home-flow-body .spirit-scorebook-section {
+  background: var(--home-unified-ivory) !important;
+}
+
+.home-flow-body [data-flow-section="quick"]::before,
+.home-flow-body [data-flow-section="score-book"]::before,
+.home-flow-body [data-flow-section="about"]::before,
+.home-flow-body [data-flow-section="spirit"]::before,
+.home-flow-body [data-flow-section="concert-program"]::before,
+.home-flow-body [data-flow-section="archive-stack"]::before,
+.home-flow-body [data-flow-section="join-letter"]::before,
+.home-flow-body [data-flow-section="sponsors"]::before,
+.home-flow-body [data-flow-section="quick"]::after,
+.home-flow-body [data-flow-section="score-book"]::after,
+.home-flow-body [data-flow-section="about"]::after,
+.home-flow-body [data-flow-section="spirit"]::after,
+.home-flow-body [data-flow-section="concert-program"]::after,
+.home-flow-body [data-flow-section="archive-stack"]::after,
+.home-flow-body [data-flow-section="join-letter"]::after,
+.home-flow-body [data-flow-section="sponsors"]::after {
+  background: transparent !important;
+  opacity: 0 !important;
+}
+
+/* Final dark-section unification: no navy gradients. The support block and
+   footer share one flat navy surface so the bottom of the home page reads as a
+   single stage instead of separate dark bands. */
+.home-flow-body {
+  --home-unified-navy: rgb(7 21 38);
+}
+
+.home-flow-body [data-flow-section="support-letter"],
+.site-footer {
+  background-color: rgb(7 21 38) !important;
+  background-image: none !important;
+}
+
+.home-flow-body [data-flow-section="support-letter"]::before,
+.site-footer::before,
+.site-footer::after {
+  background: transparent !important;
+  opacity: 0 !important;
+}
+
+.home-flow-body [data-flow-section="support-letter"] .stage-staff-lines-support::before {
+  opacity: 0.09;
+}
+
+.site-footer .footer-spotlight-glow {
+  display: none;
+}
+
+/* P0 stability layer: keep the current art direction, but make the hero,
+   scorebook, program shelf, and footer safe on narrow viewports. */
+.home-hero-section {
+  min-height: 100svh !important;
+  background:
+    radial-gradient(circle at 78% 18%, rgb(201 164 92 / 0.12), transparent 30rem),
+    linear-gradient(135deg, rgb(7 21 38), rgb(16 35 63)) !important;
+}
+
+.home-hero-section::before {
+  background:
+    linear-gradient(
+      90deg,
+      rgb(7 17 31 / 0.32) 0%,
+      rgb(7 17 31 / 0.1) 7%,
+      transparent 15%,
+      transparent 85%,
+      rgb(7 17 31 / 0.12) 93%,
+      rgb(7 17 31 / 0.34) 100%
+    ) !important;
+  backdrop-filter: blur(1.6px);
+  -webkit-backdrop-filter: blur(1.6px);
+  mask-image: linear-gradient(90deg, #000 0%, #000 5%, transparent 14%, transparent 86%, #000 95%, #000 100%);
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 5%, transparent 14%, transparent 86%, #000 95%, #000 100%);
+}
+
+.home-hero-overlay {
+  background:
+    radial-gradient(circle at 88% 16%, rgb(201 164 92 / 0.12), transparent 28rem),
+    linear-gradient(
+      90deg,
+      rgb(7 17 31 / 0.72) 0%,
+      rgb(7 17 31 / 0.58) 32%,
+      rgb(7 17 31 / 0.24) 62%,
+      rgb(7 17 31 / 0.08) 100%
+    ),
+    linear-gradient(0deg, rgb(7 17 31 / 0.22) 0%, transparent 42%) !important;
+}
+
+.home-hero-background-image img {
+  opacity: 0.92 !important;
+  filter: saturate(1.08) contrast(1.08) brightness(1.08) !important;
+  transform: none !important;
+}
+
+.home-hero-copy .type-hero-title {
+  max-width: min(12ch, 100%) !important;
+  color: rgb(255 253 248 / 0.9) !important;
+  text-shadow: 0 3px 14px rgb(7 17 31 / 0.24);
+}
+
+.home-hero-copy .type-body {
+  color: rgb(250 247 240 / 0.9) !important;
+  text-shadow: 0 2px 10px rgb(0 0 0 / 0.36);
+}
+
+.home-hero-controls {
+  opacity: 0.58;
+  transform: scale(0.96);
+  transform-origin: left center;
+}
+
+.home-hero-arrow {
+  width: 38px !important;
+  height: 38px !important;
+}
+
+.home-spotlight-glow,
+.spotlight-glow {
+  max-width: min(360px, 48vw);
+}
+
+.motion-benchmark-headline__ghost,
+.kinetic-headline__ghost,
+[data-flow-section="concert-program"] > .mx-auto::before,
+[data-flow-section="archive-stack"] > .mx-auto::before {
+  max-width: calc(100vw - 32px);
+  overflow: hidden;
+}
+
+.motet-score-book {
+  max-width: calc(100vw - 40px);
+}
+
+.motet-score-shadow,
+.motet-score-orbit {
+  max-width: calc(100vw - 40px);
+}
+
+.motet-score-orbit {
+  right: 20px !important;
+  left: 20px !important;
+  width: auto !important;
+  transform: none !important;
+}
+
+.motet-score-shadow {
+  width: min(calc(50% + var(--book-open) * 52%), calc(100% - 24px)) !important;
+}
+
+@media (max-width: 900px) {
+  .motet-score-shadow {
+    display: none !important;
+  }
+}
+
+.motion-benchmark-fold-stage,
+.motion-benchmark-program-shelf,
+.motion-benchmark-folder-stage {
+  max-width: 100%;
+  overflow: clip;
+}
+
+.motion-benchmark-program-note:empty,
+.concert-template-panel__facts:empty,
+.concert-template-panel__program-list:empty {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  .home-hero-layout {
+    min-height: 100svh !important;
+    align-items: center;
+    padding-top: max(96px, env(safe-area-inset-top));
+    padding-bottom: 42px;
+  }
+
+  .home-hero-copy {
+    max-width: min(100%, 560px);
+  }
+
+  .home-hero-copy .type-hero-title {
+    font-size: clamp(2.75rem, 11vw, 4.6rem) !important;
+    line-height: 1.08 !important;
+    letter-spacing: -0.025em !important;
+  }
+
+  .home-hero-copy .type-body {
+    max-width: 34rem;
+    font-size: 1rem;
+    line-height: 1.72;
+  }
+
+  .home-hero-controls {
+    margin-top: 22px;
+  }
+
+  .stage-staff-lines-hero,
+  .home-spotlight-glow {
+    opacity: 0.3;
+  }
+
+  .motet-score-scroll-section {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 639px) {
+  .home-hero-section::before {
+    backdrop-filter: blur(0.8px);
+    -webkit-backdrop-filter: blur(0.8px);
+    mask-image: linear-gradient(90deg, #000 0%, #000 3%, transparent 10%, transparent 90%, #000 97%, #000 100%);
+    -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 3%, transparent 10%, transparent 90%, #000 97%, #000 100%);
+  }
+
+  .home-hero-overlay {
+    background:
+      linear-gradient(
+        90deg,
+        rgb(7 17 31 / 0.78) 0%,
+        rgb(7 17 31 / 0.62) 58%,
+        rgb(7 17 31 / 0.2) 100%
+      ),
+      linear-gradient(0deg, rgb(7 17 31 / 0.34) 0%, transparent 44%) !important;
+  }
+
+  .home-hero-layout {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+
+  .home-hero-copy .type-hero-title {
+    max-width: 10.8ch !important;
+    font-size: clamp(2.48rem, 10.5vw, 3.35rem) !important;
+  }
+
+  .home-hero-copy .type-body {
+    margin-top: 18px;
+    max-width: 100%;
+  }
+
+  .home-hero-copy .home-hero-motto-chips {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
+  .home-hero-controls {
+    max-width: 100%;
+    opacity: 0.52;
+    transform: scale(0.92);
+  }
+
+  .home-hero-arrow-group {
+    gap: 6px;
+  }
+
+  .home-hero-arrow {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .home-spotlight-glow,
+  .spotlight-glow,
+  .stage-staff-lines-hero,
+  .motion-benchmark-headline__ghost,
+  .kinetic-headline__ghost,
+  .motet-score-stage-label,
+  .motet-score-orbit,
+  .motet-score-shadow,
+  .score-conductor-release,
+  .score-conductor-motion-stage,
+  [data-flow-section="concert-program"] > .mx-auto::before,
+  [data-flow-section="archive-stack"] > .mx-auto::before {
+    display: none !important;
+  }
+
+  .home-quick-action-card > span[aria-hidden="true"],
+  .home-quick-action-card .absolute {
+    max-width: 96px;
+    max-height: 96px;
+  }
+
+  .motion-benchmark-program-note {
+    display: none !important;
+  }
+
+  .motion-benchmark-program-slot,
+  .motion-benchmark-program,
+  .motion-benchmark-folder {
+    max-width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-flow-root *,
+  .home-flow-root *::before,
+  .home-flow-root *::after {
+    animation: none !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* P0 overflow cleanup: keep decorative layers from crossing the viewport edge.
+   These are visual-only elements, so the fix is scoped to home surfaces. */
+.home-hero-section .home-spotlight-glow {
+  right: clamp(10px, 3vw, 48px) !important;
+  max-width: min(320px, 36vw) !important;
+}
+
+.score-flow-rail .score-conductor-release {
+  left: 50% !important;
+  width: 112px !important;
+  height: 64px !important;
+}
+
+.score-flow-rail .score-conductor-release-motion,
+.score-flow-rail .score-conductor-release-svg {
+  width: 112px !important;
+  height: 64px !important;
+  overflow: hidden !important;
+}
+
+@media (max-width: 1099px) {
+  .score-flow-rail .score-conductor-release {
+    width: 80px !important;
+    height: 50px !important;
+  }
+
+  .score-flow-rail .score-conductor-release-motion,
+  .score-flow-rail .score-conductor-release-svg {
+    width: 80px !important;
+    height: 50px !important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1099px) {
+  .motion-benchmark-program {
+    --benchmark-panel-width: min(27vw, 13.25rem) !important;
+  }
+
+  .motion-benchmark-program-note {
+    max-width: 9.25rem;
+    min-width: 8.5rem;
+    padding: 0.85rem 0.9rem;
+  }
+}
+
+@media (max-width: 1023px) {
+  .motet-score-final-copy {
+    padding-top: 48px;
+  }
+}
+
+/* Section notes belong to the long conductor staff and keep document-fixed
+   positions. Scrolling changes only the active tone. */
+.score-flow-section-marks {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.score-flow-section-mark {
+  position: absolute;
+  display: block;
+  width: 104px;
+  height: 24px;
+  transform: translateY(-50%);
+}
+
+.score-flow-section-note {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  display: grid;
+  width: 28px;
+  place-items: center;
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1;
+  transform: translateX(var(--score-note-x, 0)) translateY(-50%);
+  transition:
+    color 180ms ease,
+    filter 180ms ease,
+    transform 180ms ease;
+}
+
+.score-flow-section-label {
+  position: absolute;
+  top: 50%;
+  left: 39px;
+  min-width: 0;
+  max-width: 62px;
+  color: rgb(16 35 63 / 0.46);
+  font-family: var(--font-sans-kr);
+  font-size: 10px;
+  font-weight: 760;
+  letter-spacing: 0.05em;
+  line-height: 1.15;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  transition:
+    color 180ms ease,
+    opacity 180ms ease;
+}
+
+.score-flow-section-mark.is-active .score-flow-section-note,
+.score-flow-section-mark.is-active .score-flow-section-label {
+  color: var(--color-gold-warm);
+  opacity: 1;
+}
+
+.score-flow-section-mark.is-active .score-flow-section-note {
+  filter: drop-shadow(0 4px 10px rgb(201 164 92 / 0.3));
+  transform: translateX(var(--score-note-x, 0)) translateY(-50%) scale(1.1);
+}
+
+/* Only the card group overlaps the hero. The ivory page background still
+   starts at the hero boundary. */
+.home-flow-body .home-quick-actions {
+  margin-top: 0;
+  background: transparent !important;
+}
+
+.home-flow-body .home-quick-action-grid {
+  position: relative;
+  z-index: 2;
+  margin-top: 0;
+}
+
+.home-quick-action-card h2 {
+  font-family: var(--font-heading-kr);
+  font-weight: 560;
+  letter-spacing: -0.018em;
+}
+
+@media (max-width: 767px) {
+  .home-flow-body {
+    margin-top: -42px;
+  }
+
+  .home-flow-body::before {
+    top: 42px;
+  }
+}
+
+/* The quick cards overlap the hero, while the ivory plane starts below them. */
+.home-flow-body {
+  position: relative;
+  margin-top: -72px;
+  background: transparent !important;
+}
+
+.home-flow-body::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 72px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--home-unified-ivory, rgb(250 247 240));
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .home-flow-body {
+    margin-top: -42px;
+  }
+
+  .home-flow-body::before {
+    top: 42px;
+  }
+}
+

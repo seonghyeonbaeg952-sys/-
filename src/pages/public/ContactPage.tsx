@@ -14,15 +14,17 @@ import { PageHero } from '../../components/common/PageHero'
 import { Reveal } from '../../components/common/Reveal'
 import { SectionTitle } from '../../components/common/SectionTitle'
 import { ImageTile } from '../../components/home/ImageTile'
+import { JoinInquiryForm } from '../../components/join/JoinInquiryForm'
 import { SponsorsSection } from '../../components/sponsors/SponsorsSection'
 import { useContactData } from '../../hooks/usePublicData'
 import { createContactMessage, type ContactMessageInput } from '../../lib/publicData'
 
 const inquiryTypes: Array<{ label: string; value: ContactMessageInput['type'] }> = [
-  { label: '입단 문의', value: 'join' },
-  { label: '공연 의뢰', value: 'concert_request' },
-  { label: '후원 문의', value: 'support' },
   { label: '일반 문의', value: 'general' },
+  { label: '입단 관련 문의', value: 'join' },
+  { label: '후원 관련 문의', value: 'support' },
+  { label: '공연 관련 문의', value: 'concert_request' },
+  { label: '기타', value: 'other' },
 ]
 
 type ContactSectionKey =
@@ -49,12 +51,12 @@ const contactSections: Array<{
   },
   {
     inquiryType: 'concert_request',
-    label: '공연 문의',
+    label: '문의',
     value: 'performance',
   },
   {
     inquiryType: 'join',
-    label: '입단 문의',
+    label: '입단지원서',
     value: 'join',
   },
   {
@@ -132,6 +134,14 @@ function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 }
 
+function getContactSuccessMessage(type: ContactMessageInput['type']) {
+  if (type === 'support') {
+    return '후원 문의가 접수되었습니다.\n담당자가 확인 후 입력하신 이메일로 안내드리겠습니다.'
+  }
+
+  return '문의가 접수되었습니다.\n담당자가 확인 후 입력하신 이메일로 답변을 보내드립니다.'
+}
+
 export function ContactPage() {
   const contactData = useContactData()
   const [searchParams] = useSearchParams()
@@ -153,8 +163,8 @@ export function ContactPage() {
   const showSponsors = showAll || activeSection === 'sponsors'
   const showForm =
     showAll ||
-    activeSection === 'performance' ||
-    activeSection === 'join'
+    activeSection === 'performance'
+  const showJoinInquiry = activeSection === 'join'
   const showLocation = showAll || activeSection === 'location'
 
   const setValue = <TKey extends keyof ContactFormValues>(
@@ -210,24 +220,27 @@ export function ContactPage() {
       return
     }
 
-    setValues(initialFormValues)
-    setSuccessMessage('문의가 접수되었습니다. 확인 후 연락드리겠습니다.')
+    setValues({
+      ...initialFormValues,
+      type: getInitialInquiryType(activeSection),
+    })
+    setSuccessMessage(getContactSuccessMessage(values.type))
   }
 
   const address = location?.address || settings.address
   const formTitle =
     activeSection === 'support'
-      ? '후원 문의 보내기'
+      ? '후원 관련 문의 보내기'
       : activeSection === 'performance'
-        ? '공연 문의 보내기'
+        ? '문의 보내기'
         : activeSection === 'join'
-          ? '입단 문의 보내기'
+          ? '입단지원서 작성'
           : '문의 보내기'
 
   return (
     <>
       <PageHero
-        description="공연 의뢰, 후원, 입단 문의를 공식 채널로 보내 주세요."
+        description="공연 관련 문의, 후원, 일반 문의를 공식 채널로 보내 주세요."
         eyebrow="HELP DESK"
         title="후원·문의"
       />
@@ -247,7 +260,7 @@ export function ContactPage() {
         <Reveal>
           <AnimatedSectionTabs
             activeValue={activeSection}
-            ariaLabel="후원 문의 섹션 선택"
+            ariaLabel="후원·문의 섹션 선택"
             className="mb-8 rounded-formal border border-line-default bg-bg-warm-white p-2 shadow-card"
             onChange={(value) => {
               const nextSection = contactSections.find((section) => section.value === value)
@@ -286,7 +299,7 @@ export function ContactPage() {
             <div className="inquiry-layout">
             <Card
               className="relative overflow-hidden p-6 sm:p-7"
-              id={activeSection === 'join' ? 'join' : activeSection === 'performance' ? 'performance' : 'form'}
+              id={activeSection === 'performance' ? 'performance' : 'form'}
               radius="formal"
             >
               <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-gold-warm via-gold-soft to-transparent" />
@@ -294,7 +307,9 @@ export function ContactPage() {
                 {formTitle}
               </h2>
               <p className="mt-2 break-keep text-sm leading-6 text-text-muted">
-                보내주신 문의는 운영진에게만 전달되며 공개 화면에는 표시되지 않습니다.
+                궁금한 내용을 남겨주시면 담당자가 확인 후 입력하신 이메일로 답변을 보내드립니다.
+                <br className="hidden sm:block" />
+                정확한 답변을 위해 이메일 주소를 올바르게 입력해 주세요.
               </p>
               <form className="mt-6 grid gap-5" onSubmit={handleSubmit}>
                 <div aria-hidden="true" className="hidden">
@@ -348,6 +363,9 @@ export function ContactPage() {
                       type="email"
                       value={values.email}
                     />
+                    <p className="mt-2 text-xs leading-5 text-text-muted">
+                      답변을 받을 이메일 주소를 정확히 입력해 주세요.
+                    </p>
                   </label>
                 </div>
 
@@ -402,7 +420,7 @@ export function ContactPage() {
                   </p>
                 ) : null}
                 {successMessage ? (
-                  <p className="rounded-button bg-state-success/10 px-4 py-3 text-sm leading-6 text-state-success" role="status">
+                  <p className="whitespace-pre-line rounded-button bg-state-success/10 px-4 py-3 text-sm leading-6 text-state-success" role="status">
                     {successMessage}
                   </p>
                 ) : null}
@@ -415,7 +433,7 @@ export function ContactPage() {
                   type="submit"
                   variant="primary"
                 >
-                  {isSubmitting ? '전송 중' : '문의 전송'}
+                  {isSubmitting ? '전송 중' : '문의 보내기'}
                 </Button>
               </form>
             </Card>
@@ -431,15 +449,52 @@ export function ContactPage() {
               </p>
               <ul className="mt-5 grid gap-3 text-sm leading-6 text-text-muted">
                 <li className="rounded-button border border-line-default bg-bg-ivory px-4 py-3">
-                  공연 의뢰는 일정, 장소, 요청 내용을 함께 적어 주세요.
+                  공연 관련 문의는 일정, 장소, 요청 내용을 함께 적어 주세요.
                 </li>
                 <li className="rounded-button border border-line-default bg-bg-ivory px-4 py-3">
-                  입단 문의는 보호자 연락처와 희망 파트를 함께 남기면 확인이 빠릅니다.
+                  입단지원서는 별도 전용 양식에서 접수합니다.
                 </li>
               </ul>
             </Card>
             </div>
           </Reveal>
+          ) : null}
+
+          {showJoinInquiry ? (
+            <Reveal rootMargin="0px 0px -2% 0px" threshold={0.01}>
+              <section id="join" className="grid gap-6 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
+                <Card
+                  className="relative overflow-hidden border-gold-soft/60 bg-bg-warm-white p-6 shadow-card"
+                  radius="formal"
+                >
+                  <div
+                    aria-hidden="true"
+                    className="absolute -right-8 -top-10 size-32 rounded-full bg-gold-soft/20 sm:-right-10 sm:-top-12 sm:size-40"
+                  />
+                  <div className="relative">
+                    <p className="text-xs font-bold tracking-[0.22em] text-gold-warm">
+                      JOIN INQUIRY
+                    </p>
+                    <h2 className="mt-4 break-keep text-2xl font-semibold text-navy-deep">
+                      입단지원서
+                    </h2>
+                    <p className="mt-5 break-keep text-base leading-8 text-text-muted">
+                      서울모테트청소년합창단 입단을 희망하는 학생은 아래 지원서를 작성해 주세요.
+                      제출하신 내용을 확인한 후 담당자가 보호자 연락처로 안내드립니다.
+                    </p>
+                    <div className="mt-6 grid gap-3 text-sm leading-6 text-text-muted">
+                      <p className="rounded-button border border-line-default bg-bg-ivory px-4 py-3">
+                        추천서는 선택 항목입니다. 추천서가 없어도 지원서를 제출할 수 있습니다.
+                      </p>
+                      <p className="rounded-button border border-line-default bg-bg-ivory px-4 py-3">
+                        사진은 최근 반명함판 사진 기준으로 첨부해 주세요.
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+                <JoinInquiryForm />
+              </section>
+            </Reveal>
           ) : null}
 
           {showLocation ? (
@@ -505,10 +560,10 @@ export function ContactPage() {
                           sizes="(min-width: 1024px) 50vw, calc(100vw - 40px)"
                           src={location.image_url}
                           transform={{
-                            quality: 78,
+                            quality: 88,
                             resize: 'cover',
-                            width: 1200,
-                            widths: [640, 960, 1200],
+                            width: 1800,
+                            widths: [960, 1400, 1800],
                           }}
                         />
                         {location.image_caption ? (
@@ -535,3 +590,4 @@ export function ContactPage() {
     </>
   )
 }
+

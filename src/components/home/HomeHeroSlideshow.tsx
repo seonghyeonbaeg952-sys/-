@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
 
 import type { HeroSlide } from '../../types/content'
 import { Button } from '../common/Button'
@@ -7,11 +8,16 @@ import { OptimizedImage } from '../common/OptimizedImage'
 import { Reveal } from '../common/Reveal'
 
 type HomeHeroSlideshowProps = {
+  body?: string
   eyebrow?: string
   fallbackDescription?: string
   fallbackSubtitle?: string
   fallbackTitle?: string
+  headline?: ReactNode
   intervalMs?: number
+  mottoChips?: string[]
+  primaryCtaLabel?: string
+  secondaryCtaLabel?: string
   slides: HeroSlide[]
 }
 
@@ -189,10 +195,10 @@ function PlaybackIcon({ isPaused }: { isPaused: boolean }) {
   )
 }
 
-function MottoChips() {
+function MottoChips({ chips }: { chips: string[] }) {
   return (
     <div aria-label="합창단 핵심 가치" className="home-hero-motto-chips">
-      {heroMottoChips.map((chip) => (
+      {chips.map((chip) => (
         <span className="home-hero-motto-chip" key={chip}>
           {chip}
         </span>
@@ -202,11 +208,16 @@ function MottoChips() {
 }
 
 export function HomeHeroSlideshow({
+  body,
   eyebrow,
   fallbackDescription,
   fallbackSubtitle,
   fallbackTitle,
+  headline,
   intervalMs = 5000,
+  mottoChips,
+  primaryCtaLabel,
+  secondaryCtaLabel,
   slides,
 }: HomeHeroSlideshowProps) {
   const [activeIndex, setActiveIndex] = useState(0)
@@ -237,6 +248,8 @@ export function HomeHeroSlideshow({
   const safeActiveIndex = activeIndex % renderedSlides.length
   const isAutoplayPaused =
     isInteractionPaused || isUserPaused || prefersReducedMotion
+  const visibleMottoChips = (mottoChips?.filter((chip) => chip.trim()) ?? heroMottoChips)
+  const heroBody = body?.trim() || heroCopy.body
 
   useEffect(() => {
     const first = renderedSlides[0]
@@ -281,7 +294,8 @@ export function HomeHeroSlideshow({
   return (
     <section
       aria-label="홈 메인 비주얼"
-      className="home-hero-section relative isolate overflow-hidden bg-navy-midnight text-bg-warm-white"
+      className="flow-section home-hero-section relative isolate overflow-hidden bg-navy-midnight text-bg-warm-white"
+      data-flow-section="hero"
       onBlurCapture={(event) => {
         const nextFocusedElement = event.relatedTarget
 
@@ -353,32 +367,32 @@ export function HomeHeroSlideshow({
             </p>
           </Reveal>
           <Reveal delayMs={80}>
-            <h1 className="type-hero-title max-w-[12ch] text-bg-warm-white drop-shadow-[0_4px_20px_rgb(0_0_0/0.34)]">
-              {heroCopy.headline}
+            <h1 className="type-hero-title max-w-[12ch] text-bg-warm-white">
+              {headline ?? heroCopy.headline}
             </h1>
           </Reveal>
           <Reveal delayMs={150}>
             <p className="type-body mt-6 max-w-[560px] text-bg-ivory/88">
-              {heroCopy.body}
+              {heroBody}
             </p>
           </Reveal>
           <Reveal delayMs={220}>
             <div className="mt-9 grid gap-3 sm:flex sm:flex-wrap">
-              <Button className="w-full sm:w-auto" href="/spirit" size="lg" variant="gold">
-                {heroCopy.primaryCta}
+              <Button className="w-full sm:w-auto" href="/join" size="lg" variant="gold">
+                {primaryCtaLabel?.trim() || heroCopy.secondaryCta}
               </Button>
               <Button
                 className="w-full !border-bg-warm-white/72 !bg-bg-warm-white/[0.07] !text-bg-warm-white hover:!border-bg-warm-white hover:!bg-bg-warm-white/[0.12] hover:!text-gold-soft sm:w-auto"
-                href="/join"
+                href="/concerts"
                 size="lg"
                 variant="secondary"
               >
-                {heroCopy.secondaryCta}
+                {secondaryCtaLabel?.trim() || '공연 일정'}
               </Button>
             </div>
           </Reveal>
           <Reveal delayMs={280}>
-            <MottoChips />
+            <MottoChips chips={visibleMottoChips} />
           </Reveal>
 
             {hasMultipleSlides ? (

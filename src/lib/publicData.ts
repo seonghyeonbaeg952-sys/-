@@ -32,6 +32,7 @@ import type {
   HistoryRow,
   HeroSlideRow,
   JoinInfoRow,
+  JoinApplicationStatus,
   LocationRow,
   MemberRow,
   NoticeRow,
@@ -39,6 +40,7 @@ import type {
   PosterRow,
   PopupNoticeRow,
   SiteSettingsRow,
+  SiteTextRow,
   SponsorRow,
   SupportSettingsRow,
   VideoRow,
@@ -73,6 +75,7 @@ export type PublicJoinData = {
 export type PublicContactData = {
   location: LocationRow | null
   siteSettings: SiteSettings
+  siteTexts: SiteTextRow[]
   sponsors: Sponsor[]
   supportSettings: SupportSettings
 }
@@ -84,7 +87,7 @@ export type ContactMessageInput = {
   phone: string | null
   privacy_agreed: boolean
   title: string | null
-  type: 'concert_request' | 'general' | 'join' | 'support'
+  type: 'concert_request' | 'general' | 'join' | 'other' | 'support'
   website?: string | null
 }
 
@@ -106,12 +109,50 @@ export type SupportPledgeInput = {
   website?: string | null
 }
 
+export type JoinApplicationInput = {
+  address: string
+  age: string
+  applicant_name: string
+  applicant_name_english: string
+  applicant_name_hanja: string
+  applicant_phone: string
+  awards: string
+  birth_date: string
+  choir_experience: 'no' | 'yes'
+  contact_time: 'afternoon' | 'call_available' | 'evening' | 'morning' | 'text_first'
+  desired_part: 'alto' | 'bass' | 'soprano' | 'tenor' | 'unsure'
+  email: string
+  education_status: string
+  gender: 'female' | 'male' | 'not_specified'
+  grade: string
+  guardian_name: string
+  guardian_phone: string
+  lesson_experience: 'no' | 'yes'
+  motivation: string
+  music_experience: string
+  parent_occupation: string
+  photo_file: File
+  privacy_agreed: boolean
+  recommendation_file: File | null
+  recommender_affiliation: string | null
+  recommender_name: string | null
+  recommender_reason: string | null
+  religion: string
+  school: string
+  self_introduction: string
+  vision: string
+  website?: string | null
+}
+
 type PublicListOptions = {
   limit?: number
 }
 
 const SITE_SETTINGS_SELECT = '*'
 const SUPPORT_SETTINGS_SELECT = '*'
+const SITE_TEXT_SELECT = '*'
+const JOIN_APPLICATION_FILES_BUCKET = 'join-application-files'
+const JOIN_APPLICATIONS_SCHEMA_MIGRATION = '2026_add_join_applications.sql'
 
 const SPONSOR_SELECT = [
   'id',
@@ -317,7 +358,7 @@ function toPublicError(error: unknown, fallback: string) {
     lowerMessage.includes('row-level security') ||
     lowerMessage.includes('rls')
   ) {
-    return '공개 데이터 접근 정책을 확인해 주세요.'
+    return '공개 데이터 접근 권한을 확인해 주세요.'
   }
 
   if (
@@ -409,6 +450,169 @@ function isMissingSponsorsError(error: unknown) {
       message.includes('does not exist') ||
       message.includes('could not find the table'))
   )
+}
+
+function isMissingSiteTextsError(error: unknown) {
+  const message = getErrorMessage(error).toLowerCase()
+
+  return (
+    message.includes('site_texts') &&
+    (message.includes('schema cache') ||
+      message.includes('does not exist') ||
+      message.includes('could not find the table'))
+  )
+}
+
+function isMissingJoinApplicationsError(error: unknown) {
+  const message = getErrorMessage(error).toLowerCase()
+
+  return (
+    message.includes('join_applications') &&
+    (message.includes('schema cache') ||
+      message.includes('does not exist') ||
+      message.includes('could not find the table'))
+  )
+}
+
+function isMissingJoinApplicationFilesBucketError(error: unknown) {
+  const message = getErrorMessage(error).toLowerCase()
+  const status = getErrorStatus(error)
+
+  return (
+    status === '404' ||
+    message.includes('bucket') ||
+    message.includes('not found') ||
+    message.includes('does not exist')
+  )
+}
+
+function normalizeOptionalText(value: string | null | undefined) {
+  const trimmedValue = value?.trim()
+
+  return trimmedValue ? trimmedValue : null
+}
+
+function joinLabeledLines(items: Array<[string, string | null | undefined]>) {
+  return items
+    .map(([label, value]) => {
+      const normalizedValue = value?.trim()
+
+      return normalizedValue ? `${label}: ${normalizedValue}` : null
+    })
+    .filter(Boolean)
+    .join('\n')
+}
+
+function getFileExtension(file: File) {
+  const extension = file.name.split('.').pop()?.toLowerCase() ?? ''
+
+  if (extension === 'jpeg') {
+    return 'jpg'
+  }
+
+  return extension
+}
+
+function sanitizeStorageFileName(fileName: string) {
+  const extension = fileName.split('.').pop()?.toLowerCase()
+  const baseName = fileName
+    .replace(/\.[^.]+$/, '')
+    .normalize('NFKD')
+    .replace(/[^\w.-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 48)
+
+  return `${baseName || 'file'}${extension ? `.${extension}` : ''}`
+}
+
+function validateJoinApplicationFile(
+  file: File,
+  kind: 'photo' | 'recommendation',
+): PublicDataResult<true> {
+  const extension = getFileExtension(file)
+  const allowedPhotoExtensions = new Set(['jpg', 'png', 'webp'])
+  const allowedRecommendationExtensions = new Set([
+    'hwp',
+    'hwpx',
+    'jpg',
+    'pdf',
+    'png',
+    'webp',
+  ])
+  const maxSizeMb = kind === 'photo' ? 5 : 10
+  const maxBytes = maxSizeMb * 1024 * 1024
+  const isAllowed =
+    kind === 'photo'
+      ? allowedPhotoExtensions.has(extension)
+      : allowedRecommendationExtensions.has(extension)
+
+  if (!isAllowed) {
+    return {
+      data: null,
+      error:
+        kind === 'photo'
+          ? '사진은 jpg, png, webp 파일만 첨부할 수 있습니다.'
+          : '추천서는 pdf, hwp, hwpx 또는 이미지 파일만 첨부할 수 있습니다.',
+    }
+  }
+
+  if (file.size > maxBytes) {
+    return {
+      data: null,
+      error: `첨부 파일은 ${maxSizeMb}MB 이하만 업로드할 수 있습니다.`,
+    }
+  }
+
+  return { data: true, error: null }
+}
+
+async function uploadJoinApplicationFile(
+  client: SupabaseClient,
+  file: File | null,
+  kind: 'photo' | 'recommendation',
+): Promise<PublicDataResult<string | null>> {
+  if (!file) {
+    return { data: null, error: null } satisfies PublicDataResult<string | null>
+  }
+
+  const validationResult = validateJoinApplicationFile(file, kind)
+
+  if (!validationResult.data) {
+    return { data: null, error: validationResult.error }
+  }
+
+  const randomId =
+    globalThis.crypto?.randomUUID?.() ??
+    `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+  const path = `submissions/${new Date().toISOString().slice(0, 10)}/${randomId}/${kind}-${sanitizeStorageFileName(file.name)}`
+  const { error } = await client.storage
+    .from(JOIN_APPLICATION_FILES_BUCKET)
+    .upload(path, file, {
+      cacheControl: '3600',
+      contentType: file.type || 'application/octet-stream',
+      upsert: false,
+    })
+
+  if (error) {
+    if (isMissingJoinApplicationFilesBucketError(error)) {
+      return {
+        data: null,
+        error:
+          `입단지원서 첨부 파일 bucket이 아직 없습니다. Supabase SQL Editor에서 ${JOIN_APPLICATIONS_SCHEMA_MIGRATION} migration을 먼저 실행해 주세요.`,
+      }
+    }
+
+    return {
+      data: null,
+      error: toPublicError(
+        error,
+        '첨부 파일 업로드에 실패했습니다. 파일을 확인한 뒤 다시 제출해 주세요.',
+      ),
+    }
+  }
+
+  return { data: path, error: null }
 }
 
 async function getPublicVisibleConductor(client: SupabaseClient) {
@@ -681,7 +885,7 @@ function mapConcert(row: ConcertRow): Concert {
     date: nullableString(row.concert_date),
     description: nullableString(row.description),
     is_visible: row.is_visible,
-    location: nullableString(row.location, '장소 미정'),
+    location: nullableString(row.location),
     performers: splitLines(row.performers),
     poster_url: nullableString(row.poster_url),
     program: splitLines(row.program),
@@ -798,6 +1002,31 @@ export async function getPublicSiteSettings(): Promise<
   const row = normalizeRow<SiteSettingsRow>(data)
 
   return { data: row ? mapSiteSettings(row) : null, error: null }
+}
+
+export async function getPublicSiteTexts(): Promise<PublicDataResult<SiteTextRow[]>> {
+  const clientResult = getSupabaseClientSafe()
+
+  if (!clientResult.data) {
+    return { data: [], error: null }
+  }
+
+  const { data, error } = await clientResult.data
+    .from('site_texts')
+    .select(SITE_TEXT_SELECT)
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true })
+    .order('updated_at', { ascending: false })
+
+  if (error) {
+    if (isMissingSiteTextsError(error)) {
+      return { data: [], error: null }
+    }
+
+    return { data: null, error: toPublicError(error, '사이트 문구를 불러오지 못했습니다.') }
+  }
+
+  return { data: normalizeRows<SiteTextRow>(data), error: null }
 }
 
 export async function getPublicSupportSettings(): Promise<
@@ -926,7 +1155,7 @@ export async function getPublicHeroSlides(
   const { data, error } = await query
 
   if (error) {
-    return { data: null, error: toPublicError(error, 'Hero 데이터를 불러오지 못했습니다.') }
+    return { data: null, error: toPublicError(error, '히어로 이미지를 불러오지 못했습니다.') }
   }
 
   return { data: normalizeRows<HeroSlideRow>(data).map(mapHeroSlide), error: null }
@@ -957,7 +1186,7 @@ export async function getPublicPopupNotices(
   const { data, error } = await query
 
   if (error) {
-    return { data: null, error: toPublicError(error, '홈 팝업을 불러오지 못했습니다.') }
+    return { data: null, error: toPublicError(error, '팝업 알림을 불러오지 못했습니다.') }
   }
 
   return { data: normalizeRows<PopupNoticeRow>(data).map(mapPopupNotice), error: null }
@@ -1290,6 +1519,7 @@ export async function getPublicContactData(): Promise<
       data: {
         location: null,
         siteSettings: mockSiteSettings,
+        siteTexts: [],
         sponsors: [],
         supportSettings: mockSupportSettings,
       },
@@ -1297,11 +1527,12 @@ export async function getPublicContactData(): Promise<
     }
   }
 
-  const [settings, supportSettings, location, sponsors] = await Promise.all([
+  const [settings, supportSettings, location, sponsors, siteTexts] = await Promise.all([
     getPublicSiteSettings(),
     getPublicSupportSettings(),
     getPublicVisibleLocation(clientResult.data),
     getPublicSponsors(),
+    getPublicSiteTexts(),
   ])
 
   if (settings.error || location.error) {
@@ -1309,6 +1540,7 @@ export async function getPublicContactData(): Promise<
       data: {
         location: null,
         siteSettings: settings.data ?? mockSiteSettings,
+        siteTexts: siteTexts.data ?? [],
         sponsors: sponsors.data ?? [],
         supportSettings: supportSettings.data ?? mockSupportSettings,
       },
@@ -1320,6 +1552,7 @@ export async function getPublicContactData(): Promise<
     data: {
       location: normalizeRow<LocationRow>(location.data),
       siteSettings: settings.data ?? mockSiteSettings,
+      siteTexts: siteTexts.data ?? [],
       sponsors: sponsors.data ?? [],
       supportSettings: supportSettings.data ?? mockSupportSettings,
     },
@@ -1359,6 +1592,150 @@ export async function createContactMessage(
     return {
       data: null,
       error: toPublicError(error, '문의 전송에 실패했습니다. 잠시 후 다시 시도해 주세요.'),
+    }
+  }
+
+  return { data: true, error: null }
+}
+
+export async function createJoinApplication(
+  input: JoinApplicationInput,
+): Promise<PublicDataResult<true>> {
+  if (input.website?.trim()) {
+    return { data: true, error: null }
+  }
+
+  if (!input.privacy_agreed) {
+    return { data: null, error: '개인정보 수집 및 이용에 동의해 주세요.' }
+  }
+
+  if (
+    !input.applicant_name.trim() ||
+    !input.applicant_name_hanja.trim() ||
+    !input.applicant_name_english.trim() ||
+    !input.birth_date ||
+    !input.age.trim() ||
+    input.gender === 'not_specified' ||
+    !input.religion.trim() ||
+    !input.address.trim() ||
+    !input.school.trim() ||
+    !input.grade.trim() ||
+    !input.education_status.trim() ||
+    !input.desired_part ||
+    !input.photo_file ||
+    !input.applicant_phone.trim() ||
+    !input.guardian_name.trim() ||
+    !input.guardian_phone.trim() ||
+    !input.email.trim() ||
+    !input.contact_time ||
+    !input.parent_occupation.trim() ||
+    !input.music_experience.trim() ||
+    !input.awards.trim() ||
+    !input.self_introduction.trim() ||
+    !input.motivation.trim() ||
+    !input.vision.trim()
+  ) {
+    return {
+      data: null,
+      error: '필수 항목을 모두 입력해 주세요.',
+    }
+  }
+
+  const clientResult = getSupabaseClientSafe()
+
+  if (!clientResult.data) {
+    return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
+  }
+
+  const photoUploadResult = await uploadJoinApplicationFile(
+    clientResult.data,
+    input.photo_file,
+    'photo',
+  )
+
+  if (photoUploadResult.error) {
+    return { data: null, error: photoUploadResult.error }
+  }
+
+  const recommendationUploadResult = await uploadJoinApplicationFile(
+    clientResult.data,
+    input.recommendation_file,
+    'recommendation',
+  )
+
+  if (recommendationUploadResult.error) {
+    return { data: null, error: recommendationUploadResult.error }
+  }
+
+  const initialStatus: JoinApplicationStatus = 'new'
+  const applicantProfileText = joinLabeledLines([
+    ['지원자 이름 한자', input.applicant_name_hanja],
+    ['지원자 이름 영문', input.applicant_name_english],
+    ['나이', input.age],
+    ['종교', input.religion],
+    ['주소', input.address],
+    ['최종학력 또는 현재 재학 정보', input.education_status],
+    ['부모님 직업', input.parent_occupation],
+  ])
+  const musicExperienceText = [
+    '지원자 추가 정보',
+    applicantProfileText,
+    '',
+    '음악활동 경험',
+    input.music_experience.trim(),
+  ].join('\n')
+  const motivationText = [
+    '자기소개 및 음악활동 경험',
+    input.self_introduction.trim(),
+    '',
+    '서울모테트청소년합창단을 지원하게 된 동기',
+    input.motivation.trim(),
+  ].join('\n')
+  const { error } = await clientResult.data.from('join_applications').insert({
+    admin_notes: null,
+    applicant_name: input.applicant_name.trim(),
+    applicant_phone: input.applicant_phone.trim(),
+    awards: input.awards.trim(),
+    birth_date: input.birth_date,
+    choir_experience: input.choir_experience,
+    contact_time: input.contact_time,
+    desired_part: input.desired_part,
+    email: input.email.trim(),
+    gender: input.gender,
+    grade: input.grade.trim(),
+    guardian_name: input.guardian_name.trim(),
+    guardian_phone: input.guardian_phone.trim(),
+    is_archived: false,
+    lesson_experience: input.lesson_experience,
+    motivation: motivationText,
+    music_experience: musicExperienceText,
+    photo_file_path: photoUploadResult.data,
+    privacy_agreed: true,
+    recommendation_file_path: recommendationUploadResult.data,
+    recommender_affiliation: normalizeOptionalText(input.recommender_affiliation),
+    recommender_name: normalizeOptionalText(input.recommender_name),
+    recommender_reason: normalizeOptionalText(input.recommender_reason),
+    region: input.address.trim(),
+    school: input.school.trim(),
+    status: initialStatus,
+    vision: input.vision.trim(),
+  })
+
+  if (error) {
+    if (isMissingJoinApplicationsError(error)) {
+      return {
+        data: null,
+        error:
+          `입단지원서 저장 테이블이 아직 없습니다. Supabase SQL Editor에서 ${JOIN_APPLICATIONS_SCHEMA_MIGRATION} migration을 먼저 실행해 주세요.`,
+      }
+    }
+
+    return {
+      data: null,
+      error: toPublicError(
+        error,
+        '입단지원서 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+      ),
     }
   }
 
@@ -1428,3 +1805,4 @@ export const publicFallbacks = {
   notices: mockNotices,
   siteSettings: mockSiteSettings,
 }
+

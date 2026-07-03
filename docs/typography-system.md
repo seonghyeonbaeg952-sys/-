@@ -98,3 +98,4 @@ Figma 파일 `SMYC Global Arts Polish QA`의 `SMYC Typography System` 기준 Tex
 - 본문은 `.type-body`, 강조 본문은 `.type-body-strong`을 우선 사용한다.
 - 영문 장식 wordmark나 라벨에만 `.type-display-en`을 사용한다.
 - 관리자 화면에는 display utility를 적용하지 않는다.
+

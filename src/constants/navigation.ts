@@ -121,6 +121,7 @@ export const publicNavigation = [
 export const adminNavigation = [
   { label: '대시보드', href: '/admin', resource: 'site_settings' },
   { label: '홈페이지 기본 설정', href: '/admin/settings', resource: 'site_settings' },
+  { label: '홈 문구 관리', href: '/admin/site-texts', resource: 'site_texts' },
   { label: '홈 슬라이드 관리', href: '/admin/hero-slides', resource: 'hero_slides' },
   { label: '홈 팝업 관리', href: '/admin/popups', resource: 'popup_notices' },
   { label: '합창단 소개 관리', href: '/admin/about', resource: 'about_sections' },

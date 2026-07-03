@@ -6,8 +6,8 @@ import { ProtectedAdminRoute } from './components/admin/ProtectedAdminRoute'
 import { LoadingState } from './components/common/LoadingState'
 import { PublicLayout } from './components/layout/PublicLayout'
 
-const HomePage = lazy(() =>
-  import('./pages/public/HomePage').then((module) => ({ default: module.HomePage })),
+const HomeRoute = lazy(() =>
+  import('./pages/public/HomeRoute').then((module) => ({ default: module.HomeRoute })),
 )
 const AboutPage = lazy(() =>
   import('./pages/public/AboutPage').then((module) => ({ default: module.AboutPage })),
@@ -54,6 +54,11 @@ const AdminDashboardPage = lazy(() =>
 const AdminSettingsPage = lazy(() =>
   import('./pages/admin/AdminSettingsPage').then((module) => ({
     default: module.AdminSettingsPage,
+  })),
+)
+const AdminSiteTextsPage = lazy(() =>
+  import('./pages/admin/AdminSiteTextsPage').then((module) => ({
+    default: module.AdminSiteTextsPage,
   })),
 )
 const AdminAboutPage = lazy(() =>
@@ -122,6 +127,11 @@ const AdminLocationPage = lazy(() =>
 const AdminJoinPage = lazy(() =>
   import('./pages/admin/AdminJoinPage').then((module) => ({ default: module.AdminJoinPage })),
 )
+const AdminJoinApplicationsPage = lazy(() =>
+  import('./pages/admin/AdminJoinApplicationsPage').then((module) => ({
+    default: module.AdminJoinApplicationsPage,
+  })),
+)
 const AdminSupportPage = lazy(() =>
   import('./pages/admin/AdminSupportPage').then((module) => ({
     default: module.AdminSupportPage,
@@ -162,7 +172,7 @@ function App() {
       <Suspense fallback={<RouteFallback />}>
         <Routes>
           <Route path="/" element={<PublicLayout />}>
-            <Route index element={<HomePage />} />
+            <Route index element={<HomeRoute />} />
             <Route path="spirit" element={<SpiritPage />} />
             <Route path="about" element={<AboutPage />} />
             <Route path="concerts" element={<ConcertsPage />} />
@@ -186,6 +196,7 @@ function App() {
           >
             <Route index element={<AdminDashboardPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
+            <Route path="site-texts" element={<AdminSiteTextsPage />} />
             <Route path="hero-slides" element={<AdminHeroSlidesPage />} />
             <Route path="popups" element={<AdminPopupNoticesPage />} />
             <Route path="about" element={<AdminAboutPage />} />
@@ -200,6 +211,7 @@ function App() {
             <Route path="history" element={<AdminHistoryPage />} />
             <Route path="location" element={<AdminLocationPage />} />
             <Route path="join" element={<AdminJoinPage />} />
+            <Route path="join-applications" element={<AdminJoinApplicationsPage />} />
             <Route path="support" element={<AdminSupportPage />} />
             <Route path="sponsors" element={<AdminSponsorsPage />} />
             <Route path="support-pledges" element={<AdminSupportPledgesPage />} />

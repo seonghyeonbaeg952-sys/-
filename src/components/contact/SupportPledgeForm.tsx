@@ -48,8 +48,6 @@ const fieldClassName =
 const textareaClassName =
   'mt-2 min-h-20 w-full rounded-button border border-line-default bg-bg-warm-white px-3 py-3 text-sm outline-none transition focus:border-gold-warm focus:ring-2 focus:ring-gold-soft/60'
 
-const supportImpactPathItems = supportSpiritCopy.impactCards
-
 function getTodayInputValue() {
   return new Date().toISOString().slice(0, 10)
 }
@@ -101,22 +99,6 @@ function FieldLabel({
     <label className="block" htmlFor={htmlFor}>
       <span className="text-sm font-semibold text-navy-deep">{children}</span>
     </label>
-  )
-}
-
-function SupportImpactPath() {
-  return (
-    <div className="support-impact-path" aria-label="후원의 흐름">
-      {supportImpactPathItems.map((item, index) => (
-        <article className="support-impact-card paper-surface" key={item.title}>
-          <p className="support-impact-index">{String(index + 1).padStart(2, '0')}</p>
-          <h3 className="mt-4 break-keep text-xl font-bold text-navy-deep">{item.title}</h3>
-          <p className="mt-3 break-keep text-sm leading-7 text-text-muted">
-            {item.body}
-          </p>
-        </article>
-      ))}
-    </div>
   )
 }
 
@@ -505,7 +487,6 @@ export function SupportPledgeForm({
           </p>
         </div>
         <div className="mb-8 space-y-6">
-          <SupportImpactPath />
           <div className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
             <div className="rounded-formal border border-line-default bg-bg-warm-white p-5 shadow-card">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gold-warm">

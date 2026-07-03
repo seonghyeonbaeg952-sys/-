@@ -14,6 +14,7 @@ import {
   getPublicPosters,
   getPublicPopupNotices,
   getPublicSiteSettings,
+  getPublicSiteTexts,
   getPublicSponsors,
   getPublicVideos,
   publicFallbacks,
@@ -25,14 +26,17 @@ import {
 } from '../lib/publicData'
 import { legacyAboutSections } from '../constants/legacyContent'
 import { mockSupportSettings } from '../constants/mockData'
+import { createSiteTextMap, type SiteTextMap } from '../utils/siteText'
 import type {
   Concert,
   GalleryImage,
   HeroSlide,
   Notice,
+  Poster,
   PopupNotice,
   SiteSettings,
   Sponsor,
+  VideoItem,
 } from '../types/content'
 import type { AboutSectionRow } from '../types/cms'
 import { hasSupabaseConfig } from '../lib/supabase'
@@ -97,9 +101,12 @@ export type HomeData = {
   gallery: GalleryImage[]
   heroSlides: HeroSlide[]
   notices: Notice[]
+  posters: Poster[]
   popupNotices: PopupNotice[]
   siteSettings: SiteSettings
+  siteTexts: SiteTextMap
   sponsors: Sponsor[]
+  videos: VideoItem[]
 }
 
 export type SpiritPageData = {
@@ -113,9 +120,12 @@ const homeFallbackData: HomeData = {
   gallery: publicFallbacks.gallery,
   heroSlides: publicFallbacks.heroSlides,
   notices: publicFallbacks.notices,
+  posters: [],
   popupNotices: [],
   siteSettings: publicFallbacks.siteSettings,
+  siteTexts: {},
   sponsors: [],
+  videos: [],
 }
 
 const spiritFallbackData: SpiritPageData = {
@@ -153,6 +163,7 @@ const joinFallbackData: PublicJoinData = {
 const contactFallbackData: PublicContactData = {
   location: null,
   siteSettings: publicFallbacks.siteSettings,
+  siteTexts: [],
   sponsors: [],
   supportSettings: mockSupportSettings,
 }
@@ -170,8 +181,11 @@ export function useHomeData() {
       concerts,
       notices,
       gallery,
+      videos,
+      posters,
       aboutSections,
       sponsors,
+      siteTexts,
     ] = await Promise.all([
       getPublicSiteSettings(),
       getPublicHeroSlides({ limit: 5 }),
@@ -179,8 +193,11 @@ export function useHomeData() {
       getPublicConcerts({ limit: 6 }),
       getPublicNotices({ limit: 3 }),
       getPublicGalleryImages({ limit: 6 }),
+      getPublicVideos(),
+      getPublicPosters(),
       getPublicAboutSections(),
       getPublicSponsors({ homeOnly: true, limit: 8 }),
+      getPublicSiteTexts(),
     ])
     const error = combineErrors([
       siteSettings,
@@ -188,6 +205,8 @@ export function useHomeData() {
       concerts,
       notices,
       gallery,
+      videos,
+      posters,
       sponsors,
     ])
 
@@ -202,9 +221,12 @@ export function useHomeData() {
         gallery: gallery.data ?? publicFallbacks.gallery,
         heroSlides: slides.data ?? publicFallbacks.heroSlides,
         notices: notices.data ?? publicFallbacks.notices,
+        posters: posters.data ?? [],
         popupNotices: popupNotices.data ?? [],
         siteSettings: siteSettings.data ?? publicFallbacks.siteSettings,
+        siteTexts: createSiteTextMap(siteTexts.data ?? []),
         sponsors: sponsors.data ?? [],
+        videos: videos.data ?? [],
       },
       error: null,
     }
@@ -332,3 +354,4 @@ export function useContactData() {
 
   return usePublicLoader(contactFallbackData, loader)
 }
+

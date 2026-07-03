@@ -13,6 +13,7 @@ import { ImageTile } from './ImageTile'
 type AboutPreviewProps = {
   buttonLabel?: string
   image?: GalleryImage
+  kicker?: string
   summary?: string
   title?: string
 }
@@ -20,7 +21,7 @@ type AboutPreviewProps = {
 const aboutCards = [
   {
     description: '서울모테트합창단의 음악적 유산을 다음 세대로 이어갑니다.',
-    title: '창단 배경',
+    title: '창단 목적',
   },
   {
     description: '창의적인 음악교육과 인성의 균형을 함께 추구합니다.',
@@ -55,11 +56,15 @@ function getSummaryParagraphs(summary?: string) {
 export function AboutPreview({
   buttonLabel = '합창단 소개 보기',
   image,
+  kicker = 'ABOUT',
   summary,
   title = '청소년의 목소리로 전하는 깊은 울림',
 }: AboutPreviewProps) {
   return (
-    <section className="home-section relative overflow-hidden bg-bg-ivory">
+    <section
+      className="flow-section home-section relative overflow-hidden bg-bg-ivory"
+      data-flow-section="about"
+    >
       <div
         aria-hidden="true"
         className="side-score-rail absolute left-[max(1rem,calc(50%-680px))] top-20 hidden lg:block"
@@ -69,7 +74,7 @@ export function AboutPreview({
           <Reveal variant="fade-up">
             <div className="lg:sticky lg:top-28">
               <StaffSectionLabel className="max-w-sm">
-                ABOUT
+                {kicker}
               </StaffSectionLabel>
               <h2 className="type-section-title mt-5 max-w-[600px] text-navy-deep">
                 {title}

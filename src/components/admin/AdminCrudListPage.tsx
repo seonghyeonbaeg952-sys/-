@@ -44,6 +44,7 @@ function parseFilterValue(value: string): CmsValue {
 
 type AdminCrudListPageProps<TTable extends CmsTableName> = {
   canCreate?: boolean
+  canDelete?: boolean
   columns: Array<AdminTableColumn<CmsRowFor<TTable>>>
   defaultValues?: CmsMutationPayload
   deleteLabel?: string
@@ -62,10 +63,15 @@ type AdminCrudListPageProps<TTable extends CmsTableName> = {
   showVisibility?: boolean
   table: TTable
   title: string
+  validatePayload?: (
+    payload: CmsMutationPayload,
+    row: CmsRowFor<TTable> | null,
+  ) => string | null
 }
 
 export function AdminCrudListPage<TTable extends CmsTableName>({
   canCreate = true,
+  canDelete = true,
   columns,
   defaultValues,
   deleteLabel,
@@ -81,12 +87,14 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
   showVisibility = true,
   table,
   title,
+  validatePayload,
 }: AdminCrudListPageProps<TTable>) {
   const [searchValue, setSearchValue] = useState('')
   const [filterValues, setFilterValues] = useState<Record<string, string>>({})
   const [editingRow, setEditingRow] = useState<CmsRowFor<TTable> | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<CmsRowFor<TTable> | null>(null)
+  const [formError, setFormError] = useState<string | null>(null)
   const debouncedSearchValue = useDebouncedValue(searchValue.trim(), 300)
 
   const activeFilters = useMemo(() => {
@@ -119,12 +127,19 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
   const closeForm = () => {
     setIsFormOpen(false)
     setEditingRow(null)
+    setFormError(null)
   }
 
   const handleSubmit = async (payload: CmsMutationPayload) => {
     const preparedPayload = preparePayload
       ? preparePayload(payload, editingRow)
       : payload
+    const validationError = validatePayload?.(preparedPayload, editingRow) ?? null
+
+    if (validationError) {
+      setFormError(validationError)
+      return
+    }
 
     const result = editingRow
       ? await crud.updateItem(editingRow.id, preparedPayload)
@@ -155,6 +170,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
             <Button
               onClick={() => {
                 setEditingRow(null)
+                setFormError(null)
                 setIsFormOpen(true)
               }}
               variant="gold"
@@ -206,9 +222,10 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
         error={crud.error}
         isDeleting={crud.isMutating}
         loading={crud.isLoading}
-        onDelete={(row) => setDeleteTarget(row)}
+        onDelete={canDelete ? (row) => setDeleteTarget(row) : undefined}
         onEdit={(row) => {
           setEditingRow(row)
+          setFormError(null)
           setIsFormOpen(true)
         }}
         rows={crud.rows}
@@ -221,6 +238,11 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
         onClose={closeForm}
         title={editingRow ? `${title} 수정` : `${title} 추가`}
       >
+        {formError ? (
+          <p className="mb-5 rounded-button bg-state-error/10 px-4 py-3 text-sm leading-6 text-state-error" role="alert">
+            {formError}
+          </p>
+        ) : null}
         {crud.error ? (
           <p className="mb-5 rounded-button bg-state-error/10 px-4 py-3 text-sm leading-6 text-state-error" role="alert">
             {crud.error}

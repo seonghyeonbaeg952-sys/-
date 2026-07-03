@@ -35,7 +35,8 @@ export function FloatingInfoCards({
   return (
     <section
       aria-label="합창단 주요 정보"
-      className="home-quick-actions relative z-50"
+      className="flow-section home-quick-actions relative z-50"
+      data-flow-section="quick"
     >
       <Container>
         <div className="home-quick-action-grid">
@@ -43,7 +44,7 @@ export function FloatingInfoCards({
             <Reveal key={card.title} staggerIndex={index} variant="card-rise">
               <a
                 className="home-quick-action-card group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm"
-                href={card.href ?? '#'}
+                href={card.href ?? '/'}
               >
                 <span
                   aria-hidden="true"

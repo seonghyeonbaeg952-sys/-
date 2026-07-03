@@ -1,6 +1,6 @@
 export function formatKoreanDate(dateString: string): string {
   if (!dateString) {
-    return '일정 미정'
+    return ''
   }
 
   const date = new Date(`${dateString}T00:00:00`)
@@ -19,7 +19,7 @@ export function formatKoreanDate(dateString: string): string {
 
 export function formatShortDate(dateString: string): string {
   if (!dateString) {
-    return '날짜 미정'
+    return ''
   }
 
   const date = new Date(dateString)
@@ -34,3 +34,4 @@ export function formatShortDate(dateString: string): string {
     year: 'numeric',
   }).format(date)
 }
+

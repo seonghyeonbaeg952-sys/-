@@ -29,10 +29,13 @@ export const CMS_TABLES = [
   'contacts',
   'support_pledges',
   'sponsors',
+  'site_texts',
+  'join_applications',
 ] as const satisfies readonly CmsTableName[]
 
 const SUPPORT_SCHEMA_MIGRATION = '2026_fix_spirit_support_schema.sql'
 const SPONSORS_SCHEMA_MIGRATION = '2026_add_sponsors.sql'
+const SITE_TEXTS_SCHEMA_MIGRATION = '2026_add_site_texts.sql'
 
 export type CmsOrderOption<TTable extends CmsTableName> = {
   column: Extract<keyof CmsRowFor<TTable>, string>
@@ -228,6 +231,14 @@ export async function listRows<TTable extends CmsTableName>({
     }
   }
 
+  if (error && table === 'site_texts' && isMissingTableError(error, table)) {
+    return {
+      data: null,
+      error:
+        `사이트 문구 테이블이 아직 없습니다. Supabase SQL Editor에서 ${SITE_TEXTS_SCHEMA_MIGRATION} migration을 먼저 실행해 주세요.`,
+    }
+  }
+
   if (error && table === 'members' && isMissingColumnError(error, 'member_status')) {
     let legacyQuery = clientResult.data.from(table).select(select)
 
@@ -333,6 +344,14 @@ export async function createRow<TTable extends CmsTableName>(
       }
     }
 
+    if (table === 'site_texts' && isMissingTableError(error, table)) {
+      return {
+        data: null,
+        error:
+          `사이트 문구 테이블이 아직 없습니다. Supabase SQL Editor에서 ${SITE_TEXTS_SCHEMA_MIGRATION} migration을 먼저 실행해 주세요.`,
+      }
+    }
+
     return {
       data: null,
       error: toCmsError(error, '저장에 실패했습니다.'),
@@ -392,6 +411,14 @@ export async function updateRow<TTable extends CmsTableName>(
         data: null,
         error:
           `후원사 테이블이 아직 없습니다. Supabase SQL Editor에서 ${SPONSORS_SCHEMA_MIGRATION} migration을 먼저 실행해 주세요.`,
+      }
+    }
+
+    if (table === 'site_texts' && isMissingTableError(error, table)) {
+      return {
+        data: null,
+        error:
+          `사이트 문구 테이블이 아직 없습니다. Supabase SQL Editor에서 ${SITE_TEXTS_SCHEMA_MIGRATION} migration을 먼저 실행해 주세요.`,
       }
     }
 

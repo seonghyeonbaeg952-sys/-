@@ -20,13 +20,13 @@ type UpcomingConcertsPreviewProps = {
 
 const statusLabels: Record<Concert['status'], string> = {
   cancelled: '취소',
-  closed: '마감',
-  open: '예매 가능',
-  scheduled: '예정 공연',
+  closed: '종료',
+  open: '접수중',
+  scheduled: '예정',
 }
 
 const categoryLabels: Record<string, string> = {
-  church: '교회/예배연주',
+  church: '교회·예배 연주',
   invited: '초청연주',
   other: '기타',
   past: '지난 공연',
@@ -43,10 +43,8 @@ function PosterFallback({ date, title }: { date?: string; title: string }) {
         variant="inverted"
       />
       <div>
-        <p className="type-eyebrow text-gold-soft">
-          SMYC
-        </p>
-        <div className="mt-5 h-px w-16 bg-gold-warm" aria-hidden="true" />
+        <p className="type-eyebrow text-gold-soft">SMYC</p>
+        <div aria-hidden="true" className="mt-5 h-px w-16 bg-gold-warm" />
       </div>
       <div className="relative">
         {date ? (
@@ -56,14 +54,15 @@ function PosterFallback({ date, title }: { date?: string; title: string }) {
         ) : null}
         <p className="type-card-title text-bg-warm-white">{title}</p>
       </div>
-      <p className="type-eyebrow text-bg-ivory/55">
-        Concert Archive
-      </p>
+      <p className="type-eyebrow text-bg-ivory/55">Concert Archive</p>
     </div>
   )
 }
 
 function ConcertTicketCard({ concert }: { concert: Concert }) {
+  const formattedDate = formatKoreanDate(concert.date)
+  const hasMeta = Boolean(concert.location.trim() || concert.time)
+
   return (
     <Card className="group overflow-hidden" hoverable radius="formal">
       <a
@@ -105,17 +104,18 @@ function ConcertTicketCard({ concert }: { concert: Concert }) {
               <span className="type-eyebrow text-gold-warm">DATE</span>
               <StaffLines className="my-2 opacity-70" density="light" variant="gold" />
               <span className="type-date mt-2 break-keep text-sm leading-5 text-navy-deep">
-                {formatKoreanDate(concert.date)}
+                {formattedDate}
               </span>
             </div>
             <div className="min-w-0">
-              <h3 className="type-card-title text-navy-deep">
-                {concert.title}
-              </h3>
-              <p className="mt-3 break-keep text-sm leading-6 text-text-muted">
-                {concert.location || '장소 미정'}
-                {concert.time ? ` · ${concert.time}` : ''}
-              </p>
+              <h3 className="type-card-title text-navy-deep">{concert.title}</h3>
+              {hasMeta ? (
+                <p className="mt-3 break-keep text-sm leading-6 text-text-muted">
+                  {concert.location}
+                  {concert.location && concert.time ? ' · ' : ''}
+                  {concert.time}
+                </p>
+              ) : null}
             </div>
           </div>
           <span className="mt-auto pt-6 text-sm font-semibold text-gold-warm">
@@ -161,7 +161,7 @@ export function UpcomingConcertsPreview({
         {visibleConcerts.length === 0 ? (
           <div className="mt-10">
             <EmptyState
-              description="새로운 공연 일정이 준비되면 이 공간에서 안내합니다."
+              description="새로운 공연 일정이 확정되면 이 공간에서 안내합니다."
               title="등록된 공연이 없습니다"
             />
           </div>

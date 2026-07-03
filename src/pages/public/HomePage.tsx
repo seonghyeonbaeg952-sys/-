@@ -1,30 +1,22 @@
-import { Container } from '../../components/common/Container'
-import { Reveal } from '../../components/common/Reveal'
-import { SectionTitle } from '../../components/common/SectionTitle'
 import { StaffFlowRail } from '../../components/common/StaffFlowRail'
-import { SpiritStatementBlock, SpiritValueCards } from '../../components/common/Spirit'
 import { AboutPreview } from '../../components/home/AboutPreview'
 import { FloatingInfoCards } from '../../components/home/FloatingInfoCards'
 import { GalleryPreview } from '../../components/home/GalleryPreview'
+import { HomeFlowProvider } from '../../components/home/HomeFlowProvider'
 import { HomeHeroSlideshow } from '../../components/home/HomeHeroSlideshow'
 import { HomePopupManager } from '../../components/home/HomePopupManager'
+import { HomeSpiritScoreBook } from '../../components/home/HomeSpiritScoreBook'
 import { JoinCTA } from '../../components/home/JoinCTA'
 import { PerformanceNewsPreview } from '../../components/home/PerformanceNewsPreview'
-import { SupportCTA } from '../../components/home/SupportCTA'
-import { SponsorStrip } from '../../components/sponsors/SponsorsSection'
-import {
-  getAboutSectionCopy,
-  homeSpiritPreviewCopy,
-  spiritValues,
-} from '../../constants/spiritContent'
+import { ScrollScoreBookReveal } from '../../components/home/ScrollScoreBookReveal'
+import { SponsorQuietMarquee } from '../../components/home/SponsorQuietMarquee'
+import { SupportLetterFold } from '../../components/home/SupportLetterFold'
 import { useHomeData } from '../../hooks/usePublicData'
+import { useSiteText } from '../../hooks/useSiteText'
 import type { AboutSectionRow } from '../../types/cms'
 import type { GalleryImage } from '../../types/content'
 
-function getAboutSummary(
-  siteSummary: string,
-  aboutSections: AboutSectionRow[],
-) {
+function getAboutSummary(siteSummary: string, aboutSections: AboutSectionRow[]) {
   const sectionSummary = aboutSections
     .filter(
       (section) =>
@@ -41,42 +33,6 @@ function getAboutSummary(
   return sectionSummary || siteSummary.trim()
 }
 
-function HomeSpiritPreview({ sections }: { sections: AboutSectionRow[] }) {
-  const copy = getAboutSectionCopy(sections, 'home_spirit', {
-    body: `${homeSpiritPreviewCopy.body}\n\n${homeSpiritPreviewCopy.expandedBody}`,
-    ctaLabel: homeSpiritPreviewCopy.ctaLabel,
-    ctaUrl: homeSpiritPreviewCopy.ctaHref,
-    eyebrow: homeSpiritPreviewCopy.eyebrow,
-    title: homeSpiritPreviewCopy.title,
-  })
-
-  return (
-    <section className="home-section bg-bg-ivory">
-      <Container>
-        <Reveal>
-          <SectionTitle
-            description={homeSpiritPreviewCopy.body}
-            eyebrow={homeSpiritPreviewCopy.eyebrow}
-            title={homeSpiritPreviewCopy.title}
-          />
-        </Reveal>
-        <div className="home-spirit-grid mt-8">
-          <Reveal>
-            <SpiritStatementBlock className="h-full" copy={copy} tone="navy" />
-          </Reveal>
-          <Reveal delay={80}>
-            <SpiritValueCards
-              className="home-spirit-values"
-              compact
-              values={spiritValues}
-            />
-          </Reveal>
-        </div>
-      </Container>
-    </section>
-  )
-}
-
 function getVisibleGalleryImages(images: GalleryImage[]) {
   return [...images]
     .filter((image) => image.is_visible && image.image_url.trim())
@@ -91,11 +47,14 @@ export function HomePage() {
     gallery,
     heroSlides,
     notices,
+    posters,
     popupNotices,
     siteSettings,
+    siteTexts,
     sponsors,
-  } =
-    homeData.data
+    videos,
+  } = homeData.data
+  const t = useSiteText(siteTexts)
   const aboutSummary = getAboutSummary(siteSettings.about_summary, aboutSections)
   const visibleGalleryImages = getVisibleGalleryImages(gallery)
   const aboutVisualImage =
@@ -103,18 +62,35 @@ export function HomePage() {
   const galleryPreviewImages = aboutVisualImage
     ? gallery.filter((image) => image.id !== aboutVisualImage.id)
     : gallery
+  const heroTitleLine1 = t('home.hero.title.line1', '마음을 다한 음악으로')
+  const heroTitleLine2 = t('home.hero.title.line2', '다음 세대를 세웁니다')
 
   return (
-    <>
+    <HomeFlowProvider>
       <HomeHeroSlideshow
-        eyebrow={siteSettings.home_hero_eyebrow}
+        body={t('home.hero.subtitle', t('home.hero.description'))}
+        eyebrow={t('home.hero.eyebrow', siteSettings.home_hero_eyebrow)}
         fallbackDescription={siteSettings.home_hero_description}
         fallbackSubtitle={siteSettings.hero_subtitle}
         fallbackTitle={siteSettings.hero_title}
+        headline={
+          <>
+            {heroTitleLine1}
+            <br />
+            {heroTitleLine2}
+          </>
+        }
+        mottoChips={[
+          t('home.hero.chip1'),
+          t('home.hero.chip2'),
+          t('home.hero.chip3'),
+        ]}
+        primaryCtaLabel={t('home.hero.cta.primary', t('home.hero.primaryButton'))}
+        secondaryCtaLabel={t('home.hero.cta.secondary', t('home.hero.secondaryButton'))}
         slides={heroSlides}
       />
       <HomePopupManager popups={popupNotices} />
-      <div className="relative z-30 isolate overflow-visible">
+      <div className="home-flow-body flow-root relative z-30 isolate overflow-visible">
         <StaffFlowRail
           className="hidden lg:block lg:-top-72 lg:bottom-24 lg:left-[max(1.25rem,calc(50%-760px))] lg:z-20 lg:opacity-75 xl:left-[max(2rem,calc(50%-840px))]"
           tone="light"
@@ -123,50 +99,117 @@ export function HomePage() {
           <FloatingInfoCards
             cards={[
               {
-                description: '정직한 음악과 다음세대 교육',
-                href: '/spirit',
-                title: '합창단 정신',
-              },
-              {
-                description: '정기연주회, 초청연주, 봉사연주',
-                href: '/concerts',
-                title: '공연·활동',
-              },
-              {
-                description: '입단 안내와 공연·후원 문의',
+                description: t(
+                  'home.quick.join.description',
+                  t('home.quick.1.description'),
+                ),
                 href: '/join',
-                title: '입단·문의',
+                title: t('home.quick.join.title', t('home.quick.1.title')),
+              },
+              {
+                description: t(
+                  'home.quick.concert.description',
+                  t('home.quick.2.description'),
+                ),
+                href: '/concerts',
+                title: t('home.quick.concert.title', t('home.quick.2.title')),
+              },
+              {
+                description: t(
+                  'home.quick.support.description',
+                  t('home.quick.3.description'),
+                ),
+                href: '/contact?section=support',
+                title: t('home.quick.support.title', t('home.quick.3.title')),
               },
             ]}
           />
           <AboutPreview
-            buttonLabel={siteSettings.home_about_button_label}
+            buttonLabel={t('home.about.cta', siteSettings.home_about_button_label)}
             image={aboutVisualImage}
-            summary={aboutSummary}
-            title={siteSettings.home_about_title}
-          />
-          <HomeSpiritPreview sections={aboutSections} />
-          <PerformanceNewsPreview concerts={concerts} notices={notices} />
-          <GalleryPreview
-            buttonLabel={siteSettings.home_gallery_button_label}
-            description={siteSettings.home_gallery_description}
-            images={galleryPreviewImages}
-            title={siteSettings.home_gallery_title}
+            kicker={t('home.about.kicker')}
+            summary={t('home.about.body', aboutSummary)}
+            title={t('home.about.title', siteSettings.home_about_title)}
           />
           <JoinCTA
-            buttonLabel="입단 안내 보기"
-            text={'서울모테트청소년합창단은 합창을 통해 청소년이 자신의 소리를 발견하고,\n타인의 소리를 존중하며, 공동체 안에서 책임 있게 성장하도록 돕습니다.'}
-            title={'노래를 잘하는 아이보다\n함께 듣고 성장할 준비가 된 아이를 기다립니다'}
+            buttonLabel={t('home.join.cta', t('home.join.button'))}
+            kicker={t('home.join.kicker')}
+            process={t('home.join.process')}
+            schedule={t('home.join.schedule')}
+            target={t('home.join.target')}
+            text={t('home.join.body', t('home.join.description'))}
+            title={t('home.join.title')}
           />
-          <SponsorStrip sponsors={sponsors} />
-          <SupportCTA
-            buttonLabel="후원약정 보기"
+          <PerformanceNewsPreview
+            concertButtonLabel={t(
+              'home.concert.cta.schedule',
+              t('home.concert.concertButton'),
+            )}
+            concerts={concerts}
+            detailButtonLabel={t('home.concert.cta.more', t('common.cta.more'))}
+            eyebrow={t('home.concert.kicker', t('home.concert.eyebrow'))}
+            ghost={t('home.concert.ghost')}
+            inquiryButtonLabel={t(
+              'home.concert.cta.inquiry',
+              t('common.cta.inquiry'),
+            )}
+            notices={notices}
+            noticeButtonLabel={t(
+              'home.concert.cta.notice',
+              t('home.concert.noticeButton'),
+            )}
+            programNoteLabel={t('home.concert.programNoteLabel')}
+            title={t('home.concert.title', t('home.concert.sectionTitle'))}
+          />
+          <ScrollScoreBookReveal
+            coverDescription={t(
+              'home.score.cover.body',
+              t('home.scorebook.coverDescription'),
+            )}
+            coverTitle={t('home.score.cover.title', t('home.scorebook.coverTitle'))}
+            finalDescription={t(
+              'home.score.final.body',
+              t('home.scorebook.finalDescription'),
+            )}
+            finalTitle={t('home.score.final.title', t('home.scorebook.finalTitle'))}
+            rightBody={t('home.score.right.body')}
+            rightTitle={t('home.score.right.title', t('home.scorebook.rightTitle'))}
+            valueWordsText={t('home.score.value.list')}
+          />
+          <HomeSpiritScoreBook sections={aboutSections} />
+          <GalleryPreview
+            buttonLabel={t('home.gallery.cta', siteSettings.home_gallery_button_label)}
+            description={t(
+              'home.gallery.description',
+              t('home.gallery.sectionDescription', siteSettings.home_gallery_description),
+            )}
+            eyebrow={t('home.gallery.kicker', t('home.gallery.eyebrow'))}
+            images={galleryPreviewImages}
+            posters={posters}
+            title={t(
+              'home.gallery.title',
+              t('home.gallery.sectionTitle', siteSettings.home_gallery_title),
+            )}
+            videos={videos}
+          />
+          <SponsorQuietMarquee sponsors={sponsors} />
+          <SupportLetterFold
+            buttonLabel={t('home.support.cta.primary', t('home.support.button'))}
+            cardDescription={t(
+              'home.support.card.description',
+              t('home.support.cardDescription'),
+            )}
+            cardTitle={t('home.support.card.title', t('home.support.cardTitle'))}
+            secondaryButtonLabel={t(
+              'home.support.cta.secondary',
+              t('home.support.secondaryButton'),
+            )}
             settings={siteSettings}
-            supportText={'후원은 단순한 재정 지원이 아니라,\n다음 세대가 음악 안에서 자신을 발견하고\n함께 살아가는 법을 배우도록 돕는 동행입니다.'}
-            title={'한 사람의 목소리가 자라기 위해서는\n보이지 않는 많은 손길이 필요합니다'}
+            supportText={t('home.support.description')}
+            title={t('home.support.title')}
           />
         </div>
       </div>
-    </>
+    </HomeFlowProvider>
   )
 }

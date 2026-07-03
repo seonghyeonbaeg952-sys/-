@@ -3,6 +3,7 @@ import type { User } from '@supabase/supabase-js'
 export type AdminRole = 'admin' | 'viewer'
 
 export type AdminResource =
+  | 'site_texts'
   | 'site_settings'
   | 'support_settings'
   | 'about_sections'

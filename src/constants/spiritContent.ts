@@ -74,17 +74,13 @@ export type JoinSpiritCopy = {
 export type SupportSpiritCopy = {
   body: string
   eyebrow: string
-  impactCards: Array<{
-    body: string
-    title: string
-  }>
   notice: string
   title: string
 }
 
 export const defaultSpiritHero: SpiritCopy = {
   eyebrow: 'Motet Spirit',
-  title: '정직한 음악으로\n다음 세대를 세웁니다',
+  title: '진심을 담은 음악으로\n다음 세대를 세웁니다',
   body:
     '서울모테트청소년합창단은 서울모테트합창단의 예술적·신앙적 전통을 바탕으로, 합창을 통해 지성·인성·영성·공동체성을 함께 배워가는 다음세대 음악교육 공동체입니다.',
   ctaLabel: '합창단 정신 보기',
@@ -106,14 +102,14 @@ export const defaultEducationCopy: SpiritCopy = {
   eyebrow: 'Our Spirit',
   title: '합창은 소리를 맞추는 일을 넘어,\n사람을 세우는 교육입니다.',
   body:
-    '서울모테트청소년합창단의 정신은 더 크게 부르는 데 있지 않습니다. 더 정직하게 듣고, 더 깊이 해석하며, 함께 하나의 울림을 만들어 가는 데 있습니다.\n\n우리는 합창을 통해 자신의 소리를 조율하고, 타인의 소리를 존중하며, 하나의 음악을 위해 함께 책임지는 법을 배웁니다.',
+    '서울모테트청소년합창단의 정신은 더 크게 부르는 데 있지 않습니다. 더 진심으로 듣고, 더 깊이 해석하며, 함께 하나의 울림을 만들어 가는 데 있습니다.\n\n우리는 합창을 통해 자신의 소리를 조율하고, 타인의 소리를 존중하며, 하나의 음악을 위해 서로를 배려하고 맞추는 법을 배웁니다.',
 }
 
 export const defaultPeaceCopy: SpiritCopy = {
   eyebrow: 'MISSION',
   title: '노래는 다음 세대의 기억이 됩니다.',
   body:
-    '서울모테트청소년합창단은 합창을 통해 음악적 재능만이 아니라, 신앙의 기억과 공동체적 책임, 삶의 방향을 다음 세대 안에 심는 일을 사명으로 삼습니다.',
+    '서울모테트청소년합창단은 합창을 통해 음악적 재능만이 아니라, 신앙의 기억과 공동체를 향한 마음, 삶의 방향을 다음 세대 안에 심는 일을 사명으로 삼습니다.',
 }
 
 export const defaultSpiritCta: SpiritCopy = {
@@ -128,7 +124,7 @@ export const defaultSpiritCta: SpiritCopy = {
 }
 
 export const spiritMottoBadges = [
-  '정직한 음악',
+  '진심을 담은 음악',
   '교회음악의 바른 이상',
   '함께 듣는 마음',
   '다음세대의 울림',
@@ -139,20 +135,20 @@ export const spiritManifestoCopy: SpiritManifestoCopy = {
   eyebrow: 'Our Spirit',
   title: '합창은 소리를 맞추는 일을 넘어,\n사람을 세우는 교육입니다.',
   paragraphs: [
-    '서울모테트청소년합창단의 정신은 더 크게 부르는 데 있지 않습니다. 더 정직하게 듣고, 더 깊이 해석하며, 함께 하나의 울림을 만들어 가는 데 있습니다.',
-    '우리는 합창을 통해 자신의 소리를 조율하고, 타인의 소리를 존중하며, 하나의 음악을 위해 함께 책임지는 법을 배웁니다.',
+    '서울모테트청소년합창단의 정신은 더 크게 부르는 데 있지 않습니다. 더 진심으로 듣고, 더 깊이 해석하며, 함께 하나의 울림을 만들어 가는 데 있습니다.',
+    '우리는 합창을 통해 자신의 소리를 조율하고, 타인의 소리를 존중하며, 하나의 음악을 위해 서로를 배려하고 맞추는 법을 배웁니다.',
     '음악은 단순한 기술이나 공연의 결과가 아니라, 말씀과 진리, 아름다움과 공동체를 삶 속에서 배우게 하는 교육의 통로입니다.',
-    '서울모테트청소년합창단은 서울모테트합창단이 오랜 시간 지켜 온 정직한 음악, 교회음악의 바른 이상, 작품 앞에서의 성실함, 공동체적 책임의 정신을 다음 세대의 언어로 이어갑니다.',
+    '서울모테트청소년합창단은 서울모테트합창단이 오랜 시간 지켜 온 진심 어린 음악, 교회음악의 바른 이상, 작품 앞에서의 성실함, 함께 노래하는 공동체의 정신을 다음 세대의 언어로 이어갑니다.',
   ],
 }
 
 export const spiritValues: SpiritValue[] = [
   {
     number: '01',
-    title: '정직한 음악',
+    title: '진심을 담은 음악',
     summary: '작품 앞에서 성실하게, 한 음 앞에서 진실하게',
     description:
-      '서울모테트의 음악 정신은 악보와 작품, 가사와 메시지 앞에서 정직한 태도를 갖는 데서 시작됩니다. 상업적 흥행이나 과시보다 작품의 본질과 진정성을 우선하며, 청소년들은 이 과정을 통해 성실함과 책임감을 배웁니다.',
+      '서울모테트의 음악 정신은 악보와 작품, 가사와 메시지 앞에서 진심 어린 태도를 갖는 데서 시작됩니다. 상업적 흥행이나 과시보다 작품의 본질과 진정성을 우선하며, 청소년들은 이 과정을 통해 성실함과 배려를 배웁니다.',
   },
   {
     number: '02',
@@ -166,7 +162,7 @@ export const spiritValues: SpiritValue[] = [
     title: '함께 부르는 공동체',
     summary: '나의 소리보다 우리의 울림을 먼저 듣는 훈련',
     description:
-      '합창은 혼자 완성할 수 없는 예술입니다. 단원들은 서로의 호흡과 음색을 경청하고, 자신의 역할을 책임 있게 감당하며, 하나의 하모니를 위해 배려와 절제를 배웁니다. 이 경험은 공동체 안에서 자신이 필요한 존재임을 깨닫게 합니다.',
+      '합창은 혼자 완성할 수 없는 예술입니다. 단원들은 서로의 호흡과 음색을 경청하고, 맡은 역할을 성실하게 감당하며, 하나의 하모니를 위해 배려와 절제를 배웁니다. 이 경험은 공동체 안에서 자신이 필요한 존재임을 깨닫게 합니다.',
   },
   {
     number: '04',
@@ -176,6 +172,54 @@ export const spiritValues: SpiritValue[] = [
       '서울모테트청소년합창단은 음악적 재능만을 계발하는 곳이 아닙니다. 합창을 통해 신앙과 인성을 겸비한 다음 세대를 세우고, 예술성·영성·공동체성·미래 비전을 함께 길러 가는 전인적 음악교육의 장입니다.',
   },
 ]
+
+export const homeSpiritBookletPages = [
+  {
+    body: defaultMotetMeaning.body,
+    ctaHref: '/spirit',
+    ctaLabel: '정신 자세히 보기',
+    eyebrow: 'THE NAME MOTET',
+    id: 'motet',
+    summary: '정통 합창음악과 교회음악의 뿌리',
+    title: '모테트라는 이름에는 정통 합창음악의 뿌리가 담겨 있습니다.',
+  },
+  {
+    body: spiritValues[0].description,
+    ctaHref: '/spirit',
+    ctaLabel: '정신 자세히 보기',
+    eyebrow: 'HONEST MUSIC',
+    id: 'honest-music',
+    summary: spiritValues[0].summary,
+    title: '진심을 담은 음악은 한 음 앞에서의 성실함으로 시작됩니다.',
+  },
+  {
+    body: spiritValues[1].description,
+    ctaHref: '/spirit',
+    ctaLabel: '정신 자세히 보기',
+    eyebrow: 'CHURCH MUSIC',
+    id: 'church-music',
+    summary: spiritValues[1].summary,
+    title: '교회음악의 바른 이상을 청소년의 언어로 배웁니다.',
+  },
+  {
+    body: spiritValues[2].description,
+    ctaHref: '/spirit',
+    ctaLabel: '정신 자세히 보기',
+    eyebrow: 'COMMUNITY',
+    id: 'community',
+    summary: spiritValues[2].summary,
+    title: '합창은 나의 소리보다 우리의 울림을 먼저 생각하게 합니다.',
+  },
+  {
+    body: spiritValues[3].description,
+    ctaHref: '/join',
+    ctaLabel: '입단 안내 보기',
+    eyebrow: 'NEXT GENERATION',
+    id: 'next-generation',
+    summary: spiritValues[3].summary,
+    title: '노래는 다음 세대의 기억이 됩니다.',
+  },
+] as const
 
 export const spiritTimeline = [
   '호흡을 맞추는 연습',
@@ -192,7 +236,7 @@ export const songOfMemoryCopy: SongOfMemoryCopy = {
   paragraphs: [
     '노래는 단순한 예술 활동이 아닙니다. 공동체가 믿고 고백해 온 신앙과 역사, 정체성을 다음 세대의 마음에 새기는 교육의 언어입니다.',
     '청소년기의 민감하고 형성적인 시간에 말씀의 노래를 배우고 함께 부른다는 것은, 신앙을 지식이 아닌 체험으로, 교리를 살아 있는 고백으로 내면화하는 과정입니다.',
-    '서울모테트청소년합창단은 합창을 통해 음악적 재능만이 아니라, 신앙의 기억과 공동체적 책임, 삶의 방향을 다음 세대 안에 심는 일을 사명으로 삼습니다.',
+    '서울모테트청소년합창단은 합창을 통해 음악적 재능만이 아니라, 신앙의 기억과 공동체를 향한 마음, 삶의 방향을 다음 세대 안에 심는 일을 사명으로 삼습니다.',
   ],
   scriptureCards: [
     {
@@ -231,7 +275,7 @@ export const legacyFlowSteps: LegacyFlowStep[] = [
     year: '미래',
     title: '다음 세대의 울림',
     body:
-      '합창은 청소년이 자신의 목소리를 발견하고, 이웃의 소리를 들으며, 세계를 향한 책임과 평화의 비전을 품게 하는 교육의 길이 됩니다.',
+      '합창은 청소년이 자신의 목소리를 발견하고, 이웃의 소리를 들으며, 세계를 향한 나눔과 평화의 비전을 품게 하는 교육의 길이 됩니다.',
   },
 ]
 
@@ -245,7 +289,7 @@ export const voiceConstellationCopy: VoiceConstellationCopy = {
     { part: '소프라노', meaning: '밝은 선율, 시작하는 용기' },
     { part: '알토', meaning: '깊은 균형, 보이지 않는 지지' },
     { part: '테너', meaning: '연결과 확장' },
-    { part: '베이스', meaning: '기초와 책임' },
+    { part: '베이스', meaning: '기초와 따뜻한 지지' },
     { part: '스태프', meaning: '섬김과 질서' },
   ],
   closing:
@@ -272,10 +316,10 @@ export const educationJourneySteps: EducationJourneyStep[] = [
       '내 목소리의 크기와 색깔을 조절하며, 전체 하모니를 위해 자신을 절제하는 법을 배웁니다.',
   },
   {
-    step: '책임지기',
-    title: '한 음과 한 약속을 책임집니다',
+    step: '약속 지키기',
+    title: '한 음과 한 약속을 소중히 여깁니다',
     body:
-      '악보에 대한 성실한 준비, 연습 시간의 약속, 파트 안에서의 역할을 통해 책임 있는 태도를 기릅니다.',
+      '악보에 대한 성실한 준비, 연습 시간의 약속, 파트 안에서의 역할을 통해 서로를 신뢰하게 하는 태도를 기릅니다.',
   },
   {
     step: '섬기기',
@@ -295,7 +339,7 @@ export const conductorPhilosophyCopy: SpiritCopy = {
   eyebrow: 'Educational Philosophy',
   title: '지휘자는 소리를 맞추는 사람이 아니라,\n공동체가 하나의 방향을 바라보게 하는 교육자입니다.',
   body:
-    '서울모테트청소년합창단의 지휘는 정확한 음악적 기량만을 요구하지 않습니다. 서로를 경청하는 태도, 책임 의식, 약속의 준수, 작품과 신앙 앞에서의 성실함을 함께 가르치는 교육의 과정입니다.',
+    '서울모테트청소년합창단의 지휘는 정확한 음악적 기량만을 요구하지 않습니다. 서로를 경청하는 태도, 약속을 소중히 여기는 마음, 작품과 신앙 앞에서의 성실함을 함께 가르치는 교육의 과정입니다.',
   quote:
     '높은 기준은 압박이 아니라, 성실한 습관과 경건한 태도를 길러 가는 성장의 길입니다.',
 }
@@ -312,10 +356,10 @@ export const joinSpiritCopy: JoinSpiritCopy = {
   eyebrow: 'Join the Choir',
   title: '노래를 잘하는 아이보다\n함께 듣고 성장할 준비가 된 아이를 기다립니다.',
   body:
-    '서울모테트청소년합창단은 합창을 통해 청소년이 자신의 소리를 발견하고, 타인의 소리를 존중하며, 공동체 안에서 책임 있게 성장하도록 돕습니다.',
+    '서울모테트청소년합창단은 합창을 통해 청소년이 자신의 소리를 발견하고, 타인의 소리를 존중하며, 공동체 안에서 성실하고 따뜻하게 성장하도록 돕습니다.',
   points: [
     '정통 합창 레퍼토리와 교회음악을 깊이 있게 배웁니다.',
-    '연습과 무대를 통해 성실함, 책임감, 공동체성을 기릅니다.',
+    '연습과 무대를 통해 성실함, 약속을 지키는 태도, 공동체성을 기릅니다.',
     '봉사 연주와 국제교류를 통해 음악의 나눔과 평화의 가치를 경험합니다.',
   ],
   ctaLabel: '입단 안내 확인하기',
@@ -328,28 +372,6 @@ export const supportSpiritCopy: SupportSpiritCopy = {
     '후원은 단순한 재정 지원이 아닙니다. 다음 세대가 음악 안에서 자신을 발견하고, 함께 살아가는 법을 배우며, 신앙과 인성을 겸비한 사람으로 성장하도록 돕는 동행입니다.',
   notice:
     '현재 후원 기능은 온라인 결제가 아니라 후원약정 접수입니다. 제출된 약정서는 관리자 확인 후 안내 절차에 따라 관리됩니다.',
-  impactCards: [
-    {
-      title: '교육을 위한 후원',
-      body:
-        '악보, 연습, 교육 자료와 프로그램을 준비하여 청소년들이 깊이 있는 음악교육을 받을 수 있도록 돕습니다.',
-    },
-    {
-      title: '무대를 위한 후원',
-      body:
-        '정기연주회와 봉사 연주, 다양한 무대 경험을 통해 청소년들이 책임감과 자신감을 배우도록 돕습니다.',
-    },
-    {
-      title: '공동체를 위한 후원',
-      body:
-        '합창단의 지속 가능한 운영과 다음세대 음악교육의 토대를 함께 세웁니다.',
-    },
-    {
-      title: '나눔을 위한 후원',
-      body:
-        '음악이 이웃을 위로하고 평화와 화해의 메시지를 전하는 통로가 되도록 함께합니다.',
-    },
-  ],
 }
 
 export const homeMemoryPreviewCopy = {
@@ -372,7 +394,7 @@ export const homeSpiritPreviewCopy = {
 }
 
 export const footerSpiritMotto =
-  '정직한 음악으로 다음 세대를 세우는 서울모테트청소년합창단'
+  '진심을 담은 음악으로 다음 세대를 세우는 서울모테트청소년합창단'
 
 export const supportImpactItems: SpiritValue[] = [
   {
@@ -513,3 +535,4 @@ export const getAboutSectionText = (
 
   return section?.content?.trim() || fallback
 }
+

@@ -31,6 +31,8 @@ export type CmsTableName =
   | 'contacts'
   | 'support_pledges'
   | 'sponsors'
+  | 'site_texts'
+  | 'join_applications'
 
 export interface SiteSettingsRow extends CmsRecord {
   site_title: string | null
@@ -287,6 +289,61 @@ export interface ContactRow extends CmsRecord {
   created_at: string
 }
 
+export interface SiteTextRow extends CmsRecord {
+  key: string
+  page?: string | null
+  section?: string | null
+  group_name?: string | null
+  label: string | null
+  value: string | null
+  default_value?: string | null
+  value_type?: 'text' | 'textarea' | 'markdown'
+  input_type?: 'label' | 'text' | 'textarea' | 'url'
+  description: string | null
+  sort_order: number
+  is_active: boolean
+  updated_at?: string
+  updated_by?: string | null
+}
+
+export type JoinApplicationStatus =
+  | 'accepted'
+  | 'archived'
+  | 'in_review'
+  | 'new'
+  | 'rejected'
+
+export interface JoinApplicationRow extends CmsRecord {
+  admin_notes: string | null
+  applicant_name: string
+  applicant_phone: string
+  awards: string | null
+  birth_date: string | null
+  choir_experience: 'no' | 'yes' | null
+  contact_time: string | null
+  desired_part: string | null
+  email: string
+  gender: string | null
+  grade: string | null
+  guardian_name: string | null
+  guardian_phone: string | null
+  is_archived: boolean
+  lesson_experience: 'no' | 'yes' | null
+  motivation: string | null
+  music_experience: string | null
+  photo_file_path: string | null
+  privacy_agreed: boolean
+  recommendation_file_path: string | null
+  recommender_affiliation: string | null
+  recommender_name: string | null
+  recommender_reason: string | null
+  region: string | null
+  school: string | null
+  status: JoinApplicationStatus
+  vision: string | null
+  created_at: string
+}
+
 export interface SupportPledgeRow extends CmsRecord {
   name: string
   gender: 'female' | 'male' | 'none' | null
@@ -361,6 +418,8 @@ export interface CmsRowsByTable {
   contacts: ContactRow
   support_pledges: SupportPledgeRow
   sponsors: SponsorRow
+  site_texts: SiteTextRow
+  join_applications: JoinApplicationRow
 }
 
 export type CmsRowFor<TTable extends CmsTableName> = CmsRowsByTable[TTable]

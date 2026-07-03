@@ -1,9 +1,9 @@
 import { NavLink } from 'react-router'
 
 import { mockSiteSettings } from '../../constants/mockData'
-import { publicNavigation } from '../../constants/navigation'
 import { footerSpiritMotto } from '../../constants/spiritContent'
 import { useContactData } from '../../hooks/usePublicData'
+import { createSiteTextMap, getSiteText } from '../../utils/siteText'
 import { BrandLogo } from '../common/BrandLogo'
 import { Container } from '../common/Container'
 import { StaffDivider } from '../common/StaffDivider'
@@ -49,18 +49,31 @@ export function Footer() {
   const currentYear = new Date().getFullYear()
   const contactData = useContactData()
   const settings = contactData.data.siteSettings
+  const siteTexts = createSiteTextMap(contactData.data.siteTexts)
+  const t = (key: string, fallback?: string) => getSiteText(siteTexts, key, fallback)
   const emailLabel = settings.email || '등록 예정'
   const address = settings.address || FALLBACK_ADDRESS
   const footerDescription =
     settings.about_summary ||
     '서울모테트음악재단 청소년아카데미 부설 합창단으로, 청소년의 맑은 목소리와 클래식 합창의 깊이를 함께 전합니다.'
+  const footerMotto = `${t('footer.tagline.line1')}\n${t('footer.tagline.line2')}`
+  const footerLinks = [
+    { href: '/join', label: t('footer.quick.join') },
+    { href: '/concerts', label: t('footer.quick.concert') },
+    { href: '/contact?section=support', label: t('footer.quick.support') },
+    { href: '/gallery', label: t('footer.quick.gallery') },
+    { href: '/about', label: t('footer.quick.about') },
+  ]
   const socialLinks = getSocialLinks(settings)
   const footerSponsors = contactData.data.sponsors
     .filter((sponsor) => sponsor.show_on_footer)
     .slice(0, 6)
 
   return (
-    <footer className="site-footer relative overflow-hidden bg-navy-midnight text-bg-ivory">
+    <footer
+      className="flow-section site-footer relative overflow-hidden bg-navy-midnight text-bg-ivory"
+      data-flow-section="footer"
+    >
       <div aria-hidden="true" className="score-ribbon pre-footer-score-band absolute inset-x-0 top-0" />
       <div aria-hidden="true" className="spotlight-glow footer-spotlight-glow" />
       <StaffDivider className="absolute inset-x-0 top-0 max-w-none py-0 opacity-85" variant="inverted" />
@@ -76,7 +89,7 @@ export function Footer() {
             {footerDescription}
           </p>
           <p className="mt-4 max-w-xl rounded-button border border-gold-soft/25 bg-bg-warm-white/[0.04] px-4 py-3 break-keep text-sm font-semibold leading-7 text-gold-soft">
-            {footerSpiritMotto}
+            {footerMotto || footerSpiritMotto}
           </p>
           <dl className="mt-6 grid gap-2 text-sm text-bg-ivory/72">
             <div className="flex gap-3 rounded-button border border-bg-warm-white/10 bg-bg-warm-white/[0.035] px-4 py-3">
@@ -102,7 +115,7 @@ export function Footer() {
           <p className="text-sm font-semibold text-gold-soft">메뉴</p>
           <StaffLines className="mt-3 max-w-36 opacity-55" density="light" variant="inverted" />
           <div className="mt-4 grid gap-2 text-sm text-bg-ivory/72">
-            {publicNavigation.map((item) => (
+            {footerLinks.map((item) => (
               <NavLink
                 className="flex min-h-10 items-center transition hover:text-gold-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
                 key={item.href}
