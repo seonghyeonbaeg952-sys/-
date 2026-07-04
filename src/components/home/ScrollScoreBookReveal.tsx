@@ -130,21 +130,48 @@ function useScoreBookProgress() {
       return Number.isFinite(top) ? top : 72
     }
 
-    const isStageReady = () => {
+    const getStageRect = () =>
+      section
+        .querySelector<HTMLElement>('.motet-score-sticky-stage')
+        ?.getBoundingClientRect()
+
+    const setStaticProgress = (nextProgress: number) => {
+      current = nextProgress
+      target = nextProgress
+      setProgress((previous) =>
+        Math.abs(previous - nextProgress) > 0.0005 ? nextProgress : previous,
+      )
+    }
+
+    const isStagePinned = () => {
       const rect = section.getBoundingClientRect()
+      const stageRect = getStageRect()
       const stickyTop = getStickyTop()
 
       return (
-        rect.top <= stickyTop + 2 &&
+        !!stageRect &&
+        Math.abs(stageRect.top - stickyTop) <= 4 &&
+        rect.top <= stickyTop + 4 &&
         rect.bottom >= window.innerHeight * 0.78
       )
     }
 
-    const isSectionVisibleFromBelow = () => {
+    const syncProgressWithScrollPosition = () => {
+      if (isStagePinned()) {
+        return
+      }
+
       const rect = section.getBoundingClientRect()
       const stickyTop = getStickyTop()
 
-      return rect.top < window.innerHeight * 0.72 && rect.bottom > stickyTop
+      if (rect.top > stickyTop + 8) {
+        setStaticProgress(0)
+        return
+      }
+
+      if (rect.top < stickyTop && rect.bottom < window.innerHeight * 0.78) {
+        setStaticProgress(1)
+      }
     }
 
     const animate = () => {
@@ -176,11 +203,17 @@ function useScoreBookProgress() {
         return
       }
 
+      syncProgressWithScrollPosition()
+
       const isScrollingDown = event.deltaY > 0
       const shouldAdvance =
-        isScrollingDown && target < 0.999 && isStageReady()
+        isScrollingDown &&
+        (target < 0.999 || current < 0.99) &&
+        isStagePinned()
       const shouldReverse =
-        !isScrollingDown && target > 0.001 && isSectionVisibleFromBelow()
+        !isScrollingDown &&
+        (target > 0.001 || current > 0.01) &&
+        isStagePinned()
 
       if (!shouldAdvance && !shouldReverse) {
         return
@@ -191,10 +224,17 @@ function useScoreBookProgress() {
       requestUpdate()
     }
 
+    const handleScroll = () => {
+      syncProgressWithScrollPosition()
+    }
+
+    syncProgressWithScrollPosition()
+
     window.addEventListener('wheel', handleWheel, {
       capture: true,
       passive: false,
     })
+    window.addEventListener('scroll', handleScroll, { passive: true })
 
     return () => {
       if (animationFrame !== 0) {
@@ -202,6 +242,7 @@ function useScoreBookProgress() {
       }
 
       window.removeEventListener('wheel', handleWheel, { capture: true })
+      window.removeEventListener('scroll', handleScroll)
     }
   }, [isAnimatedDesktop])
 
