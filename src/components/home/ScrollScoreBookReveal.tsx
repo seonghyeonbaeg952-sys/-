@@ -117,88 +117,34 @@ function useScoreBookProgress() {
     let animationFrame = 0
     let current = 0
     let target = 0
-    let lockedScrollY: number | null = null
-    let lastScrollY = window.scrollY
-    let isRestoringScroll = false
-    const lockTop = 72
-    const wheelDistance = 1650
-    const lockTriggerViewportRatio = 0.62
-    const lockViewportCenterRatio = 0.6
-    const lockTopMinimumOffset = 78
-    const lockBottomPadding = 48
-    const getScoreBookRect = () =>
-      section.querySelector<HTMLElement>('.motet-score-book')?.getBoundingClientRect()
-    const getDesiredBookTop = (bookRect: DOMRect) => {
-      const centeredTop =
-        window.innerHeight * lockViewportCenterRatio - bookRect.height * 0.5
-      const lowerBoundTop = lockTop + lockTopMinimumOffset
-      const bottomSafeTop = window.innerHeight - bookRect.height - lockBottomPadding
-      const desiredTop = Math.min(Math.max(lowerBoundTop, centeredTop), bottomSafeTop)
+    const wheelDistance = 1450
+    const getStickyTop = () => {
+      const stage = section.querySelector<HTMLElement>('.motet-score-sticky-stage')
 
-      return Math.max(lockTop + 24, desiredTop)
-    }
-    const getLockTriggerCenter = (bookRect: DOMRect) => {
-      const preferredCenter = window.innerHeight * lockTriggerViewportRatio
-      const fullyVisibleCenter =
-        window.innerHeight - bookRect.height * 0.5 - lockBottomPadding
-
-      return Math.min(preferredCenter, fullyVisibleCenter)
-    }
-    const getScoreLockScrollY = () => {
-      const bookRect = getScoreBookRect()
-
-      if (!bookRect) {
-        return window.scrollY
+      if (!stage) {
+        return 72
       }
 
-      const desiredBookTop = getDesiredBookTop(bookRect)
+      const top = Number.parseFloat(window.getComputedStyle(stage).top)
 
-      return window.scrollY + bookRect.top - desiredBookTop
-    }
-    const isBookCenteredForLock = (projectedDeltaY = 0) => {
-      const bookRect = getScoreBookRect()
-
-      if (!bookRect) {
-        const rect = section.getBoundingClientRect()
-
-        return rect.top - Math.max(projectedDeltaY, 0) <= lockTop + 320
-      }
-
-      const bookCenter =
-        bookRect.top + bookRect.height * 0.5 - Math.max(projectedDeltaY, 0)
-      const triggerCenter = getLockTriggerCenter(bookRect)
-
-      return bookCenter <= triggerCenter
+      return Number.isFinite(top) ? top : 72
     }
 
-    const isAtStart = () => target <= 0.001 && current <= 0.002
-    const isAtEnd = () => target >= 0.999 && current >= 0.998
-
-    const restoreLockedScroll = () => {
-      if (lockedScrollY === null) {
-        return
-      }
-
-      if (Math.abs(window.scrollY - lockedScrollY) > 1) {
-        isRestoringScroll = true
-        window.scrollTo(window.scrollX, lockedScrollY)
-      }
-    }
-
-    const shouldConsumeScrollDelta = (deltaY: number) => {
+    const isStageReady = () => {
       const rect = section.getBoundingClientRect()
-      const isApproachingFromAbove =
-        deltaY > 0 &&
-        target < 0.999 &&
-        isBookCenteredForLock(deltaY) &&
-        rect.bottom > lockTop + 220
-      const isReturningFromBelow =
-        deltaY < 0 &&
-        target > 0.001 &&
-        rect.top < window.innerHeight * 0.64 &&
-        rect.bottom >= lockTop + 160
+      const stickyTop = getStickyTop()
 
-      return isApproachingFromAbove || isReturningFromBelow
+      return (
+        rect.top <= stickyTop + 2 &&
+        rect.bottom >= window.innerHeight * 0.78
+      )
+    }
+
+    const isSectionVisibleFromBelow = () => {
+      const rect = section.getBoundingClientRect()
+      const stickyTop = getStickyTop()
+
+      return rect.top < window.innerHeight * 0.72 && rect.bottom > stickyTop
     }
 
     const animate = () => {
@@ -225,102 +171,30 @@ function useScoreBookProgress() {
       }
     }
 
-    const keepScrollLocked = () => {
-      if (lockedScrollY === null) {
-        return
-      }
-
-      if (isAtStart() || isAtEnd()) {
-        lockedScrollY = null
-        return
-      }
-
-      restoreLockedScroll()
-    }
-
     const handleWheel = (event: WheelEvent) => {
       if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) {
         return
       }
 
-      const shouldConsumeWheel =
-        lockedScrollY !== null || shouldConsumeScrollDelta(event.deltaY)
+      const isScrollingDown = event.deltaY > 0
+      const shouldAdvance =
+        isScrollingDown && target < 0.999 && isStageReady()
+      const shouldReverse =
+        !isScrollingDown && target > 0.001 && isSectionVisibleFromBelow()
 
-      if (!shouldConsumeWheel) {
-        return
-      }
-
-      if (event.deltaY > 0 && isAtEnd()) {
-        lockedScrollY = null
-        return
-      }
-
-      if (event.deltaY < 0 && isAtStart()) {
-        lockedScrollY = null
+      if (!shouldAdvance && !shouldReverse) {
         return
       }
 
       event.preventDefault()
-
-      if (lockedScrollY === null) {
-        lockedScrollY = getScoreLockScrollY()
-      }
-
       target = clamp(target + event.deltaY / wheelDistance)
-      lastScrollY = lockedScrollY
-      restoreLockedScroll()
       requestUpdate()
-    }
-
-    const handleScroll = () => {
-      if (isRestoringScroll) {
-        isRestoringScroll = false
-        lastScrollY = window.scrollY
-        return
-      }
-
-      const nextScrollY = window.scrollY
-      const deltaY = nextScrollY - lastScrollY
-
-      if (Math.abs(deltaY) < 0.5) {
-        lastScrollY = nextScrollY
-        return
-      }
-
-      if (lockedScrollY !== null) {
-        if (!isAtStart() && !isAtEnd()) {
-          target = clamp(target + deltaY / wheelDistance)
-          requestUpdate()
-        }
-
-        keepScrollLocked()
-        lastScrollY = lockedScrollY ?? window.scrollY
-        return
-      }
-
-      if (shouldConsumeScrollDelta(deltaY)) {
-        lockedScrollY = getScoreLockScrollY()
-        target = clamp(target + deltaY / wheelDistance)
-        restoreLockedScroll()
-        requestUpdate()
-        lastScrollY = lockedScrollY
-        return
-      }
-
-      lastScrollY = nextScrollY
-    }
-
-    const handleResize = () => {
-      lockedScrollY = null
-      lastScrollY = window.scrollY
     }
 
     window.addEventListener('wheel', handleWheel, {
       capture: true,
       passive: false,
     })
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    window.addEventListener('resize', handleResize)
 
     return () => {
       if (animationFrame !== 0) {
@@ -328,8 +202,6 @@ function useScoreBookProgress() {
       }
 
       window.removeEventListener('wheel', handleWheel, { capture: true })
-      window.removeEventListener('scroll', handleScroll)
-      window.removeEventListener('resize', handleResize)
     }
   }, [isAnimatedDesktop])
 
@@ -350,8 +222,8 @@ function splitLines(value: string | undefined, fallback: string[]) {
 }
 
 function getFlutterPageStyle(progress: number, index: number): CSSProperties {
-  const start = 0.24 + index * 0.036
-  const end = start + 0.205
+  const start = 0.28 + index * 0.043
+  const end = start + 0.245
   const localRaw = clamp((progress - start) / (end - start))
   const local = easeInOut(localRaw)
   const before = progress < start
@@ -363,8 +235,8 @@ function getFlutterPageStyle(progress: number, index: number): CSSProperties {
     opacity = Math.max(0, 0.28 - (progress - end) * 2.8)
   }
 
-  if (progress > 0.76) {
-    opacity *= 1 - smoothstep(0.76, 0.88, progress)
+  if (progress > 0.92) {
+    opacity *= 1 - smoothstep(0.92, 1, progress)
   }
 
   const arc = Math.sin(localRaw * Math.PI)
@@ -440,12 +312,12 @@ export function ScrollScoreBookReveal({
   valueWordsText,
 }: ScrollScoreBookRevealProps) {
   const { isAnimatedDesktop, progress, sectionRef } = useScoreBookProgress()
-  const open = smoothstep(0.02, 0.25, progress)
-  const final = smoothstep(0.94, 1, progress)
+  const open = smoothstep(0.02, 0.38, progress)
+  const final = smoothstep(0.9, 0.98, progress)
   const scoreStyle: ScoreStyle = {
     '--book-final': final.toFixed(4),
     '--book-open': open.toFixed(4),
-    '--cover-opacity': (1 - smoothstep(0.18, 0.35, progress)).toFixed(4),
+    '--cover-opacity': (1 - smoothstep(0.3, 0.5, progress)).toFixed(4),
   }
   const coverLines = splitLines(coverTitle, [
     '마음을 담은 음악과',

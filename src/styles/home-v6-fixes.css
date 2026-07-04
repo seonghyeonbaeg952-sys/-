@@ -385,8 +385,8 @@
   --book-final: 0;
   --cover-opacity: 1;
   position: relative;
-  height: calc(100svh + 96px);
-  min-height: 720px;
+  height: calc(100svh + 160px);
+  min-height: 780px;
   overflow: visible;
   border-block: 1px solid rgb(201 164 92 / 0.16);
   background:
