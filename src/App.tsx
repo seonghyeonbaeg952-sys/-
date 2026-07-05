@@ -3,7 +3,6 @@ import { BrowserRouter, Route, Routes } from 'react-router'
 
 import { AdminLayout } from './components/admin/AdminLayout'
 import { ProtectedAdminRoute } from './components/admin/ProtectedAdminRoute'
-import { LoadingState } from './components/common/LoadingState'
 import { PublicLayout } from './components/layout/PublicLayout'
 import { RouteScrollManager } from './components/layout/RouteScrollManager'
 
@@ -15,6 +14,16 @@ const AboutPage = lazy(() =>
 )
 const SpiritPage = lazy(() =>
   import('./pages/public/SpiritPage').then((module) => ({ default: module.SpiritPage })),
+)
+const SpiritHeroSamplePage = lazy(() =>
+  import('./pages/public/SpiritHeroSamplePage').then((module) => ({
+    default: module.SpiritHeroSamplePage,
+  })),
+)
+const HomeHeroIntroSamplePage = lazy(() =>
+  import('./pages/public/HomeHeroIntroSamplePage').then((module) => ({
+    default: module.HomeHeroIntroSamplePage,
+  })),
 )
 const ConcertsPage = lazy(() =>
   import('./pages/public/ConcertsPage').then((module) => ({ default: module.ConcertsPage })),
@@ -161,8 +170,17 @@ const AdminAccountPage = lazy(() =>
 
 function RouteFallback() {
   return (
-    <main className="min-h-screen bg-bg-ivory px-5 py-24">
-      <LoadingState label="페이지를 불러오는 중입니다" />
+    <main aria-busy="true" aria-live="polite" className="route-loading-screen" role="status">
+      <div aria-hidden="true" className="route-loading-screen__mark">
+        <span>S</span>
+        <span>M</span>
+        <span>Y</span>
+        <span>C</span>
+      </div>
+      <div className="route-loading-screen__copy">
+        <p>서울모테트청소년합창단</p>
+        <strong>페이지를 준비하고 있습니다</strong>
+      </div>
     </main>
   )
 }
@@ -175,7 +193,9 @@ function App() {
         <Routes>
           <Route path="/" element={<PublicLayout />}>
             <Route index element={<HomeRoute />} />
+            <Route path="home-hero-intro-sample" element={<HomeHeroIntroSamplePage />} />
             <Route path="spirit" element={<SpiritPage />} />
+            <Route path="spirit-hero-sample" element={<SpiritHeroSamplePage />} />
             <Route path="about" element={<AboutPage />} />
             <Route path="concerts" element={<ConcertsPage />} />
             <Route path="concerts/:concertId" element={<ConcertDetailPage />} />

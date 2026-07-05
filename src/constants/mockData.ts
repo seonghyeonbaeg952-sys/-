@@ -10,10 +10,10 @@ import type {
 export const heroSlides = [
   {
     id: 'hero-slide-1',
-    title: '마음을 다한 음악으로 다음 세대를 세웁니다',
-    subtitle: '마음을 담은 음악과 함께 빚는 울림',
+    title: 'SEOUL MOTET YOUTH CHOIR',
+    subtitle: '서울모테트청소년합창단',
     description:
-      '청소년의 목소리가 음악 안에서 자라도록 무대와 교육의 시간을 이어갑니다.',
+      '모테트의 전통 위에서 서로를 듣고 호흡하며, 다음 세대의 맑은 울림을 함께 길러갑니다.',
     image_url: '/images/hero/hero-01.svg',
     image_alt: '서울모테트청소년합창단 공연 장면',
     primary_cta_label: '입단 안내',
@@ -165,11 +165,11 @@ export const mockGallery = Array.from({ length: 6 }, (_, index) => ({
 export const mockSiteSettings = {
   id: 'site-settings-default',
   site_title: '서울모테트청소년합창단',
-  hero_title: '마음을 다한 음악으로 다음 세대를 세웁니다',
-  hero_subtitle: '마음을 담은 음악과 함께 빚는 울림',
-  home_hero_eyebrow: 'SEOUL MOTET YOUTH CHOIR',
+  hero_title: 'SEOUL MOTET YOUTH CHOIR',
+  hero_subtitle: 'A refined choral voice for the next generation',
+  home_hero_eyebrow: '서울모테트청소년합창단',
   home_hero_description:
-    '청소년의 목소리가 음악 안에서 자라도록 무대와 교육의 시간을 이어갑니다.',
+    '모테트의 전통 위에서 서로를 듣고 호흡하며, 다음 세대의 맑은 울림을 함께 길러갑니다.',
   home_info_card_1_title: '입단 안내',
   home_info_card_1_description: '모집 대상과 입단 절차를 확인합니다.',
   home_info_card_2_title: '공연 일정',

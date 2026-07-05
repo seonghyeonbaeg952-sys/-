@@ -320,9 +320,6 @@ export function JoinPage() {
                 title="입단지원서 작성과 입단 문의"
               />
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <Button href="/join?section=contact#application" size="lg" variant="gold">
-                  입단지원서 작성하기
-                </Button>
                 {joinInfo.application_url ? (
                   <Button href={joinInfo.application_url} size="lg" variant="secondary">
                     외부 신청 링크 열기

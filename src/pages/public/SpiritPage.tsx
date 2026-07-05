@@ -5,11 +5,11 @@ import {
   MotetMeaningSection,
   SongOfMemorySection,
   SpiritCTA,
-  SpiritHero,
   SpiritManifesto,
   SpiritValueCardsSection,
   VoiceConstellation,
 } from '../../components/spirit/SpiritSections'
+import { SpiritDiagonalHero } from '../../components/spirit/SpiritDiagonalHero'
 import {
   defaultSpiritCta,
   defaultSpiritHero,
@@ -47,7 +47,7 @@ export function SpiritPage() {
 
   return (
     <main className="spirit-page bg-bg-warm-white">
-      <SpiritHero backgroundImageUrl={heroImage} copy={hero} variant="page" />
+      <SpiritDiagonalHero backgroundImageUrl={heroImage} copy={hero} />
       <SpiritManifesto text={manifesto} />
       <MotetMeaningSection copy={motetMeaning} />
       <SongOfMemorySection />

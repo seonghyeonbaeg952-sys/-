@@ -12,8 +12,8 @@ export type SiteTextDefinition = {
 
 export const siteTextDefinitions = [
   {
-    defaultValue: '마음을 다한 음악으로',
-    description: '홈 히어로의 첫 번째 큰 문구입니다.',
+    defaultValue: 'SEOUL',
+    description: '홈 히어로의 첫 번째 큰 영문 문구입니다.',
     groupName: 'home.hero',
     inputType: 'text',
     key: 'home.hero.title.line1',
@@ -21,8 +21,8 @@ export const siteTextDefinitions = [
     sortOrder: 10,
   },
   {
-    defaultValue: '다음 세대를 세웁니다',
-    description: '홈 히어로의 두 번째 큰 문구입니다.',
+    defaultValue: 'MOTET',
+    description: '홈 히어로의 두 번째 큰 영문 문구입니다.',
     groupName: 'home.hero',
     inputType: 'text',
     key: 'home.hero.title.line2',
@@ -30,8 +30,26 @@ export const siteTextDefinitions = [
     sortOrder: 20,
   },
   {
+    defaultValue: 'YOUTH',
+    description: '홈 히어로의 세 번째 큰 영문 문구입니다.',
+    groupName: 'home.hero',
+    inputType: 'text',
+    key: 'home.hero.title.line3',
+    label: '히어로 제목 3행',
+    sortOrder: 21,
+  },
+  {
+    defaultValue: 'CHOIR',
+    description: '홈 히어로의 네 번째 큰 영문 문구입니다.',
+    groupName: 'home.hero',
+    inputType: 'text',
+    key: 'home.hero.title.line4',
+    label: '히어로 제목 4행',
+    sortOrder: 22,
+  },
+  {
     defaultValue:
-      '서울모테트청소년합창단은 마음을 담은 음악과 함께 빚는 울림으로 다음 세대를 세웁니다. 청소년들이 서로의 소리를 듣고, 한 무대 안에서 따뜻하게 성장하도록 돕습니다.',
+      '모테트의 전통 위에서 서로를 듣고 호흡하며, 다음 세대의 맑은 울림을 함께 길러갑니다.',
     description: '히어로 제목 아래에 표시되는 보조 문구입니다.',
     groupName: 'home.hero',
     inputType: 'textarea',
@@ -40,8 +58,8 @@ export const siteTextDefinitions = [
     sortOrder: 30,
   },
   {
-    defaultValue: 'SEOUL MOTET YOUTH CHOIR',
-    description: '히어로 상단의 영문 라벨입니다.',
+    defaultValue: '서울모테트청소년합창단',
+    description: '히어로 상단의 한글 라벨입니다.',
     groupName: 'home.hero',
     inputType: 'text',
     key: 'home.hero.eyebrow',
@@ -656,8 +674,8 @@ export const siteTextDefinitions = [
     sortOrder: 940,
   },
   {
-    defaultValue: '마음을 다한 음악으로\n다음 세대를 세웁니다',
-    description: '기존 키 호환용 히어로 제목입니다.',
+    defaultValue: 'SEOUL\nMOTET\nYOUTH\nCHOIR',
+    description: '기존 키 호환용 히어로 영문 제목입니다.',
     groupName: 'home.hero',
     inputType: 'textarea',
     key: 'home.hero.title',
@@ -666,7 +684,7 @@ export const siteTextDefinitions = [
   },
   {
     defaultValue:
-      '서울모테트청소년합창단은 마음을 담은 음악과 함께 빚는 울림으로 다음 세대를 세웁니다. 청소년들이 서로의 소리를 듣고, 한 무대 안에서 따뜻하게 성장하도록 돕습니다.',
+      '모테트의 전통 위에서 서로를 듣고 호흡하며, 다음 세대의 맑은 울림을 함께 길러갑니다.',
     description: '기존 키 호환용 히어로 설명입니다.',
     groupName: 'home.hero',
     inputType: 'textarea',

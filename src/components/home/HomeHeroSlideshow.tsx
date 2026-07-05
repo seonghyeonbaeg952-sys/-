@@ -26,13 +26,14 @@ type ImageFetchPriority = 'auto' | 'high' | 'low'
 
 const heroCopy = {
   body:
-    '서울모테트청소년합창단은 서울모테트합창단의 예술적·신앙적 전통을 바탕으로, 합창을 통해 음악과 마음, 공동체의 울림을 함께 배워가는 다음세대 음악교육 공동체입니다.',
-  eyebrow: 'SEOUL MOTET YOUTH CHOIR',
+    '모테트의 전통 위에서 서로를 듣고 호흡하며, 다음 세대의 맑은 울림을 함께 길러갑니다.',
+  eyebrow: '서울모테트청소년합창단',
   headline: (
     <>
-      마음을 담은 음악으로
-      <br />
-      다음 세대를 세웁니다
+      <span className="block">SEOUL</span>
+      <span className="block">MOTET</span>
+      <span className="block">YOUTH</span>
+      <span className="block">CHOIR</span>
     </>
   ),
   primaryCta: '합창단 정신 보기',
@@ -41,10 +42,10 @@ const heroCopy = {
 
 const fallbackSlide: HeroSlide = {
   id: 'hero-fallback',
-  title: '서울모테트청소년합창단',
-  subtitle: '맑은 목소리로 전하는 깊은 울림',
+  title: 'SEOUL MOTET YOUTH CHOIR',
+  subtitle: 'A refined choral voice for the next generation',
   description:
-    '청소년의 순수한 목소리와 클래식 합창의 깊이를 무대 경험으로 이어갑니다.',
+    '모테트의 전통 위에서 서로를 듣고 호흡하며, 다음 세대의 맑은 울림을 함께 길러갑니다.',
   image_url: '',
   image_alt: '서울모테트청소년합창단 공연 이미지',
   primary_cta_label: heroCopy.primaryCta,
@@ -375,7 +376,7 @@ export function HomeHeroSlideshow({
             </p>
           </Reveal>
           <Reveal delayMs={80}>
-            <h1 className="type-hero-title max-w-[12ch] text-bg-warm-white">
+            <h1 className="type-hero-title home-hero-title-en max-w-[12ch] text-bg-warm-white">
               {headline ?? heroCopy.headline}
             </h1>
           </Reveal>
