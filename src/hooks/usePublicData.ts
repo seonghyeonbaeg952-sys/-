@@ -214,6 +214,8 @@ export function useHomeData() {
       return { data: null, error }
     }
 
+    const siteTextRows = siteTexts.data ?? []
+
     return {
       data: {
         concerts: concerts.data ?? publicFallbacks.concerts,
@@ -224,7 +226,9 @@ export function useHomeData() {
         posters: posters.data ?? [],
         popupNotices: popupNotices.data ?? [],
         siteSettings: siteSettings.data ?? publicFallbacks.siteSettings,
-        siteTexts: createSiteTextMap(siteTexts.data ?? []),
+        siteTexts: createSiteTextMap(siteTextRows, {
+          includeDefaults: siteTextRows.length === 0,
+        }),
         sponsors: sponsors.data ?? [],
         videos: videos.data ?? [],
       },

@@ -74,7 +74,7 @@ export function HomeHeroIntroSamplePage() {
   const heroEyebrow = resolveHomeHeroEyebrow(
     t('home.hero.eyebrow', siteSettings.home_hero_eyebrow),
   )
-  const heroBody = resolveHomeHeroBody(t('home.hero.subtitle', t('home.hero.description')))
+  const heroBody = resolveHomeHeroBody(t('home.hero.subtitle'))
 
   return (
     <main className="home-intro-real-sample">

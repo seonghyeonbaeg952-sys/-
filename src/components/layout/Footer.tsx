@@ -49,7 +49,9 @@ export function Footer() {
   const currentYear = new Date().getFullYear()
   const contactData = useContactData()
   const settings = contactData.data.siteSettings
-  const siteTexts = createSiteTextMap(contactData.data.siteTexts)
+  const siteTexts = createSiteTextMap(contactData.data.siteTexts, {
+    includeDefaults: contactData.data.siteTexts.length === 0,
+  })
   const t = (key: string, fallback?: string) => getSiteText(siteTexts, key, fallback)
   const emailLabel = settings.email?.trim()
   const address = settings.address || FALLBACK_ADDRESS

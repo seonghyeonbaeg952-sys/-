@@ -1,7 +1,129 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+
+const desktopIntroQuery =
+  '(min-width: 1024px) and (prefers-reduced-motion: no-preference)'
 
 export function HomeHeroIntroOverlay() {
   const launchRef = useRef<HTMLDivElement>(null)
+  const [shouldRenderIntro, setShouldRenderIntro] = useState(() =>
+    typeof window === 'undefined' ? false : window.matchMedia(desktopIntroQuery).matches,
+  )
+
+  useEffect(() => {
+    const query = window.matchMedia(desktopIntroQuery)
+    const handleChange = () => setShouldRenderIntro(query.matches)
+
+    handleChange()
+    query.addEventListener('change', handleChange)
+
+    return () => query.removeEventListener('change', handleChange)
+  }, [])
+
+  useLayoutEffect(() => {
+    const launchElement = launchRef.current
+
+    if (!shouldRenderIntro || !launchElement) {
+      return undefined
+    }
+
+    const root = document.documentElement
+    const body = document.body
+    const sweepElement = launchElement.querySelector<HTMLElement>(
+      '.home-intro-launch__sweep',
+    )
+    const scrollKeys = new Set([
+      ' ',
+      'ArrowDown',
+      'ArrowUp',
+      'End',
+      'Home',
+      'PageDown',
+      'PageUp',
+      'Spacebar',
+    ])
+    const lockedScrollX = window.scrollX
+    const lockedScrollY = window.scrollY
+    const previousRootOverflow = root.style.overflow
+    const previousRootOverscrollBehavior = root.style.overscrollBehavior
+    const previousRootScrollbarGutter = root.style.scrollbarGutter
+    const previousBodyOverflow = body.style.overflow
+    const previousBodyOverscrollBehavior = body.style.overscrollBehavior
+    const previousBodyTouchAction = body.style.touchAction
+    let isLocked = true
+    let fallbackTimer = 0
+
+    const keepScrollFixed = () => {
+      if (window.scrollX !== lockedScrollX || window.scrollY !== lockedScrollY) {
+        window.scrollTo({
+          behavior: 'auto',
+          left: lockedScrollX,
+          top: lockedScrollY,
+        })
+      }
+    }
+
+    const preventScroll = (event: Event) => {
+      if (!isLocked) {
+        return
+      }
+
+      event.preventDefault()
+      keepScrollFixed()
+    }
+
+    const preventScrollKey = (event: KeyboardEvent) => {
+      if (!isLocked || !scrollKeys.has(event.key)) {
+        return
+      }
+
+      event.preventDefault()
+      keepScrollFixed()
+    }
+
+    const releaseScrollLock = () => {
+      if (!isLocked) {
+        return
+      }
+
+      isLocked = false
+      root.style.overflow = previousRootOverflow
+      root.style.overscrollBehavior = previousRootOverscrollBehavior
+      root.style.scrollbarGutter = previousRootScrollbarGutter
+      body.style.overflow = previousBodyOverflow
+      body.style.overscrollBehavior = previousBodyOverscrollBehavior
+      body.style.touchAction = previousBodyTouchAction
+      window.removeEventListener('wheel', preventScroll, { capture: true })
+      window.removeEventListener('touchmove', preventScroll, { capture: true })
+      window.removeEventListener('keydown', preventScrollKey, { capture: true })
+      window.removeEventListener('scroll', keepScrollFixed)
+      keepScrollFixed()
+    }
+
+    root.style.overflow = 'hidden'
+    root.style.overscrollBehavior = 'none'
+    root.style.scrollbarGutter = 'stable'
+    body.style.overflow = 'hidden'
+    body.style.overscrollBehavior = 'none'
+    body.style.touchAction = 'none'
+    window.addEventListener('wheel', preventScroll, {
+      capture: true,
+      passive: false,
+    })
+    window.addEventListener('touchmove', preventScroll, {
+      capture: true,
+      passive: false,
+    })
+    window.addEventListener('keydown', preventScrollKey, { capture: true })
+    window.addEventListener('scroll', keepScrollFixed, { passive: true })
+    sweepElement?.addEventListener('animationend', releaseScrollLock, { once: true })
+    fallbackTimer = window.setTimeout(releaseScrollLock, 3600)
+
+    return () => {
+      window.clearTimeout(fallbackTimer)
+      sweepElement?.removeEventListener('animationend', releaseScrollLock)
+      releaseScrollLock()
+    }
+  }, [shouldRenderIntro])
 
   useLayoutEffect(() => {
     const launchElement = launchRef.current
@@ -19,7 +141,13 @@ export function HomeHeroIntroOverlay() {
       '.home-hero-copy .home-hero-title-en',
     )
 
-    if (!launchElement || !sampleRoot || !wordmarkElement || !titleElement) {
+    if (
+      !shouldRenderIntro ||
+      !launchElement ||
+      !sampleRoot ||
+      !wordmarkElement ||
+      !titleElement
+    ) {
       return undefined
     }
 
@@ -85,7 +213,11 @@ export function HomeHeroIntroOverlay() {
       resizeObserver.disconnect()
       window.removeEventListener('resize', scheduleTitleMetrics)
     }
-  }, [])
+  }, [shouldRenderIntro])
+
+  if (!shouldRenderIntro) {
+    return null
+  }
 
   return (
     <div aria-hidden="true" className="home-intro-launch" ref={launchRef}>

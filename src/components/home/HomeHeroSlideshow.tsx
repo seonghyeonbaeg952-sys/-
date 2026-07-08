@@ -258,7 +258,7 @@ export function HomeHeroSlideshow({
     isInteractionPaused || isUserPaused || prefersReducedMotion
   const visibleMottoChips = (mottoChips?.filter((chip) => chip.trim()) ?? heroMottoChips)
     .map(softenMottoChip)
-  const heroBody = body?.trim() || heroCopy.body
+  const heroBody = body === undefined ? heroCopy.body : body.trim()
 
   useEffect(() => {
     const first = renderedSlides[0]
@@ -380,11 +380,13 @@ export function HomeHeroSlideshow({
               {headline ?? heroCopy.headline}
             </h1>
           </Reveal>
-          <Reveal delayMs={150}>
-            <p className="type-body mt-6 max-w-[560px] text-bg-ivory/88">
-              {heroBody}
-            </p>
-          </Reveal>
+          {heroBody ? (
+            <Reveal delayMs={150}>
+              <p className="type-body mt-6 max-w-[560px] text-bg-ivory/88">
+                {heroBody}
+              </p>
+            </Reveal>
+          ) : null}
           <Reveal delayMs={220}>
             <div className="mt-9 grid gap-3 sm:flex sm:flex-wrap">
               <Button className="w-full sm:w-auto" href="/join" size="lg" variant="gold">

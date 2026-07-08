@@ -6,7 +6,15 @@ import {
 import type { SiteTextRow } from '../types/cms'
 import { softenPublicCopy } from './softenPublicCopy'
 
-export type SiteTextMap = Record<string, string>
+const siteTextDefinitionFallbacksEnabled = Symbol('siteTextDefinitionFallbacksEnabled')
+
+export type SiteTextMap = Record<string, string> & {
+  [siteTextDefinitionFallbacksEnabled]?: boolean
+}
+
+type CreateSiteTextMapOptions = {
+  includeDefaults?: boolean
+}
 
 const invalidLiteralValues = new Set([
   'TODO',
@@ -88,11 +96,26 @@ function shouldUseCurrentDefault(row: SiteTextRow, currentDefault: string) {
   )
 }
 
-export function createSiteTextMap(rows: SiteTextRow[] = []): SiteTextMap {
-  const textMap: SiteTextMap = { ...siteTextDefaults }
+export function createSiteTextMap(
+  rows: SiteTextRow[] = [],
+  options: CreateSiteTextMapOptions = {},
+): SiteTextMap {
+  const includeDefaults = options.includeDefaults ?? true
+  const textMap: SiteTextMap = includeDefaults ? { ...siteTextDefaults } : {}
+
+  Object.defineProperty(textMap, siteTextDefinitionFallbacksEnabled, {
+    enumerable: false,
+    value: includeDefaults,
+  })
 
   for (const row of rows) {
     const key = row.key.trim()
+
+    if (!row.is_active) {
+      delete textMap[key]
+      continue
+    }
+
     const currentDefault = siteTextDefaults[key] ?? ''
     const storedDefault = normalizeSiteText(row.default_value, currentDefault)
     const fallback =
@@ -114,9 +137,15 @@ export function getSiteText(
   key: string,
   fallback?: string,
 ) {
+  const shouldUseDefinitionFallbacks =
+    siteTexts?.[siteTextDefinitionFallbacksEnabled] ?? true
+  const fallbackValue = shouldUseDefinitionFallbacks
+    ? siteTextDefaults[key] ?? fallback ?? ''
+    : fallback ?? ''
+
   return normalizeSiteText(
     siteTexts?.[key],
-    siteTextDefaults[key] ?? fallback ?? '',
+    fallbackValue,
   )
 }
 

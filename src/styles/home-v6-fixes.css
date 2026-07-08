@@ -2062,6 +2062,7 @@
 
 .archive-folder-item {
   display: flex;
+  box-sizing: border-box;
   min-height: 0;
   flex-direction: column;
   overflow: hidden;
@@ -2812,12 +2813,12 @@
   }
 
   .archive-folder-item {
-    width: 222px !important;
-    height: 262px !important;
+    width: 226px !important;
+    height: 264px !important;
   }
 
   .archive-folder-image {
-    height: 154px !important;
+    height: 158px !important;
   }
 }
 
