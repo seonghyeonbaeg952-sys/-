@@ -1440,8 +1440,10 @@
 
 .home-hero-copy .type-hero-title {
   max-width: min(12ch, 100%) !important;
-  color: rgb(255 253 248 / 0.9) !important;
-  text-shadow: 0 3px 14px rgb(7 17 31 / 0.24);
+  color: rgb(226 221 211 / 0.9) !important;
+  text-shadow:
+    0 2px 10px rgb(0 0 0 / 0.42),
+    0 14px 36px rgb(7 17 31 / 0.4);
 }
 
 .home-hero-copy .type-hero-title.home-hero-title-en {
@@ -1453,11 +1455,22 @@
   letter-spacing: -0.07em !important;
   line-height: 0.9 !important;
   text-transform: uppercase;
-  text-shadow: 0 6px 24px rgb(7 17 31 / 0.32);
+  text-shadow:
+    0 2px 10px rgb(0 0 0 / 0.48),
+    0 14px 42px rgb(7 17 31 / 0.46),
+    0 0 1px rgb(231 213 163 / 0.18);
 }
 
 .home-hero-copy .type-hero-title.home-hero-title-en span {
   display: block;
+}
+
+.home-hero-copy .type-hero-title.home-hero-title-en .smyc-wordmark-initial {
+  color: #ff6a1f;
+  text-shadow:
+    0 1px 0 rgb(255 228 188 / 0.24),
+    0 9px 28px rgb(7 17 31 / 0.54),
+    0 0 28px rgb(255 106 31 / 0.42);
 }
 
 .home-hero-copy .type-body {
