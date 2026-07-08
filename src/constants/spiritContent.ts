@@ -82,7 +82,7 @@ export const defaultSpiritHero: SpiritCopy = {
   eyebrow: 'Motet Spirit',
   title: '진심을 담은 음악으로\n다음 세대를 세웁니다',
   body:
-    '서울모테트청소년합창단은 서울모테트합창단의 예술적·신앙적 전통을 바탕으로, 합창을 통해 음악과 마음, 공동체의 울림을 함께 배워가는 다음세대 음악교육 공동체입니다.',
+    '서울모테트청소년합창단은 청소년이 합창의 기본기, 정기 연습, 공연 활동을 체계적으로 배우는 음악교육 공동체입니다.',
   ctaLabel: '합창단 정신 보기',
   ctaUrl: '/spirit',
   secondaryCtaLabel: '입단 안내',
@@ -100,7 +100,7 @@ export const defaultMotetMeaning: SpiritCopy = {
 
 export const defaultEducationCopy: SpiritCopy = {
   eyebrow: 'Our Spirit',
-  title: '합창은 소리를 맞추는 일을 넘어,\n사람을 세우는 교육입니다.',
+  title: '합창은 발성, 악보 읽기,\n협업 태도를 함께 배우는 교육입니다.',
   body:
     '서울모테트청소년합창단의 정신은 더 크게 부르는 데 있지 않습니다. 더 진심으로 듣고, 더 깊이 해석하며, 함께 하나의 울림을 만들어 가는 데 있습니다.\n\n우리는 합창을 통해 자신의 소리를 조율하고, 타인의 소리를 존중하며, 하나의 음악을 위해 서로를 듣고 맞춰 가는 법을 배웁니다.',
 }
@@ -133,7 +133,7 @@ export const spiritMottoBadges = [
 
 export const spiritManifestoCopy: SpiritManifestoCopy = {
   eyebrow: 'Our Spirit',
-  title: '합창은 소리를 맞추는 일을 넘어,\n사람을 세우는 교육입니다.',
+  title: '합창은 발성, 악보 읽기,\n협업 태도를 함께 배우는 교육입니다.',
   paragraphs: [
     '서울모테트청소년합창단의 정신은 더 크게 부르는 데 있지 않습니다. 더 진심으로 듣고, 더 깊이 해석하며, 함께 하나의 울림을 만들어 가는 데 있습니다.',
     '우리는 합창을 통해 자신의 소리를 조율하고, 타인의 소리를 존중하며, 하나의 음악을 위해 서로를 듣고 맞춰 가는 법을 배웁니다.',
@@ -269,7 +269,7 @@ export const legacyFlowSteps: LegacyFlowStep[] = [
     year: '현재',
     title: '청소년 합창교육 공동체',
     body:
-      '청소년들은 정통 레퍼토리와 교회음악, 봉사 연주와 국제교류를 통해 예술성과 마음, 공동체의 울림을 함께 배웁니다.',
+      '청소년들은 정통 레퍼토리와 교회음악, 봉사 연주와 국제교류를 통해 합창 기본기와 무대 경험을 함께 배웁니다.',
   },
   {
     year: '미래',
@@ -367,9 +367,9 @@ export const joinSpiritCopy: JoinSpiritCopy = {
 
 export const supportSpiritCopy: SupportSpiritCopy = {
   eyebrow: 'Support the Next Voice',
-  title: '한 사람의 목소리가 자라기 위해서는\n보이지 않는 많은 손길이 필요합니다.',
+  title: '후원은 청소년 합창교육과\n공연 활동을 지원합니다.',
   body:
-    '후원은 단순한 재정 지원이 아닙니다. 다음 세대가 음악 안에서 자신을 발견하고, 함께 살아가는 법을 배우며, 신앙과 따뜻한 마음을 지닌 사람으로 성장하도록 돕는 동행입니다.',
+    '후원금은 악보와 교육 자료, 연습과 공연 준비, 국제교류 활동에 사용됩니다. 후원 상담과 일반 문의는 공식 문의 폼으로 접수합니다.',
   notice:
     '현재 후원 기능은 온라인 결제가 아니라 후원약정 접수입니다. 제출된 약정서는 관리자 확인 후 안내 절차에 따라 관리됩니다.',
 }

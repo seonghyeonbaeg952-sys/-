@@ -22,12 +22,12 @@ type AboutPreviewProps = {
 const aboutCards = [
   {
     description:
-      '서울모테트합창단의 음악적 유산을 청소년의 목소리로 이어가며, 교회음악의 깊이와 합창의 기쁨을 함께 나눕니다.',
+      '서울모테트합창단의 음악적 전통을 바탕으로 청소년 합창교육을 운영합니다.',
     title: '창단 목적',
   },
   {
     description:
-      '정확한 발성과 악보 읽기, 서로를 듣는 태도를 배우며 음악적 성장과 마음의 성장을 함께 추구합니다.',
+      '발성, 악보 읽기, 파트 연습, 앙상블 기본기를 체계적으로 배웁니다.',
     title: '교육 목적',
   },
   {
@@ -37,13 +37,13 @@ const aboutCards = [
   },
   {
     description:
-      '함께 노래하며 나의 소리와 우리의 울림을 배우고, 음악으로 이웃을 위로하는 마음을 키웁니다.',
-    title: '음악의 꿈',
+      '정기 연습과 공연 활동을 통해 협업 태도와 무대 경험을 쌓습니다.',
+    title: '단원 성장',
   },
 ] as const
 
 const fallbackSummary =
-  '서울모테트청소년합창단은 청소년들이 합창을 통해 음악의 가치를 함께 나누는 마음을 배우도록 돕습니다.'
+  '서울모테트청소년합창단은 청소년이 합창의 기본기와 무대 경험을 함께 배우는 음악교육 공동체입니다.'
 
 function getSummaryParagraphs(summary?: string) {
   const paragraphs = summary
@@ -63,7 +63,7 @@ export function AboutPreview({
   image,
   kicker = 'ABOUT',
   summary,
-  title = '청소년의 목소리로 전하는 깊은 울림',
+  title = '서울모테트청소년합창단 소개',
 }: AboutPreviewProps) {
   return (
     <section

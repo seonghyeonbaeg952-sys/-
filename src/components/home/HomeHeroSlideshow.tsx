@@ -26,7 +26,7 @@ type ImageFetchPriority = 'auto' | 'high' | 'low'
 
 const heroCopy = {
   body:
-    '모테트의 전통 위에서 서로를 듣고 호흡하며, 다음 세대의 맑은 울림을 함께 길러갑니다.',
+    '서울모테트청소년합창단은 청소년이 합창을 배우고 정기 연습과 공연을 경험하는 음악교육 공동체입니다.',
   eyebrow: '서울모테트청소년합창단',
   headline: (
     <>
@@ -45,7 +45,7 @@ const fallbackSlide: HeroSlide = {
   title: 'SEOUL MOTET YOUTH CHOIR',
   subtitle: 'A refined choral voice for the next generation',
   description:
-    '모테트의 전통 위에서 서로를 듣고 호흡하며, 다음 세대의 맑은 울림을 함께 길러갑니다.',
+    '서울모테트청소년합창단은 청소년이 합창을 배우고 정기 연습과 공연을 경험하는 음악교육 공동체입니다.',
   image_url: '',
   image_alt: '서울모테트청소년합창단 공연 이미지',
   primary_cta_label: heroCopy.primaryCta,
@@ -56,7 +56,7 @@ const fallbackSlide: HeroSlide = {
   is_visible: true,
 }
 
-const heroMottoChips = ['마음을 담은 음악', '서로를 듣는 공동체', '음악 · 마음 · 성장']
+const heroMottoChips = ['합창 교육', '정기 연습', '공연 활동']
 const warmedHeroImageUrls = new Set<string>()
 
 function softenMottoChip(chip: string) {

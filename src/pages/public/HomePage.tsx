@@ -19,7 +19,7 @@ import type { GalleryImage } from '../../types/content'
 
 const homeHeroEnglishTitleLines = ['SEOUL', 'MOTET', 'YOUTH', 'CHOIR']
 const homeHeroBody =
-  '모테트의 전통 위에서 서로를 듣고 호흡하며, 다음 세대의 맑은 울림을 함께 길러갑니다.'
+  '서울모테트청소년합창단은 청소년이 합창을 배우고 정기 연습과 공연을 경험하는 음악교육 공동체입니다.'
 
 function getAboutSummary(siteSummary: string, aboutSections: AboutSectionRow[]) {
   const sectionSummary = aboutSections

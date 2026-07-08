@@ -537,13 +537,13 @@ export function ScrollScoreBookReveal({
     '--cover-opacity': (1 - smoothstep(0.3, 0.5, progress)).toFixed(4),
   }
   const coverLines = splitLines(coverTitle, [
-    '마음을 담은 음악과',
-    '함께 빚는 울림을',
-    '기록하는 악보집',
+    '합창단 활동을',
+    '한눈에 보는',
+    'Motet Score',
   ])
   const finalLines = splitLines(finalTitle, [
-    '목소리와 공동체의',
-    '울림을 읽습니다',
+    '연습과 공연을',
+    '함께 확인합니다',
   ])
   const flutterPages = useMemo(
     () => Array.from({ length: FLUTTER_PAGE_COUNT }, (_, index) => index),
@@ -591,14 +591,14 @@ export function ScrollScoreBookReveal({
                 </h2>
                 <p className="motet-score-final-body">
                   {finalDescription ||
-                    '합창은 소리를 맞추는 일을 넘어,\n사람을 세우는 교육입니다.'}
+                    '합창단의 교육 방향과 활동 흐름을 한 화면에서 안내합니다.'}
                 </p>
-                <p className="motet-score-keywords">귀 기울임 · 꾸준함 · 약속</p>
+                <p className="motet-score-keywords">발성 · 악보 · 파트</p>
                 <div className="motet-score-final-callout">
                   <strong>연습이 남기는 것</strong>
                   <p>
-                    한 곡을 완성하기까지 단원들은 음정과 박자, 숨과 발음을
-                    맞추며 서로를 듣는 시간을 쌓아갑니다.
+                    한 곡을 준비하며 단원들은 음정, 박자, 발음, 호흡을
+                    반복해서 맞춥니다.
                   </p>
                 </div>
               </div>
@@ -610,20 +610,20 @@ export function ScrollScoreBookReveal({
                   ”
                 </span>
                 <h3>
-                  {rightTitle || '함께 부르는 목소리는'}
-                  <span>서로를 듣는 마음에서</span>
-                  <span>시작됩니다</span>
+                  {rightTitle || '공동체 연습'}
+                  <span>파트별 역할과</span>
+                  <span>앙상블을 배웁니다</span>
                 </h3>
                 <p className="motet-score-final-body">
                   {rightBody ||
-                    '나의 소리보다 우리의 울림을 먼저 생각하며, 청소년들은 서로를 살피는 마음과 어울림을 배워갑니다.'}
+                    '파트별 역할을 익히고, 다른 단원의 소리를 들으며 함께 맞춰 갑니다.'}
                 </p>
-                <p className="motet-score-keywords">약속 · 어울림 · 꿈</p>
+                <p className="motet-score-keywords">앙상블 · 공연 · 안내</p>
                 <div className="motet-score-final-callout">
                   <strong>무대가 이어 주는 것</strong>
                   <p>
-                    준비한 목소리는 예배와 공연, 나눔의 자리에서 위로와 평화의
-                    메시지로 전해집니다.
+                    연습한 곡은 정기연주회, 초청연주, 나눔 공연에서
+                    발표됩니다.
                   </p>
                 </div>
               </div>
@@ -643,7 +643,7 @@ export function ScrollScoreBookReveal({
               <span />
               <strong>
                 {coverDescription ||
-                  '마음을 담은 음악과 함께 빚는 울림을 한 권의 악보처럼 기록합니다.'}
+                  '연습, 공연 준비, 주요 안내를 악보집 형식으로 정리했습니다.'}
               </strong>
             </div>
           </div>

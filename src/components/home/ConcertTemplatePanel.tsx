@@ -44,7 +44,7 @@ function getConcertSummary(concert: Concert) {
     return concert.program.slice(0, 3).join(' · ')
   }
 
-  return '서울모테트청소년합창단의 무대는 음악교육의 과정과 공동체의 울림을 함께 전합니다.'
+  return '서울모테트청소년합창단의 공연 일정과 주요 안내를 확인합니다.'
 }
 
 function useDesktopFinePointer() {

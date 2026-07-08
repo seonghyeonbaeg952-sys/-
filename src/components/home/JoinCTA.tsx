@@ -18,7 +18,7 @@ type JoinCTAProps = {
 const joinSummary = [
   {
     label: '모집 대상',
-    value: '음악을 사랑하고, 친구들과 함께 듣고 맞추며 성장하고 싶은 청소년',
+    value: '합창 활동에 관심이 있고 정기 연습에 참여할 수 있는 청소년',
   },
   {
     label: '연습 안내',
@@ -70,11 +70,11 @@ export function JoinCTA({
               </StaffSectionLabel>
               <h2 className="mt-4 max-w-3xl whitespace-pre-line break-keep text-[clamp(2rem,3.6vw,2.9rem)] font-semibold leading-[1.16] text-navy-deep">
                 {title ||
-                  '노래를 잘하는 아이보다\n함께 듣고 성장할 준비가 된 아이를 기다립니다'}
+                  '입단 대상과 지원 절차를 안내합니다'}
               </h2>
               <p className="mt-4 max-w-3xl whitespace-pre-line break-keep text-base leading-8 text-text-muted">
                 {text ||
-                  '서울모테트청소년합창단은 합창을 통해 청소년이 자신의 소리를 발견하고,\n타인의 소리를 존중하며, 공동체 안에서 따뜻하게 성장하도록 돕습니다. 처음 합창을 시작하는 학생도 차분히 배울 수 있도록 안내합니다.'}
+                  '모집 대상, 연습 일정, 오디션 절차를 확인한 뒤 입단지원서를 제출할 수 있습니다. 제출 후 담당자가 보호자 연락처로 안내합니다.'}
               </p>
               <dl className="mt-6 grid gap-3 sm:grid-cols-3">
                 {summaryItems.map((item) => (

@@ -46,11 +46,11 @@ export function SupportCTA({
               </StaffSectionLabel>
               <h2 className="mt-4 max-w-3xl whitespace-pre-line break-keep text-[clamp(2rem,4vw,3rem)] font-semibold leading-[1.14]">
                 {title ||
-                  '한 사람의 목소리가 자라기 위해서는\n보이지 않는 많은 손길이 필요합니다'}
+                  '후원은 청소년 합창교육과\n공연 활동을 지원합니다'}
               </h2>
               <p className="mt-5 max-w-2xl whitespace-pre-line break-keep text-base leading-8 text-bg-ivory/76">
                 {supportText ||
-                  '후원은 단순한 재정 지원이 아니라,\n다음 세대가 음악 안에서 자신을 발견하고\n함께 살아가는 법을 배우도록 돕는 동행입니다.'}
+                  '후원금은 악보와 교육 자료, 연습과 공연 준비,\n국제교류 활동에 사용됩니다.'}
               </p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <Button href="/contact?section=support" size="lg" variant="gold">

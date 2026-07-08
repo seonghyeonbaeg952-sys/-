@@ -20,13 +20,13 @@ type GalleryPreviewProps = {
 
 export function GalleryPreview({
   buttonLabel = '갤러리 보기',
-  description = '무대와 연습, 기록의 장면을 차분하게 모았습니다.',
+  description = '공연 사진, 연습 사진, 영상, 포스터를 확인합니다.',
   emptyDescription,
   emptyTitle,
   eyebrow = 'GALLERY',
   images,
   posters = [],
-  title = '무대의 시간',
+  title = '활동 기록',
   videos = [],
 }: GalleryPreviewProps) {
   return (

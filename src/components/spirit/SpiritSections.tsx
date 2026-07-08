@@ -33,8 +33,8 @@ const heroVariantClasses: Record<SpiritHeroVariant, string> = {
   page: 'py-16 sm:py-20 lg:py-24',
 }
 
-const floatingMottoBadges = ['마음을 담은 음악', '다음세대의 울림']
-const mobileMottoBadges = ['마음을 담은 음악', '서로를 듣는 공동체', '음악 · 마음 · 성장']
+const floatingMottoBadges = ['합창 교육', '공연 활동']
+const mobileMottoBadges = ['합창 교육', '정기 연습', '공연 활동']
 
 const voiceNodePositions = [
   { cx: 180, cy: 110 },
@@ -53,9 +53,9 @@ const voiceNodes = voiceConstellationCopy.voices.map((voice, index) => ({
 
 const voiceCenter = { cx: 360, cy: 210 }
 const manifestoStatementTitles = [
-  '마음을 담아 듣는 음악',
-  '서로를 살피는 공동체',
-  '사람을 세우는 교육',
+  '합창 기본기',
+  '함께 듣는 연습',
+  '공연 활동',
 ] as const
 
 function getTextParagraphs(text: string) {

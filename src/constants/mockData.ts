@@ -169,14 +169,14 @@ export const mockSiteSettings = {
   hero_subtitle: 'A refined choral voice for the next generation',
   home_hero_eyebrow: '서울모테트청소년합창단',
   home_hero_description:
-    '모테트의 전통 위에서 서로를 듣고 호흡하며, 다음 세대의 맑은 울림을 함께 길러갑니다.',
+    '청소년이 합창을 배우고 정기 연습과 공연을 경험하는 음악교육 공동체입니다.',
   home_info_card_1_title: '입단 안내',
   home_info_card_1_description: '모집 대상과 입단 절차를 확인합니다.',
   home_info_card_2_title: '공연 일정',
   home_info_card_2_description: '다가오는 공연과 공지사항을 확인합니다.',
   home_info_card_3_title: '후원·문의',
-  home_info_card_3_description: '후원 상담과 문의를 공식 채널로 연결합니다.',
-  home_about_title: '청소년의 목소리로 전하는 깊은 울림',
+  home_info_card_3_description: '후원 상담과 일반 문의를 공식 문의 폼으로 접수합니다.',
+  home_about_title: '서울모테트청소년합창단 소개',
   home_about_button_label: '합창단 소개 보기',
   home_concerts_title: '다가오는 공연',
   home_concerts_description: '서울모테트청소년합창단의 무대를 만나보세요.',
@@ -186,18 +186,18 @@ export const mockSiteSettings = {
     '입단, 공연, 갤러리 업데이트 등 중요한 소식을 안내합니다.',
   home_notices_button_label: '공지사항 보기',
   home_gallery_title: '활동 갤러리',
-  home_gallery_description: '무대와 연습, 기록의 장면을 모았습니다.',
+  home_gallery_description: '공연 사진, 연습 사진, 영상, 포스터를 확인합니다.',
   home_gallery_button_label: '갤러리 보기',
   home_join_title: '서울모테트청소년합창단과 함께 노래할 단원을 기다립니다',
   home_join_button_label: '입단 안내 보기',
   home_support_title: '후원과 문의',
   home_support_button_label: '문의',
   about_summary:
-    '서울모테트청소년합창단은 청소년들이 마음을 담은 음악과 함께 부르는 공동체 안에서 음악과 마음, 공동체의 울림을 함께 배워가도록 돕습니다.',
+    '서울모테트청소년합창단은 청소년이 합창의 기본기, 악보 읽기, 무대 경험을 체계적으로 배우는 합창교육 공동체입니다.',
   support_text:
     '서울모테트청소년합창단의 공연, 초청연주, 후원 상담은 공식 문의 페이지에서 이어집니다.',
   join_cta_text:
-    '음악을 사랑하는 청소년들이 함께 배우고 성장할 수 있도록 입단 안내와 문의 흐름을 준비했습니다.',
+    '모집 대상, 연습 일정, 오디션 절차를 확인한 뒤 입단지원서를 제출할 수 있습니다.',
   email: '',
   phone: '02-579-7295',
   fax: '02-579-7293',
@@ -209,11 +209,11 @@ export const mockSiteSettings = {
 
 export const mockSupportSettings = {
   id: 'support-settings-default',
-  title: '한 사람의 목소리가 자라기 위해서는\n보이지 않는 많은 손길이 필요합니다',
+  title: '후원은 청소년 합창교육과\n공연 활동을 지원합니다',
   subtitle:
-    '후원은 다음 세대가 음악 안에서 성장하도록 돕는 약정 접수입니다.',
+    '후원 약정은 관리자 확인 후 안내됩니다.',
   description:
-    '후원은 단순한 재정 지원이 아니라, 청소년이 음악 안에서 자신을 발견하고 함께 살아가는 법을 배우도록 돕는 동행입니다.',
+    '후원금은 악보와 교육 자료, 연습과 공연 준비, 국제교류 활동에 사용됩니다.',
   message:
     '현재 후원 기능은 온라인 결제가 아니라 후원 약정 접수입니다. 제출된 약정서는 관리자 확인 후 안내 절차에 따라 관리됩니다.',
   individual_amounts: [10000, 20000, 30000, 50000],
