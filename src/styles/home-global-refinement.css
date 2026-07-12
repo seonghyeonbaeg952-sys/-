@@ -375,6 +375,177 @@
   overflow-x: clip;
 }
 
+/* Keep the original fan-out motion, but close the archive cards into the
+   folder before their horizontal positions converge. This prevents the
+   video and poster previews from visually cutting through each other. */
+@media (min-width: 1100px) {
+  .archive-folder-item-1 {
+    z-index: 7;
+  }
+
+  .archive-folder-item-2 {
+    z-index: 6;
+  }
+
+  .archive-folder-item-3 {
+    z-index: 5;
+  }
+
+  .archive-l-folder[data-motion-state="closing"] .archive-folder-item {
+    transition: none !important;
+    animation-duration: 800ms;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    animation-fill-mode: both;
+  }
+
+  .archive-l-folder[data-motion-state="closing"] .archive-folder-item-1 {
+    animation-name: archive-folder-close-one;
+    animation-delay: 110ms;
+  }
+
+  .archive-l-folder[data-motion-state="closing"] .archive-folder-item-2 {
+    animation-name: archive-folder-close-two;
+    animation-delay: 55ms;
+  }
+
+  .archive-l-folder[data-motion-state="closing"] .archive-folder-item-3 {
+    animation-name: archive-folder-close-three;
+  }
+
+  .archive-l-folder[data-motion-state="closing"] .archive-folder-front {
+    animation: archive-folder-front-settle 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .archive-l-folder[data-motion-state="closing"] .archive-folder-front::after {
+    animation: archive-folder-close-sheen 520ms cubic-bezier(0.22, 1, 0.36, 1) 400ms both;
+  }
+}
+
+@keyframes archive-folder-close-one {
+  0% {
+    z-index: 12;
+    transform: translate(-42px, -38px) rotate(-10deg);
+  }
+
+  15% {
+    z-index: 12;
+    transform: translate(-46px, -43px) rotate(-10.8deg);
+  }
+
+  46% {
+    z-index: 12;
+    transform: translate(-42px, 94px) rotate(-9deg);
+  }
+
+  47%,
+  100% {
+    z-index: 7;
+  }
+
+  84% {
+    transform: translate(4px, 98px) rotate(-7.5deg);
+  }
+
+  100% {
+    transform: translate(0, 94px) rotate(-8deg);
+  }
+}
+
+@keyframes archive-folder-close-two {
+  0% {
+    z-index: 13;
+    transform: translate(70px, -78px) rotate(1deg);
+  }
+
+  15% {
+    z-index: 13;
+    transform: translate(72px, -84px) rotate(0.5deg);
+  }
+
+  46% {
+    z-index: 13;
+    transform: translate(70px, 106px) rotate(1.5deg);
+  }
+
+  47%,
+  100% {
+    z-index: 6;
+  }
+
+  84% {
+    transform: translate(-4px, 109px) rotate(2.4deg);
+  }
+
+  100% {
+    transform: translate(0, 106px) rotate(2deg);
+  }
+}
+
+@keyframes archive-folder-close-three {
+  0% {
+    z-index: 12;
+    transform: translate(184px, -28px) rotate(10deg);
+  }
+
+  15% {
+    z-index: 12;
+    transform: translate(188px, -32px) rotate(10.8deg);
+  }
+
+  46% {
+    z-index: 12;
+    transform: translate(184px, 98px) rotate(9deg);
+  }
+
+  47%,
+  100% {
+    z-index: 5;
+  }
+
+  84% {
+    transform: translate(8px, 101px) rotate(7.6deg);
+  }
+
+  100% {
+    transform: translate(0, 98px) rotate(8deg);
+  }
+}
+
+@keyframes archive-folder-front-settle {
+  0%,
+  48% {
+    transform: translateY(0);
+  }
+
+  66% {
+    transform: translateY(3px);
+  }
+
+  84% {
+    transform: translateY(-1px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes archive-folder-close-sheen {
+  0% {
+    opacity: 0;
+    transform: translate3d(-110%, 0, 0);
+  }
+
+  38% {
+    opacity: 0.2;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(115%, 0, 0);
+  }
+}
+
 @media (min-width: 1100px) {
   .home-quick-action-grid {
     grid-template-columns:

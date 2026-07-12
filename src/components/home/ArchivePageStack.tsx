@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import type { GalleryImage, Poster, VideoItem } from '../../types/content'
 import { Button } from '../common/Button'
@@ -25,6 +25,8 @@ type ArchivePreviewItem = {
   src: string
   title: string
 }
+
+const ARCHIVE_CLOSE_DURATION_MS = 920
 
 function buildArchiveItems(
   images: GalleryImage[],
@@ -89,7 +91,37 @@ export function ArchivePageStack({
   videos = [],
 }: ArchivePageStackProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [isClosing, setIsClosing] = useState(false)
+  const closeTimerRef = useRef<number | null>(null)
   const archiveItems = buildArchiveItems(images, videos, posters)
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current !== null) {
+        window.clearTimeout(closeTimerRef.current)
+      }
+    }
+  }, [])
+
+  const handleToggle = () => {
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current)
+      closeTimerRef.current = null
+    }
+
+    if (isOpen) {
+      setIsClosing(true)
+      setIsOpen(false)
+      closeTimerRef.current = window.setTimeout(() => {
+        setIsClosing(false)
+        closeTimerRef.current = null
+      }, ARCHIVE_CLOSE_DURATION_MS)
+      return
+    }
+
+    setIsClosing(false)
+    setIsOpen(true)
+  }
 
   if (archiveItems.length === 0) {
     return (
@@ -118,7 +150,7 @@ export function ArchivePageStack({
             aria-expanded={isOpen}
             aria-label={isOpen ? '갤러리 기록 접기' : '갤러리 기록 펼치기'}
             className="archive-inline-toggle mt-7"
-            onClick={() => setIsOpen((current) => !current)}
+            onClick={handleToggle}
             type="button"
           >
             {isOpen ? '접기' : '기록 펼치기'}
@@ -130,6 +162,7 @@ export function ArchivePageStack({
         <div className="archive-folder-stage">
           <div
             className="archive-l-folder"
+            data-motion-state={isClosing ? 'closing' : isOpen ? 'open' : 'closed'}
             data-open={isOpen ? 'true' : 'false'}
           >
             <div aria-hidden="true" className="archive-folder-back" />

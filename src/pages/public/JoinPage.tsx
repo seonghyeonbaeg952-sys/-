@@ -13,6 +13,7 @@ import { Reveal } from '../../components/common/Reveal'
 import { SectionTitle } from '../../components/common/SectionTitle'
 import { SpiritStatementBlock } from '../../components/common/Spirit'
 import { JoinInquiryForm } from '../../components/join/JoinInquiryForm'
+import { mergeJoinFaqs } from '../../constants/joinFaqDefaults'
 import { joinSpiritCopy } from '../../constants/spiritContent'
 import { useJoinData } from '../../hooks/usePublicData'
 
@@ -115,6 +116,7 @@ export function JoinPage() {
   const showPractice = showAll || activeSection === 'practice'
   const showFaq = showAll || activeSection === 'faq'
   const showContact = showAll || activeSection === 'contact'
+  const faqItems = mergeJoinFaqs(joinData.data.faqs)
 
   return (
     <>
@@ -348,13 +350,8 @@ export function JoinPage() {
             {showFaq ? (
             <section id="faq">
               <SectionTitle eyebrow="FAQ" title="자주 묻는 질문" />
-              {joinData.data.faqs.length === 0 ? (
-                <div className="mt-8">
-                  <EmptyState title="등록된 FAQ가 없습니다" />
-                </div>
-              ) : (
-                <div className="mt-8 grid gap-3">
-                  {joinData.data.faqs.map((faq) => {
+              <div className="mt-8 grid gap-3">
+                  {faqItems.map((faq) => {
                     const isOpen = openFaqId === faq.id
 
                     return (
@@ -380,8 +377,7 @@ export function JoinPage() {
                       </Card>
                     )
                   })}
-                </div>
-              )}
+              </div>
             </section>
             ) : null}
           </div>
