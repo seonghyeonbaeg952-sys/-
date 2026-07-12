@@ -14,8 +14,15 @@ import { ImageTile } from './ImageTile'
 
 type AboutPreviewProps = {
   buttonLabel?: string
+  identityDescription?: string
+  identityTagline?: string
   image?: GalleryImage
   kicker?: string
+  nextStage?: {
+    date: string
+    location?: string
+    title: string
+  }
   settings?: Pick<SiteSettings, 'instagram_url' | 'youtube_url'>
   summary?: string
   title?: string
@@ -62,8 +69,11 @@ function getSummaryParagraphs(summary?: string) {
 
 export function AboutPreview({
   buttonLabel = '합창단 소개 보기',
+  identityDescription,
+  identityTagline,
   image,
   kicker = 'ABOUT',
+  nextStage,
   settings,
   summary,
   title = '서울모테트청소년합창단 소개',
@@ -104,7 +114,10 @@ export function AboutPreview({
                 ))}
               </div>
               <GlobalIdentityPlate
+                description={identityDescription}
                 instagramUrl={settings?.instagram_url}
+                nextStage={nextStage}
+                tagline={identityTagline}
                 youtubeUrl={settings?.youtube_url}
               />
               <Button className="mt-7" href="/about" variant="primary">

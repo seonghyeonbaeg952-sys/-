@@ -9,6 +9,7 @@ import { EmptyState } from '../../components/common/EmptyState'
 import { ErrorState } from '../../components/common/ErrorState'
 import { LoadingState } from '../../components/common/LoadingState'
 import { PageHero } from '../../components/common/PageHero'
+import { SeoHead } from '../../components/common/SeoHead'
 import { Reveal } from '../../components/common/Reveal'
 import { StaffFrame } from '../../components/common/StaffFrame'
 import { StaffLines } from '../../components/common/StaffLines'
@@ -166,6 +167,11 @@ export function GalleryPage() {
 
   return (
     <>
+      <SeoHead
+        description="서울모테트청소년합창단의 공연, 연습, 포스터와 영상 기록을 확인합니다."
+        path="/gallery"
+        title="갤러리"
+      />
       <PageHero
         description="공연과 연습, 포스터와 영상 자료를 아카이브처럼 모아 봅니다."
         eyebrow="ARCHIVE"

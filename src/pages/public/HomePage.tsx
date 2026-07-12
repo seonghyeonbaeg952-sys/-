@@ -1,3 +1,6 @@
+import { useMemo } from 'react'
+
+import { SeoHead } from '../../components/common/SeoHead'
 import { StaffFlowRail } from '../../components/common/StaffFlowRail'
 import { AboutPreview } from '../../components/home/AboutPreview'
 import { FloatingInfoCards } from '../../components/home/FloatingInfoCards'
@@ -15,7 +18,7 @@ import { SupportLetterFold } from '../../components/home/SupportLetterFold'
 import { useHomeData } from '../../hooks/usePublicData'
 import { useSiteText } from '../../hooks/useSiteText'
 import type { AboutSectionRow } from '../../types/cms'
-import type { GalleryImage } from '../../types/content'
+import type { Concert, GalleryImage } from '../../types/content'
 
 const homeHeroEnglishTitleLines = ['SEOUL', 'MOTET', 'YOUTH', 'CHOIR']
 const homeHeroBody =
@@ -42,6 +45,23 @@ function getVisibleGalleryImages(images: GalleryImage[]) {
   return [...images]
     .filter((image) => image.is_visible && image.image_url.trim())
     .sort((first, second) => first.display_order - second.display_order)
+}
+
+function getNextConcert(concerts: Concert[]) {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  return [...concerts]
+    .filter((concert) => {
+      if (!concert.is_visible || !concert.date || concert.status === 'cancelled') {
+        return false
+      }
+
+      const concertDate = new Date(`${concert.date}T00:00:00`)
+
+      return !Number.isNaN(concertDate.getTime()) && concertDate >= today
+    })
+    .sort((first, second) => first.date.localeCompare(second.date))[0]
 }
 
 function resolveHomeHeroTitleLines(titleLines: string[]) {
@@ -123,6 +143,7 @@ export function HomePage() {
   const galleryPreviewImages = aboutVisualImage
     ? gallery.filter((image) => image.id !== aboutVisualImage.id)
     : gallery
+  const nextConcert = getNextConcert(concerts)
   const heroTitleLines = resolveHomeHeroTitleLines([
     t('home.hero.title.line1', homeHeroEnglishTitleLines[0]),
     t('home.hero.title.line2', homeHeroEnglishTitleLines[1]),
@@ -133,43 +154,79 @@ export function HomePage() {
     t('home.hero.eyebrow', siteSettings.home_hero_eyebrow),
   )
   const heroBody = resolveHomeHeroBody(t('home.hero.subtitle'))
+  const seoImage = [...heroSlides]
+    .filter((slide) => slide.is_visible && slide.image_url.trim())
+    .sort((first, second) => first.display_order - second.display_order)[0]
+    ?.image_url
+  const homeStructuredData = useMemo(() => {
+    const sameAs = [siteSettings.youtube_url, siteSettings.instagram_url].filter(
+      (url) => url.trim(),
+    )
+
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: siteSettings.site_title || '서울모테트청소년합창단',
+      alternateName: 'Seoul Motet Youth Choir',
+      url: window.location.origin,
+      publisher: {
+        '@type': 'MusicGroup',
+        name: '서울모테트청소년합창단',
+        ...(sameAs.length > 0 ? { sameAs } : {}),
+      },
+    }
+  }, [siteSettings.instagram_url, siteSettings.site_title, siteSettings.youtube_url])
 
   return (
-    <HomeFlowProvider>
-      <div className="home-intro-real-sample">
-        <HomeHeroSlideshow
-          body={heroBody}
-          eyebrow={heroEyebrow}
-          fallbackDescription={siteSettings.home_hero_description}
-          fallbackSubtitle={siteSettings.hero_subtitle}
-          fallbackTitle={siteSettings.hero_title}
-          headline={
-            <>
-              {heroTitleLines.map((line) => (
-                <span className="block" key={line}>
-                  {renderSmycTitleLine(line)}
-                </span>
-              ))}
-            </>
-          }
-          mottoChips={[
-            t('home.hero.chip1'),
-            t('home.hero.chip2'),
-            t('home.hero.chip3'),
-          ]}
-          primaryCtaLabel={t('home.hero.cta.primary', t('home.hero.primaryButton'))}
-          secondaryCtaLabel={t('home.hero.cta.secondary', t('home.hero.secondaryButton'))}
-          slides={heroSlides}
-        />
-        <HomeHeroIntroOverlay />
-      </div>
-      <HomePopupManager popups={popupNotices} />
-      <div className="home-flow-body flow-root relative z-30 isolate overflow-visible">
-        <StaffFlowRail
-          className="hidden lg:block lg:-top-72 lg:bottom-24 lg:left-[max(1.25rem,calc(50%_-_760px))] lg:z-20 lg:opacity-75 xl:left-[max(2rem,calc(50%_-_840px))]"
-          tone="light"
-        />
-        <div className="relative z-10">
+    <>
+      <SeoHead
+        description={heroBody || siteSettings.home_hero_description}
+        image={seoImage}
+        jsonLd={homeStructuredData}
+        path="/"
+        title={siteSettings.site_title || '서울모테트청소년합창단'}
+      />
+      <HomeFlowProvider>
+        <div className="home-intro-real-sample">
+          <HomeHeroSlideshow
+            body={heroBody}
+            eyebrow={heroEyebrow}
+            fallbackDescription={siteSettings.home_hero_description}
+            fallbackSubtitle={siteSettings.hero_subtitle}
+            fallbackTitle={siteSettings.hero_title}
+            headline={
+              <>
+                {heroTitleLines.map((line) => (
+                  <span className="block" key={line}>
+                    {renderSmycTitleLine(line)}
+                  </span>
+                ))}
+              </>
+            }
+            mottoChips={[
+              t('home.hero.chip1'),
+              t('home.hero.chip2'),
+              t('home.hero.chip3'),
+            ]}
+            primaryCtaLabel={t(
+              'home.hero.cta.primary',
+              t('home.hero.primaryButton'),
+            )}
+            secondaryCtaLabel={t(
+              'home.hero.cta.secondary',
+              t('home.hero.secondaryButton'),
+            )}
+            slides={heroSlides}
+          />
+          <HomeHeroIntroOverlay />
+        </div>
+        <HomePopupManager popups={popupNotices} />
+        <div className="home-flow-body flow-root relative z-30 isolate overflow-visible">
+          <StaffFlowRail
+            className="hidden lg:block lg:-top-72 lg:bottom-24 lg:left-[max(1.25rem,calc(50%_-_760px))] lg:z-20 lg:opacity-75 xl:left-[max(2rem,calc(50%_-_840px))]"
+            tone="light"
+          />
+          <div className="relative z-10">
           <FloatingInfoCards
             cards={[
               {
@@ -200,8 +257,25 @@ export function HomePage() {
           />
           <AboutPreview
             buttonLabel={t('home.about.cta', siteSettings.home_about_button_label)}
+            identityDescription={t(
+              'home.global.description',
+              '서울에서 시작한 청소년 합창교육과 무대의 기록을 세계 관객과 공유합니다.',
+            )}
+            identityTagline={t(
+              'home.global.tagline',
+              'Voice, learning and the stage',
+            )}
             image={aboutVisualImage}
             kicker={t('home.about.kicker')}
+            nextStage={
+              nextConcert
+                ? {
+                    date: nextConcert.date,
+                    location: nextConcert.location,
+                    title: nextConcert.title,
+                  }
+                : undefined
+            }
             settings={siteSettings}
             summary={t('home.about.body', aboutSummary)}
             title={t('home.about.title', siteSettings.home_about_title)}
@@ -289,8 +363,9 @@ export function HomePage() {
             supportText={t('home.support.description')}
             title={t('home.support.title')}
           />
+          </div>
         </div>
-      </div>
-    </HomeFlowProvider>
+      </HomeFlowProvider>
+    </>
   )
 }

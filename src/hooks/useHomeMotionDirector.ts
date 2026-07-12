@@ -11,6 +11,7 @@ const motionSurfaceSelector = [
   '.spirit-scorebook',
   '.archive-l-folder',
   '.sponsor-quiet-panel',
+  '.home-global-identity-plate',
   '.support-letter-card',
 ].join(',')
 
@@ -47,6 +48,7 @@ export function useHomeMotionDirector(rootRef: RefObject<HTMLDivElement | null>)
       target: EventTarget | null
     } | null = null
     let activeSurface: HTMLElement | null = null
+    let pointerListenersAttached = false
 
     const clearPointerSurface = () => {
       if (!activeSurface) {
@@ -97,7 +99,7 @@ export function useHomeMotionDirector(rootRef: RefObject<HTMLDivElement | null>)
     }
 
     const requestUpdate = () => {
-      if (frameId !== 0) {
+      if (frameId !== 0 || document.visibilityState !== 'visible') {
         return
       }
 
@@ -166,12 +168,37 @@ export function useHomeMotionDirector(rootRef: RefObject<HTMLDivElement | null>)
       }
     }
 
+    const syncPointerListeners = () => {
+      const shouldListen =
+        document.visibilityState === 'visible' &&
+        finePointerQuery.matches &&
+        !reducedMotionQuery.matches
+
+      if (shouldListen === pointerListenersAttached) {
+        return
+      }
+
+      pointerListenersAttached = shouldListen
+
+      if (shouldListen) {
+        root.addEventListener('pointermove', handlePointerMove, { passive: true })
+        root.addEventListener('pointerleave', clearPointerSurface)
+      } else {
+        pendingPointer = null
+        clearPointerSurface()
+        root.removeEventListener('pointermove', handlePointerMove)
+        root.removeEventListener('pointerleave', clearPointerSurface)
+      }
+    }
+
     const handleMotionPreferenceChange = () => {
-      clearPointerSurface()
+      syncPointerListeners()
       requestUpdate()
     }
 
     const handleVisibilityChange = () => {
+      syncPointerListeners()
+
       if (document.visibilityState === 'visible') {
         requestUpdate()
       }
@@ -199,8 +226,7 @@ export function useHomeMotionDirector(rootRef: RefObject<HTMLDivElement | null>)
     sections.forEach((section) => visibilityObserver.observe(section))
 
     updateSections()
-    root.addEventListener('pointermove', handlePointerMove, { passive: true })
-    root.addEventListener('pointerleave', clearPointerSurface)
+    syncPointerListeners()
     window.addEventListener('scroll', requestUpdate, { passive: true })
     window.addEventListener('resize', requestUpdate)
     window.addEventListener('pageshow', requestUpdate)
@@ -219,8 +245,10 @@ export function useHomeMotionDirector(rootRef: RefObject<HTMLDivElement | null>)
       clearPointerSurface()
       resizeObserver.disconnect()
       visibilityObserver.disconnect()
-      root.removeEventListener('pointermove', handlePointerMove)
-      root.removeEventListener('pointerleave', clearPointerSurface)
+      if (pointerListenersAttached) {
+        root.removeEventListener('pointermove', handlePointerMove)
+        root.removeEventListener('pointerleave', clearPointerSurface)
+      }
       window.removeEventListener('scroll', requestUpdate)
       window.removeEventListener('resize', requestUpdate)
       window.removeEventListener('pageshow', requestUpdate)

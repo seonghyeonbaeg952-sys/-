@@ -1,8 +1,19 @@
 import { legacyChoirIntro } from '../../constants/legacyContent'
+import { formatKoreanDate } from '../../utils/formatDate'
 import { BrandLogo } from '../common/BrandLogo'
+import { TransitionLink } from '../common/TransitionLink'
+
+type GlobalIdentityNextStage = {
+  date: string
+  location?: string
+  title: string
+}
 
 type GlobalIdentityPlateProps = {
+  description?: string
   instagramUrl?: string | null
+  nextStage?: GlobalIdentityNextStage
+  tagline?: string
   youtubeUrl?: string | null
 }
 
@@ -32,7 +43,10 @@ function getSafeExternalUrl(value: string | null | undefined) {
 }
 
 export function GlobalIdentityPlate({
+  description = '서울에서 시작한 청소년 합창교육과 무대의 기록을 세계 관객과 공유합니다.',
   instagramUrl,
+  nextStage,
+  tagline = 'Voice, learning and the stage',
   youtubeUrl,
 }: GlobalIdentityPlateProps) {
   const socialLinks = [
@@ -46,7 +60,7 @@ export function GlobalIdentityPlate({
         <BrandLogo brand="smyc" size="md" theme="dark" />
         <div>
           <p>SEOUL MOTET YOUTH CHOIR</p>
-          <strong>Voice, learning and the stage</strong>
+          <strong>{tagline}</strong>
         </div>
       </div>
 
@@ -59,11 +73,22 @@ export function GlobalIdentityPlate({
         ))}
       </dl>
 
+      {nextStage ? (
+        <TransitionLink className="home-global-identity-next" to="/concerts">
+          <span>NEXT STAGE</span>
+          <strong>{nextStage.title}</strong>
+          <span className="home-global-identity-next__meta">
+            <time dateTime={nextStage.date}>{formatKoreanDate(nextStage.date)}</time>
+            {nextStage.location ? <span>{nextStage.location}</span> : null}
+          </span>
+          <span aria-hidden="true" className="home-global-identity-next__arrow">
+            ↗
+          </span>
+        </TransitionLink>
+      ) : null}
+
       <div className="home-global-identity-footer">
-        <p>
-          서울에서 시작한 청소년 합창교육과 무대의 기록을 세계 관객과
-          공유합니다.
-        </p>
+        <p>{description}</p>
         {socialLinks.length > 0 ? (
           <nav aria-label="합창단 공식 소셜 채널">
             {socialLinks.map((link) => (

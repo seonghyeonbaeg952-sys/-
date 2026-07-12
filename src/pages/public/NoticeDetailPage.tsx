@@ -8,6 +8,7 @@ import { EmptyState } from '../../components/common/EmptyState'
 import { ErrorState } from '../../components/common/ErrorState'
 import { LoadingState } from '../../components/common/LoadingState'
 import { PageHero } from '../../components/common/PageHero'
+import { SeoHead } from '../../components/common/SeoHead'
 import { ImageTile } from '../../components/home/ImageTile'
 import { useNoticeDetailData } from '../../hooks/usePublicData'
 import { formatShortDate } from '../../utils/formatDate'
@@ -19,6 +20,14 @@ export function NoticeDetailPage() {
 
   return (
     <>
+      <SeoHead
+        description={notice?.content || '서울모테트청소년합창단 공지 상세'}
+        image={notice?.cover_image_url}
+        noIndex={!noticeData.isLoading && !notice}
+        path={noticeId ? `/notices/${encodeURIComponent(noticeId)}` : '/notices'}
+        title={notice?.title || '공지 상세'}
+        type="article"
+      />
       <PageHero
         description={notice ? formatShortDate(notice.created_at) : '공지 상세'}
         eyebrow="NOTICE DETAIL"

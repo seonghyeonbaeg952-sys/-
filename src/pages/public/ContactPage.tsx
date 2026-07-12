@@ -11,6 +11,7 @@ import { ErrorState } from '../../components/common/ErrorState'
 import { LoadingState } from '../../components/common/LoadingState'
 import { MapPreview } from '../../components/common/MapPreview'
 import { PageHero } from '../../components/common/PageHero'
+import { SeoHead } from '../../components/common/SeoHead'
 import { Reveal } from '../../components/common/Reveal'
 import { SectionTitle } from '../../components/common/SectionTitle'
 import { ImageTile } from '../../components/home/ImageTile'
@@ -239,6 +240,11 @@ export function ContactPage() {
 
   return (
     <>
+      <SeoHead
+        description="서울모테트청소년합창단 후원, 공연, 입단과 일반 문의를 공식 채널로 접수합니다."
+        path="/contact"
+        title="후원·문의"
+      />
       <PageHero
         description="후원, 공연 의뢰, 일반 문의를 공식 채널로 보내 주세요. 입단지원서는 별도 양식으로 접수합니다."
         eyebrow="HELP DESK"

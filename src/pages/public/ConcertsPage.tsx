@@ -11,6 +11,7 @@ import { ErrorState } from '../../components/common/ErrorState'
 import { LoadingState } from '../../components/common/LoadingState'
 import { PageHero } from '../../components/common/PageHero'
 import { Reveal } from '../../components/common/Reveal'
+import { SeoHead } from '../../components/common/SeoHead'
 import { StaffLines } from '../../components/common/StaffLines'
 import { ImageTile } from '../../components/home/ImageTile'
 import { useConcertsData } from '../../hooks/usePublicData'
@@ -42,6 +43,9 @@ const periodTabs: Array<{
   { label: '예정 공연', value: 'upcoming' },
   { label: '지난 공연', value: 'past' },
 ]
+
+const concertsPageDescription =
+  '서울모테트청소년합창단의 정기연주회, 초청연주, 특별연주 일정과 공연 정보를 확인합니다.'
 
 function isPastConcert(concert: Concert) {
   if (concert.status === 'closed' || concert.status === 'cancelled') {
@@ -136,9 +140,28 @@ export function ConcertsPage() {
     })
   }, [categoryFilter, concertsData.data, periodFilter, searchValue, statusFilter])
   const concertLayoutMode = getCollectionLayoutMode(filteredConcerts.length)
+  const concertListStructuredData = useMemo(
+    () => ({
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      itemListElement: concertsData.data.slice(0, 20).map((concert, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: concert.title,
+        url: new URL(`/concerts/${concert.id}`, window.location.origin).toString(),
+      })),
+    }),
+    [concertsData.data],
+  )
 
   return (
     <>
+      <SeoHead
+        description={concertsPageDescription}
+        jsonLd={concertListStructuredData}
+        path="/concerts"
+        title="공연·소식"
+      />
       <PageHero
         description="정기연주회, 초청연주, 특별연주 일정을 확인합니다."
         eyebrow="CONCERTS"

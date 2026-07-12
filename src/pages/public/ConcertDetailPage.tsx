@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useParams } from 'react-router'
 
 import { Badge } from '../../components/common/Badge'
@@ -8,17 +9,98 @@ import { EmptyState } from '../../components/common/EmptyState'
 import { ErrorState } from '../../components/common/ErrorState'
 import { LoadingState } from '../../components/common/LoadingState'
 import { PageHero } from '../../components/common/PageHero'
+import { SeoHead } from '../../components/common/SeoHead'
 import { ImageTile } from '../../components/home/ImageTile'
 import { useConcertDetailData } from '../../hooks/usePublicData'
+import type { Concert } from '../../types/content'
 import { formatKoreanDate } from '../../utils/formatDate'
+
+function getSafeHttpUrl(value: string) {
+  try {
+    const url = new URL(value, window.location.origin)
+
+    return url.protocol === 'http:' || url.protocol === 'https:'
+      ? url.toString()
+      : ''
+  } catch {
+    return ''
+  }
+}
+
+function buildConcertStructuredData(concert: Concert) {
+  const actionUrl = getSafeHttpUrl(
+    concert.ticket_url.trim() || concert.apply_url.trim(),
+  )
+  const location = concert.location.trim()
+  const posterUrl = getSafeHttpUrl(concert.poster_url.trim())
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: concert.title,
+    startDate: concert.date,
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    eventStatus:
+      concert.status === 'cancelled'
+        ? 'https://schema.org/EventCancelled'
+        : 'https://schema.org/EventScheduled',
+    description:
+      concert.description.trim() ||
+      `${concert.title} 공연 정보를 서울모테트청소년합창단 홈페이지에서 확인하세요.`,
+    ...(posterUrl ? { image: [posterUrl] } : {}),
+    ...(location
+      ? {
+          location: {
+            '@type': 'Place',
+            name: location,
+          },
+        }
+      : {}),
+    performer: {
+      '@type': 'MusicGroup',
+      name: '서울모테트청소년합창단',
+    },
+    organizer: {
+      '@type': 'Organization',
+      name: '서울모테트청소년합창단',
+      url: window.location.origin,
+    },
+    url: new URL(`/concerts/${concert.id}`, window.location.origin).toString(),
+    ...(actionUrl
+      ? {
+          offers: {
+            '@type': 'Offer',
+            availability:
+              concert.status === 'closed' || concert.status === 'cancelled'
+                ? 'https://schema.org/SoldOut'
+                : 'https://schema.org/InStock',
+            url: actionUrl,
+          },
+        }
+      : {}),
+  }
+}
 
 export function ConcertDetailPage() {
   const { concertId } = useParams()
   const concertData = useConcertDetailData(concertId)
   const concert = concertData.data
+  const concertStructuredData = useMemo(
+    () =>
+      concert?.date.trim() ? buildConcertStructuredData(concert) : undefined,
+    [concert],
+  )
 
   return (
     <>
+      <SeoHead
+        description={concert?.description || '서울모테트청소년합창단 공연 상세 정보'}
+        image={concert?.poster_url}
+        jsonLd={concertStructuredData}
+        noIndex={!concertData.isLoading && !concert}
+        path={concertId ? `/concerts/${encodeURIComponent(concertId)}` : '/concerts'}
+        title={concert?.title || '공연 상세'}
+      />
       <PageHero
         description={concert?.description || '공연 상세 정보를 확인합니다.'}
         eyebrow="CONCERT DETAIL"

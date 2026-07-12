@@ -463,6 +463,7 @@
   .spirit-scorebook,
   .archive-folder-stage,
   .sponsor-quiet-panel,
+  .home-global-identity-plate,
   .support-letter-card
 ) {
   animation: home-motion-stage-settle 1120ms var(--home-motion-ease-entrance) both;

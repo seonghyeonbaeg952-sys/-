@@ -9,6 +9,7 @@ import { EmptyState } from '../../components/common/EmptyState'
 import { ErrorState } from '../../components/common/ErrorState'
 import { LoadingState } from '../../components/common/LoadingState'
 import { PageHero } from '../../components/common/PageHero'
+import { SeoHead } from '../../components/common/SeoHead'
 import { Reveal } from '../../components/common/Reveal'
 import { ImageTile } from '../../components/home/ImageTile'
 import { useNoticesData } from '../../hooks/usePublicData'
@@ -78,6 +79,11 @@ export function NoticesPage() {
 
   return (
     <>
+      <SeoHead
+        description="서울모테트청소년합창단의 입단, 공연, 보도자료와 공식 소식을 확인합니다."
+        path="/notices"
+        title="공지사항"
+      />
       <PageHero
         description="입단, 공연, 보도자료와 합창단의 공식 소식을 확인합니다."
         eyebrow="NOTICES"

@@ -1,3 +1,4 @@
+import { SeoHead } from '../../components/common/SeoHead'
 import {
   EducationJourney,
   ImpactStatsBand,
@@ -46,17 +47,25 @@ export function SpiritPage() {
   const heroImage = heroSlides.find((slide) => slide.image_url.trim())?.image_url ?? null
 
   return (
-    <main className="spirit-page bg-bg-warm-white">
-      <SpiritDiagonalHero backgroundImageUrl={heroImage} copy={hero} />
-      <SpiritManifesto text={manifesto} />
-      <MotetMeaningSection copy={motetMeaning} />
-      <SongOfMemorySection />
-      <SpiritValueCardsSection values={spiritValues} />
-      <VoiceConstellation />
-      <LegacyFlow />
-      <EducationJourney />
-      <ImpactStatsBand />
-      <SpiritCTA copy={cta} />
-    </main>
+    <>
+      <SeoHead
+        description="서울모테트청소년합창단의 음악교육 철학과 공동체의 가치를 소개합니다."
+        image={heroImage || undefined}
+        path="/spirit"
+        title="합창단 정신"
+      />
+      <div className="spirit-page bg-bg-warm-white">
+        <SpiritDiagonalHero backgroundImageUrl={heroImage} copy={hero} />
+        <SpiritManifesto text={manifesto} />
+        <MotetMeaningSection copy={motetMeaning} />
+        <SongOfMemorySection />
+        <SpiritValueCardsSection values={spiritValues} />
+        <VoiceConstellation />
+        <LegacyFlow />
+        <EducationJourney />
+        <ImpactStatsBand />
+        <SpiritCTA copy={cta} />
+      </div>
+    </>
   )
 }

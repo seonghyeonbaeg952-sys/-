@@ -9,6 +9,7 @@ import { EmptyState } from '../../components/common/EmptyState'
 import { ErrorState } from '../../components/common/ErrorState'
 import { LoadingState } from '../../components/common/LoadingState'
 import { PageHero } from '../../components/common/PageHero'
+import { SeoHead } from '../../components/common/SeoHead'
 import { Reveal } from '../../components/common/Reveal'
 import { SectionTitle } from '../../components/common/SectionTitle'
 import { SpiritStatementBlock } from '../../components/common/Spirit'
@@ -120,6 +121,14 @@ export function JoinPage() {
 
   return (
     <>
+      <SeoHead
+        description={
+          joinInfo?.description ||
+          '서울모테트청소년합창단 입단 대상, 절차, 연습과 자주 묻는 질문을 안내합니다.'
+        }
+        path="/join"
+        title={joinInfo?.title || '입단 안내'}
+      />
       <PageHero
         description={joinInfo?.description || '입단 안내와 자주 묻는 질문을 확인합니다.'}
         eyebrow="JOIN"

@@ -10,6 +10,7 @@ import { EmptyState } from '../../components/common/EmptyState'
 import { ErrorState } from '../../components/common/ErrorState'
 import { MapPreview } from '../../components/common/MapPreview'
 import { PageHero } from '../../components/common/PageHero'
+import { SeoHead } from '../../components/common/SeoHead'
 import { Reveal } from '../../components/common/Reveal'
 import { SectionTitle } from '../../components/common/SectionTitle'
 import { StaffLines } from '../../components/common/StaffLines'
@@ -498,6 +499,14 @@ export function AboutPage() {
 
   return (
     <>
+      <SeoHead
+        description={
+          introSummary ||
+          '서울모테트청소년합창단의 지휘자, 반주자, 단원과 연혁을 소개합니다.'
+        }
+        path="/about"
+        title="합창단 소개"
+      />
       <PageHero
         description={introSummary}
         eyebrow="ABOUT"
