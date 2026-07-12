@@ -7,12 +7,6 @@ type StaffFlowRailProps = {
   tone?: 'dark' | 'light'
 }
 
-type ScoreRailStyle = CSSProperties & {
-  '--score-glow-opacity': string
-  '--score-progress': string
-  '--score-reveal-rest': string
-}
-
 const lineIndexes = Array.from({ length: 5 }, (_, index) => index)
 const measureStops = [0.08, 0.22, 0.38, 0.56, 0.74, 0.92] as const
 const conductorReleaseStartProgress = 0.96
@@ -178,7 +172,13 @@ function ConductingHandSequence() {
   )
 }
 
-function ConductorReleaseIcon({ className }: { className?: string }) {
+function ConductorReleaseIcon({
+  className,
+  loadFrames,
+}: {
+  className?: string
+  loadFrames: boolean
+}) {
   const renderHandFrames = () =>
     conductorHandFrames.map((frame) => {
       const frameUrl = `/images/effects/conductor-hand-frame-${frame}.png`
@@ -266,11 +266,13 @@ function ConductorReleaseIcon({ className }: { className?: string }) {
         </svg>
         <span className="score-conductor-signature-symbol" />
         <span className="score-conductor-hand-pair score-conductor-left-hand-motion score-conductor-hand-stack score-conductor-left-hand-stack">
-          <span className="score-conductor-hand-stack-inner">{renderHandFrames()}</span>
+          <span className="score-conductor-hand-stack-inner">
+            {loadFrames ? renderHandFrames() : null}
+          </span>
         </span>
         <span className="score-conductor-hand-pair score-conductor-right-hand-motion score-conductor-hand-stack score-conductor-right-hand-stack">
           <span className="score-conductor-hand-stack-inner score-conductor-hand-stack-inner-mirrored">
-            {renderHandFrames()}
+            {loadFrames ? renderHandFrames() : null}
           </span>
         </span>
       </span>
@@ -280,13 +282,7 @@ function ConductorReleaseIcon({ className }: { className?: string }) {
 
 export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps) {
   const railRef = useRef<HTMLDivElement | null>(null)
-  const [progress, setProgress] = useState(() => {
-    if (typeof window === 'undefined') {
-      return 0
-    }
-
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 0
-  })
+  const [shouldLoadHandFrames, setShouldLoadHandFrames] = useState(false)
   const lineColor = tone === 'dark' ? 'bg-gold-soft/24' : 'bg-gold-warm/38'
   const measureColor =
     tone === 'dark'
@@ -301,13 +297,6 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
     tone === 'dark'
       ? 'from-gold-soft/0 via-gold-soft/16 to-gold-soft/0'
       : 'from-gold-warm/0 via-gold-warm/22 to-gold-warm/0'
-  const isReleaseActive = progress >= conductorReleaseStartProgress
-  const scoreStyle: ScoreRailStyle = {
-    '--score-glow-opacity': (0.18 + progress * 0.34).toFixed(3),
-    '--score-progress': progress.toFixed(3),
-    '--score-reveal-rest': `${(1 - progress) * 100}%`,
-  }
-
   useEffect(() => {
     const rail = railRef.current
 
@@ -316,27 +305,66 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
     }
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
-
-    if (prefersReducedMotion.matches) {
-      return
-    }
+    const measures = Array.from(
+      rail.querySelectorAll<HTMLElement>('.score-flow-measure'),
+    )
+    const draw = rail.querySelector<HTMLElement>('.score-flow-draw')
+    const glow = rail.querySelector<HTMLElement>('.score-flow-glow')
+    const finalBarline = rail.querySelector<HTMLElement>('.score-flow-final-barline')
+    const conductor = rail.querySelector<HTMLElement>('.score-conductor-release')
 
     let frameId = 0
     let lastProgress = -1
+    let railTop = 0
+    let railHeight = 1
+
+    const measureRail = () => {
+      const rect = rail.getBoundingClientRect()
+      railTop = rect.top + window.scrollY
+      railHeight = Math.max(1, rect.height)
+    }
+
+    const applyProgress = (nextProgress: number) => {
+      const scale = `scaleY(${nextProgress.toFixed(3)})`
+
+      if (draw && draw.style.transform !== scale) {
+        draw.style.transform = scale
+      }
+      if (glow && glow.style.transform !== scale) {
+        glow.style.transform = scale
+        glow.style.opacity = (0.18 + nextProgress * 0.34).toFixed(3)
+      }
+
+      measures.forEach((measure, index) => {
+        const visible = nextProgress + 0.05 >= measureStops[index]
+        measure.classList.toggle('score-flow-cue-visible', visible)
+        measure.classList.toggle('score-flow-cue-hidden', !visible)
+      })
+
+      const finalBarlineVisible = nextProgress >= 0.94
+      finalBarline?.classList.toggle('score-flow-cue-visible', finalBarlineVisible)
+      finalBarline?.classList.toggle('score-flow-cue-hidden', !finalBarlineVisible)
+      conductor?.classList.toggle(
+        'score-conductor-release-active',
+        nextProgress >= conductorReleaseStartProgress,
+      )
+    }
 
     const updateProgress = () => {
       frameId = 0
-      const rect = rail.getBoundingClientRect()
-      const railTop = rect.top + window.scrollY
-      const railHeight = Math.max(1, rect.height)
-      const targetViewportY = window.innerHeight * 0.75
-      const nextProgress = clampProgress(
-        (window.scrollY + targetViewportY - railTop) / railHeight,
-      )
+      const nextProgress = prefersReducedMotion.matches
+        ? 1
+        : (() => {
+            const targetViewportY = window.innerHeight * 0.75
+
+            return clampProgress(
+              (window.scrollY + targetViewportY - railTop) / railHeight,
+            )
+          })()
 
       if (Math.abs(nextProgress - lastProgress) > 0.003) {
         lastProgress = nextProgress
-        setProgress(nextProgress)
+        applyProgress(nextProgress)
       }
     }
 
@@ -348,9 +376,15 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
       frameId = window.requestAnimationFrame(updateProgress)
     }
 
+    const handleResize = () => {
+      measureRail()
+      requestUpdate()
+    }
+
+    measureRail()
     updateProgress()
     window.addEventListener('scroll', requestUpdate, { passive: true })
-    window.addEventListener('resize', requestUpdate)
+    window.addEventListener('resize', handleResize)
     prefersReducedMotion.addEventListener('change', requestUpdate)
 
     return () => {
@@ -359,10 +393,32 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
       }
 
       window.removeEventListener('scroll', requestUpdate)
-      window.removeEventListener('resize', requestUpdate)
+      window.removeEventListener('resize', handleResize)
       prefersReducedMotion.removeEventListener('change', requestUpdate)
     }
   }, [])
+
+  useEffect(() => {
+    const rail = railRef.current
+    const conductor = rail?.querySelector<HTMLElement>('.score-conductor-release')
+
+    if (!conductor || shouldLoadHandFrames) {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setShouldLoadHandFrames(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: '1600px 0px', threshold: 0 },
+    )
+    observer.observe(conductor)
+
+    return () => observer.disconnect()
+  }, [shouldLoadHandFrames])
 
   return (
     <div
@@ -372,7 +428,6 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
         className,
       )}
       ref={railRef}
-      style={scoreStyle}
     >
       <div className="relative h-full w-full">
         <div className="score-flow-mask absolute inset-0 [mask-image:linear-gradient(to_bottom,transparent,black_5rem,black_calc(100%_-_5rem),transparent)]">
@@ -403,7 +458,7 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
               className={classNames(
                 'score-flow-measure absolute -left-0.5 h-px w-9 bg-linear-to-r sm:-left-1 sm:w-11 lg:w-16',
                 measureColor,
-                progress + 0.05 >= top ? 'score-flow-cue-visible' : 'score-flow-cue-hidden',
+                'score-flow-cue-hidden',
               )}
               key={top}
               style={{ top: `${top * 100}%` }}
@@ -420,7 +475,7 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
           <span
             className={classNames(
               'score-flow-final-barline absolute -left-0.5 top-[96.2%] w-10 sm:-left-1 sm:w-12 lg:w-16',
-              progress >= 0.94 ? 'score-flow-cue-visible' : 'score-flow-cue-hidden',
+              'score-flow-cue-hidden',
             )}
           >
             <span className={classNames('score-flow-final-barline-thin', dotColor)} />
@@ -431,8 +486,8 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
           className={classNames(
             'score-conductor-release absolute bottom-[-0.2%] left-1/2 z-10 h-20 w-40 -translate-x-1/2 lg:h-24 lg:w-44 lg:-translate-x-1/2',
             conductorColor,
-            isReleaseActive && 'score-conductor-release-active',
           )}
+          loadFrames={shouldLoadHandFrames}
         />
       </div>
     </div>

@@ -15,7 +15,12 @@ export function StaffSectionLabel({
   variant = 'gold',
 }: StaffSectionLabelProps) {
   return (
-    <div className={classNames('flex max-w-full items-center gap-3', className)}>
+    <div
+      className={classNames(
+        'staff-section-label flex max-w-full items-center gap-3',
+        className,
+      )}
+    >
       <span
         aria-hidden="true"
         className="size-2 shrink-0 rounded-full bg-gold-warm shadow-[0_0_0_6px_rgb(201_164_92/0.1)]"

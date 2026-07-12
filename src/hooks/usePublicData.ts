@@ -51,38 +51,138 @@ type PublicDataHookResult<TData> = PublicDataState<TData> & {
   refetch: () => void
 }
 
+const PUBLIC_DATA_CACHE_TTL_MS = 60_000
+
+type PublicDataCacheEntry = {
+  expiresAt: number
+  result: PublicDataResult<unknown>
+}
+
+const publicDataCache = new Map<string, PublicDataCacheEntry>()
+const publicDataRequests = new Map<
+  string,
+  Promise<PublicDataResult<unknown>>
+>()
+
+function getCachedPublicData<TData>(cacheKey: string) {
+  const cached = publicDataCache.get(cacheKey)
+
+  if (!cached) {
+    return null
+  }
+
+  if (cached.expiresAt <= Date.now()) {
+    publicDataCache.delete(cacheKey)
+    return null
+  }
+
+  return cached.result as PublicDataResult<TData>
+}
+
+function loadPublicData<TData>(
+  cacheKey: string | undefined,
+  loader: () => Promise<PublicDataResult<TData>>,
+) {
+  if (!cacheKey) {
+    return loader()
+  }
+
+  const inFlightRequest = publicDataRequests.get(cacheKey)
+
+  if (inFlightRequest) {
+    return inFlightRequest as Promise<PublicDataResult<TData>>
+  }
+
+  const request = loader()
+    .then((result) => {
+      if (!result.error && result.data !== null) {
+        publicDataCache.set(cacheKey, {
+          expiresAt: Date.now() + PUBLIC_DATA_CACHE_TTL_MS,
+          result: result as PublicDataResult<unknown>,
+        })
+      }
+
+      return result
+    })
+    .finally(() => {
+      publicDataRequests.delete(cacheKey)
+    })
+
+  publicDataRequests.set(
+    cacheKey,
+    request as Promise<PublicDataResult<unknown>>,
+  )
+
+  return request
+}
+
 function usePublicLoader<TData>(
   fallbackData: TData,
   loader: () => Promise<PublicDataResult<TData>>,
+  cacheKey?: string,
 ): PublicDataHookResult<TData> {
   const [reloadToken, setReloadToken] = useState(0)
-  const [state, setState] = useState<PublicDataState<TData>>({
-    data: fallbackData,
-    error: null,
-    isLoading: true,
+  const [state, setState] = useState<PublicDataState<TData>>(() => {
+    const cached = cacheKey ? getCachedPublicData<TData>(cacheKey) : null
+
+    return {
+      data: cached?.data ?? fallbackData,
+      error: cached?.error ?? null,
+      isLoading: !cached,
+    }
   })
 
   const refetch = useCallback(() => {
+    if (cacheKey) {
+      publicDataCache.delete(cacheKey)
+    }
+
     setReloadToken((current) => current + 1)
-  }, [])
+  }, [cacheKey])
 
   useEffect(() => {
     let isMounted = true
 
     async function loadData() {
-      setState((current) => ({ ...current, isLoading: true }))
+      const cached = cacheKey ? getCachedPublicData<TData>(cacheKey) : null
 
-      const result = await loader()
-
-      if (!isMounted) {
+      if (cached) {
+        setState({
+          data: cached.data ?? fallbackData,
+          error: cached.error,
+          isLoading: false,
+        })
         return
       }
 
-      setState({
-        data: result.data ?? fallbackData,
-        error: result.error,
-        isLoading: false,
-      })
+      setState((current) => ({ ...current, isLoading: true }))
+
+      try {
+        const result = await loadPublicData(cacheKey, loader)
+
+        if (!isMounted) {
+          return
+        }
+
+        setState({
+          data: result.data ?? fallbackData,
+          error: result.error,
+          isLoading: false,
+        })
+      } catch (error) {
+        if (!isMounted) {
+          return
+        }
+
+        setState({
+          data: fallbackData,
+          error:
+            error instanceof Error
+              ? error.message
+              : '공개 데이터를 불러오지 못했습니다.',
+          isLoading: false,
+        })
+      }
     }
 
     void loadData()
@@ -90,7 +190,7 @@ function usePublicLoader<TData>(
     return () => {
       isMounted = false
     }
-  }, [fallbackData, loader, reloadToken])
+  }, [cacheKey, fallbackData, loader, reloadToken])
 
   return { ...state, refetch }
 }
@@ -236,7 +336,11 @@ export function useHomeData() {
     }
   }, [])
 
-  return usePublicLoader(hasSupabaseConfig ? liveHomeInitialData : homeFallbackData, loader)
+  return usePublicLoader(
+    hasSupabaseConfig ? liveHomeInitialData : homeFallbackData,
+    loader,
+    'home',
+  )
 }
 
 export function useSpiritPageData() {
@@ -260,19 +364,19 @@ export function useSpiritPageData() {
     }
   }, [])
 
-  return usePublicLoader(spiritFallbackData, loader)
+  return usePublicLoader(spiritFallbackData, loader, 'spirit')
 }
 
 export function useAboutData() {
   const loader = useCallback(() => getPublicAboutData(), [])
 
-  return usePublicLoader(aboutFallbackData, loader)
+  return usePublicLoader(aboutFallbackData, loader, 'about')
 }
 
 export function useConcertsData() {
   const loader = useCallback(() => getPublicConcerts(), [])
 
-  return usePublicLoader(publicFallbacks.concerts, loader)
+  return usePublicLoader(publicFallbacks.concerts, loader, 'concerts')
 }
 
 export function useConcertDetailData(id: string | undefined) {
@@ -292,13 +396,13 @@ export function useConcertDetailData(id: string | undefined) {
     return getPublicConcertById(id)
   }, [id])
 
-  return usePublicLoader(fallbackData, loader)
+  return usePublicLoader(fallbackData, loader, id ? `concert:${id}` : undefined)
 }
 
 export function useNoticesData() {
   const loader = useCallback(() => getPublicNotices(), [])
 
-  return usePublicLoader(publicFallbacks.notices, loader)
+  return usePublicLoader(publicFallbacks.notices, loader, 'notices')
 }
 
 export function useNoticeDetailData(id: string | undefined) {
@@ -318,7 +422,7 @@ export function useNoticeDetailData(id: string | undefined) {
     return getPublicNoticeById(id)
   }, [id])
 
-  return usePublicLoader(fallbackData, loader)
+  return usePublicLoader(fallbackData, loader, id ? `notice:${id}` : undefined)
 }
 
 export function useGalleryData() {
@@ -344,18 +448,18 @@ export function useGalleryData() {
     }
   }, [])
 
-  return usePublicLoader(galleryFallbackData, loader)
+  return usePublicLoader(galleryFallbackData, loader, 'gallery')
 }
 
 export function useJoinData() {
   const loader = useCallback(() => getPublicJoinData(), [])
 
-  return usePublicLoader(joinFallbackData, loader)
+  return usePublicLoader(joinFallbackData, loader, 'join')
 }
 
 export function useContactData() {
   const loader = useCallback(() => getPublicContactData(), [])
 
-  return usePublicLoader(contactFallbackData, loader)
+  return usePublicLoader(contactFallbackData, loader, 'contact')
 }
 

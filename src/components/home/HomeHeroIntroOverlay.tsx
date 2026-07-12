@@ -8,6 +8,7 @@ export function HomeHeroIntroOverlay() {
   const [shouldRenderIntro, setShouldRenderIntro] = useState(() =>
     typeof window === 'undefined' ? false : window.matchMedia(desktopIntroQuery).matches,
   )
+  const [isAnimationReady, setIsAnimationReady] = useState(false)
 
   useEffect(() => {
     const query = window.matchMedia(desktopIntroQuery)
@@ -41,16 +42,17 @@ export function HomeHeroIntroOverlay() {
       'PageUp',
       'Spacebar',
     ])
-    const lockedScrollX = window.scrollX
-    const lockedScrollY = window.scrollY
-    const previousRootOverflow = root.style.overflow
+    // A route transition can mount the home intro before the browser restores
+    // the new page to the top. Normalize first so every launch uses one origin.
+    window.scrollTo({ behavior: 'auto', left: 0, top: 0 })
+    const lockedScrollX = 0
+    const lockedScrollY = 0
     const previousRootOverscrollBehavior = root.style.overscrollBehavior
-    const previousRootScrollbarGutter = root.style.scrollbarGutter
-    const previousBodyOverflow = body.style.overflow
     const previousBodyOverscrollBehavior = body.style.overscrollBehavior
     const previousBodyTouchAction = body.style.touchAction
     let isLocked = true
     let fallbackTimer = 0
+    let safetyTimer = 0
 
     const keepScrollFixed = () => {
       if (window.scrollX !== lockedScrollX || window.scrollY !== lockedScrollY) {
@@ -86,10 +88,7 @@ export function HomeHeroIntroOverlay() {
       }
 
       isLocked = false
-      root.style.overflow = previousRootOverflow
       root.style.overscrollBehavior = previousRootOverscrollBehavior
-      root.style.scrollbarGutter = previousRootScrollbarGutter
-      body.style.overflow = previousBodyOverflow
       body.style.overscrollBehavior = previousBodyOverscrollBehavior
       body.style.touchAction = previousBodyTouchAction
       window.removeEventListener('wheel', preventScroll, { capture: true })
@@ -99,10 +98,12 @@ export function HomeHeroIntroOverlay() {
       keepScrollFixed()
     }
 
-    root.style.overflow = 'hidden'
+    const startReleaseFallback = () => {
+      window.clearTimeout(fallbackTimer)
+      fallbackTimer = window.setTimeout(releaseScrollLock, 1650)
+    }
+
     root.style.overscrollBehavior = 'none'
-    root.style.scrollbarGutter = 'stable'
-    body.style.overflow = 'hidden'
     body.style.overscrollBehavior = 'none'
     body.style.touchAction = 'none'
     window.addEventListener('wheel', preventScroll, {
@@ -115,11 +116,16 @@ export function HomeHeroIntroOverlay() {
     })
     window.addEventListener('keydown', preventScrollKey, { capture: true })
     window.addEventListener('scroll', keepScrollFixed, { passive: true })
+    sweepElement?.addEventListener('animationstart', startReleaseFallback, {
+      once: true,
+    })
     sweepElement?.addEventListener('animationend', releaseScrollLock, { once: true })
-    fallbackTimer = window.setTimeout(releaseScrollLock, 3600)
+    safetyTimer = window.setTimeout(releaseScrollLock, 5000)
 
     return () => {
       window.clearTimeout(fallbackTimer)
+      window.clearTimeout(safetyTimer)
+      sweepElement?.removeEventListener('animationstart', startReleaseFallback)
       sweepElement?.removeEventListener('animationend', releaseScrollLock)
       releaseScrollLock()
     }
@@ -152,25 +158,54 @@ export function HomeHeroIntroOverlay() {
     }
 
     let animationFrameId = 0
+    let fontTimeoutId = 0
+    let isCancelled = false
 
     const applyTitleMetrics = () => {
       const rootRect = sampleRoot.getBoundingClientRect()
       const titleRect = titleElement.getBoundingClientRect()
       const titleStyles = window.getComputedStyle(titleElement)
+      const revealElement = titleElement.closest<HTMLElement>('.reveal-motion')
+      const revealStyles = revealElement ? window.getComputedStyle(revealElement) : null
+      const revealTransform = revealStyles?.transform ?? 'none'
+      const revealMatrix =
+        revealTransform && revealTransform !== 'none'
+          ? new DOMMatrixReadOnly(revealTransform)
+          : null
+      const revealTranslateParts =
+        revealStyles?.translate && revealStyles.translate !== 'none'
+          ? revealStyles.translate.split(' ')
+          : []
+      const revealScaleParts =
+        revealStyles?.scale && revealStyles.scale !== 'none'
+          ? revealStyles.scale.split(' ')
+          : []
+      const revealTranslateX =
+        (revealMatrix?.m41 ?? 0) +
+        (Number.parseFloat(revealTranslateParts[0] ?? '0') || 0)
+      const revealTranslateY =
+        (revealMatrix?.m42 ?? 0) +
+        (Number.parseFloat(revealTranslateParts[1] ?? '0') || 0)
+      const revealScaleX =
+        Math.abs(
+          (revealMatrix?.a ?? 1) *
+            (Number.parseFloat(revealScaleParts[0] ?? '1') || 1),
+        ) || 1
       const setMetric = (name: string, value: string) => {
         launchElement.style.setProperty(name, value)
         wordmarkElement.style.setProperty(name, value)
       }
 
-      setMetric('--intro-title-left', `${titleRect.left - rootRect.left}px`)
-      setMetric('--intro-title-top', `${titleRect.top - rootRect.top}px`)
-      setMetric('--intro-title-width', `${titleRect.width}px`)
+      const titleLeft = titleRect.left - rootRect.left - revealTranslateX
+      const titleTop = titleRect.top - rootRect.top - revealTranslateY
+
+      setMetric('--intro-title-left', `${titleLeft}px`)
+      setMetric('--intro-title-top', `${titleTop}px`)
+      setMetric('--intro-title-width', `${titleRect.width / revealScaleX}px`)
       setMetric('--intro-title-font-size', titleStyles.fontSize)
       setMetric('--intro-title-line-height', titleStyles.lineHeight)
 
       const lineHeight = Number.parseFloat(titleStyles.lineHeight) || titleRect.height / 4
-      const titleLeft = titleRect.left - rootRect.left
-      const titleTop = titleRect.top - rootRect.top
       const startScale =
         Number.parseFloat(
           window.getComputedStyle(launchElement).getPropertyValue('--intro-start-scale'),
@@ -195,23 +230,42 @@ export function HomeHeroIntroOverlay() {
       })
     }
 
-    const scheduleTitleMetrics = () => {
-      window.cancelAnimationFrame(animationFrameId)
-      animationFrameId = window.requestAnimationFrame(applyTitleMetrics)
+    const prepareAnimation = async () => {
+      setIsAnimationReady(false)
+
+      const fontReady = Promise.all([
+        document.fonts.load('600 128px "Cormorant Garamond"'),
+        document.fonts.ready,
+      ])
+        .then(() => undefined)
+        .catch(() => undefined)
+      const fontTimeout = new Promise<void>((resolve) => {
+        fontTimeoutId = window.setTimeout(resolve, 1500)
+      })
+
+      await Promise.race([fontReady, fontTimeout])
+      window.clearTimeout(fontTimeoutId)
+
+      if (isCancelled) {
+        return
+      }
+
+      animationFrameId = window.requestAnimationFrame(() => {
+        applyTitleMetrics()
+        animationFrameId = window.requestAnimationFrame(() => {
+          if (!isCancelled) {
+            setIsAnimationReady(true)
+          }
+        })
+      })
     }
 
-    const resizeObserver = new ResizeObserver(scheduleTitleMetrics)
-
-    applyTitleMetrics()
-    resizeObserver.observe(sampleRoot)
-    resizeObserver.observe(titleElement)
-    window.addEventListener('resize', scheduleTitleMetrics)
-    document.fonts?.ready.then(scheduleTitleMetrics).catch(() => undefined)
+    void prepareAnimation()
 
     return () => {
+      isCancelled = true
       window.cancelAnimationFrame(animationFrameId)
-      resizeObserver.disconnect()
-      window.removeEventListener('resize', scheduleTitleMetrics)
+      window.clearTimeout(fontTimeoutId)
     }
   }, [shouldRenderIntro])
 
@@ -220,7 +274,15 @@ export function HomeHeroIntroOverlay() {
   }
 
   return (
-    <div aria-hidden="true" className="home-intro-launch" ref={launchRef}>
+    <div
+      aria-hidden="true"
+      className={
+        isAnimationReady
+          ? 'home-intro-launch home-intro-launch--ready'
+          : 'home-intro-launch'
+      }
+      ref={launchRef}
+    >
       <div className="home-intro-launch__field" />
       <div className="home-intro-launch__wordmark">
         <span className="home-intro-launch__word home-intro-launch__word--s">

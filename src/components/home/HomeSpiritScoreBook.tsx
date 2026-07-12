@@ -6,15 +6,18 @@ import {
   homeSpiritBookletPages,
 } from '../../constants/spiritContent'
 import type { AboutSectionRow } from '../../types/cms'
+import type { GalleryImage } from '../../types/content'
 import { classNames } from '../../utils/classNames'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 import { Reveal } from '../common/Reveal'
 import { StaffLines } from '../common/StaffLines'
+import { ImageTile } from './ImageTile'
 import { KineticHeadline } from './KineticHeadline'
 
 type HomeSpiritScoreBookProps = {
+  image?: GalleryImage
   sections: AboutSectionRow[]
 }
 
@@ -31,7 +34,7 @@ function createPages(sections: AboutSectionRow[]) {
   )
 }
 
-export function HomeSpiritScoreBook({ sections }: HomeSpiritScoreBookProps) {
+export function HomeSpiritScoreBook({ image, sections }: HomeSpiritScoreBookProps) {
   const pages = useMemo(() => createPages(sections), [sections])
   const [activeIndex, setActiveIndex] = useState(0)
   const activePage = pages[activeIndex]
@@ -76,29 +79,62 @@ export function HomeSpiritScoreBook({ sections }: HomeSpiritScoreBookProps) {
         symbol="♫"
       />
       <Container>
-        <Reveal>
-          <KineticHeadline
-            body={
-              <p>
-                긴 문단을 내려 읽기보다, 서울모테트청소년합창단이 붙드는
-                정신을 악보집의 장면처럼 넘겨 봅니다.
-              </p>
-            }
-            className="max-w-4xl"
-            eyebrow="SPIRIT SCOREBOOK"
-            ghost="MOTET"
-            lines={['합창단 정신']}
-          />
-        </Reveal>
+        <div className="home-spirit-editorial-layout">
+          <div className="home-spirit-editorial-intro">
+            <Reveal>
+              <KineticHeadline
+                body={
+                  <p>
+                    모테트의 이름과 서울모테트청소년합창단이 지향하는 교육
+                    가치를 소개합니다.
+                  </p>
+                }
+                className="max-w-4xl"
+                eyebrow="SPIRIT SCOREBOOK"
+                ghost="MOTET"
+                lines={['합창단 정신']}
+              />
+            </Reveal>
 
-        <Reveal delay={80} variant="card-rise">
-          <article
-            aria-roledescription="scorebook"
-            className="spirit-scorebook"
-            onKeyDown={handleKeyDown}
-            role="region"
-            tabIndex={0}
-          >
+            {image ? (
+              <Reveal delay={70} variant="soft-scale">
+                <a
+                  className="home-spirit-media group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm"
+                  href="/gallery?tab=photos"
+                >
+                  <ImageTile
+                    alt={image.image_alt || image.title}
+                    className="home-spirit-media-image"
+                    imgClassName="transition duration-500 group-hover:scale-[1.01] motion-reduce:group-hover:scale-100"
+                    objectFit="contain"
+                    sizes="(min-width: 1100px) 38vw, calc(100vw - 40px)"
+                    src={image.image_url}
+                    transform={{
+                      quality: 84,
+                      resize: 'contain',
+                      width: 1200,
+                      widths: [640, 960, 1200],
+                    }}
+                  >
+                    <div aria-hidden="true" className="home-spirit-media-shade" />
+                    <div className="home-spirit-media-caption">
+                      <span>FROM THE ARCHIVE</span>
+                      <strong title={image.title}>{image.title}</strong>
+                    </div>
+                  </ImageTile>
+                </a>
+              </Reveal>
+            ) : null}
+          </div>
+
+          <Reveal delay={80} variant="card-rise">
+            <article
+              aria-roledescription="scorebook"
+              className="spirit-scorebook"
+              onKeyDown={handleKeyDown}
+              role="region"
+              tabIndex={0}
+            >
             <div aria-hidden="true" className="spirit-scorebook-ghost">
               MOTET
             </div>
@@ -184,8 +220,9 @@ export function HomeSpiritScoreBook({ sections }: HomeSpiritScoreBookProps) {
             <p aria-live="polite" className="sr-only">
               현재 {activeIndex + 1} / {pages.length}: {activePage.eyebrow}
             </p>
-          </article>
-        </Reveal>
+            </article>
+          </Reveal>
+        </div>
       </Container>
     </section>
   )

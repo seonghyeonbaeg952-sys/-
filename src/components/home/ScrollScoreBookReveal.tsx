@@ -30,7 +30,7 @@ const wordPositions = [
 
 const WORD_WAVE_COUNT = 1
 const WORD_WAVE_INTERVAL = 0.34
-const WORD_STAGGER_INTERVAL = 0.05
+const WORD_STAGGER_INTERVAL = 0.035
 
 type ScrollScoreBookRevealProps = {
   coverDescription?: string
@@ -118,12 +118,17 @@ function useScoreBookProgress() {
     let pinFrame = 0
     let current = 0
     let target = 0
+    let lockedScrollY = 0
     let isScrollLocked = false
     let scrollBehaviorLocked = false
     let previousRootScrollBehavior = ''
     let previousBodyScrollBehavior = ''
-    let lastScrollY = window.scrollY
-    const wheelDistance = 1450
+    let animationFrom = 0
+    let animationStartedAt = 0
+    let animationCompleted = false
+    let releaseTimer = 0
+    let releaseDeadlineTimer = 0
+    const animationDuration = 1800
     const getStickyTop = () => {
       const stage = section.querySelector<HTMLElement>('.motet-score-sticky-stage')
 
@@ -187,25 +192,22 @@ function useScoreBookProgress() {
     }
 
     const keepStagePinned = () => {
-      const pinY = getPinY()
+      if (!isScrollLocked) {
+        return
+      }
 
-      if (Math.abs(window.scrollY - pinY) > 2) {
+      if (Math.abs(window.scrollY - lockedScrollY) > 1) {
         setScrollCorrectionMode(true)
         window.scrollTo({
           behavior: 'auto',
           left: window.scrollX,
-          top: pinY,
+          top: lockedScrollY,
         })
       }
     }
 
-    const shouldKeepPinned = () =>
-      isScrollLocked ||
-      (target > 0.001 && target < 0.999) ||
-      (current > 0.001 && current < 0.999)
-
     const maintainPinnedScroll = () => {
-      if (!shouldKeepPinned()) {
+      if (!isScrollLocked) {
         setScrollCorrectionMode(false)
         pinFrame = 0
         return
@@ -229,62 +231,87 @@ function useScoreBookProgress() {
       )
     }
 
-    const isStagePinned = () => {
-      const rect = section.getBoundingClientRect()
-      const stageRect = getStageRect()
-      const stickyTop = getStickyTop()
-
-      return (
-        !!stageRect &&
-        Math.abs(stageRect.top - stickyTop) <= 4 &&
-        rect.top <= stickyTop + 4 &&
-        rect.bottom >= window.innerHeight * 0.78
-      )
-    }
-
     const syncProgressWithScrollPosition = () => {
-      if (isScrollLocked || isStagePinned()) {
+      if (isScrollLocked) {
         return
       }
 
       const pinY = getPinY()
       const exitY = getExitY()
 
-      if (window.scrollY < pinY - 8) {
+      if (window.scrollY < pinY - 6) {
         setStaticProgress(0)
         return
       }
 
-      if (window.scrollY > exitY + 8) {
+      if (window.scrollY > exitY + 6) {
         setStaticProgress(1)
       }
     }
 
-    const animate = () => {
-      if (shouldKeepPinned()) {
-        keepStagePinned()
+    const releaseScrollLock = () => {
+      isScrollLocked = false
+      animationCompleted = false
+
+      if (releaseTimer !== 0) {
+        window.clearTimeout(releaseTimer)
+        releaseTimer = 0
       }
 
-      current += (target - current) * 0.18
-
-      if (Math.abs(target - current) < 0.0008) {
-        current = target
+      if (releaseDeadlineTimer !== 0) {
+        window.clearTimeout(releaseDeadlineTimer)
+        releaseDeadlineTimer = 0
       }
+
+      if (pinFrame !== 0) {
+        window.cancelAnimationFrame(pinFrame)
+        pinFrame = 0
+      }
+
+      setScrollCorrectionMode(false)
+    }
+
+    const scheduleScrollRelease = () => {
+      if (!animationCompleted) {
+        return
+      }
+
+      // The animation finishes while the book is still visually pinned. Move
+      // the document to the matching edge before unlocking so there is no
+      // residual sticky range where the finished book follows page scrolling.
+      lockedScrollY = target >= 0.5 ? getExitY() : getPinY()
+      keepStagePinned()
+
+      if (releaseTimer !== 0) {
+        window.clearTimeout(releaseTimer)
+      }
+
+      releaseTimer = window.setTimeout(releaseScrollLock, 140)
+
+      if (releaseDeadlineTimer === 0) {
+        releaseDeadlineTimer = window.setTimeout(releaseScrollLock, 650)
+      }
+    }
+
+    const animate = (frameTime: number) => {
+      keepStagePinned()
+
+      const elapsed = Math.max(0, frameTime - animationStartedAt)
+      const timelineProgress = clamp(elapsed / animationDuration)
+      current = animationFrom + (target - animationFrom) * easeInOut(timelineProgress)
 
       setProgress((previous) =>
         Math.abs(previous - current) > 0.0005 ? current : previous,
       )
 
-      if (Math.abs(target - current) > 0.0008) {
+      if (timelineProgress < 1) {
         animationFrame = window.requestAnimationFrame(animate)
       } else {
+        current = target
+        setProgress(target)
         animationFrame = 0
-        const reachedBoundary = target <= 0.001 || target >= 0.999
-        isScrollLocked = !reachedBoundary
-
-        if (isScrollLocked) {
-          requestPinnedScroll()
-        }
+        animationCompleted = true
+        scheduleScrollRelease()
       }
     }
 
@@ -294,19 +321,23 @@ function useScoreBookProgress() {
       }
     }
 
-    const startLockedProgress = (nextProgress: number) => {
+    const startLockedProgress = (nextProgress: number, lockY: number) => {
+      lockedScrollY = lockY
       isScrollLocked = true
+      animationCompleted = false
       setScrollCorrectionMode(true)
+      window.scrollTo({
+        behavior: 'auto',
+        left: window.scrollX,
+        top: lockedScrollY,
+      })
       requestPinnedScroll()
-      keepStagePinned()
+
+      animationFrom = current
       target = clamp(nextProgress)
+      animationStartedAt = performance.now()
+      keepStagePinned()
       requestUpdate()
-    }
-
-    const getProgressStep = (deltaY: number) => {
-      const step = deltaY / wheelDistance
-
-      return Math.sign(step) * Math.min(Math.abs(step), 0.24)
     }
 
     const handleWheel = (event: WheelEvent) => {
@@ -317,27 +348,32 @@ function useScoreBookProgress() {
         return
       }
 
-      syncProgressWithScrollPosition()
+      if (isScrollLocked) {
+        event.preventDefault()
+        keepStagePinned()
+        scheduleScrollRelease()
+        return
+      }
 
       const pinY = getPinY()
+      const exitY = getExitY()
       const scrollY = window.scrollY
       const nextScrollY = scrollY + deltaY
       const isScrollingDown = deltaY > 0
       const isScrollingUp = deltaY < 0
-      const crossesPinFromAbove =
-        isScrollingDown && scrollY < pinY - 4 && nextScrollY >= pinY - 24
-      const crossesPinFromBelow =
-        isScrollingUp && scrollY > pinY + 4 && nextScrollY <= pinY + 24
-      const pinned = isStagePinned() || Math.abs(scrollY - pinY) <= 6
+      const reachesStageFromAbove =
+        isScrollingDown && scrollY <= exitY + 4 && nextScrollY >= pinY - 12
+      const reachesStageFromBelow =
+        isScrollingUp && scrollY >= pinY - 4 && nextScrollY <= exitY + 12
 
       const shouldAdvance =
         isScrollingDown &&
-        (crossesPinFromAbove || pinned || isScrollLocked) &&
-        (target < 0.999 || current < 0.99)
+        reachesStageFromAbove &&
+        current < 0.999
       const shouldReverse =
         isScrollingUp &&
-        (crossesPinFromBelow || pinned || isScrollLocked) &&
-        (target > 0.001 || current > 0.01)
+        reachesStageFromBelow &&
+        current > 0.001
 
       if (!shouldAdvance && !shouldReverse) {
         return
@@ -345,55 +381,28 @@ function useScoreBookProgress() {
 
       event.preventDefault()
 
-      if (crossesPinFromAbove) {
+      if (isScrollingDown) {
         current = 0
         target = 0
       }
 
-      if (crossesPinFromBelow) {
+      if (isScrollingUp) {
         current = 1
         target = 1
       }
 
-      startLockedProgress(target + getProgressStep(deltaY))
+      const currentLockY = Math.min(exitY, Math.max(pinY, scrollY))
+      startLockedProgress(isScrollingDown ? 1 : 0, currentLockY)
     }
 
     const handleScroll = () => {
-      if (isScrollLocked || (target > 0.001 && target < 0.999)) {
+      if (isScrollLocked) {
         keepStagePinned()
         requestPinnedScroll()
-        lastScrollY = window.scrollY
-        return
-      }
-
-      const scrollY = window.scrollY
-      const pinY = getPinY()
-      const exitY = getExitY()
-      const isScrollingDown = scrollY > lastScrollY
-      const isScrollingUp = scrollY < lastScrollY
-      const crossedPinFromAbove =
-        isScrollingDown && lastScrollY < pinY - 4 && scrollY >= pinY - 4
-      const crossedExitFromBelow =
-        isScrollingUp && lastScrollY > exitY + 4 && scrollY <= exitY + 4
-
-      if (crossedPinFromAbove) {
-        current = 0
-        target = 0
-        startLockedProgress(0.18)
-        lastScrollY = window.scrollY
-        return
-      }
-
-      if (crossedExitFromBelow) {
-        current = 1
-        target = 1
-        startLockedProgress(0.82)
-        lastScrollY = window.scrollY
         return
       }
 
       syncProgressWithScrollPosition()
-      lastScrollY = scrollY
     }
 
     syncProgressWithScrollPosition()
@@ -412,6 +421,14 @@ function useScoreBookProgress() {
 
       if (pinFrame !== 0) {
         window.cancelAnimationFrame(pinFrame)
+      }
+
+      if (releaseTimer !== 0) {
+        window.clearTimeout(releaseTimer)
+      }
+
+      if (releaseDeadlineTimer !== 0) {
+        window.clearTimeout(releaseDeadlineTimer)
       }
 
       setScrollCorrectionMode(false)
@@ -472,14 +489,14 @@ function getWordStyle(
   waveIndex: number,
 ): WordStyle {
   const stagger = index * WORD_STAGGER_INTERVAL
-  const start = 0.26 + waveIndex * WORD_WAVE_INTERVAL + stagger
-  const end = start + 0.38
+  const start = 0.18 + waveIndex * WORD_WAVE_INTERVAL + stagger
+  const end = start + 0.48
   const localRaw = clamp((progress - start) / (end - start))
   const moveRaw = smoothstep(0.08, 0.88, localRaw)
   const settled = easeInOut(moveRaw)
   const enter = smoothstep(0.03, 0.2, localRaw)
-  const absorb = smoothstep(0.72, 1, localRaw)
-  const finalFade = 1 - smoothstep(0.58, 0.72, progress)
+  const absorb = smoothstep(0.78, 1, localRaw)
+  const finalFade = 1 - smoothstep(0.78, 0.93, progress)
   const visible = enter * (1 - absorb) * finalFade
   const position = wordPositions[index]
   const waveDirection = waveIndex === 0 ? 1 : -1
@@ -530,7 +547,7 @@ export function ScrollScoreBookReveal({
 }: ScrollScoreBookRevealProps) {
   const { isAnimatedDesktop, progress, sectionRef } = useScoreBookProgress()
   const open = smoothstep(0.02, 0.38, progress)
-  const final = smoothstep(0.48, 0.68, progress)
+  const final = smoothstep(0.86, 0.98, progress)
   const scoreStyle: ScoreStyle = {
     '--book-final': final.toFixed(4),
     '--book-open': open.toFixed(4),

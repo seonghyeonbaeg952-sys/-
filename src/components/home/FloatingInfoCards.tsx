@@ -28,6 +28,8 @@ const fallbackCards = [
   },
 ] satisfies FloatingInfoCardContent[]
 
+const cardEyebrows = ['JOIN', 'STAGE', 'CONNECT'] as const
+
 export function FloatingInfoCards({
   cards = fallbackCards,
 }: {
@@ -51,6 +53,7 @@ export function FloatingInfoCards({
             <Reveal key={card.title} staggerIndex={index} variant="card-rise">
               <a
                 className="home-quick-action-card group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm"
+                data-card-index={index + 1}
                 href={card.href ?? '/'}
               >
                 <span
@@ -69,12 +72,21 @@ export function FloatingInfoCards({
                     />
                   </Reveal>
                 </div>
-                <h2 className="text-xl font-semibold leading-7 text-navy-deep">
-                  {card.title}
-                </h2>
-                <p className="mt-3 text-sm leading-6 text-text-muted">
-                  {card.description}
-                </p>
+                <div className="home-quick-action-copy">
+                  <p className="home-quick-action-eyebrow">
+                    {cardEyebrows[index] ?? 'DISCOVER'}
+                  </p>
+                  <h2 className="text-xl font-semibold leading-7 text-navy-deep">
+                    {card.title}
+                  </h2>
+                  <p className="mt-3 text-sm leading-6 text-text-muted">
+                    {card.description}
+                  </p>
+                </div>
+                <div className="home-quick-action-link" aria-hidden="true">
+                  VIEW
+                  <span>→</span>
+                </div>
               </a>
             </Reveal>
           ))}

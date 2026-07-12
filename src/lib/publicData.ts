@@ -995,9 +995,39 @@ async function getPublicMembers(client: SupabaseClient) {
     .order('display_order', { ascending: true })
 }
 
-export async function getPublicSiteSettings(): Promise<
+const sharedPublicRequests = new Map<
+  string,
+  Promise<PublicDataResult<unknown>>
+>()
+
+function runSharedPublicRequest<TData>(
+  key: string,
+  loader: () => Promise<PublicDataResult<TData>>,
+): Promise<PublicDataResult<TData>> {
+  const pendingRequest = sharedPublicRequests.get(key)
+
+  if (pendingRequest) {
+    return pendingRequest as Promise<PublicDataResult<TData>>
+  }
+
+  const request = loader().finally(() => {
+    if (sharedPublicRequests.get(key) === request) {
+      sharedPublicRequests.delete(key)
+    }
+  })
+
+  sharedPublicRequests.set(
+    key,
+    request as Promise<PublicDataResult<unknown>>,
+  )
+
+  return request
+}
+
+export function getPublicSiteSettings(): Promise<
   PublicDataResult<SiteSettings | null>
 > {
+  return runSharedPublicRequest('site-settings', async () => {
   const clientResult = getSupabaseClientSafe()
 
   if (!clientResult.data) {
@@ -1018,10 +1048,12 @@ export async function getPublicSiteSettings(): Promise<
 
   const row = normalizeRow<SiteSettingsRow>(data)
 
-  return { data: row ? mapSiteSettings(row) : null, error: null }
+    return { data: row ? mapSiteSettings(row) : null, error: null }
+  })
 }
 
-export async function getPublicSiteTexts(): Promise<PublicDataResult<SiteTextRow[]>> {
+export function getPublicSiteTexts(): Promise<PublicDataResult<SiteTextRow[]>> {
+  return runSharedPublicRequest('site-texts', async () => {
   const clientResult = getSupabaseClientSafe()
 
   if (!clientResult.data) {
@@ -1043,12 +1075,14 @@ export async function getPublicSiteTexts(): Promise<PublicDataResult<SiteTextRow
     return { data: null, error: toPublicError(error, '사이트 문구를 불러오지 못했습니다.') }
   }
 
-  return { data: normalizeRows<SiteTextRow>(data), error: null }
+    return { data: normalizeRows<SiteTextRow>(data), error: null }
+  })
 }
 
-export async function getPublicSupportSettings(): Promise<
+export function getPublicSupportSettings(): Promise<
   PublicDataResult<SupportSettings | null>
 > {
+  return runSharedPublicRequest('support-settings', async () => {
   const clientResult = getSupabaseClientSafe()
 
   if (!clientResult.data) {
@@ -1076,7 +1110,8 @@ export async function getPublicSupportSettings(): Promise<
 
   const row = normalizeRow<SupportSettingsRow>(data)
 
-  return { data: row ? mapSupportSettings(row) : null, error: null }
+    return { data: row ? mapSupportSettings(row) : null, error: null }
+  })
 }
 
 export async function getPublicSponsors(

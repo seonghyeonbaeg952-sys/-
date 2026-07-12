@@ -23,17 +23,17 @@ export function PageHero({
   return (
     <section
       className={classNames(
-        'relative isolate overflow-hidden border-b border-bg-warm-white/10 bg-navy-midnight py-20 text-bg-warm-white sm:py-24 lg:py-32',
+        'relative isolate overflow-hidden border-b border-bg-warm-white/10 bg-navy-midnight py-16 text-bg-warm-white sm:py-20 lg:py-24',
         className,
       )}
     >
       <div className="absolute inset-0 -z-10 bg-linear-to-br from-navy-midnight via-navy-deep to-navy-midnight" />
       <div
         aria-hidden="true"
-        className="absolute -right-28 top-10 -z-10 hidden h-72 w-72 rounded-full border border-bg-warm-white/10 bg-bg-warm-white/[0.035] lg:block"
+        className="absolute right-8 top-8 -z-10 hidden h-64 w-64 rounded-full border border-bg-warm-white/10 bg-bg-warm-white/[0.025] xl:block"
       />
       <StaffLines
-        className="page-hero-staff-lines absolute left-1/2 top-24 -z-10 hidden max-w-[min(42rem,42vw)] -translate-x-1/2 opacity-70 lg:grid"
+        className="page-hero-staff-lines absolute left-1/2 top-20 -z-10 hidden max-w-[min(38rem,40vw)] -translate-x-1/2 opacity-55 lg:grid"
         direction="diagonal"
         variant="inverted"
       />
@@ -56,7 +56,7 @@ export function PageHero({
             {description}
           </p>
         ) : null}
-        {children ? <div className="mt-8">{children}</div> : null}
+        {children ? <div className="mt-7">{children}</div> : null}
       </Container>
     </section>
   )

@@ -144,8 +144,8 @@ export function JoinPage() {
                 입단 문의하기
               </Button>
             }
-            description="입단 안내가 등록되면 이 페이지에 표시됩니다."
-            title="등록된 입단 안내가 없습니다"
+            description="현재 공개된 입단 안내가 없습니다. 자세한 내용은 문의 페이지에서 확인해 주세요."
+            title="공개된 입단 안내가 없습니다"
           />
         ) : null}
 

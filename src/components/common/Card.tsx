@@ -51,7 +51,7 @@ export function Card({
   return (
     <div
       {...props}
-      onPointerMove={handlePointerMove}
+      onPointerMove={hoverable || onPointerMove ? handlePointerMove : undefined}
       className={classNames(
         'relative border border-line-default/85 bg-bg-warm-white shadow-card',
         radiusClasses[radius],

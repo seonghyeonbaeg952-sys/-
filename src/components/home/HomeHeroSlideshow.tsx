@@ -7,6 +7,7 @@ import { Container } from '../common/Container'
 import { OptimizedImage } from '../common/OptimizedImage'
 import { Reveal } from '../common/Reveal'
 import { softenPublicCopy } from '../../utils/softenPublicCopy'
+import { getStorageImageUrl } from '../../utils/supabaseImage'
 
 type HomeHeroSlideshowProps = {
   body?: string
@@ -57,6 +58,7 @@ const fallbackSlide: HeroSlide = {
 }
 
 const heroMottoChips = ['합창 교육', '정기 연습', '공연 활동']
+const heroImageWidths = [960, 1440, 1920, 2560, 3200, 3840]
 const warmedHeroImageUrls = new Set<string>()
 
 function softenMottoChip(chip: string) {
@@ -116,25 +118,43 @@ function addHeadLink(
 function warmHeroImage(imageUrl: string, fetchPriority: ImageFetchPriority) {
   const normalizedUrl = imageUrl.trim()
 
-  if (!normalizedUrl || typeof window === 'undefined' || warmedHeroImageUrls.has(normalizedUrl)) {
+  if (!normalizedUrl || typeof window === 'undefined') {
     return
   }
 
-  const externalOrigin = getExternalImageOrigin(normalizedUrl)
+  const targetWidth = Math.min(
+    heroImageWidths.at(-1) ?? 3840,
+    Math.max(heroImageWidths[0], window.innerWidth * window.devicePixelRatio),
+  )
+  const preloadWidth =
+    heroImageWidths.find((width) => width >= targetWidth) ??
+    heroImageWidths.at(-1) ??
+    3840
+  const warmedUrl = getStorageImageUrl(normalizedUrl, {
+    quality: 92,
+    resize: 'contain',
+    width: preloadWidth,
+  })
+
+  if (warmedHeroImageUrls.has(warmedUrl)) {
+    return
+  }
+
+  const externalOrigin = getExternalImageOrigin(warmedUrl)
 
   if (externalOrigin) {
     addHeadLink('preconnect', externalOrigin)
   }
 
-  addHeadLink('preload', normalizedUrl, { as: 'image', fetchPriority })
+  addHeadLink('preload', warmedUrl, { as: 'image', fetchPriority })
 
   const image = new Image()
   image.decoding = 'async'
   image.loading = fetchPriority === 'high' ? 'eager' : 'lazy'
   image.setAttribute('fetchpriority', fetchPriority)
-  image.src = normalizedUrl
+  image.src = warmedUrl
 
-  warmedHeroImageUrls.add(normalizedUrl)
+  warmedHeroImageUrls.add(warmedUrl)
 }
 
 function usePrefersReducedMotion() {
@@ -359,6 +379,12 @@ export function HomeHeroSlideshow({
                 priority={isPrioritySlide}
                 sizes="100vw"
                 src={slide.image_url}
+                transform={{
+                  quality: 92,
+                  resize: 'contain',
+                  width: 3840,
+                  widths: heroImageWidths,
+                }}
               />
             ) : null}
           </div>

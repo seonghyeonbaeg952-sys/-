@@ -1,5 +1,5 @@
 import type { GalleryImage } from '../../types/content'
-import { BrandLogo } from '../common/BrandLogo'
+import type { SiteSettings } from '../../types/content'
 import { Button } from '../common/Button'
 import { Card } from '../common/Card'
 import { Container } from '../common/Container'
@@ -9,12 +9,14 @@ import { StaffFrame } from '../common/StaffFrame'
 import { StaffLines } from '../common/StaffLines'
 import { StaffSectionLabel } from '../common/StaffSectionLabel'
 import { VisualArchivePanel } from '../common/VisualArchivePanel'
+import { GlobalIdentityPlate } from './GlobalIdentityPlate'
 import { ImageTile } from './ImageTile'
 
 type AboutPreviewProps = {
   buttonLabel?: string
   image?: GalleryImage
   kicker?: string
+  settings?: Pick<SiteSettings, 'instagram_url' | 'youtube_url'>
   summary?: string
   title?: string
 }
@@ -62,6 +64,7 @@ export function AboutPreview({
   buttonLabel = '합창단 소개 보기',
   image,
   kicker = 'ABOUT',
+  settings,
   summary,
   title = '서울모테트청소년합창단 소개',
 }: AboutPreviewProps) {
@@ -82,8 +85,8 @@ export function AboutPreview({
       />
       <Container>
         <div className="home-about-grid relative">
-          <Reveal variant="fade-up">
-            <div className="lg:sticky lg:top-28">
+          <Reveal className="lg:sticky lg:top-28 lg:self-start" variant="fade-up">
+            <div>
               <StaffSectionLabel className="max-w-sm">
                 {kicker}
               </StaffSectionLabel>
@@ -100,17 +103,10 @@ export function AboutPreview({
                   </p>
                 ))}
               </div>
-              <Card className="mt-7 border-gold-warm/25 bg-bg-warm-white/92 p-5" radius="soft">
-                <BrandLogo
-                  brand="smf"
-                  className="max-w-[180px]"
-                  size="sm"
-                  theme="light"
-                />
-                <p className="mt-4 break-keep text-sm leading-7 text-text-muted">
-                  서울모테트음악재단 청소년아카데미 부설 합창단
-                </p>
-              </Card>
+              <GlobalIdentityPlate
+                instagramUrl={settings?.instagram_url}
+                youtubeUrl={settings?.youtube_url}
+              />
               <Button className="mt-7" href="/about" variant="primary">
                 {buttonLabel}
               </Button>
@@ -161,9 +157,9 @@ export function AboutPreview({
               ) : (
                 <VisualArchivePanel
                   className="min-h-[260px]"
-                  description="합창단의 공연과 연습 사진이 준비되면 첫 인상을 담는 대표 비주얼로 이어집니다."
-                  eyebrow="CHOIR VISUAL"
-                  title="공연과 연습의 장면을 담는 공간"
+                  description="정기 연습과 공연으로 이어지는 합창단 활동을 소개합니다."
+                  eyebrow="CHOIR OVERVIEW"
+                  title="합창단 활동 안내"
                 />
               )}
             </Reveal>

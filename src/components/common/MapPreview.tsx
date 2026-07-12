@@ -95,7 +95,7 @@ export function MapPreview({
           </div>
         ) : (
           <p className="rounded-button bg-bg-ivory px-4 py-3 text-sm text-text-muted">
-            주소나 지도 링크가 등록되면 이 영역에 바로가기 버튼이 표시됩니다.
+            지도 바로가기를 제공하지 않는 위치입니다. 위 주소를 확인해 주세요.
           </p>
         )}
       </div>

@@ -82,8 +82,8 @@ function buildArchiveItems(
 export function ArchivePageStack({
   buttonLabel,
   description,
-  emptyDescription = '새로운 공연과 연습 기록이 등록되면 이 공간에 소개됩니다.',
-  emptyTitle = '등록된 갤러리 자료가 없습니다',
+  emptyDescription = '현재 공개된 공연·연습 기록이 없습니다.',
+  emptyTitle = '공개된 갤러리 자료가 없습니다',
   images,
   posters = [],
   videos = [],
@@ -160,11 +160,15 @@ export function ArchivePageStack({
                         }
                   }
                 />
-                <strong>{item.title}</strong>
+                <span className="archive-folder-item-kind">{item.kind}</span>
+                <strong title={item.title}>{item.title}</strong>
               </a>
             ))}
 
-            <div aria-hidden="true" className="archive-folder-front" />
+            <div aria-hidden="true" className="archive-folder-front">
+              <span>SEOUL MOTET YOUTH CHOIR</span>
+              <strong>ARCHIVE</strong>
+            </div>
           </div>
         </div>
       </Reveal>

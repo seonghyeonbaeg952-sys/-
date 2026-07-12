@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 import { HOME_FLOW_SECTIONS, type HomeFlowSectionKey } from '../constants/homeFlow'
 
-type HomeFlowProgress = {
+export type HomeFlowProgress = {
   activeIndex: number
   activeKey: HomeFlowSectionKey
   progress: number
@@ -24,8 +24,26 @@ function getFlowSections() {
     .sort((first, second) => first.offsetTop - second.offsetTop)
 }
 
-function readProgress(): HomeFlowProgress {
-  const sections = getFlowSections()
+type MeasuredSection = {
+  bottom: number
+  element: HTMLElement
+  midpoint: number
+  top: number
+}
+
+function measureSections(sections: HTMLElement[]): MeasuredSection[] {
+  const scrollY = window.scrollY
+
+  return sections.map((element) => {
+    const rect = element.getBoundingClientRect()
+    const top = rect.top + scrollY
+    const bottom = rect.bottom + scrollY
+
+    return { bottom, element, midpoint: top + rect.height * 0.5, top }
+  })
+}
+
+function readProgress(sections: MeasuredSection[]): HomeFlowProgress {
 
   if (sections.length === 0) {
     return {
@@ -36,30 +54,27 @@ function readProgress(): HomeFlowProgress {
   }
 
   const viewportTarget = window.innerHeight * 0.54
-  const firstTop = sections[0].getBoundingClientRect().top + window.scrollY
+  const firstTop = sections[0].top
   const lastSection = sections[sections.length - 1]
-  const lastBottom =
-    lastSection.getBoundingClientRect().bottom + window.scrollY - window.innerHeight * 0.22
+  const lastBottom = lastSection.bottom - window.innerHeight * 0.22
   const progress = clamp((window.scrollY + viewportTarget - firstTop) / Math.max(1, lastBottom - firstTop))
 
-  let activeElement = sections[0]
+  let activeElement = sections[0].element
   let closestDistance = Number.POSITIVE_INFINITY
+  const documentTarget = window.scrollY + viewportTarget
 
   sections.forEach((section) => {
-    const rect = section.getBoundingClientRect()
-
-    if (rect.top <= viewportTarget && rect.bottom >= viewportTarget) {
-      activeElement = section
+    if (section.top <= documentTarget && section.bottom >= documentTarget) {
+      activeElement = section.element
       closestDistance = 0
       return
     }
 
-    const sectionMidpoint = rect.top + rect.height * 0.5
-    const distance = Math.abs(sectionMidpoint - viewportTarget)
+    const distance = Math.abs(section.midpoint - documentTarget)
 
     if (distance < closestDistance) {
       closestDistance = distance
-      activeElement = section
+      activeElement = section.element
     }
   })
 
@@ -75,37 +90,41 @@ function readProgress(): HomeFlowProgress {
   }
 }
 
-export function useHomeFlowProgress() {
-  const [state, setState] = useState<HomeFlowProgress>({
-    activeIndex: 0,
-    activeKey: HOME_FLOW_SECTIONS[0].key,
-    progress: 0,
-  })
-
+export function useHomeFlowProgress(
+  onChange: (state: HomeFlowProgress) => void,
+) {
   useEffect(() => {
     const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const flowSections = getFlowSections()
+    let measuredSections = measureSections(flowSections)
     let frame = 0
+    let currentState: HomeFlowProgress = {
+      activeIndex: 0,
+      activeKey: HOME_FLOW_SECTIONS[0].key,
+      progress: 0,
+    }
+
+    const commitState = (nextState: HomeFlowProgress) => {
+      const progressChanged = Math.abs(currentState.progress - nextState.progress) >= 0.003
+      const activeChanged =
+        currentState.activeKey !== nextState.activeKey ||
+        currentState.activeIndex !== nextState.activeIndex
+
+      if (!progressChanged && !activeChanged) {
+        return
+      }
+
+      currentState = {
+        progress: progressChanged ? nextState.progress : currentState.progress,
+        activeKey: nextState.activeKey,
+        activeIndex: nextState.activeIndex,
+      }
+      onChange(currentState)
+    }
 
     const update = () => {
       frame = 0
-      const nextState = readProgress()
-
-      setState((currentState) => {
-        const progressChanged = Math.abs(currentState.progress - nextState.progress) >= 0.003
-        const activeChanged =
-          currentState.activeKey !== nextState.activeKey ||
-          currentState.activeIndex !== nextState.activeIndex
-
-        if (!progressChanged && !activeChanged) {
-          return currentState
-        }
-
-        return {
-          progress: progressChanged ? nextState.progress : currentState.progress,
-          activeKey: nextState.activeKey,
-          activeIndex: nextState.activeIndex,
-        }
-      })
+      commitState(readProgress(measuredSections))
     }
 
     const scheduleUpdate = () => {
@@ -116,9 +135,14 @@ export function useHomeFlowProgress() {
       frame = window.requestAnimationFrame(update)
     }
 
+    const measureAndSchedule = () => {
+      measuredSections = measureSections(flowSections)
+      scheduleUpdate()
+    }
+
     const reducedMotionUpdate = () => {
       if (reducedMotionQuery.matches) {
-        setState((currentState) => ({ ...currentState, progress: 1 }))
+        commitState({ ...currentState, progress: 1 })
         return
       }
 
@@ -127,11 +151,10 @@ export function useHomeFlowProgress() {
 
     scheduleUpdate()
     window.addEventListener('scroll', scheduleUpdate, { passive: true })
-    window.addEventListener('resize', scheduleUpdate)
+    window.addEventListener('resize', measureAndSchedule)
     reducedMotionQuery.addEventListener('change', reducedMotionUpdate)
 
-    const resizeObserver = new ResizeObserver(scheduleUpdate)
-    const flowSections = getFlowSections()
+    const resizeObserver = new ResizeObserver(measureAndSchedule)
     flowSections.forEach((section) => resizeObserver.observe(section))
 
     const sectionObserver = new IntersectionObserver(
@@ -150,11 +173,7 @@ export function useHomeFlowProgress() {
           (item) => item.key === activeKey,
         )
 
-        setState((currentState) =>
-          currentState.activeKey === activeKey
-            ? currentState
-            : { ...currentState, activeIndex, activeKey },
-        )
+        commitState({ ...currentState, activeIndex, activeKey })
       },
       {
         rootMargin: '-42% 0px -42% 0px',
@@ -172,11 +191,9 @@ export function useHomeFlowProgress() {
       sectionObserver.disconnect()
       reducedMotionQuery.removeEventListener('change', reducedMotionUpdate)
       window.removeEventListener('scroll', scheduleUpdate)
-      window.removeEventListener('resize', scheduleUpdate)
+      window.removeEventListener('resize', measureAndSchedule)
     }
-  }, [])
-
-  return state
+  }, [onChange])
 }
 
 

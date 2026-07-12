@@ -41,9 +41,9 @@ function getGalleryCategoryLabel(category: string) {
 function GalleryArchiveEmpty({ type }: { type: GalleryTab }) {
   const labels: Record<GalleryTab, { eyebrow: string; title: string; description: string }> = {
     photos: {
-      description: '공연과 연습 사진이 준비되면 이 공간에서 차례로 만나볼 수 있습니다.',
+      description: '현재 공개된 공연·연습 사진이 없습니다.',
       eyebrow: 'PHOTO ARCHIVE',
-      title: '공연과 연습 장면을 기다리는 아카이브',
+      title: '사진 아카이브',
     },
     posters: {
       description: '포스터 이미지는 공연 자료 아카이브처럼 3:4 비율로 표시됩니다.',
@@ -51,9 +51,9 @@ function GalleryArchiveEmpty({ type }: { type: GalleryTab }) {
       title: '공연 포스터 아카이브',
     },
     videos: {
-      description: '공연 영상이 준비되면 썸네일과 설명을 함께 확인할 수 있습니다.',
+      description: '현재 공개된 공연 영상이 없습니다.',
       eyebrow: 'VIDEO ARCHIVE',
-      title: '영상 기록을 모으는 공간',
+      title: '영상 아카이브',
     },
   }
   const content = labels[type]
@@ -316,7 +316,7 @@ export function GalleryPage() {
                           ) : null}
                           {!getYouTubeEmbedUrl(video.video_url) ? (
                             <p className="mt-3 rounded-button bg-bg-ivory px-3 py-2 text-sm leading-6 text-text-muted">
-                              재생 가능한 YouTube 링크가 등록되면 이곳에서 바로 볼 수 있습니다.
+                              영상 링크를 확인할 수 없습니다.
                             </p>
                           ) : null}
                         </div>

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { useLocation } from 'react-router'
 
 const HASH_SCROLL_RETRY_LIMIT = 80
@@ -34,7 +34,7 @@ export function RouteScrollManager() {
     }
   }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (typeof window === 'undefined') {
       return undefined
     }

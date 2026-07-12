@@ -280,10 +280,12 @@ export function ConcertsPage() {
                           <dd>{concert.time}</dd>
                         </div>
                       ) : null}
-                      <div>
-                        <dt className="sr-only">장소</dt>
-                        <dd className="break-keep">{concert.location}</dd>
-                      </div>
+                      {concert.location.trim() ? (
+                        <div>
+                          <dt className="sr-only">장소</dt>
+                          <dd className="break-keep">{concert.location}</dd>
+                        </div>
+                      ) : null}
                     </dl>
                     <span className="mt-4 inline-block text-sm font-semibold text-gold-warm">
                       자세히 보기

@@ -118,6 +118,8 @@ export function HomePage() {
   const visibleGalleryImages = getVisibleGalleryImages(gallery)
   const aboutVisualImage =
     visibleGalleryImages.length > 1 ? visibleGalleryImages[0] : undefined
+  const spiritVisualImage =
+    visibleGalleryImages.length > 1 ? visibleGalleryImages[1] : undefined
   const galleryPreviewImages = aboutVisualImage
     ? gallery.filter((image) => image.id !== aboutVisualImage.id)
     : gallery
@@ -200,6 +202,7 @@ export function HomePage() {
             buttonLabel={t('home.about.cta', siteSettings.home_about_button_label)}
             image={aboutVisualImage}
             kicker={t('home.about.kicker')}
+            settings={siteSettings}
             summary={t('home.about.body', aboutSummary)}
             title={t('home.about.title', siteSettings.home_about_title)}
           />
@@ -249,7 +252,10 @@ export function HomePage() {
             rightTitle={t('home.score.right.title', t('home.scorebook.rightTitle'))}
             valueWordsText={t('home.score.value.list')}
           />
-          <HomeSpiritScoreBook sections={aboutSections} />
+          <HomeSpiritScoreBook
+            image={spiritVisualImage}
+            sections={aboutSections}
+          />
           <GalleryPreview
             buttonLabel={t('home.gallery.cta', siteSettings.home_gallery_button_label)}
             description={t(

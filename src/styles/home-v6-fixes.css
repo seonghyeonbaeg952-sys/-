@@ -648,7 +648,7 @@
 .motet-score-value-words {
   position: absolute;
   inset: 0;
-  z-index: 22;
+  z-index: 44;
   overflow: visible;
   pointer-events: none;
 }
@@ -1670,7 +1670,10 @@
   text-transform: uppercase;
   transform: translate3d(20px, 0, 0);
   white-space: pre;
-  animation: home-intro-background-mark 1500ms cubic-bezier(0.22, 1, 0.36, 1) 260ms both;
+}
+
+.home-intro-launch--ready::before {
+  animation: home-intro-background-mark 780ms cubic-bezier(0.22, 1, 0.36, 1) 80ms both;
 }
 
 .home-intro-launch__field,
@@ -1692,11 +1695,13 @@
       transparent 33px 58px
     ),
     linear-gradient(90deg, rgb(7 17 31 / 0.58) 0%, transparent 26%, rgb(7 17 31 / 0.2) 100%),
-    linear-gradient(135deg, var(--color-navy-midnight), var(--color-navy-deep)),
-    var(--color-navy-midnight);
-  animation: home-intro-field-release 1180ms cubic-bezier(0.18, 0.9, 0.22, 1) 2140ms both;
+    linear-gradient(135deg, rgb(7 21 38 / 0.94), rgb(16 35 63 / 0.8));
   clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
   will-change: clip-path;
+}
+
+.home-intro-launch--ready .home-intro-launch__field {
+  animation: home-intro-field-release 620ms cubic-bezier(0.18, 0.9, 0.22, 1) 760ms both;
 }
 
 .home-intro-launch__wordmark {
@@ -1715,7 +1720,10 @@
   text-shadow:
     0 8px 26px rgb(7 17 31 / 0.36),
     0 0 28px rgb(242 106 46 / 0.12);
-  animation: home-intro-wordmark-out 360ms ease-out 2760ms both;
+}
+
+.home-intro-launch--ready .home-intro-launch__wordmark {
+  animation: home-intro-wordmark-out 220ms ease-out 1120ms both;
 }
 
 .home-intro-launch__word {
@@ -1727,7 +1735,10 @@
     scale(var(--intro-start-scale));
   transform-origin: left top;
   white-space: nowrap;
-  animation: home-intro-word-to-title 980ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.home-intro-launch--ready .home-intro-launch__word {
+  animation: home-intro-word-to-title 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .home-intro-launch__initial {
@@ -1748,8 +1759,11 @@
   transform: translateX(-0.16em);
   vertical-align: baseline;
   white-space: nowrap;
-  animation: home-intro-tail-spread 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
   will-change: clip-path, max-width, opacity, transform;
+}
+
+.home-intro-launch--ready .home-intro-launch__tail {
+  animation: home-intro-tail-spread 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .home-intro-launch__seed {
@@ -1797,36 +1811,36 @@
 }
 
 .home-intro-launch__word--s {
-  animation-delay: 360ms;
+  animation-delay: 110ms;
 }
 
 .home-intro-launch__word--m {
-  animation-delay: 450ms;
+  animation-delay: 170ms;
 }
 
 .home-intro-launch__word--y {
-  animation-delay: 540ms;
+  animation-delay: 230ms;
 }
 
 .home-intro-launch__word--c {
-  animation-delay: 630ms;
+  animation-delay: 290ms;
 }
 
 .home-intro-launch__word--s .home-intro-launch__tail {
-  animation-delay: 1420ms;
+  animation-delay: 560ms;
 }
 
 .home-intro-launch__word--m .home-intro-launch__tail {
-  animation-delay: 1530ms;
+  animation-delay: 620ms;
 }
 
 .home-intro-launch__word--y .home-intro-launch__tail {
-  animation-delay: 1640ms;
+  animation-delay: 680ms;
   margin-left: -0.03em;
 }
 
 .home-intro-launch__word--c .home-intro-launch__tail {
-  animation-delay: 1750ms;
+  animation-delay: 740ms;
 }
 
 .home-intro-launch__shutters {
@@ -1846,8 +1860,11 @@
   opacity: 0;
   transform: translate3d(-12vw, 0, 0) skewX(-17deg);
   transform-origin: left center;
-  animation: home-intro-shutter-open 1120ms cubic-bezier(0.18, 0.9, 0.22, 1) 2140ms both;
   will-change: transform, opacity;
+}
+
+.home-intro-launch--ready .home-intro-launch__shutters span {
+  animation: home-intro-shutter-open 620ms cubic-bezier(0.18, 0.9, 0.22, 1) 760ms both;
 }
 
 .home-intro-launch__shutters span:nth-child(1) {
@@ -1871,7 +1888,10 @@
   mix-blend-mode: screen;
   opacity: 0;
   transform: translateX(-58vw) skewX(-14deg);
-  animation: home-intro-real-sweep 1200ms cubic-bezier(0.22, 1, 0.36, 1) 2140ms both;
+}
+
+.home-intro-launch--ready .home-intro-launch__sweep {
+  animation: home-intro-real-sweep 700ms cubic-bezier(0.22, 1, 0.36, 1) 760ms both;
 }
 
 @keyframes home-intro-word-to-title {
