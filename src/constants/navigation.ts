@@ -1,4 +1,7 @@
-import type { AdminNavigationItem } from '../types/admin'
+import type {
+  AdminNavigationGroup,
+  AdminNavigationItem,
+} from '../types/admin'
 
 export interface PublicNavigationItem {
   children?: PublicNavigationChild[]
@@ -122,27 +125,82 @@ export const publicNavigation = [
   },
 ] satisfies PublicNavigationItem[]
 
-export const adminNavigation = [
-  { label: '대시보드', href: '/admin', resource: 'site_settings' },
-  { label: '홈페이지 기본 설정', href: '/admin/settings', resource: 'site_settings' },
-  { label: '홈 문구 관리', href: '/admin/site-texts', resource: 'site_texts' },
-  { label: '홈 슬라이드 관리', href: '/admin/hero-slides', resource: 'hero_slides' },
-  { label: '홈 팝업 관리', href: '/admin/popups', resource: 'popup_notices' },
-  { label: '합창단 소개 관리', href: '/admin/about', resource: 'about_sections' },
-  { label: '지휘자 관리', href: '/admin/conductor', resource: 'conductor' },
-  { label: '반주자 관리', href: '/admin/accompanist', resource: 'accompanist' },
-  { label: '단원 관리', href: '/admin/members', resource: 'members' },
-  { label: '공연 관리', href: '/admin/concerts', resource: 'concerts' },
-  { label: '공지사항 관리', href: '/admin/notices', resource: 'notices' },
-  { label: '갤러리 관리', href: '/admin/gallery', resource: 'gallery' },
-  { label: '영상 관리', href: '/admin/videos', resource: 'videos' },
-  { label: '포스터 관리', href: '/admin/posters', resource: 'posters' },
-  { label: '연혁 관리', href: '/admin/history', resource: 'history' },
-  { label: '오시는 길 관리', href: '/admin/location', resource: 'locations' },
-  { label: '입단 안내 관리', href: '/admin/join', resource: 'join_info' },
-  { label: '후원약정 관리', href: '/admin/support', resource: 'support_settings' },
-  { label: '후원 신청 관리', href: '/admin/support-pledges', resource: 'support_pledges' },
-  { label: '후원사 관리', href: '/admin/sponsors', resource: 'sponsors' },
-  { label: '문의 관리', href: '/admin/contacts', resource: 'contacts' },
-  { label: '계정 설정', href: '/admin/account', resource: 'account' },
-] satisfies AdminNavigationItem[]
+export const adminNavigationGroups: AdminNavigationGroup[] = [
+  {
+    label: '업무 처리',
+    items: [
+      { label: '대시보드', href: '/admin', resource: 'site_settings' },
+      { label: '문의 관리', href: '/admin/contacts', resource: 'contacts' },
+      {
+        label: '입단지원 관리',
+        href: '/admin/join-applications',
+        resource: 'join_applications',
+      },
+      {
+        label: '후원 신청 관리',
+        href: '/admin/support-pledges',
+        resource: 'support_pledges',
+      },
+      { label: '후원사 관리', href: '/admin/sponsors', resource: 'sponsors' },
+    ],
+  },
+  {
+    label: '홈·브랜드',
+    items: [
+      {
+        label: '홈페이지 기본 설정',
+        href: '/admin/settings',
+        resource: 'site_settings',
+      },
+      { label: '홈 문구 관리', href: '/admin/site-texts', resource: 'site_texts' },
+      {
+        label: '홈 슬라이드 관리',
+        href: '/admin/hero-slides',
+        resource: 'hero_slides',
+      },
+      { label: '홈 팝업 관리', href: '/admin/popups', resource: 'popup_notices' },
+    ],
+  },
+  {
+    label: '합창단',
+    items: [
+      { label: '합창단 소개 관리', href: '/admin/about', resource: 'about_sections' },
+      { label: '지휘자 관리', href: '/admin/conductor', resource: 'conductor' },
+      { label: '반주자 관리', href: '/admin/accompanist', resource: 'accompanist' },
+      { label: '단원 관리', href: '/admin/members', resource: 'members' },
+      { label: '연혁 관리', href: '/admin/history', resource: 'history' },
+    ],
+  },
+  {
+    label: '공연·기록',
+    items: [
+      { label: '공연 관리', href: '/admin/concerts', resource: 'concerts' },
+      { label: '공지사항 관리', href: '/admin/notices', resource: 'notices' },
+      { label: '갤러리 관리', href: '/admin/gallery', resource: 'gallery' },
+      { label: '영상 관리', href: '/admin/videos', resource: 'videos' },
+      { label: '포스터 관리', href: '/admin/posters', resource: 'posters' },
+    ],
+  },
+  {
+    label: '안내·후원',
+    items: [
+      { label: '오시는 길 관리', href: '/admin/location', resource: 'locations' },
+      { label: '입단 안내 관리', href: '/admin/join', resource: 'join_info' },
+      {
+        label: '후원약정 관리',
+        href: '/admin/support',
+        resource: 'support_settings',
+      },
+    ],
+  },
+  {
+    label: '시스템',
+    items: [
+      { label: '계정 설정', href: '/admin/account', resource: 'account' },
+    ],
+  },
+]
+
+export const adminNavigation: AdminNavigationItem[] = adminNavigationGroups.flatMap(
+  (group) => group.items,
+)

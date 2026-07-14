@@ -1,6 +1,6 @@
-import { NavLink } from 'react-router'
+import { Link, NavLink, useLocation } from 'react-router'
 
-import { adminNavigation } from '../../constants/navigation'
+import { adminNavigationGroups } from '../../constants/navigation'
 import { classNames } from '../../utils/classNames'
 import { BrandLogo } from '../common/BrandLogo'
 
@@ -10,6 +10,13 @@ type AdminSidebarProps = {
 }
 
 export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
+  const location = useLocation()
+
+  const isRouteActive = (href: string) =>
+    href === '/admin'
+      ? location.pathname === href
+      : location.pathname === href || location.pathname.startsWith(`${href}/`)
+
   return (
     <>
       <button
@@ -51,27 +58,65 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           </button>
         </div>
 
-        <nav aria-label="관리자 메뉴" className="mt-8 flex flex-col gap-1 overflow-y-auto pr-1">
-          {adminNavigation.map((item) => (
-            <NavLink
-              className={({ isActive }) =>
-                classNames(
-                  'relative rounded-button px-3 py-2.5 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm',
-                  isActive
-                    ? 'bg-gold-warm text-navy-midnight shadow-[0_10px_24px_rgb(0_0_0/0.18)]'
-                    : 'text-bg-ivory/75 hover:bg-bg-warm-white/10 hover:text-bg-warm-white',
-                )
-              }
-              end={item.href === '/admin'}
-              key={item.href}
-              onClick={onClose}
-              to={item.href}
-            >
-              <span>{item.label}</span>
-            </NavLink>
-          ))}
+        <nav
+          aria-label="관리자 메뉴"
+          className="mt-7 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pr-1"
+        >
+          {adminNavigationGroups.map((group, groupIndex) => {
+            const isActiveGroup = group.items.some((item) =>
+              isRouteActive(item.href),
+            )
+
+            return (
+              <details
+                className="group/nav"
+                key={group.label}
+                open={isActiveGroup || groupIndex === 0}
+              >
+                <summary className="flex min-h-10 cursor-pointer list-none items-center justify-between rounded-button px-3 text-[11px] font-semibold text-bg-ivory/45 transition hover:bg-bg-warm-white/5 hover:text-bg-ivory/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm [&::-webkit-details-marker]:hidden">
+                  <span>{group.label}</span>
+                  <span
+                    aria-hidden="true"
+                    className="text-sm transition-transform group-open/nav:rotate-180"
+                  >
+                    ⌄
+                  </span>
+                </summary>
+                <div className="mt-1 flex flex-col gap-1">
+                  {group.items.map((item) => (
+                    <NavLink
+                      className={({ isActive }) =>
+                        classNames(
+                          'relative min-h-11 rounded-button px-3 py-2.5 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm',
+                          isActive
+                            ? 'bg-gold-warm text-navy-midnight shadow-[0_10px_24px_rgb(0_0_0/0.18)]'
+                            : 'text-bg-ivory/75 hover:bg-bg-warm-white/10 hover:text-bg-warm-white',
+                        )
+                      }
+                      end={item.href === '/admin'}
+                      key={item.href}
+                      onClick={onClose}
+                      to={item.href}
+                    >
+                      <span>{item.label}</span>
+                    </NavLink>
+                  ))}
+                </div>
+              </details>
+            )
+          })}
         </nav>
-        <div className="mt-auto border-t border-bg-warm-white/10 pt-5">
+        <div className="mt-5 border-t border-bg-warm-white/10 pt-5">
+          <Link
+            className="mb-5 flex min-h-11 items-center justify-between rounded-button border border-bg-warm-white/15 px-3 text-sm font-semibold text-bg-ivory/80 transition hover:border-gold-warm/60 hover:bg-bg-warm-white/10 hover:text-bg-warm-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
+            onClick={onClose}
+            rel="noreferrer"
+            target="_blank"
+            to="/"
+          >
+            <span>공개 홈페이지 보기</span>
+            <span aria-hidden="true">↗</span>
+          </Link>
           <p className="mb-3 text-[11px] font-semibold text-bg-ivory/45">
             서울모테트음악재단
           </p>

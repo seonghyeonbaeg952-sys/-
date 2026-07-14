@@ -20,7 +20,7 @@ export function AdminHeader({
   return (
     <header className="border-b border-line-default bg-bg-warm-white px-5 py-4 shadow-header lg:px-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <button
             aria-controls="admin-sidebar"
             aria-expanded={isSidebarOpen}
@@ -43,6 +43,16 @@ export function AdminHeader({
               {signOutError}
             </p>
           ) : null}
+          <Button
+            href="/"
+            rel="noreferrer"
+            showArrow={false}
+            size="sm"
+            target="_blank"
+            variant="secondary"
+          >
+            홈페이지 보기
+          </Button>
           <Button
             disabled={isSigningOut}
             onClick={onSignOut}

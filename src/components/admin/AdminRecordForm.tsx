@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 
 import { cleanPayload } from '../../lib/cms'
@@ -45,7 +45,9 @@ type AdminRecordFormProps<TRow extends CmsRecord> = {
   fields: Array<AdminFieldConfig<TRow>>
   initialData?: Partial<TRow> | null
   onCancel?: () => void
+  onDirtyChange?: (isDirty: boolean) => void
   onSubmit: (payload: CmsMutationPayload) => Promise<void>
+  stickyActions?: boolean
   submitLabel?: string
 }
 
@@ -105,7 +107,9 @@ export function AdminRecordForm<TRow extends CmsRecord>({
   fields,
   initialData,
   onCancel,
+  onDirtyChange,
   onSubmit,
+  stickyActions = false,
   submitLabel = '저장',
 }: AdminRecordFormProps<TRow>) {
   const initialValues = useMemo(() => {
@@ -119,6 +123,17 @@ export function AdminRecordForm<TRow extends CmsRecord>({
 
   const [values, setValues] = useState<FormValues>(initialValues)
   const [errors, setErrors] = useState<FormErrors>({})
+  const isDirty = useMemo(
+    () =>
+      fields.some(
+        (field) => values[field.name] !== initialValues[field.name],
+      ),
+    [fields, initialValues, values],
+  )
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty)
+  }, [isDirty, onDirtyChange])
 
   const setValue = (name: string, value: CmsValue) => {
     setValues((current) => ({ ...current, [name]: value }))
@@ -142,6 +157,17 @@ export function AdminRecordForm<TRow extends CmsRecord>({
     }
 
     setErrors(nextErrors)
+
+    const firstErrorField = fields.find(
+      (field) => nextErrors[field.name],
+    )
+
+    if (firstErrorField) {
+      window.requestAnimationFrame(() => {
+        document.getElementById(firstErrorField.name)?.focus()
+      })
+    }
+
     return Object.keys(nextErrors).length === 0
   }
 
@@ -168,7 +194,7 @@ export function AdminRecordForm<TRow extends CmsRecord>({
   }
 
   return (
-    <form className="space-y-5" onSubmit={handleSubmit}>
+    <form aria-busy={disabled} className="space-y-5" onSubmit={handleSubmit}>
       <div className="grid gap-5 md:grid-cols-2">
         {fields.map((field) => {
           const value = values[field.name]
@@ -301,14 +327,20 @@ export function AdminRecordForm<TRow extends CmsRecord>({
         })}
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+      <div
+        className={
+          stickyActions
+            ? 'sticky bottom-0 z-10 -mx-4 flex flex-col gap-3 border-t border-line-default bg-bg-warm-white/95 px-4 py-4 shadow-[0_-12px_24px_rgb(16_35_63/0.06)] backdrop-blur sm:-mx-5 sm:flex-row sm:justify-end sm:px-5'
+            : 'flex flex-col gap-3 border-t border-line-default pt-5 sm:flex-row sm:justify-end'
+        }
+      >
         {onCancel ? (
           <Button disabled={disabled} onClick={onCancel} variant="secondary">
             취소
           </Button>
         ) : null}
         <Button disabled={disabled} type="submit" variant="primary">
-          {disabled ? '저장 중' : submitLabel}
+          {disabled ? '저장 중…' : submitLabel}
         </Button>
       </div>
     </form>

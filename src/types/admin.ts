@@ -18,6 +18,7 @@ export type AdminResource =
   | 'videos'
   | 'posters'
   | 'history'
+  | 'join_applications'
   | 'locations'
   | 'join_info'
   | 'contacts'
@@ -54,6 +55,11 @@ export interface AdminNavigationItem {
   href: string
   label: string
   resource: AdminResource
+}
+
+export interface AdminNavigationGroup {
+  items: AdminNavigationItem[]
+  label: string
 }
 
 export interface AdminTableColumn<TRecord> {

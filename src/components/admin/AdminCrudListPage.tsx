@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 
 import { getRecordTitle } from '../../lib/cms'
@@ -104,6 +104,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<CmsRowFor<TTable> | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
+  const [isFormDirty, setIsFormDirty] = useState(false)
   const debouncedSearchValue = useDebouncedValue(searchValue.trim(), 300)
 
   const activeFilters = useMemo(() => {
@@ -133,11 +134,46 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
     table,
   })
 
-  const closeForm = () => {
+  const resetAndCloseForm = useCallback(() => {
     setIsFormOpen(false)
     setEditingRow(null)
     setFormError(null)
-  }
+    setIsFormDirty(false)
+  }, [])
+
+  const requestCloseForm = useCallback(() => {
+    if (crud.isMutating) {
+      return
+    }
+
+    if (
+      isFormDirty &&
+      !window.confirm(
+        '저장하지 않은 변경사항이 있습니다. 편집을 종료할까요?',
+      )
+    ) {
+      return
+    }
+
+    resetAndCloseForm()
+  }, [crud.isMutating, isFormDirty, resetAndCloseForm])
+
+  useEffect(() => {
+    if (!isFormOpen || !isFormDirty) {
+      return
+    }
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault()
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [isFormDirty, isFormOpen])
+
   const formInitialData =
     editingRow && prepareInitialData ? prepareInitialData(editingRow) : editingRow
   const rows = useMemo(
@@ -161,7 +197,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
       : await crud.createItem(preparedPayload)
 
     if (!result.error) {
-      closeForm()
+      resetAndCloseForm()
     }
   }
 
@@ -186,6 +222,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
               onClick={() => {
                 setEditingRow(null)
                 setFormError(null)
+                setIsFormDirty(false)
                 setIsFormOpen(true)
               }}
               variant="gold"
@@ -244,6 +281,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
         onEdit={(row) => {
           setEditingRow(row)
           setFormError(null)
+          setIsFormDirty(false)
           setIsFormOpen(true)
         }}
         rows={rows}
@@ -253,7 +291,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
       <AdminModal
         footer={null}
         isOpen={isFormOpen}
-        onClose={closeForm}
+        onClose={requestCloseForm}
         title={editingRow ? `${title} 수정` : `${title} 추가`}
       >
         {formError ? (
@@ -275,8 +313,10 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
           fields={fields}
           initialData={formInitialData}
           key={editingRow?.id ?? 'new'}
-          onCancel={closeForm}
+          onCancel={requestCloseForm}
+          onDirtyChange={setIsFormDirty}
           onSubmit={handleSubmit}
+          stickyActions
         />
       </AdminModal>
 
