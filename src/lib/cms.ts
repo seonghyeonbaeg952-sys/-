@@ -60,6 +60,17 @@ export type ListRowsOptions<TTable extends CmsTableName> = {
   search?: CmsSearchOption<TTable>
 }
 
+export type CmsInFilterOption<TTable extends CmsTableName> = {
+  column: Extract<keyof CmsRowFor<TTable>, string>
+  values: Array<Exclude<CmsValue, null>>
+}
+
+export type CountRowsOptions<TTable extends CmsTableName> = {
+  table: TTable
+  filters?: Array<CmsFilterOption<TTable>>
+  inFilters?: Array<CmsInFilterOption<TTable>>
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
@@ -271,6 +282,45 @@ export async function listRows<TTable extends CmsTableName>({
   }
 
   return { data: normalizeRows<TTable>(data), error: null }
+}
+
+export async function countRows<TTable extends CmsTableName>({
+  filters = [],
+  inFilters = [],
+  table,
+}: CountRowsOptions<TTable>): Promise<CmsResult<number>> {
+  const clientResult = getSupabaseClientSafe()
+
+  if (!clientResult.data) {
+    return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
+  }
+
+  let query = clientResult.data
+    .from(table)
+    .select('*', { count: 'exact', head: true })
+
+  for (const filter of filters) {
+    if (filter.value !== undefined && filter.value !== '') {
+      query = query.eq(filter.column, filter.value)
+    }
+  }
+
+  for (const filter of inFilters) {
+    if (filter.values.length > 0) {
+      query = query.in(filter.column, filter.values as never[])
+    }
+  }
+
+  const { count, error } = await query
+
+  if (error) {
+    return {
+      data: null,
+      error: toCmsError(error, '처리 현황을 불러오지 못했습니다.'),
+    }
+  }
+
+  return { data: count ?? 0, error: null }
 }
 
 export async function getRowById<TTable extends CmsTableName>(

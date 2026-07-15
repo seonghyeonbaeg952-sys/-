@@ -119,7 +119,7 @@ export function AdminModal({
           <Card
             aria-labelledby={titleId}
             aria-modal="true"
-            className="flex h-[100dvh] max-h-[100dvh] w-full flex-col overflow-hidden rounded-none sm:h-auto sm:max-h-[88dvh] sm:rounded-formal"
+            className="flex h-[100dvh] max-h-[100dvh] w-full flex-col overflow-clip rounded-none sm:h-auto sm:max-h-[88dvh] sm:rounded-formal"
             radius="formal"
             role="dialog"
           >

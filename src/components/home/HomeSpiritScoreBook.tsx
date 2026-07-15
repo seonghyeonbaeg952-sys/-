@@ -13,6 +13,7 @@ import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 import { Reveal } from '../common/Reveal'
 import { StaffLines } from '../common/StaffLines'
+import { TransitionLink } from '../common/TransitionLink'
 import { ImageTile } from './ImageTile'
 import { KineticHeadline } from './KineticHeadline'
 
@@ -98,9 +99,9 @@ export function HomeSpiritScoreBook({ image, sections }: HomeSpiritScoreBookProp
 
             {image ? (
               <Reveal delay={70} variant="soft-scale">
-                <a
+                <TransitionLink
                   className="home-spirit-media group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm"
-                  href="/gallery?tab=photos"
+                  to="/gallery?tab=photos"
                 >
                   <ImageTile
                     alt={image.image_alt || image.title}
@@ -122,7 +123,7 @@ export function HomeSpiritScoreBook({ image, sections }: HomeSpiritScoreBookProp
                       <strong title={image.title}>{image.title}</strong>
                     </div>
                   </ImageTile>
-                </a>
+                </TransitionLink>
               </Reveal>
             ) : null}
           </div>

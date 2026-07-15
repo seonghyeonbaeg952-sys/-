@@ -114,11 +114,11 @@ export const publicNavigation = [
   {
     label: '후원·문의',
     href: '/contact',
-    description: '후원, 공연 의뢰, 오시는 길을 공식 채널로 연결합니다.',
+    description: '후원 안내, 일반 문의, 입단지원, 오시는 길을 공식 채널로 연결합니다.',
     children: [
       { label: '후원 안내', href: '/contact?section=support', description: '후원과 협력 문의' },
       { label: '후원사', href: '/contact?section=sponsors', description: '후원사와 협력기관' },
-      { label: '공연 문의', href: '/contact?section=performance', description: '초청연주와 공연 의뢰' },
+      { label: '문의', href: '/contact?section=performance', description: '일반·공연·기타 문의 접수' },
       { label: '입단지원서 작성', href: '/contact?section=join', description: '후원 문의와 별도인 입단 지원' },
       { label: '오시는 길·지도', href: '/contact?section=location', description: '주소와 지도 바로가기' },
     ],

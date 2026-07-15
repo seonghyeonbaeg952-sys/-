@@ -7,9 +7,9 @@ import type { AdminTableColumn } from '../../components/admin/AdminTable'
 import type { CmsMutationPayload, ContactRow, ContactStatus } from '../../types/cms'
 
 const typeOptions = [
-  { label: '입단 문의', value: 'join' },
-  { label: '공연 섭외', value: 'concert_request' },
-  { label: '후원 문의', value: 'support' },
+  { label: '입단 관련 문의', value: 'join' },
+  { label: '공연 관련 문의', value: 'concert_request' },
+  { label: '후원 관련 문의', value: 'support' },
   { label: '일반 문의', value: 'general' },
   { label: '기타', value: 'other' },
 ]
@@ -29,7 +29,7 @@ const fields = [
   { name: 'type', label: '문의 유형', type: 'select', options: typeOptions, readOnly: true },
   { name: 'title', label: '제목', type: 'text', readOnly: true },
   { name: 'message', label: '문의 내용', type: 'textarea', rows: 8, readOnly: true },
-  { name: 'privacy_agreed', label: '개인정보 동의', type: 'switch' },
+  { name: 'privacy_agreed', label: '개인정보 동의', type: 'switch', readOnly: true },
   {
     name: 'admin_note',
     label: '관리자 메모',
@@ -146,7 +146,6 @@ function createContactPayload(
     admin_note:
       typeof payload.admin_note === 'string' ? payload.admin_note.trim() : null,
     admin_reply: adminReply || null,
-    privacy_agreed: payload.privacy_agreed,
     replied_at: shouldMarkReplied
       ? replyChanged || !row?.replied_at
         ? new Date().toISOString()

@@ -5,7 +5,7 @@ import { AdminPageTitle } from '../../components/admin/AdminPageTitle'
 import { Button } from '../../components/common/Button'
 import { Card } from '../../components/common/Card'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
-import { listRows } from '../../lib/cms'
+import { countRows } from '../../lib/cms'
 
 type DashboardSummary = {
   contacts: number | null
@@ -83,12 +83,33 @@ export function AdminDashboardPage() {
         concertsResult,
         noticesResult,
       ] = await Promise.all([
-        listRows({ table: 'contacts' }),
-        listRows({ table: 'join_applications' }),
-        listRows({ table: 'support_pledges' }),
-        listRows({ table: 'sponsors' }),
-        listRows({ table: 'concerts' }),
-        listRows({ table: 'notices' }),
+        countRows({
+          inFilters: [{ column: 'status', values: ['new', 'reviewing', 'in_progress'] }],
+          table: 'contacts',
+        }),
+        countRows({
+          inFilters: [{ column: 'status', values: ['new', 'in_review'] }],
+          table: 'join_applications',
+        }),
+        countRows({
+          inFilters: [{ column: 'status', values: ['new', 'in_progress'] }],
+          table: 'support_pledges',
+        }),
+        countRows({
+          filters: [{ column: 'consent_public', value: false }],
+          table: 'sponsors',
+        }),
+        countRows({
+          inFilters: [{ column: 'status', values: ['upcoming', 'open', 'ticketing'] }],
+          table: 'concerts',
+        }),
+        countRows({
+          filters: [
+            { column: 'is_important', value: true },
+            { column: 'is_visible', value: true },
+          ],
+          table: 'notices',
+        }),
       ])
 
       if (!isMounted) {
@@ -105,29 +126,12 @@ export function AdminDashboardPage() {
       ]
 
       setSummary({
-        contacts:
-          contactsResult.data?.filter((row) =>
-            ['new', 'reviewing', 'in_progress'].includes(row.status),
-          ).length ?? null,
-        importantNotices:
-          noticesResult.data?.filter(
-            (row) => row.is_important && row.is_visible,
-          ).length ?? null,
-        joinApplications:
-          joinApplicationsResult.data?.filter((row) =>
-            ['new', 'in_review'].includes(row.status),
-          ).length ?? null,
-        pendingSponsors:
-          sponsorsResult.data?.filter((row) => !row.consent_public).length ??
-          null,
-        supportPledges:
-          supportPledgesResult.data?.filter((row) =>
-            ['new', 'in_progress'].includes(row.status),
-          ).length ?? null,
-        upcomingConcerts:
-          concertsResult.data?.filter((row) =>
-            ['upcoming', 'open', 'ticketing'].includes(row.status),
-          ).length ?? null,
+        contacts: contactsResult.data,
+        importantNotices: noticesResult.data,
+        joinApplications: joinApplicationsResult.data,
+        pendingSponsors: sponsorsResult.data,
+        supportPledges: supportPledgesResult.data,
+        upcomingConcerts: concertsResult.data,
       })
       setFailedCount(results.filter((result) => Boolean(result.error)).length)
       setUpdatedAt(new Date())

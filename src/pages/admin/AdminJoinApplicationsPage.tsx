@@ -309,11 +309,13 @@ function DetailSection({
 }
 
 function preparePayload(payload: CmsMutationPayload) {
+  const isArchived = payload.status === 'archived' || payload.is_archived === true
+
   return {
     admin_notes: payload.admin_notes,
-    is_archived: payload.is_archived,
-    status: payload.status,
-  }
+    is_archived: isArchived,
+    status: isArchived ? 'archived' : payload.status,
+  } satisfies CmsMutationPayload
 }
 
 function JoinApplicationDetails({ row }: { row: JoinApplicationRow }) {

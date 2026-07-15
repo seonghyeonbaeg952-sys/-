@@ -149,6 +149,16 @@ type PublicListOptions = {
   limit?: number
 }
 
+type PublicConcertListOptions = PublicListOptions & {
+  fromDate?: string
+  upcomingOnly?: boolean
+}
+
+type UpcomingConcertSelectionOptions = {
+  fromDate?: string
+  limit?: number
+}
+
 const SITE_SETTINGS_SELECT = '*'
 const SUPPORT_SETTINGS_SELECT = '*'
 const SITE_TEXT_SELECT = '*'
@@ -398,6 +408,42 @@ function normalizeLimit(limit: number | undefined) {
   const normalizedLimit = Math.trunc(limit)
 
   return normalizedLimit > 0 ? normalizedLimit : null
+}
+
+const seoulDateFormatter = new Intl.DateTimeFormat('en-US', {
+  day: '2-digit',
+  month: '2-digit',
+  timeZone: 'Asia/Seoul',
+  year: 'numeric',
+})
+
+export function getSeoulDateString(date = new Date()) {
+  const parts = new Map(
+    seoulDateFormatter
+      .formatToParts(date)
+      .map((part) => [part.type, part.value]),
+  )
+
+  return `${parts.get('year')}-${parts.get('month')}-${parts.get('day')}`
+}
+
+export function selectUpcomingConcerts(
+  concerts: Concert[],
+  options: UpcomingConcertSelectionOptions = {},
+) {
+  const fromDate = options.fromDate ?? getSeoulDateString()
+  const limit = normalizeLimit(options.limit)
+  const upcomingConcerts = concerts
+    .filter(
+      (concert) =>
+        concert.is_visible &&
+        concert.status !== 'cancelled' &&
+        Boolean(concert.date) &&
+        concert.date >= fromDate,
+    )
+    .sort((first, second) => first.date.localeCompare(second.date))
+
+  return limit ? upcomingConcerts.slice(0, limit) : upcomingConcerts
 }
 
 function splitLines(value: string | null | undefined) {
@@ -1268,7 +1314,7 @@ export async function getPublicAboutSections(): Promise<
 }
 
 export async function getPublicConcerts(
-  options: PublicListOptions = {},
+  options: PublicConcertListOptions = {},
 ): Promise<PublicDataResult<Concert[]>> {
   const clientResult = getSupabaseClientSafe()
 
@@ -1276,11 +1322,22 @@ export async function getPublicConcerts(
     return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
   }
 
+  const fromDate = options.upcomingOnly
+    ? options.fromDate ?? getSeoulDateString()
+    : null
   let query = clientResult.data
     .from('concerts')
     .select(CONCERT_SELECT)
     .eq('is_visible', true)
-    .order('concert_date', { ascending: false })
+
+  if (fromDate) {
+    query = query
+      .gte('concert_date', fromDate)
+      .neq('status', 'canceled')
+  }
+
+  query = query
+    .order('concert_date', { ascending: Boolean(fromDate) })
     .order('created_at', { ascending: false })
 
   const limit = normalizeLimit(options.limit)

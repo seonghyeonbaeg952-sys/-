@@ -1,7 +1,7 @@
 import { AdminCrudListPage } from '../../components/admin/AdminCrudListPage'
 import type { AdminFieldConfig } from '../../components/admin/AdminRecordForm'
 import type { AdminTableColumn } from '../../components/admin/AdminTable'
-import type { SupportPledgeRow } from '../../types/cms'
+import type { CmsMutationPayload, SupportPledgeRow } from '../../types/cms'
 
 const statusOptions = [
   { label: '신규', value: 'new' },
@@ -87,6 +87,12 @@ const columns = [
   { header: '접수일', value: 'created_at' },
 ] satisfies Array<AdminTableColumn<SupportPledgeRow>>
 
+function preparePayload(payload: CmsMutationPayload) {
+  return {
+    status: payload.status,
+  } satisfies CmsMutationPayload
+}
+
 export function AdminSupportPledgesPage() {
   return (
     <AdminCrudListPage
@@ -111,6 +117,7 @@ export function AdminSupportPledgesPage() {
       ]}
       info="후원약정에는 개인정보가 포함됩니다. 이 목록은 관리자에게만 표시되며 public 화면에는 노출되지 않습니다."
       order={{ column: 'created_at', ascending: false }}
+      preparePayload={preparePayload}
       searchColumn="name"
       searchPlaceholder="후원자 이름 검색"
       showVisibility={false}

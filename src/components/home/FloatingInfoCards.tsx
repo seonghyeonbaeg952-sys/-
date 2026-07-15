@@ -22,9 +22,9 @@ const fallbackCards = [
     title: '정기연주회·초청연주',
   },
   {
-    description: '입단 안내와 공연 섭외 문의를 한 곳에서 연결',
+    description: '입단 안내와 일반 문의를 공식 채널로 연결',
     href: '/join',
-    title: '입단 및 공연 문의',
+    title: '입단 및 문의',
   },
 ] satisfies FloatingInfoCardContent[]
 

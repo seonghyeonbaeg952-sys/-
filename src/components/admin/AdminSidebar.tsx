@@ -1,3 +1,5 @@
+import { useEffect, useRef, useSyncExternalStore } from 'react'
+import type { RefObject } from 'react'
 import { Link, NavLink, useLocation } from 'react-router'
 
 import { adminNavigationGroups } from '../../constants/navigation'
@@ -7,10 +9,129 @@ import { BrandLogo } from '../common/BrandLogo'
 type AdminSidebarProps = {
   isOpen: boolean
   onClose: () => void
+  returnFocusRef: RefObject<HTMLButtonElement | null>
 }
 
-export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
+const DESKTOP_MEDIA_QUERY = '(min-width: 1024px)'
+const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  'summary',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',')
+
+function subscribeToDesktopViewport(onStoreChange: () => void) {
+  const mediaQuery = window.matchMedia(DESKTOP_MEDIA_QUERY)
+  mediaQuery.addEventListener('change', onStoreChange)
+
+  return () => mediaQuery.removeEventListener('change', onStoreChange)
+}
+
+function getDesktopViewportSnapshot() {
+  return window.matchMedia(DESKTOP_MEDIA_QUERY).matches
+}
+
+export function AdminSidebar({
+  isOpen,
+  onClose,
+  returnFocusRef,
+}: AdminSidebarProps) {
   const location = useLocation()
+  const asideRef = useRef<HTMLElement>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const onCloseRef = useRef(onClose)
+  const isDesktop = useSyncExternalStore(
+    subscribeToDesktopViewport,
+    getDesktopViewportSnapshot,
+    () => false,
+  )
+  const isInteractive = isDesktop || isOpen
+
+  useEffect(() => {
+    onCloseRef.current = onClose
+  }, [onClose])
+
+  useEffect(() => {
+    if (isDesktop && isOpen) {
+      onCloseRef.current()
+    }
+  }, [isDesktop, isOpen])
+
+  useEffect(() => {
+    if (!isOpen) {
+      return
+    }
+
+    const previousBodyOverflow = document.body.style.overflow
+    const returnFocusElement = returnFocusRef.current
+    document.body.style.overflow = 'hidden'
+
+    const focusFrame = window.requestAnimationFrame(() => {
+      closeButtonRef.current?.focus()
+    })
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        onCloseRef.current()
+        return
+      }
+
+      if (event.key !== 'Tab' || !asideRef.current) {
+        return
+      }
+
+      const focusableElements = Array.from(
+        asideRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+      ).filter(
+        (element) =>
+          element.getAttribute('aria-hidden') !== 'true' &&
+          element.getClientRects().length > 0,
+      )
+
+      if (focusableElements.length === 0) {
+        event.preventDefault()
+        asideRef.current.focus()
+        return
+      }
+
+      const firstElement = focusableElements[0]
+      const lastElement = focusableElements[focusableElements.length - 1]
+      const activeElement = document.activeElement
+
+      if (
+        event.shiftKey &&
+        (activeElement === firstElement || !asideRef.current.contains(activeElement))
+      ) {
+        event.preventDefault()
+        lastElement.focus()
+      } else if (
+        !event.shiftKey &&
+        (activeElement === lastElement || !asideRef.current.contains(activeElement))
+      ) {
+        event.preventDefault()
+        firstElement.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.cancelAnimationFrame(focusFrame)
+      document.removeEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = previousBodyOverflow
+
+      if (
+        returnFocusElement?.isConnected &&
+        returnFocusElement.getClientRects().length > 0
+      ) {
+        returnFocusElement.focus()
+      }
+    }
+  }, [isOpen, returnFocusRef])
 
   const isRouteActive = (href: string) =>
     href === '/admin'
@@ -19,21 +140,28 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
 
   return (
     <>
-      <button
-        aria-label="관리자 메뉴 닫기"
-        className={classNames(
-          'fixed inset-0 z-30 bg-navy-midnight/45 transition-opacity lg:hidden',
-          isOpen ? 'opacity-100' : 'pointer-events-none opacity-0',
-        )}
-        onClick={onClose}
-        type="button"
-      />
+      {isOpen ? (
+        <button
+          aria-label="관리자 메뉴 닫기"
+          className="fixed inset-0 z-30 bg-navy-midnight/45 lg:hidden"
+          onClick={onClose}
+          tabIndex={-1}
+          type="button"
+        />
+      ) : null}
       <aside
+        aria-label={isOpen ? '관리자 메뉴' : undefined}
+        aria-modal={isOpen ? true : undefined}
+        aria-hidden={!isInteractive}
         className={classNames(
           'fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-bg-warm-white/10 bg-navy-midnight px-5 py-5 text-bg-warm-white shadow-header transition-transform lg:static lg:z-auto lg:min-h-screen lg:w-auto lg:translate-x-0 lg:shadow-none',
           isOpen ? 'translate-x-0' : '-translate-x-full',
         )}
         id="admin-sidebar"
+        inert={!isInteractive}
+        ref={asideRef}
+        role={isOpen ? 'dialog' : undefined}
+        tabIndex={-1}
       >
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
@@ -50,8 +178,9 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           </div>
           <button
             aria-label="관리자 메뉴 닫기"
-            className="flex size-10 items-center justify-center rounded-button text-bg-ivory/75 transition hover:bg-bg-warm-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm lg:hidden"
+            className="flex size-11 items-center justify-center rounded-button text-bg-ivory/75 transition hover:bg-bg-warm-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm lg:hidden"
             onClick={onClose}
+            ref={closeButtonRef}
             type="button"
           >
             ×
@@ -73,7 +202,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                 key={group.label}
                 open={isActiveGroup || groupIndex === 0}
               >
-                <summary className="flex min-h-10 cursor-pointer list-none items-center justify-between rounded-button px-3 text-[11px] font-semibold text-bg-ivory/45 transition hover:bg-bg-warm-white/5 hover:text-bg-ivory/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm [&::-webkit-details-marker]:hidden">
+                <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between rounded-button px-3 text-[11px] font-semibold text-bg-ivory/45 transition hover:bg-bg-warm-white/5 hover:text-bg-ivory/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm [&::-webkit-details-marker]:hidden">
                   <span>{group.label}</span>
                   <span
                     aria-hidden="true"

@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 
 import { getRecordTitle } from '../../lib/cms'
 import { useDebouncedValue } from '../../hooks/useDebouncedValue'
 import { useCrudList } from '../../hooks/useCrudList'
+import { useUnsavedChangesGuard } from '../../hooks/useUnsavedChangesGuard'
 import type {
   CmsFilterOption,
   CmsOrderOption,
@@ -103,6 +104,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
   const [editingRow, setEditingRow] = useState<CmsRowFor<TTable> | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<CmsRowFor<TTable> | null>(null)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
   const [isFormDirty, setIsFormDirty] = useState(false)
   const debouncedSearchValue = useDebouncedValue(searchValue.trim(), 300)
@@ -134,6 +136,13 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
     table,
   })
 
+  useUnsavedChangesGuard({
+    enabled: isFormOpen && (isFormDirty || crud.isMutating),
+    message: crud.isMutating
+      ? '저장 중입니다. 지금 이동하면 저장이 완료되지 않을 수 있습니다. 페이지를 이동할까요?'
+      : undefined,
+  })
+
   const resetAndCloseForm = useCallback(() => {
     setIsFormOpen(false)
     setEditingRow(null)
@@ -158,22 +167,6 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
     resetAndCloseForm()
   }, [crud.isMutating, isFormDirty, resetAndCloseForm])
 
-  useEffect(() => {
-    if (!isFormOpen || !isFormDirty) {
-      return
-    }
-
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      event.preventDefault()
-    }
-
-    window.addEventListener('beforeunload', handleBeforeUnload)
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload)
-    }
-  }, [isFormDirty, isFormOpen])
-
   const formInitialData =
     editingRow && prepareInitialData ? prepareInitialData(editingRow) : editingRow
   const rows = useMemo(
@@ -189,16 +182,21 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
 
     if (validationError) {
       setFormError(validationError)
-      return
+      return false
     }
 
+    setFormError(null)
     const result = editingRow
       ? await crud.updateItem(editingRow.id, preparedPayload)
       : await crud.createItem(preparedPayload)
 
-    if (!result.error) {
-      resetAndCloseForm()
+    if (result.error) {
+      setFormError(result.error)
+      return false
     }
+
+    resetAndCloseForm()
+    return true
   }
 
   const handleDelete = async () => {
@@ -206,11 +204,31 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
       return
     }
 
-    const result = await crud.deleteItem(deleteTarget.id)
+    const targetId = deleteTarget.id
+    setDeleteError(null)
+    const result = await crud.deleteItem(targetId)
 
-    if (!result.error) {
-      setDeleteTarget(null)
+    if (result.error) {
+      setDeleteError(result.error)
+      return
     }
+
+    setDeleteTarget(null)
+    setDeleteError(null)
+  }
+
+  const openDeleteDialog = (row: CmsRowFor<TTable>) => {
+    setDeleteError(null)
+    setDeleteTarget(row)
+  }
+
+  const closeDeleteDialog = () => {
+    if (crud.isMutating) {
+      return
+    }
+
+    setDeleteTarget(null)
+    setDeleteError(null)
   }
 
   return (
@@ -277,7 +295,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
         error={crud.error}
         isDeleting={crud.isMutating}
         loading={crud.isLoading}
-        onDelete={canDelete ? (row) => setDeleteTarget(row) : undefined}
+        onDelete={canDelete ? openDeleteDialog : undefined}
         onEdit={(row) => {
           setEditingRow(row)
           setFormError(null)
@@ -299,11 +317,6 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
             {formError}
           </p>
         ) : null}
-        {crud.error ? (
-          <p className="mb-5 rounded-button bg-state-error/10 px-4 py-3 text-sm leading-6 text-state-error" role="alert">
-            {crud.error}
-          </p>
-        ) : null}
         {editingRow && renderBeforeForm ? (
           <div className="mb-5">{renderBeforeForm(editingRow)}</div>
         ) : null}
@@ -321,6 +334,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
       </AdminModal>
 
       <DeleteConfirmDialog
+        error={deleteError}
         isDeleting={crud.isMutating}
         isOpen={Boolean(deleteTarget)}
         itemName={
@@ -328,7 +342,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
             ? getRecordTitle(deleteTarget as CmsRecord, deleteLabel ?? title)
             : deleteLabel ?? title
         }
-        onClose={() => setDeleteTarget(null)}
+        onClose={closeDeleteDialog}
         onConfirm={handleDelete}
       />
     </div>

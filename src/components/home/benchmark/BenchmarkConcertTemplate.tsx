@@ -52,6 +52,7 @@ export function BenchmarkConcertTemplate({
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const [bookState, setBookState] = useState<ProgramBookState>('folded')
   const sideTimerRef = useRef<number | null>(null)
+  const isFocusWithinRef = useRef(false)
   const activeIndex = selectedIndex ?? hoveredIndex
   const mobileConcert = visibleConcerts[0]
 
@@ -138,7 +139,24 @@ export function BenchmarkConcertTemplate({
 
       <div
         className="motion-program-shelf"
-        onMouseLeave={resetShelf}
+        onBlurCapture={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget)) {
+            isFocusWithinRef.current = false
+          }
+        }}
+        onFocusCapture={() => {
+          isFocusWithinRef.current = true
+        }}
+        onMouseLeave={(event) => {
+          if (
+            isFocusWithinRef.current ||
+            event.currentTarget.contains(document.activeElement)
+          ) {
+            return
+          }
+
+          resetShelf()
+        }}
       >
         {visibleConcerts.map((concert, index) => {
           const isActive = activeIndex === index
@@ -198,7 +216,11 @@ export function BenchmarkConcertTemplate({
                 >
                   <span>SMYC</span>
                 </button>
-                <div className="motion-program-spread">
+                <div
+                  aria-hidden={slotState !== 'open'}
+                  className="motion-program-spread"
+                  inert={slotState !== 'open'}
+                >
                   <section className="motion-program-panel motion-program-panel-left">
                     <div>
                       <p className="motion-program-kicker">{programNoteLabel}</p>

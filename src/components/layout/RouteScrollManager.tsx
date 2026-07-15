@@ -1,5 +1,5 @@
-import { useEffect, useLayoutEffect } from 'react'
-import { useLocation } from 'react-router'
+import { useLayoutEffect, useRef } from 'react'
+import { useLocation, useNavigationType } from 'react-router'
 
 const HASH_SCROLL_RETRY_LIMIT = 80
 const HASH_SCROLL_RETRY_DELAY = 100
@@ -20,22 +20,46 @@ function getHashTarget(hash: string) {
 
 export function RouteScrollManager() {
   const location = useLocation()
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return
-    }
-
-    const previousRestoration = window.history.scrollRestoration
-    window.history.scrollRestoration = 'manual'
-
-    return () => {
-      window.history.scrollRestoration = previousRestoration
-    }
-  }, [])
+  const navigationType = useNavigationType()
+  const initialLocationKeyRef = useRef(location.key)
+  const hasLeftInitialLocationRef = useRef(false)
+  const previousLocationRef = useRef({
+    hash: location.hash,
+    pathname: location.pathname,
+  })
 
   useLayoutEffect(() => {
     if (typeof window === 'undefined') {
+      return undefined
+    }
+
+    const previousLocation = previousLocationRef.current
+    const pathnameChanged = previousLocation.pathname !== location.pathname
+    const hashChanged = previousLocation.hash !== location.hash
+
+    if (location.key !== initialLocationKeyRef.current) {
+      hasLeftInitialLocationRef.current = true
+    }
+
+    const isInitialHashEntry =
+      !hasLeftInitialLocationRef.current &&
+      location.key === initialLocationKeyRef.current &&
+      Boolean(location.hash)
+
+    previousLocationRef.current = {
+      hash: location.hash,
+      pathname: location.pathname,
+    }
+
+    if (navigationType === 'POP' && !isInitialHashEntry) {
+      return undefined
+    }
+
+    if (
+      !isInitialHashEntry &&
+      !pathnameChanged &&
+      (!hashChanged || !location.hash)
+    ) {
       return undefined
     }
 
@@ -68,7 +92,12 @@ export function RouteScrollManager() {
         window.clearTimeout(timeoutId)
       }
     }
-  }, [location.hash, location.pathname, location.search])
+  }, [
+    location.hash,
+    location.key,
+    location.pathname,
+    navigationType,
+  ])
 
   return null
 }

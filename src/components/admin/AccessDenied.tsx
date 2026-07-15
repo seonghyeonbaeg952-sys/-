@@ -7,10 +7,14 @@ import { Card } from '../common/Card'
 
 type AccessDeniedProps = {
   description?: string
+  showRetry?: boolean
+  title?: string
 }
 
 export function AccessDenied({
   description = '관리자 권한이 있는 계정만 접근할 수 있습니다.',
+  showRetry = false,
+  title = '접근 권한이 없습니다',
 }: AccessDeniedProps) {
   const navigate = useNavigate()
   const [isSigningOut, setIsSigningOut] = useState(false)
@@ -39,7 +43,7 @@ export function AccessDenied({
           !
         </div>
         <h1 className="mt-5 text-3xl font-bold text-navy-deep">
-          접근 권한이 없습니다
+          {title}
         </h1>
         <p className="mt-4 leading-7 text-text-muted">{description}</p>
         {signOutError ? (
@@ -48,10 +52,19 @@ export function AccessDenied({
           </p>
         ) : null}
         <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+          {showRetry ? (
+            <Button onClick={() => window.location.reload()} variant="primary">
+              다시 시도
+            </Button>
+          ) : null}
           <Button href="/" variant="secondary">
             홈으로 이동
           </Button>
-          <Button disabled={isSigningOut} onClick={handleSignOut} variant="primary">
+          <Button
+            disabled={isSigningOut}
+            onClick={handleSignOut}
+            variant={showRetry ? 'secondary' : 'primary'}
+          >
             {isSigningOut ? '로그아웃 중' : '로그아웃'}
           </Button>
         </div>

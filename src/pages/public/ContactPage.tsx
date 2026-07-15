@@ -229,6 +229,12 @@ export function ContactPage() {
   }
 
   const address = location?.address || settings.address
+  const contactDetails = [
+    { label: '전화', value: settings.phone?.trim() },
+    { label: 'FAX', value: settings.fax?.trim() },
+    { label: '이메일', value: settings.email?.trim() },
+    { label: '주소', value: address?.trim() },
+  ].filter((detail): detail is { label: string; value: string } => Boolean(detail.value))
   const formTitle =
     activeSection === 'support'
       ? '후원 관련 문의 보내기'
@@ -486,7 +492,7 @@ export function ContactPage() {
                     </h2>
                     <p className="mt-5 break-keep text-base leading-8 text-text-muted">
                       서울모테트청소년합창단 입단을 희망하는 학생은 아래 지원서를 작성해 주세요.
-                      후원·공연 문의와 별도로 접수되며, 담당자가 확인한 후 보호자 연락처로 안내드립니다.
+                      일반 문의와 별도로 접수되며, 담당자가 확인한 후 보호자 연락처로 안내드립니다.
                     </p>
                     <div className="mt-5">
                       <Button href="/join?section=contact#application" variant="secondary">
@@ -524,24 +530,25 @@ export function ContactPage() {
                       <h2 className="mt-3 text-2xl font-semibold text-navy-deep">
                         공식 문의 채널
                       </h2>
-                      <dl className="mt-5 grid gap-3 text-sm leading-6 text-text-muted sm:grid-cols-2">
-                        <div className="rounded-button border border-line-default bg-bg-ivory px-4 py-3">
-                          <dt className="font-semibold text-navy-deep">전화</dt>
-                          <dd>{settings.phone || '등록 예정'}</dd>
-                        </div>
-                        <div className="rounded-button border border-line-default bg-bg-ivory px-4 py-3">
-                          <dt className="font-semibold text-navy-deep">FAX</dt>
-                          <dd>{settings.fax || '등록 예정'}</dd>
-                        </div>
-                        <div className="rounded-button border border-line-default bg-bg-ivory px-4 py-3">
-                          <dt className="font-semibold text-navy-deep">이메일</dt>
-                          <dd>{settings.email || '등록 예정'}</dd>
-                        </div>
-                        <div className="rounded-button border border-line-default bg-bg-ivory px-4 py-3">
-                          <dt className="font-semibold text-navy-deep">주소</dt>
-                          <dd>{address || '등록 예정'}</dd>
-                        </div>
-                      </dl>
+                      {contactDetails.length > 0 ? (
+                        <dl className="mt-5 grid gap-3 text-sm leading-6 text-text-muted sm:grid-cols-2">
+                          {contactDetails.map((detail) => (
+                            <div
+                              className="rounded-button border border-line-default bg-bg-ivory px-4 py-3"
+                              key={detail.label}
+                            >
+                              <dt className="font-semibold text-navy-deep">
+                                {detail.label}
+                              </dt>
+                              <dd className="break-words">{detail.value}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                      ) : (
+                        <p className="mt-5 rounded-button border border-line-default bg-bg-ivory px-4 py-3 text-sm leading-6 text-text-muted">
+                          공식 문의 정보는 문의 양식을 통해 안내해 드립니다.
+                        </p>
+                      )}
                     </Card>
                     {location?.transit_info || location?.parking_info ? (
                       <Card className="p-6" radius="formal">

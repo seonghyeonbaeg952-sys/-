@@ -200,18 +200,9 @@ function LocationForm({
 
     const optionalPayload: CmsMutationPayload = {}
 
-    if (values.email.trim()) {
-      optionalPayload.email = values.email.trim()
-    }
-
-    if (values.fax.trim()) {
-      optionalPayload.fax = values.fax.trim()
-    }
-
-    if (values.map_embed_url.trim()) {
-      optionalPayload.map_embed_url = values.map_embed_url.trim()
-    }
-
+    optionalPayload.email = nullable(values.email)
+    optionalPayload.fax = nullable(values.fax)
+    optionalPayload.map_embed_url = nullable(values.map_embed_url)
     optionalPayload.image_url = nullable(values.image_url)
     optionalPayload.image_alt = nullable(values.image_alt)
     optionalPayload.image_caption = nullable(values.image_caption)

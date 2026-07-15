@@ -14,6 +14,7 @@ import type {
   CmsRowFor,
   CmsTableName,
 } from '../types/cms'
+import { invalidatePublicDataCache } from './usePublicData'
 
 type CrudListState<TTable extends CmsTableName> = {
   error: string | null
@@ -118,6 +119,7 @@ export function useCrudList<TTable extends CmsTableName>({
       }))
 
       if (!result.error) {
+        invalidatePublicDataCache()
         reload()
       }
 
@@ -145,6 +147,7 @@ export function useCrudList<TTable extends CmsTableName>({
       }))
 
       if (!result.error) {
+        invalidatePublicDataCache()
         reload()
       }
 
@@ -172,6 +175,7 @@ export function useCrudList<TTable extends CmsTableName>({
       }))
 
       if (!result.error) {
+        invalidatePublicDataCache()
         reload()
       }
 

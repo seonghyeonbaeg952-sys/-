@@ -38,7 +38,7 @@ import type {
   Sponsor,
   VideoItem,
 } from '../types/content'
-import type { AboutSectionRow } from '../types/cms'
+import type { AboutSectionRow, SiteTextRow } from '../types/cms'
 import { hasSupabaseConfig } from '../lib/supabase'
 
 type PublicDataState<TData> = {
@@ -47,9 +47,17 @@ type PublicDataState<TData> = {
   isLoading: boolean
 }
 
+type PublicDataLoaderState<TData> = PublicDataState<TData> & {
+  cacheKey: string | undefined
+}
+
 type PublicDataHookResult<TData> = PublicDataState<TData> & {
   refetch: () => void
 }
+
+type PublicDataLoadResult<TData> =
+  | PublicDataResult<TData>
+  | { data: TData; error: string }
 
 const PUBLIC_DATA_CACHE_TTL_MS = 60_000
 
@@ -61,8 +69,15 @@ type PublicDataCacheEntry = {
 const publicDataCache = new Map<string, PublicDataCacheEntry>()
 const publicDataRequests = new Map<
   string,
-  Promise<PublicDataResult<unknown>>
+  Promise<PublicDataLoadResult<unknown>>
 >()
+let publicDataCacheVersion = 0
+
+export function invalidatePublicDataCache() {
+  publicDataCacheVersion += 1
+  publicDataCache.clear()
+  publicDataRequests.clear()
+}
 
 function getCachedPublicData<TData>(cacheKey: string) {
   const cached = publicDataCache.get(cacheKey)
@@ -79,9 +94,23 @@ function getCachedPublicData<TData>(cacheKey: string) {
   return cached.result as PublicDataResult<TData>
 }
 
+function createPublicDataLoaderState<TData>(
+  fallbackData: TData,
+  cacheKey: string | undefined,
+): PublicDataLoaderState<TData> {
+  const cached = cacheKey ? getCachedPublicData<TData>(cacheKey) : null
+
+  return {
+    cacheKey,
+    data: cached?.data ?? fallbackData,
+    error: cached?.error ?? null,
+    isLoading: !cached,
+  }
+}
+
 function loadPublicData<TData>(
   cacheKey: string | undefined,
-  loader: () => Promise<PublicDataResult<TData>>,
+  loader: () => Promise<PublicDataLoadResult<TData>>,
 ) {
   if (!cacheKey) {
     return loader()
@@ -90,12 +119,17 @@ function loadPublicData<TData>(
   const inFlightRequest = publicDataRequests.get(cacheKey)
 
   if (inFlightRequest) {
-    return inFlightRequest as Promise<PublicDataResult<TData>>
+    return inFlightRequest as Promise<PublicDataLoadResult<TData>>
   }
 
+  const requestVersion = publicDataCacheVersion
   const request = loader()
     .then((result) => {
-      if (!result.error && result.data !== null) {
+      if (
+        requestVersion === publicDataCacheVersion
+        && !result.error
+        && result.data !== null
+      ) {
         publicDataCache.set(cacheKey, {
           expiresAt: Date.now() + PUBLIC_DATA_CACHE_TTL_MS,
           result: result as PublicDataResult<unknown>,
@@ -105,12 +139,14 @@ function loadPublicData<TData>(
       return result
     })
     .finally(() => {
-      publicDataRequests.delete(cacheKey)
+      if (publicDataRequests.get(cacheKey) === request) {
+        publicDataRequests.delete(cacheKey)
+      }
     })
 
   publicDataRequests.set(
     cacheKey,
-    request as Promise<PublicDataResult<unknown>>,
+    request as Promise<PublicDataLoadResult<unknown>>,
   )
 
   return request
@@ -118,19 +154,13 @@ function loadPublicData<TData>(
 
 function usePublicLoader<TData>(
   fallbackData: TData,
-  loader: () => Promise<PublicDataResult<TData>>,
+  loader: () => Promise<PublicDataLoadResult<TData>>,
   cacheKey?: string,
 ): PublicDataHookResult<TData> {
   const [reloadToken, setReloadToken] = useState(0)
-  const [state, setState] = useState<PublicDataState<TData>>(() => {
-    const cached = cacheKey ? getCachedPublicData<TData>(cacheKey) : null
-
-    return {
-      data: cached?.data ?? fallbackData,
-      error: cached?.error ?? null,
-      isLoading: !cached,
-    }
-  })
+  const [state, setState] = useState<PublicDataLoaderState<TData>>(() =>
+    createPublicDataLoaderState(fallbackData, cacheKey),
+  )
 
   const refetch = useCallback(() => {
     if (cacheKey) {
@@ -148,6 +178,7 @@ function usePublicLoader<TData>(
 
       if (cached) {
         setState({
+          cacheKey,
           data: cached.data ?? fallbackData,
           error: cached.error,
           isLoading: false,
@@ -155,7 +186,16 @@ function usePublicLoader<TData>(
         return
       }
 
-      setState((current) => ({ ...current, isLoading: true }))
+      setState((current) =>
+        current.cacheKey === cacheKey
+          ? { ...current, isLoading: true }
+          : {
+              cacheKey,
+              data: fallbackData,
+              error: null,
+              isLoading: true,
+            },
+      )
 
       try {
         const result = await loadPublicData(cacheKey, loader)
@@ -165,6 +205,7 @@ function usePublicLoader<TData>(
         }
 
         setState({
+          cacheKey,
           data: result.data ?? fallbackData,
           error: result.error,
           isLoading: false,
@@ -174,14 +215,15 @@ function usePublicLoader<TData>(
           return
         }
 
-        setState({
-          data: fallbackData,
+        setState((current) => ({
+          cacheKey,
+          data: current.cacheKey === cacheKey ? current.data : fallbackData,
           error:
             error instanceof Error
               ? error.message
               : '공개 데이터를 불러오지 못했습니다.',
           isLoading: false,
-        })
+        }))
       }
     }
 
@@ -192,7 +234,17 @@ function usePublicLoader<TData>(
     }
   }, [cacheKey, fallbackData, loader, reloadToken])
 
-  return { ...state, refetch }
+  const visibleState =
+    state.cacheKey === cacheKey
+      ? state
+      : createPublicDataLoaderState(fallbackData, cacheKey)
+
+  return {
+    data: visibleState.data,
+    error: visibleState.error,
+    isLoading: visibleState.isLoading,
+    refetch,
+  }
 }
 
 export type HomeData = {
@@ -212,6 +264,26 @@ export type HomeData = {
 export type SpiritPageData = {
   aboutSections: AboutSectionRow[]
   heroSlides: HeroSlide[]
+}
+
+type HomeDataQueryResults = {
+  aboutSections: PublicDataResult<AboutSectionRow[]>
+  concerts: PublicDataResult<Concert[]>
+  gallery: PublicDataResult<GalleryImage[]>
+  notices: PublicDataResult<Notice[]>
+  popupNotices: PublicDataResult<PopupNotice[]>
+  posters: PublicDataResult<Poster[]>
+  siteSettings: PublicDataResult<SiteSettings | null>
+  siteTexts: PublicDataResult<SiteTextRow[]>
+  slides: PublicDataResult<HeroSlide[]>
+  sponsors: PublicDataResult<Sponsor[]>
+  videos: PublicDataResult<VideoItem[]>
+}
+
+type GalleryDataQueryResults = {
+  images: PublicDataResult<GalleryImage[]>
+  posters: PublicDataResult<Poster[]>
+  videos: PublicDataResult<VideoItem[]>
 }
 
 const homeFallbackData: HomeData = {
@@ -235,8 +307,15 @@ const spiritFallbackData: SpiritPageData = {
 
 const liveHomeInitialData: HomeData = {
   ...homeFallbackData,
+  concerts: [],
+  gallery: [],
   heroSlides: [],
+  notices: [],
 }
+
+const homeInitialData = hasSupabaseConfig
+  ? liveHomeInitialData
+  : homeFallbackData
 
 const aboutFallbackData: PublicAboutData = {
   aboutSections: legacyAboutSections,
@@ -255,6 +334,24 @@ const galleryFallbackData: PublicGalleryData = {
   videos: [],
 }
 
+const liveGalleryInitialData: PublicGalleryData = {
+  images: [],
+  posters: [],
+  videos: [],
+}
+
+const galleryInitialData = hasSupabaseConfig
+  ? liveGalleryInitialData
+  : galleryFallbackData
+
+const concertsInitialData: Concert[] = hasSupabaseConfig
+  ? []
+  : publicFallbacks.concerts
+
+const noticesInitialData: Notice[] = hasSupabaseConfig
+  ? []
+  : publicFallbacks.notices
+
 const joinFallbackData: PublicJoinData = {
   faqs: [],
   joinInfo: null,
@@ -272,8 +369,60 @@ function combineErrors(results: Array<{ error: string | null }>) {
   return results.find((result) => result.error)?.error ?? null
 }
 
+export function resolveHomeData(
+  results: HomeDataQueryResults,
+  fallbackData: HomeData,
+): PublicDataLoadResult<HomeData> {
+  const siteTextRows = results.siteTexts.data ?? []
+  const error = combineErrors([
+    results.siteSettings,
+    results.slides,
+    results.popupNotices,
+    results.concerts,
+    results.notices,
+    results.gallery,
+    results.videos,
+    results.posters,
+    results.aboutSections,
+    results.sponsors,
+    results.siteTexts,
+  ])
+
+  const data = {
+    aboutSections: results.aboutSections.data ?? fallbackData.aboutSections,
+    concerts: results.concerts.data ?? fallbackData.concerts,
+    gallery: results.gallery.data ?? fallbackData.gallery,
+    heroSlides: results.slides.data ?? fallbackData.heroSlides,
+    notices: results.notices.data ?? fallbackData.notices,
+    popupNotices: results.popupNotices.data ?? fallbackData.popupNotices,
+    posters: results.posters.data ?? fallbackData.posters,
+    siteSettings: results.siteSettings.data ?? fallbackData.siteSettings,
+    siteTexts: createSiteTextMap(siteTextRows, {
+      includeDefaults: siteTextRows.length === 0,
+    }),
+    sponsors: results.sponsors.data ?? fallbackData.sponsors,
+    videos: results.videos.data ?? fallbackData.videos,
+  }
+
+  return error ? { data, error } : { data, error: null }
+}
+
+export function resolveGalleryData(
+  results: GalleryDataQueryResults,
+  fallbackData: PublicGalleryData,
+): PublicDataLoadResult<PublicGalleryData> {
+  const data = {
+    images: results.images.data ?? fallbackData.images,
+    posters: results.posters.data ?? fallbackData.posters,
+    videos: results.videos.data ?? fallbackData.videos,
+  }
+  const error = combineErrors([results.images, results.videos, results.posters])
+
+  return error ? { data, error } : { data, error: null }
+}
+
 export function useHomeData() {
-  const loader = useCallback(async (): Promise<PublicDataResult<HomeData>> => {
+  const loader = useCallback(async (): Promise<PublicDataLoadResult<HomeData>> => {
     const [
       siteSettings,
       slides,
@@ -290,7 +439,7 @@ export function useHomeData() {
       getPublicSiteSettings(),
       getPublicHeroSlides({ limit: 5 }),
       getPublicPopupNotices({ limit: 3 }),
-      getPublicConcerts({ limit: 6 }),
+      getPublicConcerts({ limit: 6, upcomingOnly: true }),
       getPublicNotices({ limit: 3 }),
       getPublicGalleryImages({ limit: 6 }),
       getPublicVideos(),
@@ -299,48 +448,25 @@ export function useHomeData() {
       getPublicSponsors({ homeOnly: true, limit: 8 }),
       getPublicSiteTexts(),
     ])
-    const error = combineErrors([
-      siteSettings,
-      slides,
-      concerts,
-      notices,
-      gallery,
-      videos,
-      posters,
-      sponsors,
-    ])
-
-    if (error) {
-      return { data: null, error }
-    }
-
-    const siteTextRows = siteTexts.data ?? []
-
-    return {
-      data: {
-        concerts: concerts.data ?? publicFallbacks.concerts,
-        aboutSections: aboutSections.data ?? legacyAboutSections,
-        gallery: gallery.data ?? publicFallbacks.gallery,
-        heroSlides: slides.data ?? publicFallbacks.heroSlides,
-        notices: notices.data ?? publicFallbacks.notices,
-        posters: posters.data ?? [],
-        popupNotices: popupNotices.data ?? [],
-        siteSettings: siteSettings.data ?? publicFallbacks.siteSettings,
-        siteTexts: createSiteTextMap(siteTextRows, {
-          includeDefaults: siteTextRows.length === 0,
-        }),
-        sponsors: sponsors.data ?? [],
-        videos: videos.data ?? [],
+    return resolveHomeData(
+      {
+        aboutSections,
+        concerts,
+        gallery,
+        notices,
+        popupNotices,
+        posters,
+        siteSettings,
+        siteTexts,
+        slides,
+        sponsors,
+        videos,
       },
-      error: null,
-    }
+      homeInitialData,
+    )
   }, [])
 
-  return usePublicLoader(
-    hasSupabaseConfig ? liveHomeInitialData : homeFallbackData,
-    loader,
-    'home',
-  )
+  return usePublicLoader(homeInitialData, loader, 'home')
 }
 
 export function useSpiritPageData() {
@@ -376,12 +502,12 @@ export function useAboutData() {
 export function useConcertsData() {
   const loader = useCallback(() => getPublicConcerts(), [])
 
-  return usePublicLoader(publicFallbacks.concerts, loader, 'concerts')
+  return usePublicLoader(concertsInitialData, loader, 'concerts')
 }
 
 export function useConcertDetailData(id: string | undefined) {
   const fallbackData = useMemo(() => {
-    if (!id) {
+    if (!id || hasSupabaseConfig) {
       return null
     }
 
@@ -402,12 +528,12 @@ export function useConcertDetailData(id: string | undefined) {
 export function useNoticesData() {
   const loader = useCallback(() => getPublicNotices(), [])
 
-  return usePublicLoader(publicFallbacks.notices, loader, 'notices')
+  return usePublicLoader(noticesInitialData, loader, 'notices')
 }
 
 export function useNoticeDetailData(id: string | undefined) {
   const fallbackData = useMemo(() => {
-    if (!id) {
+    if (!id || hasSupabaseConfig) {
       return null
     }
 
@@ -426,29 +552,19 @@ export function useNoticeDetailData(id: string | undefined) {
 }
 
 export function useGalleryData() {
-  const loader = useCallback(async (): Promise<PublicDataResult<PublicGalleryData>> => {
+  const loader = useCallback(async (): Promise<PublicDataLoadResult<PublicGalleryData>> => {
     const [images, videos, posters] = await Promise.all([
       getPublicGalleryImages(),
       getPublicVideos(),
       getPublicPosters(),
     ])
-    const error = combineErrors([images, videos, posters])
-
-    if (error) {
-      return { data: null, error }
-    }
-
-    return {
-      data: {
-        images: images.data ?? publicFallbacks.gallery,
-        posters: posters.data ?? [],
-        videos: videos.data ?? [],
-      },
-      error: null,
-    }
+    return resolveGalleryData(
+      { images, posters, videos },
+      galleryInitialData,
+    )
   }, [])
 
-  return usePublicLoader(galleryFallbackData, loader, 'gallery')
+  return usePublicLoader(galleryInitialData, loader, 'gallery')
 }
 
 export function useJoinData() {

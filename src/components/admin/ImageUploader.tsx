@@ -17,6 +17,7 @@ type ImageUploaderProps = {
   description?: string
   disabled?: boolean
   folder: StorageFolder | string
+  id?: string
   label?: string
   maxSizeMb?: number
   onChange: (url: string | null) => void
@@ -116,6 +117,7 @@ export function ImageUploader({
   description,
   disabled = false,
   folder,
+  id,
   label = '이미지',
   maxSizeMb,
   onChange,
@@ -283,6 +285,7 @@ export function ImageUploader({
             (disabled || isUploading) && 'cursor-not-allowed opacity-60',
           )}
           disabled={disabled || isUploading}
+          id={id}
           onClick={() => inputRef.current?.click()}
           onDragLeave={handleDragLeave}
           onDragOver={handleDragOver}

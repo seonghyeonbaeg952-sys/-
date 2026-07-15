@@ -1,4 +1,5 @@
 import type { Concert, Notice } from '../../types/content'
+import { selectUpcomingConcerts } from '../../lib/publicData'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
@@ -35,10 +36,7 @@ export function PerformanceNewsPreview({
   programNoteLabel = 'PROGRAM NOTE',
   title = '공연과 소식',
 }: PerformanceNewsPreviewProps) {
-  const featuredConcerts = [...concerts]
-    .filter((concert) => concert.is_visible)
-    .sort((first, second) => first.date.localeCompare(second.date))
-    .slice(0, 3)
+  const featuredConcerts = selectUpcomingConcerts(concerts, { limit: 3 })
   const visibleNotices = [...notices]
     .filter((notice) => notice.is_visible)
     .sort((first, second) => {

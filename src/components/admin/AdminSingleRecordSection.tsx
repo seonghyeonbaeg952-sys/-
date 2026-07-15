@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import { Card } from '../common/Card'
 import { useCrudItem } from '../../hooks/useCrudItem'
+import { useUnsavedChangesGuard } from '../../hooks/useUnsavedChangesGuard'
 import type {
   CmsMutationPayload,
   CmsRowFor,
@@ -38,18 +39,33 @@ export function AdminSingleRecordSection<TTable extends CmsTableName>({
 }: AdminSingleRecordSectionProps<TTable>) {
   const crud = useCrudItem(table)
   const [formError, setFormError] = useState<string | null>(null)
+  const [isFormDirty, setIsFormDirty] = useState(false)
+
+  useUnsavedChangesGuard({
+    enabled: isFormDirty || crud.isMutating,
+    message: crud.isMutating
+      ? '저장 중입니다. 지금 이동하면 저장이 완료되지 않을 수 있습니다. 페이지를 이동할까요?'
+      : undefined,
+  })
 
   const handleSubmit = async (payload: CmsMutationPayload) => {
+    crud.clearMutationError()
     const preparedPayload = preparePayload ? preparePayload(payload, crud.item) : payload
     const validationError = validatePayload?.(preparedPayload, crud.item) ?? null
 
     if (validationError) {
       setFormError(validationError)
-      return
+      return false
     }
 
     setFormError(null)
-    await crud.saveItem(preparedPayload)
+    const result = await crud.saveItem(preparedPayload)
+
+    if (!result.error) {
+      setIsFormDirty(false)
+    }
+
+    return !result.error
   }
 
   return (
@@ -71,18 +87,24 @@ export function AdminSingleRecordSection<TTable extends CmsTableName>({
           {formError}
         </p>
       ) : null}
+      {crud.mutationError ? (
+        <p className="mb-5 rounded-button bg-state-error/10 px-4 py-3 text-sm leading-6 text-state-error" role="alert">
+          {crud.mutationError}
+        </p>
+      ) : null}
 
       {crud.isLoading ? <AdminLoadingState /> : null}
-      {!crud.isLoading && crud.error ? (
-        <AdminErrorState description={crud.error} />
+      {!crud.isLoading && crud.loadError ? (
+        <AdminErrorState description={crud.loadError} />
       ) : null}
-      {!crud.isLoading && !crud.error ? (
+      {!crud.isLoading && !crud.loadError ? (
         <AdminRecordForm
           defaultValues={defaultValues}
           disabled={crud.isMutating}
           fields={fields}
           initialData={crud.item}
           key={crud.item?.id ?? 'new'}
+          onDirtyChange={setIsFormDirty}
           onSubmit={handleSubmit}
         />
       ) : null}

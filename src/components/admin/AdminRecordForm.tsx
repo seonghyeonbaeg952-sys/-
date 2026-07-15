@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useId, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 
 import { cleanPayload } from '../../lib/cms'
@@ -46,7 +46,7 @@ type AdminRecordFormProps<TRow extends CmsRecord> = {
   initialData?: Partial<TRow> | null
   onCancel?: () => void
   onDirtyChange?: (isDirty: boolean) => void
-  onSubmit: (payload: CmsMutationPayload) => Promise<void>
+  onSubmit: (payload: CmsMutationPayload) => Promise<boolean>
   stickyActions?: boolean
   submitLabel?: string
 }
@@ -112,6 +112,7 @@ export function AdminRecordForm<TRow extends CmsRecord>({
   stickyActions = false,
   submitLabel = '저장',
 }: AdminRecordFormProps<TRow>) {
+  const generatedId = useId().replaceAll(':', '')
   const initialValues = useMemo(() => {
     return Object.fromEntries(
       fields.map((field) => [
@@ -122,13 +123,14 @@ export function AdminRecordForm<TRow extends CmsRecord>({
   }, [defaultValues, fields, initialData])
 
   const [values, setValues] = useState<FormValues>(initialValues)
+  const [savedValues, setSavedValues] = useState<FormValues>(initialValues)
   const [errors, setErrors] = useState<FormErrors>({})
   const isDirty = useMemo(
     () =>
       fields.some(
-        (field) => values[field.name] !== initialValues[field.name],
+        (field) => values[field.name] !== savedValues[field.name],
       ),
-    [fields, initialValues, values],
+    [fields, savedValues, values],
   )
 
   useEffect(() => {
@@ -164,7 +166,9 @@ export function AdminRecordForm<TRow extends CmsRecord>({
 
     if (firstErrorField) {
       window.requestAnimationFrame(() => {
-        document.getElementById(firstErrorField.name)?.focus()
+        document
+          .getElementById(`${generatedId}-${firstErrorField.name}`)
+          ?.focus()
       })
     }
 
@@ -190,7 +194,11 @@ export function AdminRecordForm<TRow extends CmsRecord>({
       ) as CmsMutationPayload,
     )
 
-    await onSubmit(payload)
+    const didSave = await onSubmit(payload)
+
+    if (didSave) {
+      setSavedValues(values)
+    }
   }
 
   return (
@@ -198,11 +206,12 @@ export function AdminRecordForm<TRow extends CmsRecord>({
       <div className="grid gap-5 md:grid-cols-2">
         {fields.map((field) => {
           const value = values[field.name]
+          const fieldId = `${generatedId}-${field.name}`
           const commonProps = {
             description: field.description,
             disabled: disabled || field.readOnly,
             error: errors[field.name],
-            id: field.name,
+            id: fieldId,
             label: field.label,
             name: field.name,
             required: field.required,
@@ -231,7 +240,8 @@ export function AdminRecordForm<TRow extends CmsRecord>({
                   allowSvg={field.allowSvg}
                   description={field.description}
                   disabled={disabled || field.readOnly}
-                  folder={field.folder ?? 'settings'}
+                folder={field.folder ?? 'settings'}
+                id={fieldId}
                   label={field.label}
                   maxSizeMb={field.maxSizeMb}
                   onChange={(nextValue) => setValue(field.name, nextValue)}
@@ -265,6 +275,7 @@ export function AdminRecordForm<TRow extends CmsRecord>({
                 checked={Boolean(value)}
                 description={field.description}
                 disabled={disabled || field.readOnly}
+                id={fieldId}
                 key={field.name}
                 label={field.label}
                 name={field.name}

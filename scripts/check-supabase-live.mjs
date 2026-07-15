@@ -7,6 +7,9 @@ const tableChecks = [
   'hero_slides',
   'popup_notices',
   'about_sections',
+  'conductor',
+  'accompanist',
+  'members',
   'history',
   'concerts',
   'notices',
@@ -41,13 +44,37 @@ const columnChecks = [
     path: '/rest/v1/sponsors?select=id,name,display_name,category,tier,logo_url,website_url,consent_public,show_on_home,show_on_support,show_on_footer,display_order&is_visible=eq.true&consent_public=eq.true&limit=1',
     target: 'columns:sponsors public consent fields',
   },
+  {
+    path: '/rest/v1/conductor?select=id,profile_image_alt,profile_summary,profile_highlight,hero_quote,current_roles,education_items,career_items,awards_items,activities_items,philosophy_title,philosophy_body,philosophy_quote,teaching_principles,message_title,message_body,activity_images,is_featured&limit=1',
+    target: 'columns:conductor document profile fields',
+  },
+  {
+    path: '/rest/v1/site_texts?select=id,key,page,section,label,value,default_value,input_type,value_type,sort_order,is_active&is_active=eq.true&limit=1',
+    target: 'columns:site_texts CMS fields',
+  },
 ]
 
 const privateTableChecks = [
   {
+    path: '/rest/v1/contacts?select=id&limit=1',
+    target: 'private-table:contacts',
+  },
+  {
+    path: '/rest/v1/join_applications?select=id&limit=1',
+    target: 'private-table:join_applications',
+  },
+  {
     path: '/rest/v1/support_pledges?select=id&limit=1',
     target: 'private-table:support_pledges',
   },
+]
+
+const requiredSiteTextKeys = [
+  'home.hero.title.line3',
+  'home.hero.title.line4',
+  'home.hero.subtitle',
+  'home.gallery.empty.title',
+  'home.gallery.empty.description',
 ]
 
 function parseEnvFile(filePath) {
@@ -126,7 +153,13 @@ async function requestJsonOnce({ anonKey, body, method = 'GET', path, url }) {
       signal: controller.signal,
     })
 
-    return { ok: response.ok, status: response.status }
+    let data = null
+
+    if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
+      data = await response.json()
+    }
+
+    return { data, ok: response.ok, status: response.status }
   } catch (error) {
     return {
       ok: false,
@@ -193,6 +226,36 @@ for (const check of columnChecks) {
     status: result.status,
     target: check.target,
     verdict: getStatusLabel(result),
+  })
+}
+
+const siteTextParams = new URLSearchParams({
+  is_active: 'eq.true',
+  key: `in.(${requiredSiteTextKeys.join(',')})`,
+  select: 'key',
+})
+const requiredSiteTextsResult = await requestJson({
+  anonKey: supabaseAnonKey,
+  path: `/rest/v1/site_texts?${siteTextParams.toString()}`,
+  url: supabaseUrl,
+})
+const availableSiteTextKeys = new Set(
+  Array.isArray(requiredSiteTextsResult.data)
+    ? requiredSiteTextsResult.data
+        .map((row) => row?.key)
+        .filter((key) => typeof key === 'string')
+    : [],
+)
+
+for (const key of requiredSiteTextKeys) {
+  results.push({
+    status: requiredSiteTextsResult.status,
+    target: `site-text:${key}`,
+    verdict: requiredSiteTextsResult.ok
+      ? availableSiteTextKeys.has(key)
+        ? '[ok]'
+        : '[missing-row]'
+      : getStatusLabel(requiredSiteTextsResult),
   })
 }
 

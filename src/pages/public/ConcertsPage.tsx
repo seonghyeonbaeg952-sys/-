@@ -13,6 +13,7 @@ import { PageHero } from '../../components/common/PageHero'
 import { Reveal } from '../../components/common/Reveal'
 import { SeoHead } from '../../components/common/SeoHead'
 import { StaffLines } from '../../components/common/StaffLines'
+import { TransitionLink } from '../../components/common/TransitionLink'
 import { ImageTile } from '../../components/home/ImageTile'
 import { useConcertsData } from '../../hooks/usePublicData'
 import type { Concert, ConcertStatus } from '../../types/content'
@@ -178,7 +179,7 @@ export function ConcertsPage() {
         ) : null}
 
         <Reveal>
-          <div className="relative grid gap-3 overflow-hidden rounded-formal border border-line-default/85 bg-bg-warm-white/95 p-4 shadow-card md:grid-cols-[minmax(180px,1.25fr)_minmax(220px,1.35fr)_minmax(150px,1fr)_minmax(150px,1fr)]">
+          <div className="relative grid gap-3 overflow-hidden rounded-formal border border-line-default/85 bg-bg-warm-white/95 p-4 shadow-card md:grid-cols-2 lg:grid-cols-[minmax(180px,1.25fr)_minmax(220px,1.35fr)_minmax(150px,1fr)_minmax(150px,1fr)]">
             <StaffLines
               className="absolute inset-x-5 top-4 hidden opacity-35 md:grid"
               density="light"
@@ -257,9 +258,9 @@ export function ConcertsPage() {
           {filteredConcerts.map((concert) => (
             <Reveal key={concert.id}>
               <Card className="concert-collection-card group overflow-hidden" hoverable radius="formal">
-                <a
+                <TransitionLink
                   className="concert-collection-link h-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm"
-                  href={`/concerts/${concert.id}`}
+                  to={`/concerts/${concert.id}`}
                 >
                   <div className="concert-collection-media relative bg-linear-to-br from-bg-ivory via-bg-warm-white to-gold-soft/20 p-3 sm:p-4">
                     {concert.poster_url ? (
@@ -314,7 +315,7 @@ export function ConcertsPage() {
                       자세히 보기
                     </span>
                   </div>
-                </a>
+                </TransitionLink>
               </Card>
             </Reveal>
           ))}

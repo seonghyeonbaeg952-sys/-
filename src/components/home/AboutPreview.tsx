@@ -97,7 +97,7 @@ export function AboutPreview({
         <div className="home-about-grid relative">
           <Reveal className="lg:sticky lg:top-28 lg:self-start" variant="fade-up">
             <div>
-              <StaffSectionLabel className="max-w-sm">
+              <StaffSectionLabel className="max-w-sm [&>p]:text-gold-ink">
                 {kicker}
               </StaffSectionLabel>
               <h2 className="type-section-title mt-5 max-w-[600px] text-navy-deep">
@@ -126,7 +126,7 @@ export function AboutPreview({
             </div>
           </Reveal>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="about-preview-grid grid gap-4 sm:grid-cols-2">
             <Reveal className="sm:col-span-2" variant="soft-scale">
               {image ? (
                 <a
@@ -195,13 +195,13 @@ export function AboutPreview({
                       variant="gold"
                     />
                   </Reveal>
-                  <p className="type-number text-sm text-gold-warm">
+                  <p className="type-number text-sm text-gold-ink">
                     {String(index + 1).padStart(2, '0')}
                   </p>
                   <h3 className="type-card-title mt-4 text-navy-deep">
                     {card.title}
                   </h3>
-                  <p className="mt-4 break-keep text-sm leading-7 text-text-muted">
+                  <p className="about-preview-card-copy mt-4 break-keep text-sm leading-7 text-text-muted">
                     {card.description}
                   </p>
                 </Card>

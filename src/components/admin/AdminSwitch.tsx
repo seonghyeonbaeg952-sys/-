@@ -2,6 +2,7 @@ type AdminSwitchProps = {
   checked: boolean
   description?: string
   disabled?: boolean
+  id?: string
   label: string
   name: string
   onChange: (checked: boolean) => void
@@ -11,6 +12,7 @@ export function AdminSwitch({
   checked,
   description,
   disabled = false,
+  id,
   label,
   name,
   onChange,
@@ -19,7 +21,7 @@ export function AdminSwitch({
     <div className="rounded-button border border-line-default bg-bg-warm-white p-4">
       <label
         className={[
-          'flex items-start justify-between gap-4',
+          'relative flex items-start justify-between gap-4',
           disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
         ].join(' ')}
       >
@@ -33,8 +35,9 @@ export function AdminSwitch({
         </span>
         <input
           checked={checked}
-          className="sr-only"
+          className="peer sr-only"
           disabled={disabled}
+          id={id}
           name={name}
           onChange={(event) => onChange(event.target.checked)}
           type="checkbox"
@@ -42,7 +45,7 @@ export function AdminSwitch({
         <span
           aria-hidden="true"
           className={[
-            'relative mt-0.5 h-6 w-11 rounded-pill transition',
+            'relative mt-0.5 h-6 w-11 rounded-pill transition peer-focus-visible:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-gold-warm peer-focus-visible:ring-offset-2',
             checked ? 'bg-gold-warm' : 'bg-line-default',
           ].join(' ')}
         >

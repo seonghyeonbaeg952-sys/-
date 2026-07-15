@@ -4,6 +4,8 @@ import type { GalleryImage, Poster, VideoItem } from '../../types/content'
 import { Button } from '../common/Button'
 import { EmptyState } from '../common/EmptyState'
 import { Reveal } from '../common/Reveal'
+import { StaffSectionLabel } from '../common/StaffSectionLabel'
+import { TransitionLink } from '../common/TransitionLink'
 import { ImageTile } from './ImageTile'
 
 type ArchivePageStackProps = {
@@ -11,6 +13,7 @@ type ArchivePageStackProps = {
   description: string
   emptyDescription?: string
   emptyTitle?: string
+  eyebrow: string
   images: GalleryImage[]
   posters?: Poster[]
   videos?: VideoItem[]
@@ -86,6 +89,7 @@ export function ArchivePageStack({
   description,
   emptyDescription = '현재 공개된 공연·연습 기록이 없습니다.',
   emptyTitle = '공개된 갤러리 자료가 없습니다',
+  eyebrow,
   images,
   posters = [],
   videos = [],
@@ -123,88 +127,104 @@ export function ArchivePageStack({
     setIsOpen(true)
   }
 
-  if (archiveItems.length === 0) {
-    return (
-      <div className="mt-9">
-        <EmptyState
-          action={
+  return (
+    <>
+      <Reveal variant="fade-up">
+        <div className="archive-section-intro">
+          <div>
+            <StaffSectionLabel className="mb-3 max-w-md">
+              {eyebrow}
+            </StaffSectionLabel>
+            <p className="type-body max-w-2xl text-text-muted">
+              {description}
+            </p>
+          </div>
+          <div className="archive-section-actions">
+            {archiveItems.length > 0 ? (
+              <button
+                aria-expanded={isOpen}
+                aria-label={isOpen ? '갤러리 기록 접기' : '갤러리 기록 펼치기'}
+                className="archive-inline-toggle"
+                onClick={handleToggle}
+                type="button"
+              >
+                {isOpen ? '접기' : '기록 펼치기'}
+              </button>
+            ) : null}
             <Button href="/gallery" variant="secondary">
               {buttonLabel}
             </Button>
-          }
-          description={emptyDescription}
-          title={emptyTitle}
-        />
-      </div>
-    )
-  }
-
-  return (
-    <div className="archive-preview-layout mt-9">
-      <Reveal variant="fade-up">
-        <div className="archive-preview-copy">
-          <p className="type-eyebrow text-gold-warm">ARCHIVE BOOK</p>
-          <h3 className="type-section-title mt-4 text-navy-deep">기록 펼치기</h3>
-          <p className="type-body mt-5 text-text-muted">{description}</p>
-          <button
-            aria-expanded={isOpen}
-            aria-label={isOpen ? '갤러리 기록 접기' : '갤러리 기록 펼치기'}
-            className="archive-inline-toggle mt-7"
-            onClick={handleToggle}
-            type="button"
-          >
-            {isOpen ? '접기' : '기록 펼치기'}
-          </button>
-        </div>
-      </Reveal>
-
-      <Reveal delay={80} variant="card-rise">
-        <div className="archive-folder-stage">
-          <div
-            className="archive-l-folder"
-            data-motion-state={isClosing ? 'closing' : isOpen ? 'open' : 'closed'}
-            data-open={isOpen ? 'true' : 'false'}
-          >
-            <div aria-hidden="true" className="archive-folder-back" />
-            <div aria-hidden="true" className="archive-folder-spine" />
-
-            {archiveItems.map((item, index) => (
-              <a
-                aria-label={`${item.title} 보기`}
-                className={`archive-folder-item archive-folder-item-${index + 1}`}
-                href={item.href}
-                key={item.id}
-              >
-                <ImageTile
-                  alt={item.alt}
-                  className="archive-folder-image"
-                  fallbackSrcs={item.fallbackSrcs}
-                  objectFit="contain"
-                  sizes="(min-width: 1100px) 230px, calc(100vw - 40px)"
-                  src={item.src}
-                  transform={
-                    item.kind === 'VIDEO'
-                      ? undefined
-                      : {
-                          quality: 84,
-                          resize: 'contain',
-                          width: 720,
-                          widths: [360, 540, 720, 960],
-                        }
-                  }
-                />
-                <span className="archive-folder-item-kind">{item.kind}</span>
-                <strong title={item.title}>{item.title}</strong>
-              </a>
-            ))}
-
-            <div aria-hidden="true" className="archive-folder-front">
-              <span>SEOUL MOTET YOUTH CHOIR</span>
-              <strong>ARCHIVE</strong>
-            </div>
           </div>
         </div>
       </Reveal>
-    </div>
+
+      {archiveItems.length === 0 ? (
+        <div className="mt-9">
+          <EmptyState
+            description={emptyDescription}
+            title={emptyTitle}
+          />
+        </div>
+      ) : (
+        <div className="archive-preview-layout mt-9">
+          <Reveal variant="fade-up">
+            <div className="archive-preview-copy">
+              <p className="type-eyebrow text-gold-warm">ARCHIVE BOOK</p>
+              <h3 className="type-section-title mt-4 text-navy-deep">사진 · 영상 · 포스터</h3>
+            </div>
+          </Reveal>
+
+          <Reveal delay={80} variant="card-rise">
+            <div className="archive-folder-stage">
+              <div
+                aria-hidden={!isOpen}
+                className="archive-l-folder"
+                data-motion-state={isClosing ? 'closing' : isOpen ? 'open' : 'closed'}
+                data-open={isOpen ? 'true' : 'false'}
+                inert={!isOpen}
+              >
+                <div aria-hidden="true" className="archive-folder-back" />
+                <div aria-hidden="true" className="archive-folder-spine" />
+
+                {archiveItems.map((item, index) => (
+                  <TransitionLink
+                    aria-label={`${item.title} 보기`}
+                    className={`archive-folder-item archive-folder-item-${index + 1}`}
+                    key={item.id}
+                    to={item.href}
+                  >
+                    <ImageTile
+                      alt={item.alt}
+                      className="archive-folder-image"
+                      fallbackSrcs={item.fallbackSrcs}
+                      objectFit="contain"
+                      sizes="(min-width: 1100px) 230px, calc(100vw - 40px)"
+                      src={item.src}
+                      transform={
+                        item.kind === 'VIDEO'
+                          ? undefined
+                          : {
+                              quality: 84,
+                              resize: 'contain',
+                              width: 720,
+                              widths: [360, 540, 720, 960],
+                            }
+                      }
+                    />
+                    <span className="archive-folder-item-kind">{item.kind}</span>
+                    <strong title={item.title}>{item.title}</strong>
+                  </TransitionLink>
+                ))}
+
+                <div aria-hidden="true" className="archive-folder-front">
+                  <span>SEOUL MOTET YOUTH CHOIR</span>
+                  <strong>ARCHIVE</strong>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      )}
+    </>
   )
 }

@@ -1,9 +1,6 @@
 import type { GalleryImage, Poster, VideoItem } from '../../types/content'
-import { Button } from '../common/Button'
 import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
-import { Reveal } from '../common/Reveal'
-import { StaffSectionLabel } from '../common/StaffSectionLabel'
 import { ArchivePageStack } from './ArchivePageStack'
 
 type GalleryPreviewProps = {
@@ -42,26 +39,12 @@ export function GalleryPreview({
         symbol="♬"
       />
       <Container>
-        <Reveal variant="fade-up">
-          <div className="archive-section-intro">
-            <div>
-              <StaffSectionLabel className="mb-3 max-w-md">
-                {eyebrow}
-              </StaffSectionLabel>
-              <p className="type-body max-w-2xl text-text-muted">
-                {description}
-              </p>
-            </div>
-            <Button href="/gallery" variant="secondary">
-              {buttonLabel}
-            </Button>
-          </div>
-        </Reveal>
         <ArchivePageStack
           buttonLabel={buttonLabel}
           description={description}
           emptyDescription={emptyDescription}
           emptyTitle={emptyTitle}
+          eyebrow={eyebrow}
           images={images}
           posters={posters}
           videos={videos}

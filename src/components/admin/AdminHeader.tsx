@@ -1,8 +1,11 @@
+import type { RefObject } from 'react'
+
 import { Button } from '../common/Button'
 
 type AdminHeaderProps = {
   isSidebarOpen: boolean
   isSigningOut: boolean
+  menuButtonRef: RefObject<HTMLButtonElement | null>
   onOpenSidebar: () => void
   onSignOut: () => void
   signOutError: string | null
@@ -12,6 +15,7 @@ type AdminHeaderProps = {
 export function AdminHeader({
   isSidebarOpen,
   isSigningOut,
+  menuButtonRef,
   onOpenSidebar,
   onSignOut,
   signOutError,
@@ -27,6 +31,7 @@ export function AdminHeader({
             aria-label="관리자 메뉴 열기"
             className="flex size-11 items-center justify-center rounded-button border border-line-default text-navy-deep transition hover:border-gold-warm hover:text-navy-midnight focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm lg:hidden"
             onClick={onOpenSidebar}
+            ref={menuButtonRef}
             type="button"
           >
             ☰

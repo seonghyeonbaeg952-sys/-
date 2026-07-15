@@ -3,6 +3,46 @@
 .home-flow-root {
   --home-editorial-rule: rgb(var(--home-premium-navy) / 0.12);
   --home-editorial-gold-rule: rgb(var(--home-premium-gold) / 0.38);
+  --home-editorial-shadow: 0 26px 64px rgb(var(--home-premium-navy) / 0.11);
+  --home-editorial-shadow-strong: 0 34px 86px rgb(var(--home-premium-navy) / 0.16);
+}
+
+.home-flow-body {
+  background:
+    linear-gradient(
+        90deg,
+        rgb(var(--home-premium-navy) / 0.018) 0 1px,
+        transparent 1px 100%
+      )
+      0 0 / clamp(7rem, 12vw, 12rem) 100%,
+    repeating-linear-gradient(
+      180deg,
+      transparent 0,
+      transparent 39px,
+      rgb(var(--home-premium-gold) / 0.034) 39px,
+      rgb(var(--home-premium-gold) / 0.034) 40px,
+      transparent 40px,
+      transparent 49px
+    ),
+    linear-gradient(
+      116deg,
+      transparent 0%,
+      transparent 58%,
+      rgb(var(--home-premium-gold) / 0.046) 58%,
+      rgb(var(--home-premium-gold) / 0.046) 58.18%,
+      transparent 58.18%,
+      transparent 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgb(250 247 240) 0%,
+      rgb(255 253 248) 18%,
+      rgb(250 247 240) 39%,
+      rgb(255 253 248) 58%,
+      rgb(246 238 224) 78%,
+      rgb(16 35 63) 92%,
+      rgb(7 21 38) 100%
+    ) !important;
 }
 
 .home-flow-body :is(
@@ -13,7 +53,26 @@
   [data-flow-section="archive-stack"],
   [data-flow-section="sponsors"]
 ) {
+  background-color: transparent !important;
   background-image:
+    linear-gradient(
+      112deg,
+      transparent 0%,
+      transparent 54%,
+      rgb(var(--home-premium-gold) / 0.04) 54%,
+      rgb(var(--home-premium-gold) / 0.04) 54.16%,
+      transparent 54.16%,
+      transparent 100%
+    ),
+    repeating-linear-gradient(
+      180deg,
+      transparent 0,
+      transparent 34px,
+      rgb(var(--home-premium-navy) / 0.021) 34px,
+      rgb(var(--home-premium-navy) / 0.021) 35px,
+      transparent 35px,
+      transparent 45px
+    ),
     linear-gradient(
       90deg,
       transparent 0,
@@ -28,7 +87,43 @@
       transparent 20%,
       transparent 78%,
       rgb(var(--home-premium-navy) / 0.018)
-    );
+    ) !important;
+}
+
+.home-flow-body :is(
+  [data-flow-section="quick"],
+  [data-flow-section="about"],
+  [data-flow-section="score-book"],
+  [data-flow-section="join-letter"],
+  [data-flow-section="concert-program"],
+  [data-flow-section="spirit"],
+  [data-flow-section="archive-stack"],
+  [data-flow-section="sponsors"]
+)::after {
+  height: clamp(2.25rem, 4vw, 4.75rem) !important;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgb(var(--home-premium-gold) / 0.28),
+      transparent
+    ),
+    repeating-linear-gradient(
+      180deg,
+      transparent 0,
+      transparent 7px,
+      rgb(var(--home-premium-gold) / 0.14) 7px,
+      rgb(var(--home-premium-gold) / 0.14) 8px,
+      transparent 8px,
+      transparent 14px
+    ) !important;
+  opacity: 0.2 !important;
+  mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+}
+
+.home-flow-body .motet-score-scroll-section,
+.home-flow-body .spirit-scorebook-section {
+  background-color: transparent !important;
 }
 
 .home-quick-action-grid > .reveal-motion {
@@ -43,12 +138,33 @@
   overflow: hidden;
   padding: 1.5rem 1.65rem 1.35rem;
   background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.72), transparent 34%),
+    repeating-linear-gradient(
+      180deg,
+      transparent 0,
+      transparent 20px,
+      rgb(var(--home-premium-gold) / 0.04) 20px,
+      rgb(var(--home-premium-gold) / 0.04) 21px
+    ),
     linear-gradient(135deg, rgb(255 253 248 / 0.98), rgb(250 247 240 / 0.94)),
     rgb(var(--home-premium-paper));
+  border-color: rgb(var(--home-premium-navy) / 0.11) !important;
+  box-shadow:
+    var(--home-editorial-shadow),
+    0 1px 0 rgb(255 255 255 / 0.86) inset,
+    0 -1px 0 rgb(var(--home-premium-gold) / 0.1) inset !important;
 }
 
 .home-quick-action-card[data-card-index="1"] {
   background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.76), transparent 34%),
+    repeating-linear-gradient(
+      180deg,
+      transparent 0,
+      transparent 20px,
+      rgb(var(--home-premium-gold) / 0.046) 20px,
+      rgb(var(--home-premium-gold) / 0.046) 21px
+    ),
     linear-gradient(120deg, rgb(255 253 248 / 0.99), rgb(244 235 216 / 0.86)),
     rgb(var(--home-premium-paper));
 }
@@ -448,13 +564,115 @@
   border-bottom: 1px solid var(--home-editorial-gold-rule);
 }
 
+.archive-section-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .archive-preview-copy {
   padding-left: 1.1rem;
   border-left: 2px solid rgb(var(--home-premium-gold) / 0.56);
 }
 
+.home-about-grid :is(.rounded-soft, .rounded-balanced, .rounded-formal),
+.home-flow-body [data-flow-section="join-letter"] > .mx-auto > .reveal-motion > div,
+.spirit-scorebook,
+.sponsor-quiet-panel,
+.support-letter-card,
+.concert-template-panel__shell,
+.archive-page-card {
+  border-color: rgb(var(--home-premium-navy) / 0.12) !important;
+  box-shadow:
+    var(--home-editorial-shadow),
+    0 1px 0 rgb(255 255 255 / 0.82) inset,
+    0 -1px 0 rgb(var(--home-premium-gold) / 0.1) inset !important;
+}
+
+.home-about-grid :is(.rounded-soft, .rounded-balanced, .rounded-formal),
+.home-flow-body [data-flow-section="join-letter"] > .mx-auto > .reveal-motion > div,
+.spirit-scorebook,
+.sponsor-quiet-panel,
+.concert-template-panel__shell,
+.archive-page-card {
+  background-image:
+    linear-gradient(180deg, rgb(255 255 255 / 0.66), transparent 36%),
+    repeating-linear-gradient(
+      180deg,
+      transparent 0,
+      transparent 24px,
+      rgb(var(--home-premium-gold) / 0.034) 24px,
+      rgb(var(--home-premium-gold) / 0.034) 25px
+    ) !important;
+}
+
+.sponsor-quiet-panel {
+  position: relative;
+  isolation: isolate;
+}
+
+.sponsor-quiet-panel::before {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 0;
+  height: 4.5rem;
+  background:
+    linear-gradient(90deg, transparent, rgb(var(--home-premium-gold) / 0.16), transparent),
+    repeating-linear-gradient(
+      180deg,
+      transparent 0,
+      transparent 7px,
+      rgb(var(--home-premium-gold) / 0.18) 7px,
+      rgb(var(--home-premium-gold) / 0.18) 8px
+    );
+  content: "";
+  opacity: 0.42;
+  pointer-events: none;
+}
+
+.sponsor-quiet-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
 .support-letter-card {
   border-top: 3px solid rgb(var(--home-premium-gold) / 0.62) !important;
+  background:
+    linear-gradient(180deg, rgb(255 253 248 / 0.98), rgb(246 238 224 / 0.93)),
+    rgb(var(--home-premium-paper)) !important;
+  box-shadow:
+    0 34px 90px rgb(0 0 0 / 0.28),
+    0 1px 0 rgb(255 255 255 / 0.84) inset,
+    0 -1px 0 rgb(var(--home-premium-gold) / 0.14) inset !important;
+}
+
+.home-flow-body [data-flow-section="support-letter"] {
+  background-image:
+    linear-gradient(
+      112deg,
+      rgb(255 253 248 / 0.045) 0%,
+      transparent 24%,
+      transparent 62%,
+      rgb(var(--home-premium-gold) / 0.06) 62%,
+      transparent 78%
+    ),
+    repeating-linear-gradient(
+      180deg,
+      rgb(var(--home-premium-gold) / 0.03) 0,
+      rgb(var(--home-premium-gold) / 0.03) 1px,
+      transparent 1px,
+      transparent 18px
+    ),
+    linear-gradient(180deg, rgb(16 35 63) 0%, rgb(7 21 38) 100%) !important;
+}
+
+.home-flow-body [data-flow-section="support-letter"] .stage-staff-lines-support::before {
+  opacity: 0.16 !important;
+}
+
+.home-flow-body [data-flow-section="support-letter"] .stage-staff-lines-support::after {
+  opacity: 0.09 !important;
 }
 
 /* The score words intentionally travel beyond the book during the desktop
@@ -784,6 +1002,11 @@
   .archive-section-intro {
     padding-bottom: 1.1rem;
   }
+
+  .archive-section-actions {
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
 }
 
 @media (max-width: 430px) {
@@ -834,11 +1057,14 @@
     font-size: 0.72rem;
     line-height: 1.55;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
   }
 
-  .home-quick-action-grid > .reveal-motion:not(:first-child) .home-quick-action-link {
-    font-size: 0.6rem;
+  .home-quick-action-grid > .reveal-motion:not(:first-child) :is(
+    .home-quick-action-eyebrow,
+    .home-quick-action-link
+  ) {
+    display: none;
   }
 
   .home-about-grid > .grid {
@@ -851,7 +1077,7 @@
   }
 
   .home-about-grid > .grid > .reveal-motion:nth-child(n + 2) [class*="min-h-44"] {
-    min-height: 13rem !important;
+    min-height: 10.5rem !important;
     padding: 1rem !important;
   }
 
@@ -916,6 +1142,20 @@
   }
 }
 
+@media (max-width: 480px) {
+  .home-about-grid > .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home-about-grid > .grid > .reveal-motion:first-child {
+    grid-column: 1;
+  }
+
+  .home-about-grid > .grid > .reveal-motion:nth-child(n + 2) [class*="min-h-44"] {
+    min-height: auto !important;
+  }
+}
+
 @media (min-width: 768px) and (max-width: 1023px) {
   .site-footer > .mx-auto {
     grid-template-columns: minmax(0, 1.2fr) minmax(10rem, 0.8fr) minmax(10rem, 0.8fr);
@@ -943,6 +1183,50 @@
 
   .archive-preview-copy {
     max-width: 34rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .home-flow-body {
+    background:
+      repeating-linear-gradient(
+        180deg,
+        transparent 0,
+        transparent 44px,
+        rgb(var(--home-premium-gold) / 0.022) 44px,
+        rgb(var(--home-premium-gold) / 0.022) 45px
+      ),
+      linear-gradient(180deg, rgb(250 247 240) 0%, rgb(255 253 248) 58%, rgb(7 21 38) 100%) !important;
+  }
+
+  .home-flow-body :is(
+    [data-flow-section="quick"],
+    [data-flow-section="about"],
+    [data-flow-section="score-book"],
+    [data-flow-section="join-letter"],
+    [data-flow-section="concert-program"],
+    [data-flow-section="spirit"],
+    [data-flow-section="archive-stack"],
+    [data-flow-section="sponsors"]
+  )::after {
+    opacity: 0.11 !important;
+  }
+
+  .home-quick-action-card,
+  .home-about-grid :is(.rounded-soft, .rounded-balanced, .rounded-formal),
+  .home-flow-body [data-flow-section="join-letter"] > .mx-auto > .reveal-motion > div,
+  .spirit-scorebook,
+  .sponsor-quiet-panel,
+  .support-letter-card,
+  .concert-template-panel__shell,
+  .archive-page-card {
+    box-shadow:
+      0 16px 38px rgb(var(--home-premium-navy) / 0.08),
+      0 1px 0 rgb(255 255 255 / 0.78) inset !important;
+  }
+
+  .sponsor-quiet-panel::before {
+    opacity: 0.24;
   }
 }
 

@@ -49,6 +49,10 @@ export function useRevealOnScroll<TElement extends HTMLElement>({
       return
     }
 
+    const elementHeight = element.getBoundingClientRect().height
+    const isTallElement = elementHeight > window.innerHeight * 0.75
+    const effectiveThreshold = isTallElement ? Math.min(threshold, 0.05) : threshold
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry?.isIntersecting) {
@@ -61,7 +65,7 @@ export function useRevealOnScroll<TElement extends HTMLElement>({
           setIsVisible(false)
         }
       },
-      { rootMargin, threshold },
+      { rootMargin, threshold: effectiveThreshold },
     )
 
     observer.observe(element)

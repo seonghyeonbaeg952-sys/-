@@ -28,6 +28,16 @@ export function ProtectedAdminRoute({ children }: ProtectedAdminRouteProps) {
     )
   }
 
+  if (adminAuth.error) {
+    return (
+      <AccessDenied
+        description={adminAuth.error}
+        showRetry
+        title="관리자 정보를 확인하지 못했습니다"
+      />
+    )
+  }
+
   if (!adminAuth.isAuthenticated) {
     return (
       <Navigate
@@ -36,10 +46,6 @@ export function ProtectedAdminRoute({ children }: ProtectedAdminRouteProps) {
         to="/admin/login"
       />
     )
-  }
-
-  if (adminAuth.error) {
-    return <AccessDenied description={adminAuth.error} />
   }
 
   if (!adminAuth.isAdmin) {
