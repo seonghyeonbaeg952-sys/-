@@ -583,10 +583,7 @@ export function LegacyFlow({ compact = false }: { compact?: boolean }) {
         </h2>
         <div className="legacy-flow-grid mt-9">
           {legacyFlowSteps.map((item) => (
-            <article
-              className="legacy-card paper-surface"
-              key={item.title}
-            >
+            <article className="legacy-card" key={item.title}>
               <p className="legacy-year">{item.year}</p>
               <h3 className="mt-4 break-keep text-lg font-bold">{item.title}</h3>
               <p className="mt-3 break-keep text-sm leading-7 text-text-muted">{item.body}</p>

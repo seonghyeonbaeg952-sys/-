@@ -1469,19 +1469,29 @@ export async function getPublicGalleryImages(
   return { data: normalizeRows<GalleryRow>(data).map(mapGalleryImage), error: null }
 }
 
-export async function getPublicVideos(): Promise<PublicDataResult<VideoItem[]>> {
+export async function getPublicVideos(
+  options: PublicListOptions = {},
+): Promise<PublicDataResult<VideoItem[]>> {
   const clientResult = getSupabaseClientSafe()
 
   if (!clientResult.data) {
     return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
   }
 
-  const { data, error } = await clientResult.data
+  let query = clientResult.data
     .from('videos')
     .select(VIDEO_SELECT)
     .eq('is_visible', true)
     .order('display_order', { ascending: true })
     .order('created_at', { ascending: false })
+
+  const limit = normalizeLimit(options.limit)
+
+  if (limit) {
+    query = query.limit(limit)
+  }
+
+  const { data, error } = await query
 
   if (error) {
     return { data: null, error: toPublicError(error, '영상 목록을 불러오지 못했습니다.') }
@@ -1490,19 +1500,29 @@ export async function getPublicVideos(): Promise<PublicDataResult<VideoItem[]>> 
   return { data: normalizeRows<VideoRow>(data).map(mapVideo), error: null }
 }
 
-export async function getPublicPosters(): Promise<PublicDataResult<Poster[]>> {
+export async function getPublicPosters(
+  options: PublicListOptions = {},
+): Promise<PublicDataResult<Poster[]>> {
   const clientResult = getSupabaseClientSafe()
 
   if (!clientResult.data) {
     return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
   }
 
-  const { data, error } = await clientResult.data
+  let query = clientResult.data
     .from('posters')
     .select(POSTER_SELECT)
     .eq('is_visible', true)
     .order('display_order', { ascending: true })
     .order('concert_date', { ascending: false })
+
+  const limit = normalizeLimit(options.limit)
+
+  if (limit) {
+    query = query.limit(limit)
+  }
+
+  const { data, error } = await query
 
   if (error) {
     return { data: null, error: toPublicError(error, '포스터 목록을 불러오지 못했습니다.') }

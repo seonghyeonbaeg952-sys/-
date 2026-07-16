@@ -1236,3 +1236,43 @@
     transition: none;
   }
 }
+
+/* Hero handoff correction:
+   keep the quick action cards in their current position and move only the
+   ivory page plane behind them lower, so the cards overlap the hero image. */
+.home-flow-root {
+  background: transparent !important;
+}
+
+.home-flow-body {
+  --home-hero-handoff-start: clamp(138px, 9.5vw, 176px);
+  background:
+    linear-gradient(
+      180deg,
+      transparent 0,
+      transparent var(--home-hero-handoff-start),
+      rgb(var(--home-premium-ivory)) var(--home-hero-handoff-start),
+      rgb(var(--home-premium-ivory)) 100%
+    ) !important;
+}
+
+.home-flow-body::before {
+  top: var(--home-hero-handoff-start) !important;
+  background: rgb(var(--home-premium-ivory)) !important;
+}
+
+.home-flow-body [data-flow-section="quick"] {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.home-flow-body [data-flow-section="quick"]::before,
+.home-flow-body [data-flow-section="quick"]::after {
+  opacity: 0 !important;
+}
+
+@media (max-width: 767px) {
+  .home-flow-body {
+    --home-hero-handoff-start: 96px;
+  }
+}

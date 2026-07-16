@@ -184,11 +184,13 @@ function PersonCard({
     >
       <ImageTile
         alt={`${person.name ?? role} 사진`}
-        className="mx-auto aspect-[2/3] w-full max-w-[240px] bg-bg-warm-white"
+        className="mx-auto aspect-[4/5] w-full max-w-[190px] rounded-button bg-bg-warm-white"
         fallbackVariant="profile"
-        objectFit="contain"
-        sizes="(min-width: 1280px) 300px, (min-width: 768px) 45vw, calc(100vw - 40px)"
+        imgClassName="accompanist-photo-soft"
+        objectFit="cover"
+        sizes="190px"
         src={person.photo_url ?? ''}
+        transform={{ height: 950, quality: 90, resize: 'cover', width: 760 }}
       />
       <div className="relative p-5">
         <StaffLines className="absolute inset-x-6 top-5 !w-auto opacity-55" density="light" variant="gold" />

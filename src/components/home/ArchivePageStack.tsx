@@ -197,6 +197,7 @@ export function ArchivePageStack({
                       alt={item.alt}
                       className="archive-folder-image"
                       fallbackSrcs={item.fallbackSrcs}
+                      imgClassName={item.kind === 'PHOTO' ? 'people-photo-tone' : undefined}
                       objectFit="contain"
                       sizes="(min-width: 1100px) 230px, calc(100vw - 40px)"
                       src={item.src}
@@ -204,10 +205,13 @@ export function ArchivePageStack({
                         item.kind === 'VIDEO'
                           ? undefined
                           : {
-                              quality: 84,
+                              quality: item.kind === 'PHOTO' ? 76 : 82,
                               resize: 'contain',
-                              width: 720,
-                              widths: [360, 540, 720, 960],
+                              width: item.kind === 'PHOTO' ? 640 : 720,
+                              widths:
+                                item.kind === 'PHOTO'
+                                  ? [320, 480, 640]
+                                  : [360, 540, 720, 960],
                             }
                       }
                     />

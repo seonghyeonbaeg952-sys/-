@@ -7,6 +7,75 @@ type UseRevealOnScrollOptions = {
   threshold?: number
 }
 
+type ObserverSubscriber = (entry: IntersectionObserverEntry) => void
+
+type ObserverPool = {
+  observer: IntersectionObserver
+  subscribers: Map<Element, Set<ObserverSubscriber>>
+}
+
+const observerPools = new Map<string, ObserverPool>()
+
+function createObserverKey(rootMargin: string, threshold: number) {
+  return `${rootMargin}|${threshold}`
+}
+
+function observeWithPool(
+  element: Element,
+  rootMargin: string,
+  threshold: number,
+  subscriber: ObserverSubscriber,
+) {
+  const key = createObserverKey(rootMargin, threshold)
+  let pool = observerPools.get(key)
+
+  if (!pool) {
+    const subscribers = new Map<Element, Set<ObserverSubscriber>>()
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          subscribers.get(entry.target)?.forEach((callback) => callback(entry))
+        })
+      },
+      { rootMargin, threshold },
+    )
+
+    pool = { observer, subscribers }
+    observerPools.set(key, pool)
+  }
+
+  let elementSubscribers = pool.subscribers.get(element)
+
+  if (!elementSubscribers) {
+    elementSubscribers = new Set()
+    pool.subscribers.set(element, elementSubscribers)
+    pool.observer.observe(element)
+  }
+
+  elementSubscribers.add(subscriber)
+
+  return () => {
+    const currentPool = observerPools.get(key)
+    const currentSubscribers = currentPool?.subscribers.get(element)
+
+    if (!currentPool || !currentSubscribers) {
+      return
+    }
+
+    currentSubscribers.delete(subscriber)
+
+    if (currentSubscribers.size === 0) {
+      currentPool.observer.unobserve(element)
+      currentPool.subscribers.delete(element)
+    }
+
+    if (currentPool.subscribers.size === 0) {
+      currentPool.observer.disconnect()
+      observerPools.delete(key)
+    }
+  }
+}
+
 function getReducedMotionPreference() {
   if (typeof window === 'undefined') {
     return false
@@ -53,26 +122,25 @@ export function useRevealOnScroll<TElement extends HTMLElement>({
     const isTallElement = elementHeight > window.innerHeight * 0.75
     const effectiveThreshold = isTallElement ? Math.min(threshold, 0.05) : threshold
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry?.isIntersecting) {
+    let stopObserving = () => {}
+    stopObserving = observeWithPool(
+      element,
+      rootMargin,
+      effectiveThreshold,
+      (entry) => {
+        if (entry.isIntersecting) {
           setIsVisible(true)
 
           if (once) {
-            observer.disconnect()
+            stopObserving()
           }
         } else if (!once) {
           setIsVisible(false)
         }
       },
-      { rootMargin, threshold: effectiveThreshold },
     )
 
-    observer.observe(element)
-
-    return () => {
-      observer.disconnect()
-    }
+    return stopObserving
   }, [once, rootMargin, shouldRevealImmediately, threshold])
 
   return { isVisible: shouldRevealImmediately || isVisible, ref }

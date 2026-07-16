@@ -3062,7 +3062,7 @@
   content: "";
   position: absolute;
   z-index: -1;
-  top: 72px;
+  top: clamp(132px, 9vw, 168px);
   right: 0;
   bottom: 0;
   left: 0;
@@ -3076,7 +3076,7 @@
   }
 
   .home-flow-body::before {
-    top: 42px;
+    top: 86px;
   }
 }
 

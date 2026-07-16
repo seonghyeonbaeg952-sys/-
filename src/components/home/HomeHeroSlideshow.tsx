@@ -23,8 +23,6 @@ type HomeHeroSlideshowProps = {
   slides: HeroSlide[]
 }
 
-type ImageFetchPriority = 'auto' | 'high' | 'low'
-
 const heroCopy = {
   body:
     '서울모테트청소년합창단은 청소년이 합창을 배우고 정기 연습과 공연을 경험하는 음악교육 공동체입니다.',
@@ -60,6 +58,7 @@ const fallbackSlide: HeroSlide = {
 const heroMottoChips = ['합창 교육', '정기 연습', '공연 활동']
 const heroImageWidths = [960, 1440, 1920, 2560, 3200, 3840]
 const warmedHeroImageUrls = new Set<string>()
+const warmingHeroImages = new Map<string, HTMLImageElement>()
 
 function softenMottoChip(chip: string) {
   const normalizedChip = chip.trim()
@@ -91,11 +90,9 @@ function hasHeadLink(rel: string, href: string) {
   )
 }
 
-function addHeadLink(
-  rel: 'preconnect' | 'preload',
-  href: string,
-  options?: { as?: string; fetchPriority?: ImageFetchPriority },
-) {
+function addPreconnectLink(href: string) {
+  const rel = 'preconnect'
+
   if (typeof document === 'undefined' || hasHeadLink(rel, href)) {
     return
   }
@@ -103,19 +100,10 @@ function addHeadLink(
   const link = document.createElement('link')
   link.rel = rel
   link.href = href
-
-  if (options?.as) {
-    link.as = options.as
-  }
-
-  if (options?.fetchPriority) {
-    link.setAttribute('fetchpriority', options.fetchPriority)
-  }
-
   document.head.append(link)
 }
 
-function warmHeroImage(imageUrl: string, fetchPriority: ImageFetchPriority) {
+function warmHeroImage(imageUrl: string) {
   const normalizedUrl = imageUrl.trim()
 
   if (!normalizedUrl || typeof window === 'undefined') {
@@ -143,18 +131,51 @@ function warmHeroImage(imageUrl: string, fetchPriority: ImageFetchPriority) {
   const externalOrigin = getExternalImageOrigin(warmedUrl)
 
   if (externalOrigin) {
-    addHeadLink('preconnect', externalOrigin)
+    addPreconnectLink(externalOrigin)
   }
-
-  addHeadLink('preload', warmedUrl, { as: 'image', fetchPriority })
 
   const image = new Image()
   image.decoding = 'async'
-  image.loading = fetchPriority === 'high' ? 'eager' : 'lazy'
-  image.setAttribute('fetchpriority', fetchPriority)
+  image.fetchPriority = 'low'
+  image.onload = image.onerror = () => {
+    warmingHeroImages.delete(warmedUrl)
+  }
   image.src = warmedUrl
 
   warmedHeroImageUrls.add(warmedUrl)
+  warmingHeroImages.set(warmedUrl, image)
+}
+
+function shouldSkipBackgroundImageWarmup() {
+  if (typeof navigator === 'undefined') {
+    return false
+  }
+
+  const connection = (
+    navigator as Navigator & { connection?: { saveData?: boolean } }
+  ).connection
+
+  return connection?.saveData === true
+}
+
+function scheduleIdleTask(callback: () => void) {
+  const idleWindow = window as typeof window & {
+    cancelIdleCallback?: (handle: number) => void
+    requestIdleCallback?: (
+      callback: () => void,
+      options?: { timeout: number },
+    ) => number
+  }
+
+  if (idleWindow.requestIdleCallback) {
+    const handle = idleWindow.requestIdleCallback(callback, { timeout: 1400 })
+
+    return () => idleWindow.cancelIdleCallback?.(handle)
+  }
+
+  const handle = window.setTimeout(callback, 500)
+
+  return () => window.clearTimeout(handle)
 }
 
 function usePrefersReducedMotion() {
@@ -281,20 +302,30 @@ export function HomeHeroSlideshow({
   const heroBody = body === undefined ? heroCopy.body : body.trim()
 
   useEffect(() => {
-    const first = renderedSlides[0]
-
-    if (first?.image_url && !failedImageIds.has(first.id)) {
-      warmHeroImage(first.image_url, 'high')
+    if (
+      !hasMultipleSlides ||
+      !isDocumentVisible ||
+      prefersReducedMotion ||
+      shouldSkipBackgroundImageWarmup()
+    ) {
+      return
     }
-  }, [failedImageIds, renderedSlides])
 
-  useEffect(() => {
     const nextSlide = renderedSlides[(safeActiveIndex + 1) % renderedSlides.length]
 
-    if (nextSlide?.image_url && !failedImageIds.has(nextSlide.id)) {
-      warmHeroImage(nextSlide.image_url, 'low')
+    if (!nextSlide?.image_url || failedImageIds.has(nextSlide.id)) {
+      return
     }
-  }, [failedImageIds, renderedSlides, safeActiveIndex])
+
+    return scheduleIdleTask(() => warmHeroImage(nextSlide.image_url))
+  }, [
+    failedImageIds,
+    hasMultipleSlides,
+    isDocumentVisible,
+    prefersReducedMotion,
+    renderedSlides,
+    safeActiveIndex,
+  ])
 
   useEffect(() => {
     if (!hasMultipleSlides || isAutoplayPaused || !isDocumentVisible) {

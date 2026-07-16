@@ -137,15 +137,15 @@ export function AboutPreview({
                     <ImageTile
                       alt={image.image_alt}
                       className="aspect-[16/11] rounded-formal bg-navy-deep sm:aspect-[3/2]"
-                      imgClassName="transition duration-500 group-hover:scale-[1.01] motion-reduce:group-hover:scale-100"
+                      imgClassName="people-photo-tone transition duration-500 group-hover:scale-[1.01] motion-reduce:group-hover:scale-100"
                       objectFit="contain"
                       sizes="(min-width: 1024px) 56vw, calc(100vw - 40px)"
                       src={image.image_url}
                       transform={{
-                        quality: 82,
+                        quality: 76,
                         resize: 'contain',
-                        width: 1200,
-                        widths: [640, 960, 1200],
+                        width: 960,
+                        widths: [480, 720, 960],
                       }}
                     >
                       <div className="absolute inset-0 bg-linear-to-t from-navy-midnight/76 via-navy-midnight/10 to-transparent" />

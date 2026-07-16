@@ -61,6 +61,8 @@ const fallbackLabels: Record<ImageFallbackVariant, string> = {
   profile: 'PROFILE',
 }
 
+const emptyFallbackSources: string[] = []
+
 function getFallbackTone(variant: ImageFallbackVariant) {
   if (variant === 'profile') {
     return 'from-blue-soft via-bg-ivory to-gold-soft/45'
@@ -92,7 +94,7 @@ export function OptimizedImage({
   className,
   decorative = false,
   fallbackLabel,
-  fallbackSrcs = [],
+  fallbackSrcs = emptyFallbackSources,
   fallbackVariant = 'default',
   imageClassName,
   loading,

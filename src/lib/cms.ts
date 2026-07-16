@@ -36,6 +36,7 @@ export const CMS_TABLES = [
 const SUPPORT_SCHEMA_MIGRATION = '2026_fix_spirit_support_schema.sql'
 const SPONSORS_SCHEMA_MIGRATION = '2026_add_sponsors.sql'
 const SITE_TEXTS_SCHEMA_MIGRATION = '2026_add_site_texts.sql'
+const JOIN_APPLICATION_FILES_BUCKET = 'join-application-files'
 
 export type CmsOrderOption<TTable extends CmsTableName> = {
   column: Extract<keyof CmsRowFor<TTable>, string>
@@ -189,6 +190,19 @@ function normalizeRow<TTable extends CmsTableName>(
   data: unknown,
 ): CmsRowFor<TTable> | null {
   return isRecord(data) ? (data as CmsRowFor<TTable>) : null
+}
+
+function getJoinApplicationAttachmentPaths(row: unknown) {
+  if (!isRecord(row)) {
+    return []
+  }
+
+  const paths = [row.photo_file_path, row.recommendation_file_path]
+    .filter((value): value is string => typeof value === 'string')
+    .map((value) => value.trim())
+    .filter((value) => value.startsWith('submissions/'))
+
+  return [...new Set(paths)]
 }
 
 export async function listRows<TTable extends CmsTableName>({
@@ -495,6 +509,43 @@ export async function deleteRow<TTable extends CmsTableName>(
 
   if (!clientResult.data) {
     return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
+  }
+
+  if (table === 'join_applications') {
+    const { data: attachmentRow, error: attachmentLookupError } =
+      await clientResult.data
+        .from('join_applications')
+        .select('photo_file_path, recommendation_file_path')
+        .eq('id', id)
+        .maybeSingle()
+
+    if (attachmentLookupError) {
+      return {
+        data: null,
+        error: toCmsError(
+          attachmentLookupError,
+          '입단지원서 첨부파일 정보를 확인하지 못했습니다.',
+        ),
+      }
+    }
+
+    const attachmentPaths = getJoinApplicationAttachmentPaths(attachmentRow)
+
+    if (attachmentPaths.length > 0) {
+      const { error: attachmentDeleteError } = await clientResult.data.storage
+        .from(JOIN_APPLICATION_FILES_BUCKET)
+        .remove(attachmentPaths)
+
+      if (attachmentDeleteError) {
+        return {
+          data: null,
+          error: toCmsError(
+            attachmentDeleteError,
+            '입단지원서 첨부파일 삭제에 실패했습니다. 지원서는 삭제하지 않았습니다.',
+          ),
+        }
+      }
+    }
   }
 
   const { error } = await clientResult.data.from(table).delete().eq('id', id)

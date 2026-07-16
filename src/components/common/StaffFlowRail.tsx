@@ -283,6 +283,11 @@ function ConductorReleaseIcon({
 export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps) {
   const railRef = useRef<HTMLDivElement | null>(null)
   const [shouldLoadHandFrames, setShouldLoadHandFrames] = useState(false)
+  const [isDesktopRail, setIsDesktopRail] = useState(() => {
+    return typeof window !== 'undefined'
+      ? window.matchMedia('(min-width: 1024px)').matches
+      : false
+  })
   const lineColor = tone === 'dark' ? 'bg-gold-soft/24' : 'bg-gold-warm/38'
   const measureColor =
     tone === 'dark'
@@ -298,6 +303,20 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
       ? 'from-gold-soft/0 via-gold-soft/16 to-gold-soft/0'
       : 'from-gold-warm/0 via-gold-warm/22 to-gold-warm/0'
   useEffect(() => {
+    const desktopQuery = window.matchMedia('(min-width: 1024px)')
+    const updateDesktopRail = () => setIsDesktopRail(desktopQuery.matches)
+
+    updateDesktopRail()
+    desktopQuery.addEventListener('change', updateDesktopRail)
+
+    return () => desktopQuery.removeEventListener('change', updateDesktopRail)
+  }, [])
+
+  useEffect(() => {
+    if (!isDesktopRail) {
+      return
+    }
+
     const rail = railRef.current
 
     if (!rail) {
@@ -396,13 +415,18 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
       window.removeEventListener('resize', handleResize)
       prefersReducedMotion.removeEventListener('change', requestUpdate)
     }
-  }, [])
+  }, [isDesktopRail])
 
   useEffect(() => {
+    if (!isDesktopRail) {
+      return
+    }
+
     const rail = railRef.current
     const conductor = rail?.querySelector<HTMLElement>('.score-conductor-release')
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
 
-    if (!conductor || shouldLoadHandFrames) {
+    if (!conductor || shouldLoadHandFrames || reducedMotionQuery.matches) {
       return
     }
 
@@ -413,12 +437,12 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
           observer.disconnect()
         }
       },
-      { rootMargin: '1600px 0px', threshold: 0 },
+      { rootMargin: '1200px 0px', threshold: 0 },
     )
     observer.observe(conductor)
 
     return () => observer.disconnect()
-  }, [shouldLoadHandFrames])
+  }, [isDesktopRail, shouldLoadHandFrames])
 
   return (
     <div

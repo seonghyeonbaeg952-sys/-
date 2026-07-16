@@ -246,15 +246,17 @@ export function GalleryPage() {
                     <ImageTile
                       alt={image.image_alt}
                       className="gallery-card-media aspect-[3/2] rounded-none bg-bg-ivory shadow-card transition duration-200 group-hover:-translate-y-[3px] group-hover:shadow-card-hover motion-reduce:group-hover:translate-y-0"
-                      imgClassName="transition duration-300 group-hover:scale-[1.01] motion-reduce:group-hover:scale-100"
+                      imgClassName="people-photo-tone transition duration-300 group-hover:scale-[1.01] motion-reduce:group-hover:scale-100"
+                      loading={index < 4 ? 'eager' : 'lazy'}
                       objectFit="contain"
+                      priority={index < 2}
                       sizes="(min-width: 1024px) 33vw, (min-width: 768px) 33vw, 50vw"
                       src={image.image_url}
                       transform={{
-                        quality: 84,
+                        quality: 76,
                         resize: 'contain',
-                        width: 960,
-                        widths: [480, 720, 960, 1280],
+                        width: 840,
+                        widths: [360, 540, 720, 840],
                       }}
                     >
                       <div className="absolute inset-0 flex items-end bg-navy-midnight/70 p-4 opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
