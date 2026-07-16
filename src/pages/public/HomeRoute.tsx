@@ -6,6 +6,7 @@ import { HomePage } from './HomePage'
 import '../../styles/home-v6-fixes.css'
 import '../../styles/home-premium-polish.css'
 import '../../styles/home-global-refinement.css'
+import '../../styles/home-section-waves.css'
 
 const HomeMotionBenchmarkPage = lazy(() =>
   import('./HomeMotionBenchmarkPage').then((module) => ({

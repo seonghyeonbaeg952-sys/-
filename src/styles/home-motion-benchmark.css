@@ -44,7 +44,7 @@
 
 .motion-program-kicker {
   margin: 0;
-  color: var(--color-gold-warm);
+  color: var(--color-gold-ink);
   font-size: 0.7rem;
   font-weight: 760;
   letter-spacing: 0.24em;
@@ -148,7 +148,7 @@
   .motion-program-note span {
     display: block;
     margin-bottom: 10px;
-    color: var(--color-gold-warm);
+    color: var(--color-gold-ink);
     font-size: 0.62rem;
     font-weight: 800;
     letter-spacing: 0.2em;
@@ -412,7 +412,7 @@
   }
 
   .motion-program-panel dt {
-    color: var(--color-gold-warm);
+    color: var(--color-gold-ink);
     font-size: 0.65rem;
     font-weight: 760;
     letter-spacing: 0.18em;
@@ -487,7 +487,7 @@
 .archive-folder-item > span {
   display: block;
   margin-top: 14px;
-  color: var(--color-gold-warm);
+  color: var(--color-gold-ink);
   font-size: 0.66rem;
   font-weight: 780;
   letter-spacing: 0.2em;
@@ -614,7 +614,7 @@
 
   .archive-folder-front > span {
     bottom: 78px;
-    color: var(--color-gold-warm);
+    color: var(--color-gold-ink);
     font-size: 0.68rem;
     font-weight: 760;
     letter-spacing: 0.24em;

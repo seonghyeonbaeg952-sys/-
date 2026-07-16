@@ -67,11 +67,12 @@ export function SupportLetterFold({
                 {supportText || fallback.body}
               </p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <Button href="/contact?section=support" size="lg" variant="gold">
+                <Button focusTone="dark" href="/contact?section=support#form" size="lg" variant="gold">
                   {buttonLabel || '후원 상담 신청'}
                 </Button>
                 <Button
                   className="!border-bg-warm-white/24 !bg-bg-warm-white/[0.06] !text-bg-warm-white hover:!border-gold-soft hover:!text-gold-soft"
+                  focusTone="dark"
                   href="/contact"
                   size="lg"
                   variant="secondary"
@@ -85,7 +86,7 @@ export function SupportLetterFold({
           <Reveal delay={90} variant="card-rise">
             <article className="support-letter-card">
               <StaffLines className="mb-6 opacity-45" density="light" variant="gold" />
-              <p className="type-eyebrow text-gold-warm">PLEDGE LETTER</p>
+              <p className="type-eyebrow text-gold-ink">PLEDGE LETTER</p>
               <h3 className="type-card-title mt-4 text-navy-deep">
                 {cardTitle || '문의 접수 안내'}
               </h3>

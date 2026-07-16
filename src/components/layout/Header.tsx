@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation } from 'react-router'
 
 import { publicNavigation } from '../../constants/navigation'
@@ -12,6 +12,7 @@ const MEGA_MENU_ID = 'desktop-mega-menu'
 
 export function Header() {
   const location = useLocation()
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeMegaMenuHref, setActiveMegaMenuHref] = useState<string | null>(null)
@@ -34,6 +35,11 @@ export function Header() {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
+        if (isMenuOpen) {
+          event.preventDefault()
+          window.requestAnimationFrame(() => mobileMenuButtonRef.current?.focus())
+        }
+
         setIsMenuOpen(false)
         setActiveMegaMenuHref(null)
       }
@@ -44,9 +50,16 @@ export function Header() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [])
+  }, [isMenuOpen])
 
   const mutedColor = isTransparent ? 'text-bg-ivory/82' : 'text-text-muted'
+  const accentColor = isTransparent ? 'text-gold-soft' : 'text-gold-ink'
+  const accentInteractionColor = isTransparent
+    ? 'hover:text-gold-soft focus-visible:outline-gold-soft'
+    : 'hover:text-gold-ink focus-visible:outline-gold-ink'
+  const focusOutlineColor = isTransparent
+    ? 'focus-visible:outline-gold-soft'
+    : 'focus-visible:outline-gold-ink'
 
   return (
     <header
@@ -68,7 +81,7 @@ export function Header() {
       <Container className="flex min-h-[72px] items-center justify-between gap-3 sm:gap-4">
         <NavLink
           aria-label="홈으로 이동"
-          className="inline-flex min-h-[44px] min-w-[44px] max-w-[calc(100%-3.5rem)] shrink items-center justify-center transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm"
+          className={`inline-flex min-h-[44px] min-w-[44px] max-w-[calc(100%-3.5rem)] shrink items-center justify-center transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 ${focusOutlineColor}`}
           onClick={() => setIsMenuOpen(false)}
           to="/"
         >
@@ -110,8 +123,9 @@ export function Header() {
                 aria-haspopup={hasChildren ? 'true' : undefined}
                 className={({ isActive }) =>
                   [
-                    'group relative flex min-h-11 items-center whitespace-nowrap rounded-pill px-1 py-2 text-[13px] font-medium transition hover:text-gold-warm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm xl:text-sm',
-                    isActive || isMegaMenuOpen ? 'text-gold-warm' : mutedColor,
+                    'group relative flex min-h-11 items-center whitespace-nowrap rounded-pill px-1 py-2 text-[13px] font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 xl:text-sm',
+                    accentInteractionColor,
+                    isActive || isMegaMenuOpen ? accentColor : mutedColor,
                   ].join(' ')
                 }
                 key={item.href}
@@ -138,7 +152,14 @@ export function Header() {
         </nav>
 
         <div className="hidden items-center gap-3 xl:flex">
-          <Button className="shadow-none" href="/join" showArrow={false} size="sm" variant="gold">
+          <Button
+            className="shadow-none"
+            focusTone={isTransparent ? 'dark' : 'light'}
+            href="/join"
+            showArrow={false}
+            size="sm"
+            variant="gold"
+          >
             입단 안내
           </Button>
         </div>
@@ -148,7 +169,8 @@ export function Header() {
           aria-expanded={isMenuOpen}
           aria-label={isMenuOpen ? '모바일 메뉴 닫기' : '모바일 메뉴 열기'}
           className={[
-            'inline-flex size-11 items-center justify-center rounded-full border transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm lg:hidden',
+            'inline-flex size-11 items-center justify-center rounded-full border transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 lg:hidden',
+            focusOutlineColor,
             isTransparent
               ? 'border-bg-warm-white/85 bg-bg-warm-white/14 text-bg-warm-white shadow-[0_8px_24px_rgb(0_0_0/0.24)] backdrop-blur-sm'
               : 'border-line-default bg-bg-warm-white text-navy-deep',
@@ -157,6 +179,7 @@ export function Header() {
             setActiveMegaMenuHref(null)
             setIsMenuOpen((current) => !current)
           }}
+          ref={mobileMenuButtonRef}
           type="button"
         >
           <span aria-hidden="true" className="flex w-5 flex-col gap-1.5">

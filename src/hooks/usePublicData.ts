@@ -25,7 +25,6 @@ import {
   type PublicJoinData,
 } from '../lib/publicData'
 import { legacyAboutSections } from '../constants/legacyContent'
-import { mockSupportSettings } from '../constants/mockData'
 import { createSiteTextMap, type SiteTextMap } from '../utils/siteText'
 import type {
   Concert,
@@ -362,7 +361,7 @@ const contactFallbackData: PublicContactData = {
   siteSettings: publicFallbacks.siteSettings,
   siteTexts: [],
   sponsors: [],
-  supportSettings: mockSupportSettings,
+  supportSettings: null,
 }
 
 function combineErrors(results: Array<{ error: string | null }>) {
@@ -390,18 +389,18 @@ export function resolveHomeData(
 
   const data = {
     aboutSections: results.aboutSections.data ?? fallbackData.aboutSections,
-    concerts: results.concerts.data ?? fallbackData.concerts,
-    gallery: results.gallery.data ?? fallbackData.gallery,
-    heroSlides: results.slides.data ?? fallbackData.heroSlides,
-    notices: results.notices.data ?? fallbackData.notices,
-    popupNotices: results.popupNotices.data ?? fallbackData.popupNotices,
-    posters: results.posters.data ?? fallbackData.posters,
+    concerts: results.concerts.data ?? [],
+    gallery: results.gallery.data ?? [],
+    heroSlides: results.slides.data ?? [],
+    notices: results.notices.data ?? [],
+    popupNotices: results.popupNotices.data ?? [],
+    posters: results.posters.data ?? [],
     siteSettings: results.siteSettings.data ?? fallbackData.siteSettings,
     siteTexts: createSiteTextMap(siteTextRows, {
       includeDefaults: siteTextRows.length === 0,
     }),
-    sponsors: results.sponsors.data ?? fallbackData.sponsors,
-    videos: results.videos.data ?? fallbackData.videos,
+    sponsors: results.sponsors.data ?? [],
+    videos: results.videos.data ?? [],
   }
 
   return error ? { data, error } : { data, error: null }
@@ -409,12 +408,11 @@ export function resolveHomeData(
 
 export function resolveGalleryData(
   results: GalleryDataQueryResults,
-  fallbackData: PublicGalleryData,
 ): PublicDataLoadResult<PublicGalleryData> {
   const data = {
-    images: results.images.data ?? fallbackData.images,
-    posters: results.posters.data ?? fallbackData.posters,
-    videos: results.videos.data ?? fallbackData.videos,
+    images: results.images.data ?? [],
+    posters: results.posters.data ?? [],
+    videos: results.videos.data ?? [],
   }
   const error = combineErrors([results.images, results.videos, results.posters])
 
@@ -558,10 +556,7 @@ export function useGalleryData() {
       getPublicVideos(),
       getPublicPosters(),
     ])
-    return resolveGalleryData(
-      { images, posters, videos },
-      galleryInitialData,
-    )
+    return resolveGalleryData({ images, posters, videos })
   }, [])
 
   return usePublicLoader(galleryInitialData, loader, 'gallery')

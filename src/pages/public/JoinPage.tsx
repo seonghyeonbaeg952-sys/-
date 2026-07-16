@@ -224,7 +224,7 @@ export function JoinPage() {
                 />
                 {defaultSteps.map((step, index) => (
                   <Reveal key={step}>
-                    <Card className="process-card relative min-h-40 p-5" hoverable radius="formal">
+                    <Card className="process-card relative min-h-40 p-5" radius="formal">
                       <span className="flex size-11 items-center justify-center rounded-full border-4 border-bg-warm-white bg-gold-warm text-sm font-bold text-navy-midnight shadow-[0_0_0_1px_rgb(201_164_92/0.35)]">
                         {index + 1}
                       </span>
@@ -246,13 +246,13 @@ export function JoinPage() {
                 title={joinInfo.title || '입단 안내'}
               />
               <div className="mt-8 grid gap-5 lg:grid-cols-2">
-                <Card className="p-6" hoverable radius="balanced">
+                <Card className="p-6" radius="balanced">
                   <h2 className="text-xl font-semibold text-navy-deep">모집 대상</h2>
                   <div className="mt-4">
                     <InfoList items={splitLines(joinInfo.target)} />
                   </div>
                 </Card>
-                <Card className="p-6" hoverable radius="balanced">
+                <Card className="p-6" radius="balanced">
                   <h2 className="text-xl font-semibold text-navy-deep">모집 파트</h2>
                   <div className="mt-4">
                     <InfoList items={splitLines(joinInfo.parts)} />
@@ -270,13 +270,13 @@ export function JoinPage() {
                 title="오디션 안내"
               />
               <div className="mt-8 grid gap-5 lg:grid-cols-2">
-                <Card className="p-6" hoverable radius="formal">
+                <Card className="p-6" radius="formal">
                   <h2 className="text-xl font-semibold text-navy-deep">오디션 절차</h2>
                   <div className="mt-4">
                     <InfoList items={splitLines(joinInfo.audition_process)} />
                   </div>
                 </Card>
-                <Card className="p-6" hoverable radius="formal">
+                <Card className="p-6" radius="formal">
                   <h2 className="text-xl font-semibold text-navy-deep">준비사항</h2>
                   <div className="mt-4">
                     <InfoList items={splitLines(joinInfo.preparation)} />
@@ -294,7 +294,7 @@ export function JoinPage() {
               >
                 <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-gold-warm via-gold-soft to-transparent" />
                 <div>
-                  <p className="text-sm font-semibold text-gold-warm">REHEARSAL</p>
+                  <p className="text-sm font-semibold text-gold-ink">REHEARSAL</p>
                   <h2 className="mt-3 text-2xl font-semibold text-navy-deep">
                     정기연습
                   </h2>
@@ -367,14 +367,14 @@ export function JoinPage() {
                       <Card className="overflow-hidden" key={faq.id} radius="formal">
                         <button
                           aria-expanded={isOpen}
-                          className="flex min-h-16 w-full items-center justify-between gap-4 p-5 text-left transition hover:bg-bg-ivory focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
+                          className="flex min-h-16 w-full items-center justify-between gap-4 p-5 text-left transition hover:bg-bg-ivory focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink"
                           onClick={() => setOpenFaqId(isOpen ? null : faq.id)}
                           type="button"
                         >
                           <span className="break-keep text-base font-semibold text-navy-deep">
                             {faq.question}
                           </span>
-                          <span aria-hidden="true" className="flex size-8 shrink-0 items-center justify-center rounded-full border border-gold-soft text-gold-warm">
+                          <span aria-hidden="true" className="flex size-8 shrink-0 items-center justify-center rounded-full border border-gold-soft text-gold-ink">
                             {isOpen ? '-' : '+'}
                           </span>
                         </button>

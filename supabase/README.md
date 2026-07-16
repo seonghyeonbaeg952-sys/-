@@ -31,6 +31,7 @@
 - `2026_update_member_group_types_staff_alumni.sql`
 - `20260712_seed_join_faq.sql`
 - `20260715_add_missing_home_site_text_keys.sql`
+- `20260716_protect_public_members.sql`
 
 ## 관리자 계정
 
@@ -48,6 +49,7 @@ set role = 'admin', email = excluded.email, updated_at = now();
 ## 권한 원칙
 
 - 공개 콘텐츠는 필요한 테이블에서 `is_visible = true`인 행만 익명 조회를 허용합니다.
+- 청소년 단원의 원본 이름·사진·소개문은 관리자만 조회합니다. 공개 화면은 로그인 상태와 무관하게 `get_public_members()` RPC만 사용하며, 공개 동의가 반영된 `public_display_name`과 비식별 명단 필드만 받습니다.
 - `contacts`, `join_applications`, `support_pledges`의 목록 조회와 수정은 관리자만 가능합니다.
 - 관리자 여부는 `auth.uid()`와 `profiles.role = 'admin'`으로 판정합니다.
 - 프론트엔드에는 anon key만 사용하며 `service_role` 키를 절대 넣지 않습니다.

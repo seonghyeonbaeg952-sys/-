@@ -31,7 +31,7 @@ export function SponsorQuietMarquee({ sponsors }: SponsorQuietMarqueeProps) {
         <Reveal>
           <div className="sponsor-quiet-panel">
             <div>
-              <p className="type-eyebrow text-gold-warm">
+              <p className="type-eyebrow text-gold-ink">
                 {HOME_SPONSOR_COPY.eyebrow}
               </p>
               <StaffLines className="mt-3 max-w-64 opacity-45" density="light" variant="gold" />

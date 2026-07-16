@@ -100,7 +100,7 @@ export function HomeSpiritScoreBook({ image, sections }: HomeSpiritScoreBookProp
             {image ? (
               <Reveal delay={70} variant="soft-scale">
                 <TransitionLink
-                  className="home-spirit-media group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm"
+                  className="home-spirit-media group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-ink"
                   to="/gallery?tab=photos"
                 >
                   <ImageTile
@@ -146,7 +146,7 @@ export function HomeSpiritScoreBook({ image, sections }: HomeSpiritScoreBookProp
                   density="light"
                   variant="gold"
                 />
-                <p className="type-eyebrow text-gold-warm">
+                <p className="type-eyebrow text-gold-ink">
                   {activePage.eyebrow}
                 </p>
                 <span className="spirit-scorebook-number">

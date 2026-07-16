@@ -104,7 +104,7 @@ export function BrandLogo({
         <span
           className={classNames(
             'mt-0.5 truncate text-[0.68em] font-semibold uppercase tracking-[0.16em]',
-            theme === 'dark' ? 'text-gold-soft' : 'text-gold-warm',
+            theme === 'dark' ? 'text-gold-soft' : 'text-gold-ink',
           )}
         >
           {brandConfig.nameEn}

@@ -1,7 +1,6 @@
 import type { GalleryImage } from '../../types/content'
 import type { SiteSettings } from '../../types/content'
 import { Button } from '../common/Button'
-import { Card } from '../common/Card'
 import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 import { Reveal } from '../common/Reveal'
@@ -130,7 +129,7 @@ export function AboutPreview({
             <Reveal className="sm:col-span-2" variant="soft-scale">
               {image ? (
                 <a
-                  className="group block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm"
+                  className="group block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-ink"
                   href="/gallery"
                 >
                   <StaffFrame className="shadow-card" linePosition="top" radius="balanced" variant="inverted">
@@ -176,37 +175,33 @@ export function AboutPreview({
                 />
               )}
             </Reveal>
-            {aboutCards.map((card, index) => (
-              <Reveal key={card.title} staggerIndex={index} variant="card-rise">
-                <Card
-                  className="relative min-h-44 overflow-hidden p-6"
-                  hoverable
-                  radius="balanced"
-                >
-                  <div className="absolute inset-x-0 top-0 h-10 bg-linear-to-r from-navy-deep via-gold-warm/35 to-transparent opacity-12" />
-                  <Reveal
-                    className="absolute inset-x-6 top-6"
-                    delay={80}
-                    variant="line-draw"
-                  >
-                    <StaffLines
-                      className="opacity-70 transition group-hover:opacity-100"
-                      density="light"
-                      variant="gold"
-                    />
-                  </Reveal>
-                  <p className="type-number text-sm text-gold-ink">
-                    {String(index + 1).padStart(2, '0')}
-                  </p>
-                  <h3 className="type-card-title mt-4 text-navy-deep">
-                    {card.title}
-                  </h3>
-                  <p className="about-preview-card-copy mt-4 break-keep text-sm leading-7 text-text-muted">
-                    {card.description}
-                  </p>
-                </Card>
-              </Reveal>
-            ))}
+            <Reveal className="sm:col-span-2" variant="card-rise">
+              <section
+                aria-labelledby="home-about-program-title"
+                className="home-about-folio"
+              >
+                <div className="home-about-folio-heading">
+                  <div>
+                    <p>CHOIR PROGRAM</p>
+                    <h3 id="home-about-program-title">교육과 활동</h3>
+                  </div>
+                  <StaffLines density="light" variant="gold" />
+                </div>
+                <ol className="home-about-folio-list">
+                  {aboutCards.map((card, index) => (
+                    <li className="home-about-folio-item" key={card.title}>
+                      <span aria-hidden="true" className="type-number">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <div>
+                        <h4>{card.title}</h4>
+                        <p>{card.description}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            </Reveal>
           </div>
         </div>
       </Container>

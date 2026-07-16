@@ -59,7 +59,7 @@ export function SponsorStrip({ sponsors }: SponsorStripProps) {
           <div className="sponsor-strip-inner relative overflow-hidden rounded-formal border border-line-default bg-bg-warm-white/88 p-6 shadow-card lg:grid lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:items-center lg:gap-10 lg:p-8">
             <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-gold-warm via-gold-soft to-transparent" />
             <div>
-              <p className="type-eyebrow text-gold-warm">
+              <p className="type-eyebrow text-gold-ink">
                 {HOME_SPONSOR_COPY.eyebrow}
               </p>
               <StaffLines className="mt-3 max-w-64 opacity-45" density="light" variant="gold" />
@@ -125,7 +125,7 @@ function SponsorTierSection({
         <h3 className="type-card-title text-navy-deep">
           {label}
         </h3>
-        <span className="type-number rounded-pill border border-gold-warm/25 bg-gold-soft/30 px-3 py-1 text-xs text-gold-warm">
+        <span className="type-number rounded-pill border border-gold-warm/25 bg-gold-soft/30 px-3 py-1 text-xs text-gold-ink">
           {sponsors.length}
         </span>
       </div>
@@ -184,7 +184,7 @@ export function SponsorsSection({
     return (
       <section className="relative overflow-hidden rounded-formal border border-line-default bg-bg-warm-white p-6 shadow-card">
         <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-gold-warm via-gold-soft to-transparent" />
-        <p className="type-eyebrow text-gold-warm">
+        <p className="type-eyebrow text-gold-ink">
           {SUPPORT_SPONSOR_COPY.eyebrow}
         </p>
         <h2 className="type-card-title mt-3 text-navy-deep">
@@ -199,7 +199,7 @@ export function SponsorsSection({
           ))}
         </div>
         <Link
-          className="type-button mt-5 inline-flex min-h-10 items-center rounded-pill border border-line-default px-4 text-navy-deep transition hover:border-gold-warm hover:bg-bg-ivory focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
+          className="type-button mt-5 inline-flex min-h-11 items-center rounded-pill border border-line-default px-4 text-navy-deep transition hover:border-gold-warm hover:bg-bg-ivory focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink"
           to="/contact?section=sponsors"
         >
           후원사 전체 보기

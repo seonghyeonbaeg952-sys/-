@@ -65,7 +65,7 @@ export function MegaMenu({ id, item, onNavigate }: MegaMenuProps) {
         <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
           <div className="relative overflow-hidden rounded-formal border border-line-default bg-bg-ivory p-6">
             <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-gold-warm via-gold-soft to-transparent" />
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-warm">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-ink">
               SMYC MENU
             </p>
             <h2 className="mt-4 break-keep text-2xl font-semibold leading-tight text-navy-deep">
@@ -92,7 +92,7 @@ export function MegaMenu({ id, item, onNavigate }: MegaMenuProps) {
                 <Link
                   aria-current={isActive ? 'page' : undefined}
                   className={classNames(
-                    'group relative min-h-[92px] overflow-hidden rounded-button border bg-bg-warm-white p-5 transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm',
+                    'group relative min-h-[92px] overflow-hidden rounded-button border bg-bg-warm-white p-5 transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink',
                     isActive
                       ? 'border-gold-warm/75 text-navy-deep shadow-[0_14px_34px_rgb(16_35_63/0.08)]'
                       : 'border-line-default/90 text-text-muted hover:border-gold-warm/55 hover:bg-bg-ivory hover:text-navy-deep',

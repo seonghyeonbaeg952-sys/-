@@ -37,7 +37,7 @@ export function NoticeProgramNotes({ notices }: NoticeProgramNotesProps) {
     <aside aria-label="중요 공지" className="notice-program-notes">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="type-eyebrow text-gold-warm">NOTICE</p>
+          <p className="type-eyebrow text-gold-ink">NOTICE</p>
           <h3 className="type-card-title mt-3 text-navy-deep">프로그램 노트</h3>
         </div>
         <Button href="/notices" size="sm" variant="secondary">

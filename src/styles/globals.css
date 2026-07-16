@@ -1831,7 +1831,7 @@ section[role='tabpanel'] {
 
 .type-body {
   overflow-wrap: break-word;
-  font-family: var(--font-heading-kr);
+  font-family: var(--font-sans-kr);
   font-size: clamp(16px, 1.15vw, 18px);
   font-weight: 430;
   line-height: 1.78;
@@ -1842,7 +1842,7 @@ section[role='tabpanel'] {
 
 .type-body-strong {
   overflow-wrap: break-word;
-  font-family: var(--font-heading-kr);
+  font-family: var(--font-sans-kr);
   font-size: clamp(17px, 1.25vw, 20px);
   line-height: 1.72;
   font-weight: 620;
@@ -1874,7 +1874,7 @@ section[role='tabpanel'] {
 
 .type-card-title-sans {
   overflow-wrap: break-word;
-  font-family: var(--font-heading-kr);
+  font-family: var(--font-sans-kr);
   font-size: clamp(19px, 1.4vw, 24px);
   font-weight: 760;
   line-height: 1.32;
@@ -2421,6 +2421,11 @@ section[role='tabpanel'] {
   opacity: 0.45;
 }
 
+.animated-section-tabs .section-tab:focus-visible {
+  outline: 2px solid var(--color-gold-ink);
+  outline-offset: 2px;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .animated-section-tabs .section-tab:not(.is-active):not(.is-disabled):hover {
     border-color: rgb(201 164 92 / 0.36);
@@ -2746,7 +2751,7 @@ section[role='tabpanel'] {
 }
 
 .history-timeline-card__year {
-  color: var(--color-gold-warm);
+  color: var(--color-gold-ink);
   font-family: var(--font-heading-kr);
   font-size: clamp(2.2rem, 10vw, 3.5rem);
   font-weight: 680;
@@ -2985,17 +2990,23 @@ section[role='tabpanel'] {
   }
 
   .animated-section-tabs {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    overflow-x: visible;
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    padding-bottom: 2px;
+    scroll-padding-inline: 2px;
+    scroll-snap-type: x proximity;
   }
 
   .animated-section-tabs .section-tab {
-    min-width: 0;
-    width: 100%;
-    padding: 10px 12px;
-    line-height: 1.25;
-    white-space: normal;
+    flex: 0 0 auto;
+    min-width: max-content;
+    width: auto;
+    padding: 0 16px;
+    line-height: 1;
+    white-space: nowrap;
+    scroll-snap-align: center;
   }
 
   .section-tabs {
@@ -3228,7 +3239,7 @@ section[role='tabpanel'] {
 
 .home-flow-progress-mark.is-active .home-flow-progress-note,
 .home-flow-progress-mark.is-active .home-flow-progress-label {
-  color: var(--color-gold-warm);
+  color: var(--color-gold-ink);
   opacity: 1;
 }
 
@@ -3903,7 +3914,7 @@ section[role='tabpanel'] {
 }
 
 .concert-template-panel__facts dt {
-  color: var(--color-gold-warm);
+  color: var(--color-gold-ink);
   font-size: 12px;
   font-weight: 850;
 }
@@ -4031,7 +4042,7 @@ section[role='tabpanel'] {
 }
 
 .spirit-scorebook:focus-visible {
-  outline: 2px solid var(--color-gold-warm);
+  outline: 2px solid var(--color-gold-ink);
   outline-offset: 5px;
 }
 
@@ -4101,7 +4112,7 @@ section[role='tabpanel'] {
 
 .spirit-scorebook-summary {
   margin-top: 18px;
-  color: var(--color-gold-warm);
+  color: var(--color-gold-ink);
   font-size: 16px;
   font-weight: 800;
   line-height: 1.6;
@@ -4221,13 +4232,13 @@ section[role='tabpanel'] {
 
 .notice-note-arrow {
   flex: 0 0 auto;
-  color: var(--color-gold-warm);
+  color: var(--color-gold-ink);
   font-size: 22px;
 }
 
 .notice-note-row:hover,
 .notice-note-row:focus-visible {
-  color: var(--color-gold-warm);
+  color: var(--color-gold-ink);
   transform: translateX(3px);
 }
 
@@ -4395,7 +4406,7 @@ section[role='tabpanel'] {
 }
 
 .support-letter-contact dt {
-  color: var(--color-gold-warm);
+  color: var(--color-gold-ink);
   font-size: 12px;
   font-weight: 800;
 }
@@ -4811,7 +4822,7 @@ section[role='tabpanel'] {
   width: 44px;
   height: 44px;
   margin-bottom: 22px;
-  color: var(--color-gold-warm);
+  color: var(--color-gold-ink);
 }
 
 .value-icon svg {
@@ -5351,8 +5362,8 @@ section[role='tabpanel'] {
   }
 
   .home-hero-arrow {
-    width: 30px;
-    height: 30px;
+    width: 44px;
+    height: 44px;
   }
 
   .spotlight-glow {

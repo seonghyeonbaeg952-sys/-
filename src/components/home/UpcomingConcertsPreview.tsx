@@ -66,7 +66,7 @@ function ConcertTicketCard({ concert }: { concert: Concert }) {
   return (
     <Card className="group overflow-hidden" hoverable radius="formal">
       <a
-        className="flex h-full flex-col focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm md:grid md:grid-cols-[170px_minmax(0,1fr)] lg:flex lg:flex-col"
+        className="flex h-full flex-col focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-ink md:grid md:grid-cols-[170px_minmax(0,1fr)] lg:flex lg:flex-col"
         href={`/concerts/${concert.id}`}
       >
         <div className="relative min-w-0 bg-bg-ivory p-4">
@@ -101,7 +101,7 @@ function ConcertTicketCard({ concert }: { concert: Concert }) {
           </div>
           <div className="mt-5 grid gap-4 sm:grid-cols-[minmax(5.5rem,7rem)_minmax(0,1fr)] lg:grid-cols-1">
             <div className="flex min-w-0 flex-col items-center justify-center rounded-button border border-gold-warm/45 bg-bg-ivory px-3 py-4 text-center">
-              <span className="type-eyebrow text-gold-warm">DATE</span>
+              <span className="type-eyebrow text-gold-ink">DATE</span>
               <StaffLines className="my-2 opacity-70" density="light" variant="gold" />
               <span className="type-date mt-2 break-keep text-sm leading-5 text-navy-deep">
                 {formattedDate}
@@ -118,7 +118,7 @@ function ConcertTicketCard({ concert }: { concert: Concert }) {
               ) : null}
             </div>
           </div>
-          <span className="mt-auto pt-6 text-sm font-semibold text-gold-warm">
+          <span className="mt-auto pt-6 text-sm font-semibold text-gold-ink">
             자세히 보기
           </span>
         </div>

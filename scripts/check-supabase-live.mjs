@@ -9,7 +9,6 @@ const tableChecks = [
   'about_sections',
   'conductor',
   'accompanist',
-  'members',
   'history',
   'concerts',
   'notices',
@@ -55,6 +54,18 @@ const columnChecks = [
 ]
 
 const privateTableChecks = [
+  {
+    path: '/rest/v1/members?select=name&limit=1',
+    target: 'private-column:members raw name',
+  },
+  {
+    path: '/rest/v1/members?select=photo_url&limit=1',
+    target: 'private-column:members photo URL',
+  },
+  {
+    path: '/rest/v1/members?select=description&limit=1',
+    target: 'private-column:members description',
+  },
   {
     path: '/rest/v1/contacts?select=id&limit=1',
     target: 'private-table:contacts',
@@ -229,6 +240,38 @@ for (const check of columnChecks) {
   })
 }
 
+const publicMemberFields = new Set([
+  'display_order',
+  'group_type',
+  'id',
+  'member_status',
+  'part',
+  'public_display_name',
+])
+const publicMembersResult = await requestJson({
+  anonKey: supabaseAnonKey,
+  body: {},
+  method: 'POST',
+  path: '/rest/v1/rpc/get_public_members',
+  url: supabaseUrl,
+})
+const hasUnexpectedPublicMemberField = Array.isArray(publicMembersResult.data)
+  && publicMembersResult.data.some((row) =>
+    Object.keys(row ?? {}).some((key) => !publicMemberFields.has(key)),
+  )
+
+results.push({
+  status: publicMembersResult.status,
+  target: 'rpc:get_public_members safe public roster fields',
+  verdict: publicMembersResult.ok
+    ? !Array.isArray(publicMembersResult.data)
+      ? '[invalid-member-shape]'
+      : hasUnexpectedPublicMemberField
+      ? '[unsafe-member-shape]'
+      : '[ok]'
+    : getStatusLabel(publicMembersResult),
+})
+
 const siteTextParams = new URLSearchParams({
   is_active: 'eq.true',
   key: `in.(${requiredSiteTextKeys.join(',')})`,
@@ -304,6 +347,26 @@ results.push({
   status: sponsorStorageResult.status,
   target: 'storage:site-images/sponsors',
   verdict: getStatusLabel(sponsorStorageResult),
+})
+
+const memberStorageResult = await requestJson({
+  anonKey: supabaseAnonKey,
+  body: { limit: 100, prefix: 'members' },
+  method: 'POST',
+  path: '/storage/v1/object/list/site-images',
+  url: supabaseUrl,
+})
+const hasPublicMemberAssets =
+  Array.isArray(memberStorageResult.data) && memberStorageResult.data.length > 0
+
+results.push({
+  status: memberStorageResult.status,
+  target: 'storage:site-images/members legacy assets',
+  verdict: memberStorageResult.ok
+    ? hasPublicMemberAssets
+      ? '[public-member-assets]'
+      : '[ok]'
+    : getStatusLabel(memberStorageResult),
 })
 
 console.table(results)

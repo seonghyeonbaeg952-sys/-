@@ -445,12 +445,13 @@ export function HomeHeroSlideshow({
             </Reveal>
           ) : null}
           <Reveal delayMs={220}>
-            <div className="mt-9 grid gap-3 sm:flex sm:flex-wrap">
-              <Button className="w-full sm:w-auto" href="/join" size="lg" variant="gold">
+            <div className="home-hero-cta-row mt-9 grid gap-3 sm:flex sm:flex-wrap">
+              <Button className="w-full sm:w-auto" focusTone="dark" href="/join" size="lg" variant="gold">
                 {primaryCtaLabel?.trim() || heroCopy.secondaryCta}
               </Button>
               <Button
                 className="w-full !border-bg-warm-white/72 !bg-bg-warm-white/[0.07] !text-bg-warm-white hover:!border-bg-warm-white hover:!bg-bg-warm-white/[0.12] hover:!text-gold-soft sm:w-auto"
+                focusTone="dark"
                 href="/concerts"
                 size="lg"
                 variant="secondary"

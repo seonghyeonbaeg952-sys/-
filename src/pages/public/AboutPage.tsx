@@ -49,16 +49,17 @@ import type {
   HistoryRow,
   MemberRow,
   PersonProfileRow,
+  PublicMemberRow,
 } from '../../types/cms'
 import { classNames } from '../../utils/classNames'
 import {
   getMemberGroupLabel,
   getMemberPartLabel,
+  getPublicMemberName,
   getMemberStatus,
-  getProtectedMemberName,
 } from '../../utils/memberName'
 
-type MemberFilterValue = MemberRow['part'] | 'all' | 'staff' | 'alumni'
+type MemberFilterValue = PublicMemberRow['part'] | 'all' | 'staff' | 'alumni'
 
 const partFilters: Array<{ label: string; value: MemberFilterValue }> = [
   { label: '전체', value: 'all' },
@@ -240,7 +241,7 @@ function AboutSectionList({ sections }: { sections: AboutSectionRow[] }) {
               className="absolute inset-x-0 top-0 h-12 bg-linear-to-r from-navy-deep via-gold-warm/35 to-transparent opacity-10"
             />
             <StaffLines className="absolute inset-x-6 top-7 !w-auto opacity-70" density="light" variant="gold" />
-            <p className="text-sm font-semibold tracking-[0.14em] text-gold-warm">
+            <p className="text-sm font-semibold tracking-[0.14em] text-gold-ink">
               {String(index + 1).padStart(2, '0')}
             </p>
             <h3 className="mt-3 break-keep text-2xl font-semibold text-navy-deep">
@@ -301,9 +302,9 @@ function SpiritEducationSection({ sections }: { sections: AboutSectionRow[] }) {
   )
 }
 
-function MemberHarmonyMap({ members }: { members: MemberRow[] }) {
+function MemberHarmonyMap({ members }: { members: PublicMemberRow[] }) {
   const activeMembers = members.filter((member) => getMemberStatus(member) === 'active')
-  const alumniCount = members.length
+  const alumniCount = members.filter((member) => getMemberStatus(member) === 'alumni').length
   const staffCount = activeMembers.filter((member) => member.group_type === 'staff').length
   const partCounts = ['soprano', 'alto', 'tenor', 'bass'].map((part) => ({
     label: getMemberPartLabel(part as MemberRow['part']),
@@ -318,7 +319,7 @@ function MemberHarmonyMap({ members }: { members: MemberRow[] }) {
     <div className="member-harmony-map mt-8 rounded-balanced border border-line-default bg-bg-warm-white p-5 shadow-card sm:p-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gold-warm">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gold-ink">
             HARMONY MAP
           </p>
           <h3 className="mt-2 break-keep text-2xl font-semibold text-navy-deep">
@@ -467,7 +468,7 @@ export function AboutPage() {
     const status = getMemberStatus(member)
 
     if (activePart === 'alumni') {
-      return true
+      return status === 'alumni'
     }
 
     if (status !== 'active') {
@@ -644,19 +645,18 @@ export function AboutPage() {
             title="단원 소개"
           />
           <MemberHarmonyMap members={members} />
-          <div aria-label="파트 필터" className="mt-6 flex flex-wrap gap-2" role="tablist">
+          <div aria-label="파트 필터" className="mt-6 flex flex-wrap gap-2" role="group">
             {partFilters.map((filter) => (
               <button
-                aria-selected={activePart === filter.value}
+                aria-pressed={activePart === filter.value}
                 className={[
-                  'min-h-10 rounded-pill border px-4 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm',
+                  'min-h-11 rounded-pill border px-4 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink',
                   activePart === filter.value
                     ? 'border-gold-warm bg-gold-warm text-navy-midnight'
                     : 'border-line-default bg-bg-warm-white text-text-muted hover:border-gold-warm hover:text-navy-deep',
                 ].join(' ')}
                 key={filter.value}
                 onClick={() => setActivePart(filter.value)}
-                role="tab"
                 type="button"
               >
                 {filter.label}
@@ -672,17 +672,12 @@ export function AboutPage() {
               {visibleMembers.map((member) => (
                 <Card className="member-row min-h-20 p-4" key={member.id} radius="formal">
                   <div>
-                    <p className="text-[11px] font-semibold leading-5 text-gold-warm">
+                    <p className="text-[11px] font-semibold leading-5 text-gold-ink">
                       {getMemberGroupLabel(member.group_type)} · {getMemberPartLabel(member.part)}
                     </p>
                     <h3 className="break-keep text-base font-semibold text-navy-deep">
-                      {getProtectedMemberName(member)}
+                      {getPublicMemberName(member)}
                     </h3>
-                    {member.description ? (
-                      <p className="hidden">
-                        {member.description}
-                      </p>
-                    ) : null}
                   </div>
                 </Card>
               ))}

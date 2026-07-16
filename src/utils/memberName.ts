@@ -1,4 +1,4 @@
-import type { MemberRow } from '../types/cms'
+import type { MemberRow, PublicMemberRow } from '../types/cms'
 
 const partLabels: Record<MemberRow['part'], string> = {
   soprano: '소프라노',
@@ -57,4 +57,10 @@ export function getProtectedMemberName(
   }
 
   return fallback
+}
+
+export function getPublicMemberName(
+  member: Pick<PublicMemberRow, 'display_name' | 'part'>,
+) {
+  return member.display_name?.trim() || `${getMemberPartLabel(member.part)} 단원`
 }

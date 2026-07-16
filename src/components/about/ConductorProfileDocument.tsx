@@ -170,7 +170,7 @@ export function ConductorProfileDocument({ person }: { person: PersonProfileRow 
               src={person.photo_url ?? ''}
             />
             <div className="mt-6 text-center lg:text-left">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gold-warm">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gold-ink">
                 CONDUCTOR
               </p>
               <h3 className="mt-2 break-keep text-2xl font-bold text-navy-deep">{name}</h3>
@@ -182,12 +182,12 @@ export function ConductorProfileDocument({ person }: { person: PersonProfileRow 
               ) : null}
               <dl className="mt-5 grid gap-2 text-sm leading-6">
                 <div className="rounded-button border border-line-default bg-bg-ivory px-4 py-3">
-                  <dt className="text-xs font-semibold text-gold-warm">현재 역할</dt>
+                  <dt className="text-xs font-semibold text-gold-ink">현재 역할</dt>
                   <dd className="mt-1 text-navy-deep">{role}</dd>
                 </div>
                 {currentRoles.slice(0, 2).map((item) => (
                   <div className="rounded-button border border-line-default bg-bg-ivory px-4 py-3" key={item}>
-                    <dt className="text-xs font-semibold text-gold-warm">주요 직책</dt>
+                    <dt className="text-xs font-semibold text-gold-ink">주요 직책</dt>
                     <dd className="mt-1 break-keep text-navy-deep">{item}</dd>
                   </div>
                 ))}
@@ -232,7 +232,7 @@ export function ConductorProfileDocument({ person }: { person: PersonProfileRow 
         <div className="border-t border-line-default bg-bg-ivory/62 p-5 sm:p-7 lg:p-9">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
             <section>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gold-warm">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gold-ink">
                 PHILOSOPHY
               </p>
               <h3 className="mt-3 break-keep text-2xl font-semibold text-navy-deep">
@@ -293,7 +293,7 @@ export function ConductorProfileDocument({ person }: { person: PersonProfileRow 
                   {activityImages.slice(0, 3).map((image) => (
                     <button
                       aria-label={`${image.alt} 크게 보기`}
-                      className="group overflow-hidden rounded-formal border border-line-default bg-bg-ivory text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
+                      className="group overflow-hidden rounded-formal border border-line-default bg-bg-ivory text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink"
                       key={image.src}
                       onClick={() => setSelectedImage(image)}
                       type="button"
@@ -317,13 +317,13 @@ export function ConductorProfileDocument({ person }: { person: PersonProfileRow 
 
         <div className="border-t border-line-default bg-bg-warm-white p-5 sm:p-7 lg:p-9">
           <nav aria-label="지휘자 소개 관련 링크" className="flex flex-wrap gap-2">
-            <Link className="rounded-pill border border-line-default px-4 py-3 text-sm font-semibold text-navy-deep transition hover:border-gold-warm hover:text-gold-warm" to="/concerts">
+            <Link className="rounded-pill border border-line-default px-4 py-3 text-sm font-semibold text-navy-deep transition hover:border-gold-warm hover:text-gold-ink" to="/concerts">
               최근 공연 보기
             </Link>
-            <Link className="rounded-pill border border-line-default px-4 py-3 text-sm font-semibold text-navy-deep transition hover:border-gold-warm hover:text-gold-warm" to="/about?section=spirit">
+            <Link className="rounded-pill border border-line-default px-4 py-3 text-sm font-semibold text-navy-deep transition hover:border-gold-warm hover:text-gold-ink" to="/about?section=spirit">
               합창단 정신 보기
             </Link>
-            <Link className="rounded-pill border border-line-default px-4 py-3 text-sm font-semibold text-navy-deep transition hover:border-gold-warm hover:text-gold-warm" to="/join">
+            <Link className="rounded-pill border border-line-default px-4 py-3 text-sm font-semibold text-navy-deep transition hover:border-gold-warm hover:text-gold-ink" to="/join">
               입단 안내 보기
             </Link>
           </nav>
@@ -342,7 +342,7 @@ export function ConductorProfileDocument({ person }: { person: PersonProfileRow 
                 {selectedImage.caption || selectedImage.alt}
               </p>
               <button
-                className="min-h-10 rounded-button border border-line-default px-4 text-sm font-semibold text-navy-deep transition hover:border-gold-warm"
+                className="min-h-11 rounded-button border border-line-default px-4 text-sm font-semibold text-navy-deep transition hover:border-gold-warm"
                 onClick={() => setSelectedImage(null)}
                 type="button"
               >

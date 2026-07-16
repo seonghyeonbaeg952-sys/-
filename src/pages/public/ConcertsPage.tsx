@@ -259,7 +259,7 @@ export function ConcertsPage() {
             <Reveal key={concert.id}>
               <Card className="concert-collection-card group overflow-hidden" hoverable radius="formal">
                 <TransitionLink
-                  className="concert-collection-link h-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm"
+                  className="concert-collection-link h-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-ink"
                   to={`/concerts/${concert.id}`}
                 >
                   <div className="concert-collection-media relative bg-linear-to-br from-bg-ivory via-bg-warm-white to-gold-soft/20 p-3 sm:p-4">
@@ -311,7 +311,7 @@ export function ConcertsPage() {
                         </div>
                       ) : null}
                     </dl>
-                    <span className="mt-4 inline-block text-sm font-semibold text-gold-warm">
+                    <span className="mt-4 inline-block text-sm font-semibold text-gold-ink">
                       자세히 보기
                     </span>
                   </div>

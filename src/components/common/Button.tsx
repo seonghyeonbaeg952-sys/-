@@ -10,11 +10,13 @@ import { TransitionLink } from './TransitionLink'
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'gold'
 export type ButtonSize = 'sm' | 'md' | 'lg'
+export type ButtonFocusTone = 'dark' | 'light'
 
 type ButtonBaseProps = {
   children: ReactNode
   className?: string
   disabled?: boolean
+  focusTone?: ButtonFocusTone
   showArrow?: boolean
   size?: ButtonSize
   variant?: ButtonVariant
@@ -42,13 +44,18 @@ const variantClasses: Record<ButtonVariant, string> = {
 }
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: 'min-h-10 px-4 text-sm',
+  sm: 'min-h-11 px-4 text-sm',
   md: 'min-h-11 px-5 text-[15px]',
   lg: 'min-h-12 px-6 text-base',
 }
 
 const baseClasses =
-  'motion-button type-button inline-flex items-center justify-center rounded-pill transition duration-200 active:scale-[0.985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm disabled:pointer-events-none disabled:opacity-55 motion-reduce:active:scale-100'
+  'motion-button type-button inline-flex items-center justify-center rounded-pill transition duration-200 active:scale-[0.985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-55 motion-reduce:active:scale-100'
+
+const focusToneClasses: Record<ButtonFocusTone, string> = {
+  dark: 'focus-visible:outline-gold-soft',
+  light: 'focus-visible:outline-gold-ink',
+}
 
 const motionVariantClasses: Record<ButtonVariant, string> = {
   gold: 'btn-primary',
@@ -62,15 +69,15 @@ function isAnchorButtonProps(props: ButtonProps): props is AnchorButtonProps {
 }
 
 function splitAnchorButtonProps(props: AnchorButtonProps) {
-  const { children, className, disabled, showArrow, size, variant, ...domProps } = props
+  const { children, className, disabled, focusTone, showArrow, size, variant, ...domProps } = props
 
-  return { children, className, disabled, domProps, showArrow, size, variant }
+  return { children, className, disabled, domProps, focusTone, showArrow, size, variant }
 }
 
 function splitNativeButtonProps(props: NativeButtonProps) {
-  const { children, className, disabled, showArrow, size, variant, ...domProps } = props
+  const { children, className, disabled, focusTone, showArrow, size, variant, ...domProps } = props
 
-  return { children, className, disabled, domProps, showArrow, size, variant }
+  return { children, className, disabled, domProps, focusTone, showArrow, size, variant }
 }
 
 function isInternalHref(href: string) {
@@ -79,11 +86,13 @@ function isInternalHref(href: string) {
 
 export function Button(props: ButtonProps) {
   const disabled = props.disabled ?? false
+  const focusTone = props.focusTone ?? 'light'
   const size = props.size ?? 'md'
   const variant = props.variant ?? 'primary'
 
   const classes = classNames(
     baseClasses,
+    focusToneClasses[focusTone],
     motionVariantClasses[variant],
     sizeClasses[size],
     variantClasses[variant],

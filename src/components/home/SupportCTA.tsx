@@ -53,11 +53,12 @@ export function SupportCTA({
                   '후원금은 악보와 교육 자료, 연습과 공연 준비,\n국제교류 활동에 사용됩니다.'}
               </p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-                <Button href="/contact?section=support" size="lg" variant="gold">
+                <Button focusTone="dark" href="/contact?section=support" size="lg" variant="gold">
                   {buttonLabel || '후원약정 보기'}
                 </Button>
                 <Button
                   className="!border-bg-warm-white/24 !bg-bg-warm-white/[0.06] !text-bg-warm-white hover:!border-gold-soft hover:!text-gold-soft"
+                  focusTone="dark"
                   href="/contact"
                   size="lg"
                   variant="secondary"
@@ -74,7 +75,7 @@ export function SupportCTA({
               <p className="mt-3 break-keep text-sm leading-6 text-bg-ivory/68">
                 {address}
               </p>
-              <Button className="mt-6 w-full" href="/contact" size="lg" variant="gold">
+              <Button className="mt-6 w-full" focusTone="dark" href="/contact" size="lg" variant="gold">
                 문의하기
               </Button>
             </div>

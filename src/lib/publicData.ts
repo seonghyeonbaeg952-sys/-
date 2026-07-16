@@ -1,9 +1,5 @@
 import { SUPABASE_SETUP_MESSAGE, getSupabaseClientSafe } from './auth'
 import {
-  heroSlides,
-  mockConcerts,
-  mockGallery,
-  mockNotices,
   mockSiteSettings,
   mockSupportSettings,
 } from '../constants/mockData'
@@ -34,11 +30,11 @@ import type {
   JoinInfoRow,
   JoinApplicationStatus,
   LocationRow,
-  MemberRow,
   NoticeRow,
   PersonProfileRow,
   PosterRow,
   PopupNoticeRow,
+  PublicMemberRow,
   SiteSettingsRow,
   SiteTextRow,
   SponsorRow,
@@ -58,7 +54,7 @@ export type PublicAboutData = {
   galleryImages: GalleryImage[]
   history: HistoryRow[]
   location: LocationRow | null
-  members: MemberRow[]
+  members: PublicMemberRow[]
   siteSettings: SiteSettings | null
 }
 
@@ -78,7 +74,7 @@ export type PublicContactData = {
   siteSettings: SiteSettings
   siteTexts: SiteTextRow[]
   sponsors: Sponsor[]
-  supportSettings: SupportSettings
+  supportSettings: SupportSettings | null
 }
 
 export type ContactMessageInput = {
@@ -277,17 +273,16 @@ const POSTER_SELECT = [
 
 const PERSON_PROFILE_SELECT = '*'
 
-const LEGACY_MEMBER_SELECT = [
+const SAFE_LEGACY_MEMBER_SELECT = [
   'id',
-  'name',
   'part',
   'group_type',
-  'photo_url',
-  'description',
-  'is_visible',
-  'name_display_type',
   'display_order',
 ].join(',')
+
+type PublicMemberQueryRow = Omit<PublicMemberRow, 'display_name'> & {
+  public_display_name: string | null
+}
 
 const HISTORY_SELECT = [
   'id',
@@ -515,6 +510,17 @@ function isMissingSiteTextsError(error: unknown) {
     (message.includes('schema cache') ||
       message.includes('does not exist') ||
       message.includes('could not find the table'))
+  )
+}
+
+function isMissingPublicMembersFunctionError(error: unknown) {
+  const message = getErrorMessage(error).toLowerCase()
+
+  return (
+    message.includes('get_public_members') &&
+    (message.includes('schema cache') ||
+      message.includes('does not exist') ||
+      message.includes('could not find the function'))
   )
 }
 
@@ -853,8 +859,7 @@ function mapSupportSettings(row: SupportSettingsRow): SupportSettings {
     bank_account_number: nullableString(row.bank_account_number),
     bank_account_holder: nullableString(row.bank_account_holder),
     bank_note: nullableString(row.bank_note, mockSupportSettings.bank_note),
-    enable_online_submission:
-      row.enable_online_submission ?? mockSupportSettings.enable_online_submission,
+    enable_online_submission: row.enable_online_submission === true,
     form_note: nullableString(row.form_note, mockSupportSettings.form_note),
     privacy_notice: nullableString(row.privacy_notice, mockSupportSettings.privacy_notice),
     print_note: nullableString(row.print_note, mockSupportSettings.print_note),
@@ -1034,11 +1039,62 @@ function mapFaq(row: FaqRow): FAQItem {
 }
 
 async function getPublicMembers(client: SupabaseClient) {
-  return client
+  // The RPC fixes the public contract independently of the browser's auth
+  // state. In particular, an admin session must not make hidden members appear
+  // on the public page through the table's broader authenticated policy.
+  const publicMembers = await client.rpc('get_public_members')
+
+  if (!publicMembers.error) {
+    const data = normalizeRows<PublicMemberQueryRow>(publicMembers.data).map(
+      mapPublicMember,
+    )
+
+    return {
+      data,
+      error: null,
+    }
+  }
+
+  if (!isMissingPublicMembersFunctionError(publicMembers.error)) {
+    return { data: null, error: publicMembers.error }
+  }
+
+  // Compatibility for a project where the public RPC migration has not yet
+  // been applied. This explicitly filters visible rows and intentionally omits
+  // raw names, photo URLs, and descriptions from the browser response.
+  const legacyMembers = await client
     .from('members')
-    .select(LEGACY_MEMBER_SELECT)
+    .select(SAFE_LEGACY_MEMBER_SELECT)
     .eq('is_visible', true)
     .order('display_order', { ascending: true })
+
+  if (legacyMembers.error) {
+    return { data: null, error: legacyMembers.error }
+  }
+
+  const data = normalizeRows<
+    Omit<PublicMemberRow, 'display_name' | 'member_status'>
+  >(legacyMembers.data).map((member) => ({
+    display_order: member.display_order,
+    display_name: null,
+    group_type: member.group_type,
+    id: member.id,
+    member_status: member.group_type === 'alumni' ? ('alumni' as const) : ('active' as const),
+    part: member.part,
+  }))
+
+  return { data, error: null }
+}
+
+export function mapPublicMember(row: PublicMemberQueryRow): PublicMemberRow {
+  return {
+    display_order: row.display_order,
+    display_name: row.public_display_name?.trim() || null,
+    group_type: row.group_type,
+    id: row.id,
+    member_status: row.member_status,
+    part: row.part,
+  }
 }
 
 const sharedPublicRequests = new Map<
@@ -1361,8 +1417,7 @@ export async function getPublicConcertById(
   const clientResult = getSupabaseClientSafe()
 
   if (!clientResult.data) {
-    const fallback = mockConcerts.find((concert) => concert.id === id) ?? null
-    return { data: fallback, error: null }
+    return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
   }
 
   const { data, error } = await clientResult.data
@@ -1418,8 +1473,7 @@ export async function getPublicNoticeById(
   const clientResult = getSupabaseClientSafe()
 
   if (!clientResult.data) {
-    const fallback = mockNotices.find((notice) => notice.id === id) ?? null
-    return { data: fallback, error: null }
+    return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
   }
 
   const { data, error } = await clientResult.data
@@ -1591,7 +1645,7 @@ export async function getPublicAboutData(): Promise<
       galleryImages: galleryImages.data ?? [],
       history: normalizeRows<HistoryRow>(history.data),
       location: normalizeRow<LocationRow>(locations.data),
-      members: normalizeRows<MemberRow>(members.data),
+      members: normalizeRows<PublicMemberRow>(members.data),
       siteSettings: siteSettings.data,
     },
     error: null,
@@ -1644,16 +1698,7 @@ export async function getPublicContactData(): Promise<
   const clientResult = getSupabaseClientSafe()
 
   if (!clientResult.data) {
-    return {
-      data: {
-        location: null,
-        siteSettings: mockSiteSettings,
-        siteTexts: [],
-        sponsors: [],
-        supportSettings: mockSupportSettings,
-      },
-      error: null,
-    }
+    return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
   }
 
   const [settings, supportSettings, location, sponsors, siteTexts] = await Promise.all([
@@ -1664,17 +1709,15 @@ export async function getPublicContactData(): Promise<
     getPublicSiteTexts(),
   ])
 
-  if (settings.error || location.error) {
-    return {
-      data: {
-        location: null,
-        siteSettings: settings.data ?? mockSiteSettings,
-        siteTexts: siteTexts.data ?? [],
-        sponsors: sponsors.data ?? [],
-        supportSettings: supportSettings.data ?? mockSupportSettings,
-      },
-      error: null,
-    }
+  const firstError =
+    settings.error ??
+    supportSettings.error ??
+    location.error ??
+    sponsors.error ??
+    siteTexts.error
+
+  if (firstError) {
+    return { data: null, error: toPublicError(firstError, '문의 정보를 불러오지 못했습니다.') }
   }
 
   return {
@@ -1683,7 +1726,7 @@ export async function getPublicContactData(): Promise<
       siteSettings: settings.data ?? mockSiteSettings,
       siteTexts: siteTexts.data ?? [],
       sponsors: sponsors.data ?? [],
-      supportSettings: supportSettings.data ?? mockSupportSettings,
+      supportSettings: supportSettings.data,
     },
     error: null,
   }
@@ -1927,11 +1970,17 @@ export async function createSupportPledge(
   return { data: true, error: null }
 }
 
-export const publicFallbacks = {
-  concerts: mockConcerts,
-  gallery: mockGallery,
-  heroSlides,
-  notices: mockNotices,
+export const publicFallbacks: {
+  concerts: Concert[]
+  gallery: GalleryImage[]
+  heroSlides: HeroSlide[]
+  notices: Notice[]
+  siteSettings: SiteSettings
+} = {
+  concerts: [],
+  gallery: [],
+  heroSlides: [],
+  notices: [],
   siteSettings: mockSiteSettings,
 }
 

@@ -704,7 +704,7 @@
 }
 
 .motet-score-value-word strong {
-  color: var(--color-gold-warm);
+  color: var(--color-gold-ink);
   font-family: var(--font-heading-kr);
   font-size: clamp(1.36rem, 1.85vw, 2.05rem);
   font-weight: 840;
@@ -773,7 +773,7 @@
 
 .motet-score-eyebrow {
   margin: 0 0 18px;
-  color: var(--color-gold-warm);
+  color: var(--color-gold-ink);
   font-size: 12px;
   font-weight: 720;
   letter-spacing: 0.22em;
@@ -1485,8 +1485,8 @@
 }
 
 .home-hero-arrow {
-  width: 38px !important;
-  height: 38px !important;
+  width: 44px !important;
+  height: 44px !important;
 }
 
 .home-spotlight-glow,

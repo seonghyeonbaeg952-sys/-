@@ -82,7 +82,7 @@ export function JoinCTA({
                     className="min-w-0 border-l-2 border-gold-warm/55 pl-4"
                     key={item.label}
                   >
-                    <dt className="text-xs font-semibold text-gold-warm">
+                    <dt className="text-xs font-semibold text-gold-ink">
                       {item.label}
                     </dt>
                     <dd className="mt-1 break-keep text-sm leading-6 text-text-muted">
@@ -94,7 +94,7 @@ export function JoinCTA({
             </div>
             <Button
               className="relative w-full max-w-full justify-self-start sm:w-auto"
-              href="/join"
+              href="/join?section=contact#application"
               size="lg"
               variant="primary"
             >

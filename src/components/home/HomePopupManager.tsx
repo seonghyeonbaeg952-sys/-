@@ -1,4 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from 'react'
 
 import type { PopupNotice } from '../../types/content'
 import { Button } from '../common/Button'
@@ -7,6 +13,15 @@ import { OptimizedImage } from '../common/OptimizedImage'
 type HomePopupManagerProps = {
   popups: PopupNotice[]
 }
+
+const focusableSelector = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',')
 
 function getLocalDateKey(date = new Date()) {
   const year = date.getFullYear()
@@ -58,6 +73,7 @@ function dismissToday(popupId: string, todayKey: string) {
 
 export function HomePopupManager({ popups }: HomePopupManagerProps) {
   const closeButtonRef = useRef<HTMLButtonElement | null>(null)
+  const dialogRef = useRef<HTMLDivElement | null>(null)
   const todayKey = useMemo(() => getLocalDateKey(), [])
   const [closedPopupIds, setClosedPopupIds] = useState<Set<string>>(() => new Set())
 
@@ -73,30 +89,45 @@ export function HomePopupManager({ popups }: HomePopupManagerProps) {
       })
       .sort((first, second) => first.display_order - second.display_order)[0] ?? null
   }, [closedPopupIds, popups, todayKey])
+  const hasActivePopup = activePopup !== null
 
   useEffect(() => {
-    if (!activePopup) {
+    if (!hasActivePopup) {
       return
     }
 
-    closeButtonRef.current?.focus()
-  }, [activePopup])
-
-  useEffect(() => {
-    if (!activePopup) {
-      return
-    }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setClosedPopupIds((current) => new Set(current).add(activePopup.id))
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
+    const previousActiveElement =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null
+    const previousBodyOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = previousBodyOverflow
+
+      if (
+        previousActiveElement?.isConnected &&
+        previousActiveElement !== document.body
+      ) {
+        previousActiveElement.focus()
+      } else {
+        document.querySelector<HTMLElement>('#main-content')?.focus()
+      }
+    }
+  }, [hasActivePopup])
+
+  useEffect(() => {
+    if (!activePopup) {
+      return
+    }
+
+    const focusFrame = window.requestAnimationFrame(() => {
+      closeButtonRef.current?.focus()
+    })
+
+    return () => {
+      window.cancelAnimationFrame(focusFrame)
     }
   }, [activePopup])
 
@@ -113,17 +144,59 @@ export function HomePopupManager({ popups }: HomePopupManagerProps) {
     closePopup()
   }
 
+  const handleDialogKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      event.stopPropagation()
+      closePopup()
+      return
+    }
+
+    if (event.key !== 'Tab' || !dialogRef.current) {
+      return
+    }
+
+    const focusableElements = Array.from(
+      dialogRef.current.querySelectorAll<HTMLElement>(focusableSelector),
+    ).filter(
+      (element) =>
+        element.getAttribute('aria-hidden') !== 'true' &&
+        !element.closest('[inert]') &&
+        element.getClientRects().length > 0,
+    )
+
+    if (focusableElements.length === 0) {
+      event.preventDefault()
+      dialogRef.current.focus()
+      return
+    }
+
+    const firstElement = focusableElements[0]
+    const lastElement = focusableElements[focusableElements.length - 1]
+
+    if (event.shiftKey && document.activeElement === firstElement) {
+      event.preventDefault()
+      lastElement.focus()
+    } else if (!event.shiftKey && document.activeElement === lastElement) {
+      event.preventDefault()
+      firstElement.focus()
+    }
+  }
+
   return (
     <div
       aria-labelledby="home-popup-title"
       aria-modal="true"
       className="modal-backdrop fixed inset-0 z-[80] flex items-center justify-center bg-navy-midnight/68 px-5 py-10 backdrop-blur-sm sm:py-12"
+      onKeyDown={handleDialogKeyDown}
+      ref={dialogRef}
       role="dialog"
+      tabIndex={-1}
     >
       <div className="modal-panel relative max-h-[min(760px,calc(100svh-5rem))] w-full max-w-lg overflow-y-auto rounded-balanced border border-line-default bg-bg-warm-white shadow-[0_28px_90px_rgb(7_21_38/0.34)]">
         <button
           aria-label="팝업 닫기"
-          className="absolute right-4 top-4 z-10 flex size-10 items-center justify-center rounded-full border border-line-default bg-bg-warm-white/92 text-navy-deep shadow-sm transition hover:border-gold-warm hover:text-gold-warm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
+          className="absolute right-4 top-4 z-10 flex size-11 items-center justify-center rounded-full border border-line-default bg-bg-warm-white/92 text-navy-deep shadow-sm transition hover:border-gold-warm hover:text-gold-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink"
           onClick={closePopup}
           ref={closeButtonRef}
           type="button"
@@ -154,7 +227,7 @@ export function HomePopupManager({ popups }: HomePopupManagerProps) {
         ) : null}
 
         <div className="p-5 sm:p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold-warm">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold-ink">
             NOTICE
           </p>
           <h2
@@ -171,7 +244,7 @@ export function HomePopupManager({ popups }: HomePopupManagerProps) {
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <button
-              className="min-h-11 rounded-pill px-4 text-sm font-semibold text-text-muted transition hover:bg-bg-ivory hover:text-navy-deep focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
+              className="min-h-11 rounded-pill px-4 text-sm font-semibold text-text-muted transition hover:bg-bg-ivory hover:text-navy-deep focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink"
               onClick={closeForToday}
               type="button"
             >

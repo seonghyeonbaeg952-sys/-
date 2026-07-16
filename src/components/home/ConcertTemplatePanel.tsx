@@ -178,7 +178,7 @@ export function ConcertTemplatePanel({
 
         <div className="concert-template-panel__content">
           <section className="concert-template-panel__leaf concert-template-panel__leaf--note">
-            <p className="type-eyebrow text-gold-warm">PROGRAM NOTE</p>
+            <p className="type-eyebrow text-gold-ink">PROGRAM NOTE</p>
             <h4>{categoryLabels[concert.category] ?? concert.category ?? '공연 안내'}</h4>
             <p className="concert-template-panel__summary">
               {getConcertSummary(concert)}
@@ -198,7 +198,7 @@ export function ConcertTemplatePanel({
             id={detailId}
           >
             <div>
-              <p className="type-eyebrow text-gold-warm">CONCERT TEMPLATE</p>
+              <p className="type-eyebrow text-gold-ink">CONCERT TEMPLATE</p>
               <h3 className="concert-template-panel__title">{concert.title}</h3>
               <dl className="concert-template-panel__facts">
                 {hasWhen ? (

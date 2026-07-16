@@ -52,7 +52,7 @@ export function FloatingInfoCards({
           {cards.map((card, index) => (
             <Reveal key={card.title} staggerIndex={index} variant="card-rise">
               <a
-                className="home-quick-action-card group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm"
+                className="home-quick-action-card group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-ink"
                 data-card-index={index + 1}
                 href={card.href ?? '/'}
               >
@@ -60,11 +60,15 @@ export function FloatingInfoCards({
                   aria-hidden="true"
                   className="absolute -right-10 -top-12 size-28 rounded-full bg-gold-soft/18 transition group-hover:bg-gold-soft/28"
                 />
-                <div className="mb-5 flex items-center gap-3">
-                  <span className="flex size-8 items-center justify-center rounded-full border border-gold-warm/40 bg-bg-ivory text-xs font-bold text-gold-warm">
+                <div className="home-quick-action-lead mb-5 flex items-center gap-3">
+                  <span className="flex size-8 items-center justify-center rounded-full border border-gold-warm/40 bg-bg-ivory text-xs font-bold text-gold-ink">
                     {String(index + 1).padStart(2, '0')}
                   </span>
-                  <Reveal className="flex-1" delay={80} variant="line-draw">
+                  <Reveal
+                    className="home-quick-action-staff flex-1"
+                    delay={80}
+                    variant="line-draw"
+                  >
                     <StaffLines
                       className="opacity-70 transition group-hover:opacity-100"
                       density="light"

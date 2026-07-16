@@ -96,7 +96,7 @@ export function NoticePreview({
                   />
                 </Reveal>
                 <a
-                  className="grid gap-5 p-6 pl-7 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm md:grid-cols-[180px_1fr_auto] md:items-center"
+                  className="grid gap-5 p-6 pl-7 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-ink md:grid-cols-[180px_1fr_auto] md:items-center"
                   href={`/notices/${notice.id}`}
                 >
                   <div>
@@ -112,7 +112,7 @@ export function NoticePreview({
                   <h3 className="text-xl font-semibold leading-7 text-navy-deep">
                     {notice.title}
                   </h3>
-                  <span className="text-sm font-semibold text-gold-warm">
+                  <span className="text-sm font-semibold text-gold-ink">
                     자세히 보기
                   </span>
                 </a>

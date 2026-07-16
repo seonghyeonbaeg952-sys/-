@@ -32,7 +32,7 @@ export function KineticHeadline({
           {ghost}
         </span>
       ) : null}
-      {eyebrow ? <p className="type-eyebrow text-gold-warm">{eyebrow}</p> : null}
+      {eyebrow ? <p className="type-eyebrow text-gold-ink">{eyebrow}</p> : null}
       <Heading className="kinetic-headline__title">
         {lines.map((line, index) => {
           const lineStyle: KineticLineStyle = { '--kinetic-line-index': index }

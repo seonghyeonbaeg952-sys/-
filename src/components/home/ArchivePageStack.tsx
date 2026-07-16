@@ -169,7 +169,7 @@ export function ArchivePageStack({
         <div className="archive-preview-layout mt-9">
           <Reveal variant="fade-up">
             <div className="archive-preview-copy">
-              <p className="type-eyebrow text-gold-warm">ARCHIVE BOOK</p>
+              <p className="type-eyebrow text-gold-ink">ARCHIVE BOOK</p>
               <h3 className="type-section-title mt-4 text-navy-deep">사진 · 영상 · 포스터</h3>
             </div>
           </Reveal>

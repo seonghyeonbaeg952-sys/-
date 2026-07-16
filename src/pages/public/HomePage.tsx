@@ -2,6 +2,9 @@ import { useMemo } from 'react'
 
 import { SeoHead } from '../../components/common/SeoHead'
 import { StaffFlowRail } from '../../components/common/StaffFlowRail'
+import { Button } from '../../components/common/Button'
+import { Container } from '../../components/common/Container'
+import { ErrorState } from '../../components/common/ErrorState'
 import { AboutPreview } from '../../components/home/AboutPreview'
 import { FloatingInfoCards } from '../../components/home/FloatingInfoCards'
 import { GalleryPreview } from '../../components/home/GalleryPreview'
@@ -9,6 +12,7 @@ import { HomeFlowProvider } from '../../components/home/HomeFlowProvider'
 import { HomeHeroIntroOverlay } from '../../components/home/HomeHeroIntroOverlay'
 import { HomeHeroSlideshow } from '../../components/home/HomeHeroSlideshow'
 import { HomePopupManager } from '../../components/home/HomePopupManager'
+import { HomeSectionPanel } from '../../components/home/HomeSectionWave'
 import { HomeSpiritScoreBook } from '../../components/home/HomeSpiritScoreBook'
 import { JoinCTA } from '../../components/home/JoinCTA'
 import { PerformanceNewsPreview } from '../../components/home/PerformanceNewsPreview'
@@ -221,6 +225,19 @@ export function HomePage() {
           <HomeHeroIntroOverlay />
         </div>
         <HomePopupManager popups={popupNotices} />
+        {homeData.error ? (
+          <Container className="relative z-30 py-6">
+            <ErrorState
+              action={(
+                <Button onClick={homeData.refetch} variant="secondary">
+                  최신 소식 다시 불러오기
+                </Button>
+              )}
+              description="공연·공지 등 최신 운영 정보를 불러오지 못했습니다. 예시 일정으로 대체하지 않았습니다."
+              title="일부 최신 소식을 표시할 수 없습니다"
+            />
+          </Container>
+        ) : null}
         <div className="home-flow-body flow-root relative z-30 isolate overflow-visible">
           <StaffFlowRail
             className="hidden lg:block lg:-top-72 lg:bottom-24 lg:left-[max(1.25rem,calc(50%_-_760px))] lg:z-20 lg:opacity-75 xl:left-[max(2rem,calc(50%_-_840px))]"
@@ -250,7 +267,7 @@ export function HomePage() {
                   'home.quick.support.description',
                   t('home.quick.3.description'),
                 ),
-                href: '/contact?section=support',
+                href: '/contact?section=support#form',
                 title: t('home.quick.support.title', t('home.quick.3.title')),
               },
             ]}
@@ -280,15 +297,17 @@ export function HomePage() {
             summary={t('home.about.body', aboutSummary)}
             title={t('home.about.title', siteSettings.home_about_title)}
           />
-          <JoinCTA
-            buttonLabel={t('home.join.cta', t('home.join.button'))}
-            kicker={t('home.join.kicker')}
-            process={t('home.join.process')}
-            schedule={t('home.join.schedule')}
-            target={t('home.join.target')}
-            text={t('home.join.body', t('home.join.description'))}
-            title={t('home.join.title')}
-          />
+          <HomeSectionPanel variant="quiet">
+            <JoinCTA
+              buttonLabel={t('home.join.cta', t('home.join.button'))}
+              kicker={t('home.join.kicker')}
+              process={t('home.join.process')}
+              schedule={t('home.join.schedule')}
+              target={t('home.join.target')}
+              text={t('home.join.body', t('home.join.description'))}
+              title={t('home.join.title')}
+            />
+          </HomeSectionPanel>
           <PerformanceNewsPreview
             concertButtonLabel={t(
               'home.concert.cta.schedule',
@@ -311,21 +330,23 @@ export function HomePage() {
             programNoteLabel={t('home.concert.programNoteLabel')}
             title={t('home.concert.title', t('home.concert.sectionTitle'))}
           />
-          <ScrollScoreBookReveal
-            coverDescription={t(
-              'home.score.cover.body',
-              t('home.scorebook.coverDescription'),
-            )}
-            coverTitle={t('home.score.cover.title', t('home.scorebook.coverTitle'))}
-            finalDescription={t(
-              'home.score.final.body',
-              t('home.scorebook.finalDescription'),
-            )}
-            finalTitle={t('home.score.final.title', t('home.scorebook.finalTitle'))}
-            rightBody={t('home.score.right.body')}
-            rightTitle={t('home.score.right.title', t('home.scorebook.rightTitle'))}
-            valueWordsText={t('home.score.value.list')}
-          />
+          <HomeSectionPanel variant="stage">
+            <ScrollScoreBookReveal
+              coverDescription={t(
+                'home.score.cover.body',
+                t('home.scorebook.coverDescription'),
+              )}
+              coverTitle={t('home.score.cover.title', t('home.scorebook.coverTitle'))}
+              finalDescription={t(
+                'home.score.final.body',
+                t('home.scorebook.finalDescription'),
+              )}
+              finalTitle={t('home.score.final.title', t('home.scorebook.finalTitle'))}
+              rightBody={t('home.score.right.body')}
+              rightTitle={t('home.score.right.title', t('home.scorebook.rightTitle'))}
+              valueWordsText={t('home.score.value.list')}
+            />
+          </HomeSectionPanel>
           <HomeSpiritScoreBook
             image={spiritVisualImage}
             sections={aboutSections}
@@ -348,21 +369,23 @@ export function HomePage() {
             videos={videos}
           />
           <SponsorQuietMarquee sponsors={sponsors} />
-          <SupportLetterFold
-            buttonLabel={t('home.support.cta.primary', t('home.support.button'))}
-            cardDescription={t(
-              'home.support.card.description',
-              t('home.support.cardDescription'),
-            )}
-            cardTitle={t('home.support.card.title', t('home.support.cardTitle'))}
-            secondaryButtonLabel={t(
-              'home.support.cta.secondary',
-              t('home.support.secondaryButton'),
-            )}
-            settings={siteSettings}
-            supportText={t('home.support.description')}
-            title={t('home.support.title')}
-          />
+          <HomeSectionPanel variant="finale">
+            <SupportLetterFold
+              buttonLabel={t('home.support.cta.primary', t('home.support.button'))}
+              cardDescription={t(
+                'home.support.card.description',
+                t('home.support.cardDescription'),
+              )}
+              cardTitle={t('home.support.card.title', t('home.support.cardTitle'))}
+              secondaryButtonLabel={t(
+                'home.support.cta.secondary',
+                t('home.support.secondaryButton'),
+              )}
+              settings={siteSettings}
+              supportText={t('home.support.description')}
+              title={t('home.support.title')}
+            />
+          </HomeSectionPanel>
           </div>
         </div>
       </HomeFlowProvider>

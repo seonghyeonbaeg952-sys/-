@@ -72,10 +72,11 @@ function getActiveGroupHref(
 export function MobileMenu({ isOpen, onNavigate }: MobileMenuProps) {
   const location = useLocation()
   const [openGroupHref, setOpenGroupHref] = useState<string | null>(null)
-  const currentGroupHref =
-    getActiveGroupHref(location.pathname, location.search, location.hash) ??
-    menuGroups[0]?.href ??
-    null
+  const currentGroupHref = getActiveGroupHref(
+    location.pathname,
+    location.search,
+    location.hash,
+  )
   const effectiveOpenGroupHref = openGroupHref ?? currentGroupHref
 
   if (!isOpen) {
@@ -87,14 +88,14 @@ export function MobileMenu({ isOpen, onNavigate }: MobileMenuProps) {
       className="mobile-menu-panel border-t border-line-default bg-bg-warm-white/98 shadow-header backdrop-blur lg:hidden"
       id="mobile-menu"
     >
-      <Container className="max-h-[calc(100vh-72px)] overflow-y-auto py-5">
+      <Container className="max-h-[calc(100dvh-72px)] overflow-y-auto py-5">
         <nav aria-label="모바일 방문자 메뉴" className="grid gap-4">
           <NavLink
             className={({ isActive }) =>
               [
-                'min-h-12 rounded-button px-4 py-3 text-base font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm',
+                'min-h-12 rounded-button px-4 py-3 text-base font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink',
                 isActive
-                  ? 'bg-bg-ivory text-gold-warm'
+                  ? 'bg-bg-ivory text-gold-ink'
                   : 'text-navy-deep hover:bg-bg-ivory',
               ].join(' ')
             }
@@ -124,7 +125,7 @@ export function MobileMenu({ isOpen, onNavigate }: MobileMenuProps) {
                   aria-controls={panelId}
                   aria-expanded={isOpenGroup}
                   className={classNames(
-                    'flex min-h-12 w-full items-center justify-between gap-3 px-4 py-3 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm',
+                    'flex min-h-12 w-full items-center justify-between gap-3 px-4 py-3 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink',
                     isGroupActive
                       ? 'bg-bg-ivory text-navy-deep'
                       : 'text-navy-deep hover:bg-bg-ivory',
@@ -147,7 +148,7 @@ export function MobileMenu({ isOpen, onNavigate }: MobileMenuProps) {
                   <span
                     aria-hidden="true"
                     className={classNames(
-                      'text-lg leading-none text-gold-warm transition',
+                      'text-lg leading-none text-gold-ink transition',
                       isOpenGroup ? 'rotate-180' : '',
                     )}
                   >
@@ -155,11 +156,13 @@ export function MobileMenu({ isOpen, onNavigate }: MobileMenuProps) {
                   </span>
                 </button>
                 <div
+                  aria-hidden={!isOpenGroup}
                   className={classNames(
                     'grid transition-[grid-template-rows] duration-300 ease-out',
                     isOpenGroup ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
                   )}
                   id={panelId}
+                  inert={!isOpenGroup}
                 >
                   <div className="overflow-hidden">
                     <div className="grid gap-1 border-t border-line-default/80 p-3">
@@ -175,7 +178,7 @@ export function MobileMenu({ isOpen, onNavigate }: MobileMenuProps) {
                           <Link
                             aria-current={isActive ? 'page' : undefined}
                             className={classNames(
-                              'min-h-11 rounded-button px-3 py-2.5 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm',
+                              'min-h-11 rounded-button px-3 py-2.5 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink',
                               isActive
                                 ? 'bg-gold-warm/15 text-navy-deep'
                                 : 'text-text-muted hover:bg-bg-ivory hover:text-navy-deep',

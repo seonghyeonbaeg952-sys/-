@@ -42,7 +42,7 @@ export function SpiritStatementBlock({
         <p
           className={classNames(
             'type-eyebrow mb-4',
-            isNavy ? 'text-gold-soft' : 'text-gold-warm',
+            isNavy ? 'text-gold-soft' : 'text-gold-ink',
           )}
         >
           {copy.eyebrow}
@@ -91,7 +91,7 @@ export function SpiritStatementBlock({
               'type-button mt-7 inline-flex min-h-11 items-center gap-2 rounded-full px-5 transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
               isNavy
                 ? 'bg-gold-warm text-navy-midnight focus-visible:outline-gold-soft'
-                : 'bg-navy-deep text-white focus-visible:outline-gold-warm',
+                : 'bg-navy-deep text-white focus-visible:outline-gold-ink',
             )}
           >
             {copy.ctaLabel}
@@ -124,7 +124,7 @@ export function SpiritValueCards({ values, compact = false, className }: SpiritV
             key={value.title}
             className="group rounded-[16px] border border-line-default bg-bg-warm-white p-5 shadow-soft transition duration-300 hover:-translate-y-1 hover:border-gold-warm/55"
           >
-            <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-full bg-gold-soft/45 text-gold-warm">
+            <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-full bg-gold-soft/45 text-gold-ink">
               <span aria-hidden="true" className="text-xs font-bold">
                 {String(index + 1).padStart(2, '0')}
               </span>

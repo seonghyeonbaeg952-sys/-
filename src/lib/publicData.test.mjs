@@ -144,7 +144,6 @@ test('keeps successful gallery collections when one collection fails', () => {
       posters: success([poster]),
       videos: failure('영상 목록을 불러오지 못했습니다.'),
     },
-    { images: [], posters: [], videos: [] },
   )
 
   assert.equal(result.error, '영상 목록을 불러오지 못했습니다.')
@@ -153,7 +152,7 @@ test('keeps successful gallery collections when one collection fails', () => {
   assert.deepEqual(result.data.videos, [])
 })
 
-test('preserves configured development fallbacks for failed collections', () => {
+test('does not replace failed live collections with example content', () => {
   const fallbackConcert = createConcert({ date: '2026-07-15', id: 'fallback' })
   const fallbackGallery = { id: 'fallback-gallery' }
   const fallbackNotice = { id: 'fallback-notice' }
@@ -170,7 +169,41 @@ test('preserves configured development fallbacks for failed collections', () => 
     }),
   )
 
-  assert.deepEqual(result.data.concerts, [fallbackConcert])
-  assert.deepEqual(result.data.gallery, [fallbackGallery])
-  assert.deepEqual(result.data.notices, [fallbackNotice])
+  assert.deepEqual(result.data.concerts, [])
+  assert.deepEqual(result.data.gallery, [])
+  assert.deepEqual(result.data.notices, [])
+})
+
+test('keeps public collection fallbacks empty', () => {
+  assert.deepEqual(publicData.publicFallbacks.concerts, [])
+  assert.deepEqual(publicData.publicFallbacks.gallery, [])
+  assert.deepEqual(publicData.publicFallbacks.heroSlides, [])
+  assert.deepEqual(publicData.publicFallbacks.notices, [])
+})
+
+test('maps a public member to the explicit safe field set only', () => {
+  const member = publicData.mapPublicMember({
+    created_at: 'private-value',
+    description: 'private-value',
+    display_order: 3,
+    group_type: 'current',
+    id: 'member-1',
+    member_status: 'active',
+    name: 'private-value',
+    part: 'soprano',
+    photo_url: 'private-value',
+    public_display_name: '김○',
+  })
+
+  assert.deepEqual(member, {
+    display_name: '김○',
+    display_order: 3,
+    group_type: 'current',
+    id: 'member-1',
+    member_status: 'active',
+    part: 'soprano',
+  })
+  assert.equal('name' in member, false)
+  assert.equal('photo_url' in member, false)
+  assert.equal('description' in member, false)
 })

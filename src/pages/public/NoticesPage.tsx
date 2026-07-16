@@ -174,7 +174,7 @@ export function NoticesPage() {
                   ].join(' ')}
                 />
                 <a
-                  className="notice-card-link grid gap-5 p-5 pl-7 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm md:grid-cols-[168px_1fr_auto] md:items-center"
+                  className="notice-card-link grid gap-5 p-5 pl-7 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-ink md:grid-cols-[168px_1fr_auto] md:items-center"
                   href={`/notices/${notice.id}`}
                 >
                   <ImageTile
@@ -209,7 +209,7 @@ export function NoticesPage() {
                       </p>
                     ) : null}
                   </div>
-                  <span className="text-sm font-semibold text-gold-warm md:justify-self-end">
+                  <span className="text-sm font-semibold text-gold-ink md:justify-self-end">
                     자세히 보기
                   </span>
                 </a>

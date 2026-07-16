@@ -85,9 +85,33 @@ export function AnimatedSectionTabs<TValue extends string = string>({
     })
   }, [activeValue])
 
+  const keepActiveTabVisible = useCallback(() => {
+    const container = containerRef.current
+    const activeTab = tabRefs.current[activeValue]
+
+    if (!container || !activeTab || container.scrollWidth <= container.clientWidth) {
+      return
+    }
+
+    const activeStart = activeTab.offsetLeft
+    const activeEnd = activeStart + activeTab.offsetWidth
+    const visibleStart = container.scrollLeft
+    const visibleEnd = visibleStart + container.clientWidth
+
+    if (activeStart >= visibleStart && activeEnd <= visibleEnd) {
+      return
+    }
+
+    container.scrollLeft = Math.max(
+      0,
+      activeStart - (container.clientWidth - activeTab.offsetWidth) / 2,
+    )
+  }, [activeValue])
+
   useLayoutEffect(() => {
+    keepActiveTabVisible()
     updateIndicator()
-  }, [tabs.length, updateIndicator])
+  }, [keepActiveTabVisible, tabs.length, updateIndicator])
 
   useEffect(() => {
     const container = containerRef.current
@@ -96,7 +120,10 @@ export function AnimatedSectionTabs<TValue extends string = string>({
       return
     }
 
-    const handleResize = () => updateIndicator()
+    const handleResize = () => {
+      keepActiveTabVisible()
+      updateIndicator()
+    }
     const resizeObserver =
       typeof ResizeObserver === 'undefined'
         ? null
@@ -111,7 +138,7 @@ export function AnimatedSectionTabs<TValue extends string = string>({
       window.removeEventListener('resize', handleResize)
       container.removeEventListener('scroll', handleResize)
     }
-  }, [updateIndicator])
+  }, [keepActiveTabVisible, updateIndicator])
 
   const activateTab = (tab: AnimatedSectionTab<TValue>) => {
     if (tab.disabled) {
@@ -165,7 +192,7 @@ export function AnimatedSectionTabs<TValue extends string = string>({
   } as CSSProperties
 
   return (
-    <nav aria-label={ariaLabel} className={className}>
+    <nav aria-label={ariaLabel} className={classNames('max-w-full', className)}>
       <div
         className="animated-section-tabs"
         data-tone={tone}

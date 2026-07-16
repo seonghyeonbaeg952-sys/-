@@ -52,7 +52,7 @@ export function MapPreview({
             className="absolute -right-12 -top-12 size-40 rounded-full border border-gold-soft/35 bg-gold-soft/18"
           />
           <StaffLines className="absolute inset-x-6 top-8 !w-auto opacity-50" density="light" variant="gold" />
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-warm">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-ink">
             LOCATION
           </p>
           <div className="mt-4 grid gap-6 md:grid-cols-[1fr_auto] md:items-end">

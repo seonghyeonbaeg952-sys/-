@@ -191,6 +191,14 @@ export interface MemberRow extends CmsRecord {
   display_order: number
 }
 
+export type PublicMemberRow = Pick<
+  MemberRow,
+  'display_order' | 'group_type' | 'id' | 'part'
+> & {
+  display_name: string | null
+  member_status: NonNullable<MemberRow['member_status']>
+}
+
 export interface ConcertRow extends CmsRecord {
   title: string
   category: 'regular' | 'invited' | 'special' | 'church' | 'past' | 'other'

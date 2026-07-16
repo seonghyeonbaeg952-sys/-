@@ -73,7 +73,7 @@ function GalleryArchiveEmpty({ type }: { type: GalleryTab }) {
             className="min-h-36 rounded-balanced border border-line-default bg-linear-to-br from-bg-warm-white via-bg-ivory to-gold-soft/30 p-4 shadow-card"
             key={label}
           >
-            <span className="text-sm font-semibold text-gold-warm">{label}</span>
+            <span className="text-sm font-semibold text-gold-ink">{label}</span>
             <StaffLines className="mt-12 opacity-50" density="light" variant="navy" />
           </div>
         ))}
@@ -235,7 +235,7 @@ export function GalleryPage() {
               >
                 {filteredImages.map((image, index) => (
                   <button
-                    className="gallery-card group text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm"
+                    className="gallery-card group text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-ink"
                     key={image.id}
                     onClick={() => {
                       setSelectedPosterIndex(null)
@@ -295,7 +295,7 @@ export function GalleryPage() {
                   <Reveal key={video.id}>
                     <Card className="gallery-card overflow-hidden" hoverable radius="balanced">
                       <button
-                        className="block w-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm disabled:cursor-not-allowed disabled:opacity-60"
+                        className="block w-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-ink disabled:cursor-not-allowed disabled:opacity-60"
                         disabled={!getYouTubeEmbedUrl(video.video_url)}
                         onClick={() => {
                           setSelectedPhotoIndex(null)
@@ -355,7 +355,7 @@ export function GalleryPage() {
                   <Reveal key={poster.id}>
                     <Card className="gallery-card poster-card overflow-hidden" hoverable radius="formal">
                       <button
-                        className="group block w-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-warm"
+                        className="group block w-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-ink"
                         onClick={() => {
                           setSelectedPhotoIndex(null)
                           setSelectedPosterIndex(index)
@@ -384,7 +384,7 @@ export function GalleryPage() {
                           </div>
                         </ImageTile>
                         <div className="p-5">
-                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gold-warm">
+                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gold-ink">
                             POSTER
                           </p>
                           <h2 className="mt-2 break-keep text-lg font-semibold text-navy-deep">
@@ -431,7 +431,7 @@ export function GalleryPage() {
               <button
                 aria-label="갤러리 이미지 닫기"
                 autoFocus
-                className="flex size-11 shrink-0 items-center justify-center rounded-button border border-line-default text-navy-deep transition hover:border-gold-warm hover:bg-bg-ivory focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
+                className="flex size-11 shrink-0 items-center justify-center rounded-button border border-line-default text-navy-deep transition hover:border-gold-warm hover:bg-bg-ivory focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink"
                 onClick={closeDetail}
                 type="button"
               >
@@ -500,7 +500,7 @@ export function GalleryPage() {
           >
             <div className="mb-4 flex items-center justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gold-warm">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gold-ink">
                   POSTER DETAIL
                 </p>
                 <h2 className="mt-1 break-keep text-lg font-semibold text-navy-deep">
@@ -515,7 +515,7 @@ export function GalleryPage() {
               <button
                 aria-label="포스터 상세 닫기"
                 autoFocus
-                className="flex size-11 shrink-0 items-center justify-center rounded-button border border-line-default text-navy-deep transition hover:border-gold-warm hover:bg-bg-ivory focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
+                className="flex size-11 shrink-0 items-center justify-center rounded-button border border-line-default text-navy-deep transition hover:border-gold-warm hover:bg-bg-ivory focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink"
                 onClick={closeDetail}
                 type="button"
               >
@@ -570,7 +570,7 @@ export function GalleryPage() {
           >
             <div className="mb-4 flex items-center justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gold-warm">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gold-ink">
                   VIDEO
                 </p>
                 <h2 className="mt-1 break-keep text-lg font-semibold text-navy-deep">
@@ -580,7 +580,7 @@ export function GalleryPage() {
               <button
                 aria-label="영상 닫기"
                 autoFocus
-                className="flex size-11 shrink-0 items-center justify-center rounded-button border border-line-default text-navy-deep transition hover:border-gold-warm hover:bg-bg-ivory focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
+                className="flex size-11 shrink-0 items-center justify-center rounded-button border border-line-default text-navy-deep transition hover:border-gold-warm hover:bg-bg-ivory focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink"
                 onClick={closeDetail}
                 type="button"
               >

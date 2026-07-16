@@ -121,7 +121,7 @@ export function Footer() {
           <div className="mt-4 grid gap-2 text-sm text-bg-ivory/72">
             {footerLinks.map((item) => (
               <NavLink
-                className="flex min-h-10 items-center transition hover:text-gold-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
+                className="flex min-h-11 items-center transition hover:text-gold-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
                 key={item.href}
                 to={item.href}
               >
@@ -155,7 +155,7 @@ export function Footer() {
             </p>
           )}
           <NavLink
-            className="mt-7 inline-flex min-h-10 items-center text-xs text-bg-ivory/35 transition hover:text-gold-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
+            className="mt-7 inline-flex min-h-11 items-center text-xs text-bg-ivory/35 transition hover:text-gold-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
             to="/admin/login"
           >
             관리자 로그인

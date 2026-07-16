@@ -1,0 +1,50 @@
+{
+  "runId": "smyc-applied-ui-20260717",
+  "fileKey": "AddtkFxmBpT6Vqw3O4EeN1",
+  "fileUrl": "https://www.figma.com/design/AddtkFxmBpT6Vqw3O4EeN1",
+  "phase": "phase0",
+  "step": "frontend-stability-wait",
+  "scope": {
+    "screens": [
+      "Homepage/Desktop/1440",
+      "Homepage/Mobile/390"
+    ],
+    "components": [
+      "Quick Action",
+      "Program Row",
+      "Section Label",
+      "CTA Button"
+    ]
+  },
+  "entities": {
+    "collections": {},
+    "variables": {},
+    "pages": {
+      "Page 1": "0:1"
+    },
+    "styles": {},
+    "components": {},
+    "captures": {}
+  },
+  "decisions": {
+    "codeConnect": "No Code Connect files found for the required components.",
+    "existingFigma": "New blank design file; no local screens, variables, or styles.",
+    "libraryReuse": "Simple Design System assets were searched but do not match the live brand treatment; create a minimal local brand layer.",
+    "fonts": "Use Hahmlet as the source-defined Korean fallback because AritaBuri is unavailable in Figma; use Cormorant Garamond for English display text.",
+    "captureGate": "Wait for the frontend thread to finish black-outline removal and desktop sticky-overlap QA before capture."
+  },
+  "pendingValidations": [
+    "frontend-final-stability",
+    "desktop-capture",
+    "mobile-capture",
+    "font-family-audit",
+    "screen-screenshot-review"
+  ],
+  "completedSteps": [
+    "P0.a",
+    "P0.b",
+    "P0.c",
+    "P0.d",
+    "P0.e"
+  ]
+}

@@ -62,7 +62,7 @@ function SponsorLogoContent({
         )}
       </div>
       <div className={classNames('min-w-0', compact ? 'sr-only' : '')}>
-        <p className="type-eyebrow text-gold-warm">
+        <p className="type-eyebrow text-gold-ink">
           {getSponsorTierLabel(sponsor.tier)}
         </p>
         <h3 className="type-card-title-sans mt-2 text-navy-deep">
@@ -103,7 +103,7 @@ export function SponsorLogoCard(props: SponsorLogoCardProps) {
         aria-label={`${displayName} 웹사이트 새 창으로 열기`}
         className={classNames(
           className,
-          'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm motion-reduce:hover:translate-y-0',
+          'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink motion-reduce:hover:translate-y-0',
         )}
         href={href}
         onPointerMove={handlePointerMove}

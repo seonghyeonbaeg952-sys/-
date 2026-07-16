@@ -280,6 +280,14 @@ create table if not exists public.members (
   description text,
   is_visible boolean not null default true,
   name_display_type text not null default 'hidden',
+  public_display_name text generated always as (
+    case
+      when name_display_type = 'full' then nullif(btrim(name), '')
+      when name_display_type = 'partial' and nullif(btrim(name), '') is not null
+        then left(btrim(name), 1) || '○'
+      else null
+    end
+  ) stored,
   display_order integer not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -541,6 +549,38 @@ begin
   end loop;
 end $$;
 
+create or replace function public.get_public_members()
+returns table (
+  id uuid,
+  public_display_name text,
+  part text,
+  group_type text,
+  member_status text,
+  display_order integer
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    member.id,
+    member.public_display_name,
+    member.part,
+    member.group_type,
+    member.member_status,
+    member.display_order
+  from public.members as member
+  where member.is_visible = true
+  order by member.display_order asc, member.id asc;
+$$;
+
+comment on function public.get_public_members() is
+'Role-independent, visibility-filtered public youth roster with an explicit safe field set.';
+
+revoke all on function public.get_public_members() from public, anon, authenticated;
+grant execute on function public.get_public_members() to anon, authenticated;
+
 -- API grants. RLS policies still decide which rows are allowed.
 grant usage on schema public to anon, authenticated;
 
@@ -551,7 +591,6 @@ grant select on
   public.popup_notices,
   public.conductor,
   public.accompanist,
-  public.members,
   public.history,
   public.locations,
   public.concerts,
@@ -563,6 +602,17 @@ grant select on
   public.faq,
   public.sponsors
 to anon, authenticated;
+
+revoke select on public.members from public, anon;
+grant select (
+  id,
+  public_display_name,
+  part,
+  group_type,
+  member_status,
+  display_order,
+  is_visible
+) on public.members to anon;
 
 grant insert on public.contacts to anon, authenticated;
 grant insert on public.support_pledges to anon, authenticated;
@@ -602,7 +652,6 @@ begin
     'popup_notices',
     'conductor',
     'accompanist',
-    'members',
     'history',
     'locations',
     'concerts',
@@ -621,6 +670,14 @@ begin
     );
   end loop;
 end $$;
+
+drop policy if exists public_read_visible on public.members;
+drop policy if exists members_public_read_safe on public.members;
+create policy members_public_read_safe
+on public.members
+for select
+to anon
+using (is_visible = true);
 
 -- Admin full-access policies for public content and contacts.
 do $$

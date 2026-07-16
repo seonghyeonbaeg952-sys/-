@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useSearchParams } from 'react-router'
 
@@ -52,7 +52,7 @@ const contactSections: Array<{
   },
   {
     inquiryType: 'concert_request',
-    label: '문의',
+    label: '공연 의뢰',
     value: 'performance',
   },
   {
@@ -88,6 +88,10 @@ type ContactFormValues = {
   title: string
   type: ContactMessageInput['type']
   website: string
+}
+
+type ContactFormState = ContactFormValues & {
+  section: ContactSectionKey
 }
 
 const initialFormValues: ContactFormValues = {
@@ -147,8 +151,9 @@ export function ContactPage() {
   const contactData = useContactData()
   const [searchParams] = useSearchParams()
   const activeSection = getContactSection(searchParams.get('section'))
-  const [values, setValues] = useState<ContactFormValues>(() => ({
+  const [storedValues, setStoredValues] = useState<ContactFormState>(() => ({
     ...initialFormValues,
+    section: activeSection,
     type: getInitialInquiryType(activeSection),
   }))
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -164,15 +169,48 @@ export function ContactPage() {
   const showSponsors = showAll || activeSection === 'sponsors'
   const showForm =
     showAll ||
-    activeSection === 'performance'
+    activeSection === 'performance' ||
+    activeSection === 'support'
   const showJoinInquiry = activeSection === 'join'
   const showLocation = showAll || activeSection === 'location'
+  const values =
+    storedValues.section === activeSection
+      ? storedValues
+      : {
+          ...storedValues,
+          section: activeSection,
+          type: getInitialInquiryType(activeSection),
+        }
+
+  useEffect(() => {
+    if (contactData.isLoading || window.location.hash !== '#form') {
+      return undefined
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      document.getElementById('form')?.scrollIntoView({
+        behavior: 'auto',
+        block: 'start',
+      })
+    })
+
+    return () => window.cancelAnimationFrame(frameId)
+  }, [activeSection, contactData.isLoading])
 
   const setValue = <TKey extends keyof ContactFormValues>(
     key: TKey,
     value: ContactFormValues[TKey],
   ) => {
-    setValues((current) => ({ ...current, [key]: value }))
+    setStoredValues((current) => ({
+      ...(current.section === activeSection
+        ? current
+        : {
+            ...current,
+            section: activeSection,
+            type: getInitialInquiryType(activeSection),
+          }),
+      [key]: value,
+    }))
     setError(null)
     setSuccessMessage(null)
   }
@@ -221,8 +259,9 @@ export function ContactPage() {
       return
     }
 
-    setValues({
+    setStoredValues({
       ...initialFormValues,
+      section: activeSection,
       type: getInitialInquiryType(activeSection),
     })
     setSuccessMessage(getContactSuccessMessage(values.type))
@@ -243,6 +282,31 @@ export function ContactPage() {
         : activeSection === 'join'
           ? '입단지원서 작성'
           : '문의 보내기'
+  const supportSection = showSupport ? (
+    <Reveal rootMargin="0px 0px -2% 0px" threshold={0.01}>
+      <div className="space-y-8">
+        {showSponsorPreview ? (
+          <SponsorsSection compact showEmpty={false} sponsors={sponsors} />
+        ) : null}
+        {supportSettings ? (
+          <SupportPledgeForm
+            settings={supportSettings}
+            siteSettings={settings}
+          />
+        ) : activeSection === 'support' ? (
+          <ErrorState
+            action={(
+              <Button href="/contact?section=support#form" variant="secondary">
+                후원 문의 보내기
+              </Button>
+            )}
+            description="운영 설정이 확인되기 전에는 온라인 약정서를 표시하지 않습니다. 문의 폼으로 연락해 주세요."
+            title="후원 약정 접수를 준비하고 있습니다"
+          />
+        ) : null}
+      </div>
+    </Reveal>
+  ) : null
 
   return (
     <>
@@ -265,7 +329,14 @@ export function ContactPage() {
 
         {contactData.error ? (
           <div className="mb-6">
-            <ErrorState description={contactData.error} />
+            <ErrorState
+              action={(
+                <Button onClick={contactData.refetch} variant="secondary">
+                  다시 시도
+                </Button>
+              )}
+              description={contactData.error}
+            />
           </div>
         ) : null}
 
@@ -286,34 +357,16 @@ export function ContactPage() {
         </Reveal>
 
         <div className="space-y-10 lg:space-y-14">
-          {showSupport ? (
-            <Reveal rootMargin="0px 0px -2% 0px" threshold={0.01}>
-              <div className="space-y-8">
-                {showSponsorPreview ? (
-                  <SponsorsSection compact showEmpty={false} sponsors={sponsors} />
-                ) : null}
-                <SupportPledgeForm
-                  settings={supportSettings}
-                  siteSettings={settings}
-                />
-              </div>
-            </Reveal>
-          ) : null}
-
-          {showSponsors ? (
-            <Reveal rootMargin="0px 0px -2% 0px" threshold={0.01}>
-              <SponsorsSection sponsors={sponsors} />
-            </Reveal>
-          ) : null}
+          {activeSection === 'support' ? supportSection : null}
 
           {showForm ? (
-          <Reveal rootMargin="0px 0px -2% 0px" threshold={0.01}>
-            <div className="inquiry-layout">
-            <Card
-              className="relative overflow-hidden p-6 sm:p-7"
-              id={activeSection === 'performance' ? 'performance' : 'form'}
-              radius="formal"
-            >
+            <Reveal rootMargin="0px 0px -2% 0px" threshold={0.01}>
+              <div className="inquiry-layout">
+                <Card
+                  className="relative scroll-mt-24 overflow-hidden p-6 sm:p-7"
+                  id={activeSection === 'performance' ? 'performance' : 'form'}
+                  radius="formal"
+                >
               <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-gold-warm via-gold-soft to-transparent" />
               <h2 className="text-2xl font-semibold text-navy-deep">
                 {formTitle}
@@ -448,9 +501,9 @@ export function ContactPage() {
                   {isSubmitting ? '전송 중' : '문의 보내기'}
                 </Button>
               </form>
-            </Card>
-            <Card className="inquiry-guide-card p-6" radius="formal">
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-gold-warm">
+                </Card>
+                <Card className="inquiry-guide-card p-6" radius="formal">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-gold-ink">
                 PRIVATE INQUIRY
               </p>
               <h2 className="mt-3 break-keep text-xl font-semibold leading-7 text-navy-deep">
@@ -467,9 +520,17 @@ export function ContactPage() {
                   입단지원서는 별도 전용 양식에서 접수합니다.
                 </li>
               </ul>
-            </Card>
-            </div>
-          </Reveal>
+                </Card>
+              </div>
+            </Reveal>
+          ) : null}
+
+          {activeSection !== 'support' ? supportSection : null}
+
+          {showSponsors ? (
+            <Reveal rootMargin="0px 0px -2% 0px" threshold={0.01}>
+              <SponsorsSection sponsors={sponsors} />
+            </Reveal>
           ) : null}
 
           {showJoinInquiry ? (
@@ -484,7 +545,7 @@ export function ContactPage() {
                     className="absolute -right-8 -top-10 size-32 rounded-full bg-gold-soft/20 sm:-right-10 sm:-top-12 sm:size-40"
                   />
                   <div className="relative">
-                    <p className="text-xs font-bold tracking-[0.22em] text-gold-warm">
+                    <p className="text-xs font-bold tracking-[0.22em] text-gold-ink">
                       JOIN APPLICATION
                     </p>
                     <h2 className="mt-4 break-keep text-2xl font-semibold text-navy-deep">
@@ -526,7 +587,7 @@ export function ContactPage() {
                   <div className="space-y-5">
                     <Card className="relative overflow-hidden p-6" radius="formal">
                       <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-gold-warm via-gold-soft to-transparent" />
-                      <p className="text-sm font-semibold text-gold-warm">CONTACT</p>
+                      <p className="text-sm font-semibold text-gold-ink">CONTACT</p>
                       <h2 className="mt-3 text-2xl font-semibold text-navy-deep">
                         공식 문의 채널
                       </h2>
