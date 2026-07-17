@@ -374,7 +374,7 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
       const nextProgress = prefersReducedMotion.matches
         ? 1
         : (() => {
-            const targetViewportY = window.innerHeight * 0.75
+            const targetViewportY = window.innerHeight * 0.6
 
             return clampProgress(
               (window.scrollY + targetViewportY - railTop) / railHeight,
@@ -400,7 +400,10 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
       requestUpdate()
     }
 
+    const railResizeObserver = new ResizeObserver(handleResize)
+
     measureRail()
+    railResizeObserver.observe(rail)
     updateProgress()
     window.addEventListener('scroll', requestUpdate, { passive: true })
     window.addEventListener('resize', handleResize)
@@ -414,6 +417,7 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
       window.removeEventListener('scroll', requestUpdate)
       window.removeEventListener('resize', handleResize)
       prefersReducedMotion.removeEventListener('change', requestUpdate)
+      railResizeObserver.disconnect()
     }
   }, [isDesktopRail])
 
@@ -455,7 +459,7 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
     >
       <div className="relative h-full w-full">
         <div className="score-flow-mask absolute inset-0 [mask-image:linear-gradient(to_bottom,transparent,black_5rem,black_calc(100%_-_5rem),transparent)]">
-          <div className="absolute inset-y-0 left-0 flex w-full justify-between opacity-[0.18]">
+          <div className="absolute inset-y-0 left-0 flex w-full justify-between opacity-0">
             {lineIndexes.map((line) => (
               <span
                 className={classNames('h-full w-px rounded-full', lineColor)}

@@ -16,7 +16,8 @@ export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeMegaMenuHref, setActiveMegaMenuHref] = useState<string | null>(null)
-  const isHome = location.pathname === '/'
+  const isHome =
+    location.pathname === '/' || location.pathname === '/home-section-flow-sample'
   const isTransparent = isHome && !isScrolled && !isMenuOpen
   const activeMegaMenuItem =
     publicNavigation.find((item) => item.href === activeMegaMenuHref) ?? null
@@ -115,6 +116,7 @@ export function Header() {
           {publicNavigation.map((item) => {
             const hasChildren = Boolean(item.children?.length)
             const isMegaMenuOpen = activeMegaMenuHref === item.href
+            const isHomeNavigationItem = isHome && item.href === '/'
 
             return (
               <NavLink
@@ -125,7 +127,9 @@ export function Header() {
                   [
                     'group relative flex min-h-11 items-center whitespace-nowrap rounded-pill px-1 py-2 text-[13px] font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 xl:text-sm',
                     accentInteractionColor,
-                    isActive || isMegaMenuOpen ? accentColor : mutedColor,
+                    isActive || isHomeNavigationItem || isMegaMenuOpen
+                      ? accentColor
+                      : mutedColor,
                   ].join(' ')
                 }
                 key={item.href}
@@ -141,7 +145,9 @@ export function Header() {
                       aria-hidden="true"
                       className={[
                         'absolute inset-x-0 -bottom-0.5 h-px origin-left scale-x-0 bg-gold-warm transition-transform duration-200 group-hover:scale-x-100',
-                        isActive || isMegaMenuOpen ? 'scale-x-100' : '',
+                        isActive || isHomeNavigationItem || isMegaMenuOpen
+                          ? 'scale-x-100'
+                          : '',
                       ].join(' ')}
                     />
                   </>

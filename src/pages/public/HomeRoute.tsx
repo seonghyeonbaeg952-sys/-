@@ -2,11 +2,10 @@ import { lazy, Suspense } from 'react'
 import { useSearchParams } from 'react-router'
 
 import { LoadingState } from '../../components/common/LoadingState'
-import { HomePage } from './HomePage'
+import { HomeSectionFlowPage } from './HomeSectionFlowSamplePage'
 import '../../styles/home-v6-fixes.css'
 import '../../styles/home-premium-polish.css'
 import '../../styles/home-global-refinement.css'
-import '../../styles/home-section-waves.css'
 
 const HomeMotionBenchmarkPage = lazy(() =>
   import('./HomeMotionBenchmarkPage').then((module) => ({
@@ -18,7 +17,7 @@ export function HomeRoute() {
   const [searchParams] = useSearchParams()
 
   if (searchParams.get('motionBenchmark') !== '1') {
-    return <HomePage />
+    return <HomeSectionFlowPage />
   }
 
   return (

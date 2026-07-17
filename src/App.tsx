@@ -25,6 +25,11 @@ const HomeHeroIntroSamplePage = lazy(() =>
     default: module.HomeHeroIntroSamplePage,
   })),
 )
+const HomeSectionFlowSamplePage = lazy(() =>
+  import('./pages/public/HomeSectionFlowSamplePage').then((module) => ({
+    default: module.HomeSectionFlowSamplePage,
+  })),
+)
 const ConcertsPage = lazy(() =>
   import('./pages/public/ConcertsPage').then((module) => ({ default: module.ConcertsPage })),
 )
@@ -194,6 +199,7 @@ function App() {
           <Route path="/" element={<PublicLayout />}>
             <Route index element={<HomeRoute />} />
             <Route path="home-hero-intro-sample" element={<HomeHeroIntroSamplePage />} />
+            <Route path="home-section-flow-sample" element={<HomeSectionFlowSamplePage />} />
             <Route path="spirit" element={<SpiritPage />} />
             <Route path="spirit-hero-sample" element={<SpiritHeroSamplePage />} />
             <Route path="about" element={<AboutPage />} />

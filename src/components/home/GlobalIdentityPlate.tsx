@@ -57,7 +57,7 @@ export function GlobalIdentityPlate({
   return (
     <aside className="home-global-identity-plate" aria-label="합창단 영문 소개">
       <div className="home-global-identity-heading">
-        <BrandLogo brand="smyc" size="md" theme="dark" />
+        <BrandLogo brand="smyc" size="md" theme="dark" variant="symbol" />
         <div>
           <p>SEOUL MOTET YOUTH CHOIR</p>
           <strong>{tagline}</strong>

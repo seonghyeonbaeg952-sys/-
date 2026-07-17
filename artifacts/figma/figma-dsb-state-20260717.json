@@ -2,8 +2,8 @@
   "runId": "smyc-applied-ui-20260717",
   "fileKey": "AddtkFxmBpT6Vqw3O4EeN1",
   "fileUrl": "https://www.figma.com/design/AddtkFxmBpT6Vqw3O4EeN1",
-  "phase": "phase0",
-  "step": "frontend-stability-wait",
+  "phase": "hybrid-current-plus-ui-complete",
+  "step": "done",
   "scope": {
     "screens": [
       "Homepage/Desktop/1440",
@@ -13,38 +13,112 @@
       "Quick Action",
       "Program Row",
       "Section Label",
-      "CTA Button"
+      "CTA Button",
+      "Context Status Chip",
+      "Archive Filter",
+      "Desktop Header Join CTA"
     ]
   },
   "entities": {
     "collections": {},
     "variables": {},
     "pages": {
-      "Page 1": "0:1"
+      "00 Overview": "0:1",
+      "01 Desktop Refined": "5:23",
+      "02 Mobile Refined": "5:25",
+      "03 Current Desktop Initial State": "23:2",
+      "04 Current Mobile Static": "23:3",
+      "05 Current + UI Desktop": "28:2",
+      "06 Current + UI Mobile": "28:657"
     },
     "styles": {},
     "components": {},
-    "captures": {}
+    "captures": {
+      "desktopCurrent": {
+        "nodeId": "19:2",
+        "viewport": "1440x900",
+        "frameSize": "1440x8924",
+        "note": "Editable full-page capture; scroll-linked sections represent the initial scroll state in a static Figma frame."
+      },
+      "mobileCurrent": {
+        "nodeId": "21:2",
+        "viewport": "390x844",
+        "frameSize": "390x10942",
+        "note": "Editable full-page capture with mobile motion disabled by the implementation breakpoint."
+      },
+      "desktopHybrid": {
+        "nodeId": "28:3",
+        "frameSize": "1440x8924",
+        "note": "Current implementation preserved with a limited set of additive UI refinements."
+      },
+      "mobileHybrid": {
+        "nodeId": "28:658",
+        "frameSize": "390.4x10941.48",
+        "note": "Current mobile implementation preserved at its exact source width; additive UI remains touch-safe and non-overlapping."
+      }
+    }
+  },
+  "hybrid": {
+    "desktopRoot": "28:3",
+    "mobileRoot": "28:658",
+    "changeMaps": {
+      "desktop": "34:2",
+      "mobile": "34:7"
+    },
+    "appliedUI": [
+      "Desktop header join CTA",
+      "Quick action metadata chips and desktop gold card accents",
+      "About and performance context status chips",
+      "Unified CTA surface states without changing position or copy",
+      "Desktop three-segment archive filter",
+      "Mobile 44px archive type trigger that preserves the existing CTA row"
+    ],
+    "preserved": [
+      "Hero structure and content",
+      "Homepage section order and dimensions",
+      "About layout",
+      "Wave transition panels and responsive motion rules",
+      "Final wave variants in src/styles/home-section-waves.css: quiet layered paper, stage offset score sheets, finale double navy curtain",
+      "Scorebook storytelling",
+      "Support fold"
+    ]
   },
   "decisions": {
     "codeConnect": "No Code Connect files found for the required components.",
     "existingFigma": "New blank design file; no local screens, variables, or styles.",
-    "libraryReuse": "Simple Design System assets were searched but do not match the live brand treatment; create a minimal local brand layer.",
+    "libraryReuse": "Simple Design System assets were searched but did not match the live brand treatment; the refined proposal uses a local editorial brand treatment without creating a reusable component library.",
     "fonts": "Use Hahmlet as the source-defined Korean fallback because AritaBuri is unavailable in Figma; use Cormorant Garamond for English display text.",
-    "captureGate": "Wait for the frontend thread to finish black-outline removal and desktop sticky-overlap QA before capture."
+    "captureGate": "Frontend thread confirmed exact 1440/1024/768/430/390 viewport QA, zero horizontal overflow, zero transition borders, zero console warnings/errors, and passing lint/build before capture.",
+    "refinedProposal": "Completed full-length editable desktop node 5:24 and mobile node 5:26; full-frame screenshots reviewed successfully.",
+    "currentImplementation": "Captured the stable implementation into editable desktop node 19:2 and mobile node 21:2, then removed all temporary capture hooks from index.html.",
+    "hybridBaseline": "Desktop node 28:3 and mobile node 28:658 are the implementation baseline: current format 90%, selective additive UI 10%. The earlier Refined pages remain reference-only.",
+    "hybridScope": "Only action hierarchy, metadata, status, and archive filtering surfaces were added. Section roots, heights, ordering, wave motion, and storytelling components were not redesigned.",
+    "waveVariantContract": "Frontend thread finalized natural wave handoffs in src/styles/home-section-waves.css. Current + UI implementation must treat that file's quiet, stage, finale, fade, responsive echo, reduced-motion, and score-sticky behavior as preserved baseline behavior.",
+    "staticMotionLimit": "A full-page Figma frame cannot preserve the website's scroll-driven motion states; the desktop current frame is explicitly treated as an initial-scroll-state reference."
   },
-  "pendingValidations": [
-    "frontend-final-stability",
-    "desktop-capture",
-    "mobile-capture",
-    "font-family-audit",
-    "screen-screenshot-review"
-  ],
+  "pendingValidations": [],
   "completedSteps": [
     "P0.a",
     "P0.b",
     "P0.c",
     "P0.d",
-    "P0.e"
+    "P0.e",
+    "refined-desktop",
+    "refined-mobile",
+    "refined-screenshot-review",
+    "frontend-thread-handoff",
+    "frontend-final-stability",
+    "desktop-current-capture",
+    "mobile-current-capture",
+    "font-family-audit",
+    "screen-screenshot-review",
+    "temporary-capture-hook-removal",
+    "hybrid-desktop-current-plus-ui",
+    "hybrid-mobile-current-plus-ui",
+    "hybrid-combined-screenshot-review",
+    "hybrid-overlap-and-clipping-fixes",
+    "hybrid-change-map-review",
+    "temporary-qa-slice-removal",
+    "frontend-wave-variant-preservation-contract"
   ]
 }

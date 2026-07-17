@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, type ReactNode } from 'react'
 
 import { SeoHead } from '../../components/common/SeoHead'
 import { StaffFlowRail } from '../../components/common/StaffFlowRail'
@@ -12,7 +12,6 @@ import { HomeFlowProvider } from '../../components/home/HomeFlowProvider'
 import { HomeHeroIntroOverlay } from '../../components/home/HomeHeroIntroOverlay'
 import { HomeHeroSlideshow } from '../../components/home/HomeHeroSlideshow'
 import { HomePopupManager } from '../../components/home/HomePopupManager'
-import { HomeSectionPanel } from '../../components/home/HomeSectionWave'
 import { HomeSpiritScoreBook } from '../../components/home/HomeSpiritScoreBook'
 import { JoinCTA } from '../../components/home/JoinCTA'
 import { PerformanceNewsPreview } from '../../components/home/PerformanceNewsPreview'
@@ -27,6 +26,93 @@ import type { Concert, GalleryImage } from '../../types/content'
 const homeHeroEnglishTitleLines = ['SEOUL', 'MOTET', 'YOUTH', 'CHOIR']
 const homeHeroBody =
   '서울모테트청소년합창단은 청소년이 합창을 배우고 정기 연습과 공연을 경험하는 음악교육 공동체입니다.'
+
+type HomePageMode = 'default' | 'section-flow-sample'
+
+type HomePageProps = {
+  mode?: HomePageMode
+}
+
+type HomeFlowSampleChunkProps = {
+  children: ReactNode
+  enabled: boolean
+  tone: 'warm' | 'stage' | 'finale'
+}
+
+type HomeFlowSampleHoldProps = {
+  children: ReactNode
+  enabled: boolean
+  variant?: 'compact' | 'full'
+}
+
+const sampleEdgePaths = {
+  warm: 'M0 56C228 18 466 16 704 46C962 78 1190 67 1440 30V96H0Z',
+  stage:
+    'M0 52C178 33 330 62 520 45C735 25 914 17 1112 42C1232 57 1334 61 1440 47V96H0Z',
+  finale:
+    'M0 60C182 73 346 48 526 51C738 55 916 72 1103 55C1231 43 1335 39 1440 49V96H0Z',
+} as const
+
+function HomeFlowSampleChunk({
+  children,
+  enabled,
+  tone,
+}: HomeFlowSampleChunkProps) {
+  if (!enabled) {
+    return <>{children}</>
+  }
+
+  if (tone === 'warm') {
+    return (
+      <div className="home-flow-sample-chunk home-flow-sample-chunk--warm">
+        <div className="home-flow-sample-chunk__content">{children}</div>
+      </div>
+    )
+  }
+
+  return (
+    <div className={`home-flow-sample-chunk home-flow-sample-chunk--${tone}`}>
+      <div aria-hidden="true" className="home-flow-sample-chunk__surface">
+        <svg
+          className="home-flow-sample-chunk__edge"
+          preserveAspectRatio="none"
+          viewBox="0 0 1440 102"
+        >
+          <path
+            className="home-flow-sample-chunk__edge-depth"
+            d={sampleEdgePaths[tone]}
+            transform="translate(0 6)"
+          />
+          <path
+            className="home-flow-sample-chunk__edge-face"
+            d={sampleEdgePaths[tone]}
+          />
+        </svg>
+      </div>
+      <div className="home-flow-sample-chunk__content">{children}</div>
+    </div>
+  )
+}
+
+function HomeFlowSampleHold({
+  children,
+  enabled,
+  variant = 'compact',
+}: HomeFlowSampleHoldProps) {
+  if (!enabled) {
+    return <>{children}</>
+  }
+
+  return (
+    <div
+      className={`home-flow-sample-hold-track home-flow-sample-hold-track--${variant}`}
+    >
+      <div className="home-flow-sample-hold">
+        <div className="home-flow-sample-hold__panel">{children}</div>
+      </div>
+    </div>
+  )
+}
 
 function getAboutSummary(siteSummary: string, aboutSections: AboutSectionRow[]) {
   const sectionSummary = aboutSections
@@ -122,7 +208,7 @@ function renderSmycTitleLine(line: string) {
   )
 }
 
-export function HomePage() {
+export function HomePage({ mode = 'default' }: HomePageProps) {
   const homeData = useHomeData()
   const {
     aboutSections,
@@ -244,6 +330,7 @@ export function HomePage() {
             tone="light"
           />
           <div className="relative z-10">
+          <HomeFlowSampleChunk enabled={mode === 'section-flow-sample'} tone="warm">
           <FloatingInfoCards
             cards={[
               {
@@ -297,7 +384,7 @@ export function HomePage() {
             summary={t('home.about.body', aboutSummary)}
             title={t('home.about.title', siteSettings.home_about_title)}
           />
-          <HomeSectionPanel variant="quiet">
+          <HomeFlowSampleHold enabled={mode === 'section-flow-sample'}>
             <JoinCTA
               buttonLabel={t('home.join.cta', t('home.join.button'))}
               kicker={t('home.join.kicker')}
@@ -307,7 +394,9 @@ export function HomePage() {
               text={t('home.join.body', t('home.join.description'))}
               title={t('home.join.title')}
             />
-          </HomeSectionPanel>
+          </HomeFlowSampleHold>
+          </HomeFlowSampleChunk>
+          <HomeFlowSampleChunk enabled={mode === 'section-flow-sample'} tone="stage">
           <PerformanceNewsPreview
             concertButtonLabel={t(
               'home.concert.cta.schedule',
@@ -330,27 +419,32 @@ export function HomePage() {
             programNoteLabel={t('home.concert.programNoteLabel')}
             title={t('home.concert.title', t('home.concert.sectionTitle'))}
           />
-          <HomeSectionPanel variant="stage">
-            <ScrollScoreBookReveal
-              coverDescription={t(
-                'home.score.cover.body',
-                t('home.scorebook.coverDescription'),
-              )}
-              coverTitle={t('home.score.cover.title', t('home.scorebook.coverTitle'))}
-              finalDescription={t(
-                'home.score.final.body',
-                t('home.scorebook.finalDescription'),
-              )}
-              finalTitle={t('home.score.final.title', t('home.scorebook.finalTitle'))}
-              rightBody={t('home.score.right.body')}
-              rightTitle={t('home.score.right.title', t('home.scorebook.rightTitle'))}
-              valueWordsText={t('home.score.value.list')}
-            />
-          </HomeSectionPanel>
-          <HomeSpiritScoreBook
-            image={spiritVisualImage}
-            sections={aboutSections}
+          <ScrollScoreBookReveal
+            coverDescription={t(
+              'home.score.cover.body',
+              t('home.scorebook.coverDescription'),
+            )}
+            coverTitle={t('home.score.cover.title', t('home.scorebook.coverTitle'))}
+            finalDescription={t(
+              'home.score.final.body',
+              t('home.scorebook.finalDescription'),
+            )}
+            finalTitle={t('home.score.final.title', t('home.scorebook.finalTitle'))}
+            rightBody={t('home.score.right.body')}
+            rightTitle={t('home.score.right.title', t('home.scorebook.rightTitle'))}
+            valueWordsText={t('home.score.value.list')}
           />
+          <HomeFlowSampleHold
+            enabled={mode === 'section-flow-sample'}
+            variant="full"
+          >
+            <HomeSpiritScoreBook
+              image={spiritVisualImage}
+              sections={aboutSections}
+            />
+          </HomeFlowSampleHold>
+          </HomeFlowSampleChunk>
+          <HomeFlowSampleChunk enabled={mode === 'section-flow-sample'} tone="finale">
           <GalleryPreview
             buttonLabel={t('home.gallery.cta', siteSettings.home_gallery_button_label)}
             description={t(
@@ -369,23 +463,22 @@ export function HomePage() {
             videos={videos}
           />
           <SponsorQuietMarquee sponsors={sponsors} />
-          <HomeSectionPanel variant="finale">
-            <SupportLetterFold
-              buttonLabel={t('home.support.cta.primary', t('home.support.button'))}
-              cardDescription={t(
-                'home.support.card.description',
-                t('home.support.cardDescription'),
-              )}
-              cardTitle={t('home.support.card.title', t('home.support.cardTitle'))}
-              secondaryButtonLabel={t(
-                'home.support.cta.secondary',
-                t('home.support.secondaryButton'),
-              )}
-              settings={siteSettings}
-              supportText={t('home.support.description')}
-              title={t('home.support.title')}
-            />
-          </HomeSectionPanel>
+          <SupportLetterFold
+            buttonLabel={t('home.support.cta.primary', t('home.support.button'))}
+            cardDescription={t(
+              'home.support.card.description',
+              t('home.support.cardDescription'),
+            )}
+            cardTitle={t('home.support.card.title', t('home.support.cardTitle'))}
+            secondaryButtonLabel={t(
+              'home.support.cta.secondary',
+              t('home.support.secondaryButton'),
+            )}
+            settings={siteSettings}
+            supportText={t('home.support.description')}
+            title={t('home.support.title')}
+          />
+          </HomeFlowSampleChunk>
           </div>
         </div>
       </HomeFlowProvider>

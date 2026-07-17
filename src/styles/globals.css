@@ -6509,7 +6509,7 @@ section[role='tabpanel'] {
   .score-flow-draw {
     transform: scaleY(0);
     transform-origin: top center;
-    transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform 560ms cubic-bezier(0.4, 0, 0.2, 1);
     will-change: transform;
   }
 
@@ -6518,7 +6518,7 @@ section[role='tabpanel'] {
     transform: scaleY(0);
     transform-origin: top center;
     transition:
-      transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 640ms cubic-bezier(0.4, 0, 0.2, 1),
       opacity 260ms cubic-bezier(0.22, 1, 0.36, 1);
     will-change: transform, opacity;
   }
