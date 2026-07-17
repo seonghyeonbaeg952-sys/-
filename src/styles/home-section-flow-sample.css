@@ -53,6 +53,25 @@
 
 .home-flow-sample-chunk--warm {
   --sample-chunk-layer: 1;
+  --sample-surface: #f3e8d6;
+  --sample-shadow: rgba(102, 76, 42, 0.14);
+  background: transparent;
+}
+
+.home-flow-sample-chunk--warm::before {
+  position: absolute;
+  z-index: 0;
+  top: var(--home-hero-handoff-start, clamp(138px, 9.5vw, 176px));
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background:
+    radial-gradient(circle at 12% 20%, rgba(255, 253, 248, 0.72), transparent 32%),
+    radial-gradient(circle at 86% 78%, rgba(183, 139, 72, 0.075), transparent 38%),
+    linear-gradient(118deg, rgba(255, 255, 255, 0.2), transparent 48%),
+    var(--sample-surface);
+  content: "";
+  pointer-events: none;
 }
 
 .home-flow-sample-hold-track {
@@ -99,16 +118,16 @@
 
 .home-flow-sample-chunk--stage {
   --sample-chunk-layer: 2;
-  --sample-surface: #f4f1e8;
-  --sample-shadow: rgba(32, 42, 52, 0.15);
+  --sample-surface: #e7edf0;
+  --sample-shadow: rgba(28, 51, 70, 0.17);
   margin-top: calc(var(--sample-panel-hold) * -1);
   view-timeline-name: --sample-stage-panel;
 }
 
 .home-flow-sample-chunk--finale {
   --sample-chunk-layer: 3;
-  --sample-surface: #eef0e7;
-  --sample-shadow: rgba(48, 66, 53, 0.16);
+  --sample-surface: #e3ebe2;
+  --sample-shadow: rgba(43, 72, 52, 0.17);
   margin-top: calc(var(--sample-panel-hold) * -1);
   view-timeline-name: --sample-finale-panel;
 }
@@ -162,9 +181,9 @@
 
 .home-flow-sample-chunk--stage .home-flow-sample-chunk__surface {
   background:
-    radial-gradient(circle at 15% 18%, rgba(255, 255, 255, 0.58), transparent 29%),
-    radial-gradient(circle at 82% 76%, rgba(11, 32, 63, 0.035), transparent 38%),
-    linear-gradient(114deg, rgba(255, 255, 255, 0.22), transparent 52%),
+    radial-gradient(circle at 15% 18%, rgba(255, 255, 255, 0.62), transparent 29%),
+    radial-gradient(circle at 82% 76%, rgba(24, 57, 82, 0.085), transparent 38%),
+    linear-gradient(114deg, rgba(255, 255, 255, 0.25), transparent 52%),
     var(--sample-surface);
 }
 
@@ -174,9 +193,9 @@
   height: auto;
   margin-bottom: 0;
   background:
-    radial-gradient(circle at 78% 17%, rgba(255, 255, 255, 0.52), transparent 29%),
-    radial-gradient(circle at 14% 82%, rgba(70, 97, 76, 0.055), transparent 36%),
-    linear-gradient(74deg, rgba(58, 77, 62, 0.025), transparent 54%),
+    radial-gradient(circle at 78% 17%, rgba(255, 255, 255, 0.58), transparent 29%),
+    radial-gradient(circle at 14% 82%, rgba(54, 92, 64, 0.105), transparent 36%),
+    linear-gradient(74deg, rgba(48, 78, 56, 0.045), transparent 54%),
     var(--sample-surface);
 }
 
@@ -215,13 +234,39 @@
 }
 
 .home-section-flow-sample
+  .home-flow-sample-chunk--warm
+  [data-flow-section="quick"] {
+  background-color: transparent !important;
+}
+
+.home-section-flow-sample
+  .home-flow-sample-chunk--warm
+  [data-flow-section="about"] {
+  background-color: color-mix(
+    in srgb,
+    var(--sample-surface) 78%,
+    #fffdf8
+  ) !important;
+}
+
+.home-section-flow-sample
+  .home-flow-sample-chunk--warm
+  [data-flow-section="join-letter"] {
+  background-color: color-mix(
+    in srgb,
+    var(--sample-surface) 68%,
+    #fffdf8
+  ) !important;
+}
+
+.home-section-flow-sample
   .home-flow-sample-chunk--stage
   .home-flow-sample-chunk__content
   > [data-flow-section="concert-program"] {
   background-color: color-mix(
     in srgb,
-    var(--sample-surface) 78%,
-    #fffdf8
+    var(--sample-surface) 86%,
+    #f9fbfa
   ) !important;
 }
 
@@ -231,8 +276,8 @@
   > [data-flow-section="spirit"] {
   background-color: color-mix(
     in srgb,
-    var(--sample-surface) 72%,
-    #fffdf8
+    var(--sample-surface) 76%,
+    #fbfcf9
   ) !important;
 }
 
@@ -246,15 +291,15 @@
   > [data-flow-section="sponsors"] {
   background-color: color-mix(
     in srgb,
-    var(--sample-surface) 76%,
-    #fffdf8
+    var(--sample-surface) 84%,
+    #fbfcf8
   ) !important;
 }
 
 .home-section-flow-sample
   .home-flow-sample-chunk--finale
   [data-flow-section="sponsors"] {
-  border-color: rgba(80, 104, 84, 0.16);
+  border-color: rgba(67, 101, 76, 0.22);
 }
 
 @supports (animation-timeline: view()) {
