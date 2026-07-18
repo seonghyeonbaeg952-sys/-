@@ -740,6 +740,19 @@
   transform: rotateY(180deg);
 }
 
+@media (min-width: 1024px) {
+  .motet-score-book {
+    scale: 0.76;
+  }
+
+  .motet-score-spread,
+  .motet-score-cover,
+  .motet-score-flutter-face,
+  .motet-score-flutter-face-back {
+    border-radius: 0;
+  }
+}
+
 .motet-score-flutter-face::before {
   content: "";
   position: absolute;

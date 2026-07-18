@@ -80,6 +80,19 @@ export function HomeHeroIntroOverlay() {
           (revealMatrix?.a ?? 1) *
             (Number.parseFloat(revealScaleParts[0] ?? '1') || 1),
         ) || 1
+      const homeShell = sampleRoot.closest<HTMLElement>('.public-shell-home')
+      const homeDensity =
+        Number.parseFloat(
+          homeShell
+            ? window
+                .getComputedStyle(homeShell)
+                .getPropertyValue('--public-home-density')
+            : '1',
+        ) || 1
+      const titleFontSize = Number.parseFloat(titleStyles.fontSize)
+      const titleLineHeight = Number.parseFloat(titleStyles.lineHeight)
+      const scaledTitleFontSize = titleFontSize * homeDensity
+      const scaledTitleLineHeight = titleLineHeight * homeDensity
       const setMetric = (name: string, value: string) => {
         launchElement.style.setProperty(name, value)
         wordmarkElement.style.setProperty(name, value)
@@ -91,10 +104,22 @@ export function HomeHeroIntroOverlay() {
       setMetric('--intro-title-left', `${titleLeft}px`)
       setMetric('--intro-title-top', `${titleTop}px`)
       setMetric('--intro-title-width', `${titleRect.width / revealScaleX}px`)
-      setMetric('--intro-title-font-size', titleStyles.fontSize)
-      setMetric('--intro-title-line-height', titleStyles.lineHeight)
+      setMetric(
+        '--intro-title-font-size',
+        Number.isFinite(scaledTitleFontSize)
+          ? `${scaledTitleFontSize}px`
+          : titleStyles.fontSize,
+      )
+      setMetric(
+        '--intro-title-line-height',
+        Number.isFinite(scaledTitleLineHeight)
+          ? `${scaledTitleLineHeight}px`
+          : titleStyles.lineHeight,
+      )
 
-      const lineHeight = Number.parseFloat(titleStyles.lineHeight) || titleRect.height / 4
+      const lineHeight =
+        (Number.isFinite(scaledTitleLineHeight) && scaledTitleLineHeight) ||
+        titleRect.height / 4
       const startScale =
         Number.parseFloat(
           window.getComputedStyle(launchElement).getPropertyValue('--intro-start-scale'),
@@ -150,11 +175,13 @@ export function HomeHeroIntroOverlay() {
     }
 
     void prepareAnimation()
+    window.addEventListener('resize', applyTitleMetrics)
 
     return () => {
       isCancelled = true
       window.cancelAnimationFrame(animationFrameId)
       window.clearTimeout(fontTimeoutId)
+      window.removeEventListener('resize', applyTitleMetrics)
     }
   }, [shouldRenderIntro])
 

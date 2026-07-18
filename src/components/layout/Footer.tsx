@@ -78,7 +78,10 @@ export function Footer() {
     >
       <div aria-hidden="true" className="score-ribbon pre-footer-score-band absolute inset-x-0 top-0" />
       <div aria-hidden="true" className="spotlight-glow footer-spotlight-glow" />
-      <StaffDivider className="absolute inset-x-0 top-0 max-w-none py-0 opacity-85" variant="inverted" />
+      <StaffDivider
+        className="footer-staff-divider absolute inset-x-0 top-0 max-w-none py-0 opacity-85"
+        variant="inverted"
+      />
       <div
         aria-hidden="true"
         className="absolute -right-20 top-10 hidden size-72 rounded-full border border-bg-warm-white/10 bg-bg-warm-white/[0.03] lg:block"

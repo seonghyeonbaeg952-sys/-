@@ -1,6 +1,52 @@
 /* Shared shell refinements extracted from the home art-direction layer.
    Keep this file limited to UI rendered on every public route. */
 
+.public-shell-home {
+  --public-home-density: 1;
+}
+
+@media (min-width: 1280px) {
+  .public-shell-home {
+    --public-home-density: 0.8;
+  }
+
+  .public-shell-home header .max-w-content,
+  .public-shell-home .home-hero-section > .max-w-content,
+  .public-shell-home
+    .home-flow-body
+    [data-flow-section]:not([data-flow-section="score-book"]):not(
+      [data-flow-section="spirit"]
+    )
+    > .max-w-content {
+    max-width: 1280px;
+    zoom: var(--public-home-density);
+  }
+
+  .public-shell-home .site-footer .max-w-content {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1600px) {
+  .public-shell-home {
+    --public-home-density: 0.9;
+  }
+
+  .public-shell-home .site-footer .max-w-content {
+    max-width: 1152px;
+  }
+}
+
+@media (min-width: 1792px) {
+  .public-shell-home {
+    --public-home-density: 1;
+  }
+
+  .public-shell-home .site-footer .max-w-content {
+    max-width: 1280px;
+  }
+}
+
 .route-loading-screen {
   position: relative;
   display: grid;
@@ -161,6 +207,7 @@
   --home-flow-gold-soft: 231 213 163;
   --home-flow-navy: 7 21 38;
 
+  z-index: 31;
   margin-top: -1px;
   background-color: rgb(7 21 38) !important;
   background-image: none !important;
@@ -198,6 +245,12 @@
 
 .site-footer > .mx-auto {
   padding-top: clamp(24px, 3vw, 42px);
+}
+
+.site-footer .footer-staff-divider {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
 }
 
 .site-footer .pre-footer-score-band,
