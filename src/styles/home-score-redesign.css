@@ -382,3 +382,25 @@
     transform: none !important;
   }
 }
+
+/* Keep the stage M edge visible only while the first surface is actively
+   rising. Hiding it before the hold state is ready and after it settles
+   prevents the pale orange strip from lingering below the fixed header. */
+.home-section-flow-sample
+  .home-flow-sample-chunk--stage
+  > .home-flow-sample-chunk__surface
+  > .home-flow-sample-chunk__edge {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.home-section-flow-sample
+  .home-flow-sample-chunk--warm:has(
+    .home-flow-sample-hold-track--compact[data-hold-state="fixed"]
+  )
+  + .home-flow-sample-chunk--stage
+  > .home-flow-sample-chunk__surface
+  > .home-flow-sample-chunk__edge {
+  visibility: visible;
+  opacity: 1;
+}
