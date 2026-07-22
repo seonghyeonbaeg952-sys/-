@@ -178,8 +178,15 @@ const AdminAccountPage = lazy(() =>
 )
 
 function RouteFallback() {
+  const isPublicRoute = !window.location.pathname.startsWith('/admin')
+
   return (
-    <main aria-busy="true" aria-live="polite" className="route-loading-screen" role="status">
+    <main
+      aria-busy="true"
+      aria-live="polite"
+      className={`route-loading-screen${isPublicRoute ? ' route-loading-screen--public' : ''}`}
+      role="status"
+    >
       <div aria-hidden="true" className="route-loading-screen__mark">
         <span>S</span>
         <span>M</span>

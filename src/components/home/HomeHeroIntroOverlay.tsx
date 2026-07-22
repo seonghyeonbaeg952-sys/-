@@ -54,6 +54,15 @@ export function HomeHeroIntroOverlay() {
       const rootRect = sampleRoot.getBoundingClientRect()
       const titleRect = titleElement.getBoundingClientRect()
       const titleStyles = window.getComputedStyle(titleElement)
+      const homeShell = sampleRoot.closest<HTMLElement>('.public-shell-home')
+      const homeDensity =
+        Number.parseFloat(
+          homeShell
+            ? window
+                .getComputedStyle(homeShell)
+                .getPropertyValue('--public-home-density')
+            : '1',
+        ) || 1
       const revealElement = titleElement.closest<HTMLElement>('.reveal-motion')
       const revealStyles = revealElement ? window.getComputedStyle(revealElement) : null
       const revealTransform = revealStyles?.transform ?? 'none'
@@ -80,15 +89,6 @@ export function HomeHeroIntroOverlay() {
           (revealMatrix?.a ?? 1) *
             (Number.parseFloat(revealScaleParts[0] ?? '1') || 1),
         ) || 1
-      const homeShell = sampleRoot.closest<HTMLElement>('.public-shell-home')
-      const homeDensity =
-        Number.parseFloat(
-          homeShell
-            ? window
-                .getComputedStyle(homeShell)
-                .getPropertyValue('--public-home-density')
-            : '1',
-        ) || 1
       const titleFontSize = Number.parseFloat(titleStyles.fontSize)
       const titleLineHeight = Number.parseFloat(titleStyles.lineHeight)
       const scaledTitleFontSize = titleFontSize * homeDensity
@@ -98,8 +98,13 @@ export function HomeHeroIntroOverlay() {
         wordmarkElement.style.setProperty(name, value)
       }
 
-      const titleLeft = titleRect.left - rootRect.left - revealTranslateX
-      const titleTop = titleRect.top - rootRect.top - revealTranslateY
+      /* The hero container uses CSS zoom at desktop density breakpoints.
+       * Computed translate values are pre-zoom while getBoundingClientRect()
+       * is post-zoom, so normalize the reveal offset before subtraction. */
+      const titleLeft =
+        titleRect.left - rootRect.left - revealTranslateX * homeDensity
+      const titleTop =
+        titleRect.top - rootRect.top - revealTranslateY * homeDensity
 
       setMetric('--intro-title-left', `${titleLeft}px`)
       setMetric('--intro-title-top', `${titleTop}px`)
@@ -142,7 +147,53 @@ export function HomeHeroIntroOverlay() {
         )
         word.style.setProperty('--intro-letter-width', `${seedRect.width / startScale}px`)
       })
+
+      return {
+        fontSize: scaledTitleFontSize,
+        left: titleLeft,
+        lineHeight: scaledTitleLineHeight,
+        top: titleTop,
+        width: titleRect.width / revealScaleX,
+      }
     }
+
+    const waitForStableTitleMetrics = () =>
+      new Promise<void>((resolve) => {
+        let frameCount = 0
+        let stableFrameCount = 0
+        let previousMetrics: ReturnType<typeof applyTitleMetrics> | null = null
+
+        const measure = () => {
+          if (isCancelled) {
+            resolve()
+            return
+          }
+
+          const currentMetrics = applyTitleMetrics()
+          const isStable =
+            previousMetrics !== null &&
+            Object.keys(currentMetrics).every((key) => {
+              const metricKey = key as keyof typeof currentMetrics
+
+              return (
+                Math.abs(currentMetrics[metricKey] - previousMetrics![metricKey]) < 0.25
+              )
+            })
+
+          stableFrameCount = isStable ? stableFrameCount + 1 : 0
+          previousMetrics = currentMetrics
+          frameCount += 1
+
+          if (stableFrameCount >= 2 || frameCount >= 24) {
+            resolve()
+            return
+          }
+
+          animationFrameId = window.requestAnimationFrame(measure)
+        }
+
+        animationFrameId = window.requestAnimationFrame(measure)
+      })
 
     const prepareAnimation = async () => {
       setIsAnimationReady(false)
@@ -154,7 +205,7 @@ export function HomeHeroIntroOverlay() {
         .then(() => undefined)
         .catch(() => undefined)
       const fontTimeout = new Promise<void>((resolve) => {
-        fontTimeoutId = window.setTimeout(resolve, 1500)
+        fontTimeoutId = window.setTimeout(resolve, 3000)
       })
 
       await Promise.race([fontReady, fontTimeout])
@@ -164,13 +215,16 @@ export function HomeHeroIntroOverlay() {
         return
       }
 
+      await waitForStableTitleMetrics()
+
+      if (isCancelled) {
+        return
+      }
+
       animationFrameId = window.requestAnimationFrame(() => {
-        applyTitleMetrics()
-        animationFrameId = window.requestAnimationFrame(() => {
-          if (!isCancelled) {
-            setIsAnimationReady(true)
-          }
-        })
+        if (!isCancelled) {
+          setIsAnimationReady(true)
+        }
       })
     }
 

@@ -46,37 +46,96 @@
   background-color: var(--color-white) !important;
 }
 
+/* Public route loading uses the same matte burgundy stage as the home intro,
+ * so the two consecutive opening states read as one continuous sequence. */
+.route-loading-screen.route-loading-screen--public {
+  background: #3f202b;
+  color: #f2ebe3;
+}
+
+.route-loading-screen.route-loading-screen--public::before {
+  color: rgb(242 235 227 / 0.055);
+}
+
+.route-loading-screen.route-loading-screen--public::after {
+  background: linear-gradient(
+    100deg,
+    transparent 14%,
+    rgb(242 235 227 / 0.025) 48%,
+    rgb(193 143 120 / 0.065) 58%,
+    transparent 78%
+  );
+  opacity: 0.34;
+}
+
+.route-loading-screen.route-loading-screen--public .route-loading-screen__mark {
+  color: #c18f78;
+  text-shadow:
+    0 0 30px rgb(193 143 120 / 0.12),
+    0 18px 52px rgb(16 8 11 / 0.28);
+}
+
+.route-loading-screen.route-loading-screen--public .route-loading-screen__copy::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(242 235 227 / 0.18),
+    rgb(193 143 120 / 0.52),
+    rgb(242 235 227 / 0.18),
+    transparent
+  );
+}
+
+.route-loading-screen.route-loading-screen--public .route-loading-screen__copy p {
+  color: rgb(193 143 120 / 0.9);
+}
+
+.route-loading-screen.route-loading-screen--public .route-loading-screen__copy strong {
+  color: rgb(242 235 227 / 0.92);
+}
+
 /* Home intro: retain the approved word-to-hero motion while replacing the
  * former navy veil with the production white/orange identity. */
+.color-sample-theme .home-intro-launch {
+  --intro-orange-muted: #c18f78;
+  --intro-text-muted: #f2ebe3;
+}
+
 .color-sample-theme .home-intro-launch::before {
-  color: rgb(255 96 26 / 0.13);
+  color: rgb(242 235 227 / 0.055);
 }
 
 .color-sample-theme .home-intro-launch__field {
-  background: var(--color-white);
+  background: #3f202b;
 }
 
 .color-sample-theme .home-intro-launch__wordmark {
-  color: var(--color-ink);
-  text-shadow: 0 10px 30px rgb(201 58 7 / 0.12);
+  color: var(--intro-text-muted);
+  text-shadow: 0 10px 30px rgb(16 8 11 / 0.18);
 }
 
 .color-sample-theme .home-intro-launch__initial,
 .color-sample-theme .home-intro-launch__seed {
-  color: var(--color-orange-cue);
+  color: var(--intro-orange-muted);
 }
 
 .color-sample-theme .home-intro-launch__initial {
-  text-shadow: 0 10px 30px rgb(201 58 7 / 0.18);
+  text-shadow: 0 10px 30px rgb(16 8 11 / 0.16);
 }
 
 .color-sample-theme .home-intro-launch__shutters span {
-  background: rgb(255 96 26 / 0.12);
+  background: rgb(242 235 227 / 0.04);
 }
 
 .color-sample-theme .home-intro-launch__sweep {
-  background: rgb(255 96 26 / 0.16);
-  mix-blend-mode: multiply;
+  background: linear-gradient(
+    100deg,
+    transparent 18%,
+    rgb(193 143 120 / 0.02) 40%,
+    rgb(193 143 120 / 0.065) 52%,
+    transparent 74%
+  );
+  mix-blend-mode: screen;
 }
 
 /* The accepted Figma direction keeps the photographic home hero intact. */
@@ -183,6 +242,21 @@
     .home-global-identity-plate,
     .support-letter-section
   ) :is(h2, h3, p, span, strong, small, dt, dd) {
+  color: var(--color-ink) !important;
+}
+
+/* The support section is converted from the original dark stage to a white
+ * editorial surface. Keep its secondary CTA legible instead of inheriting
+ * the old white-on-dark button text. */
+.color-sample-theme.public-shell-home .support-letter-section .btn-outline {
+  border-color: var(--color-orange-soft) !important;
+  background-color: var(--color-white) !important;
+  color: var(--color-ink) !important;
+}
+
+.color-sample-theme.public-shell-home .support-letter-section .btn-outline:hover {
+  border-color: var(--color-orange-cue) !important;
+  background-color: var(--color-orange-wash) !important;
   color: var(--color-ink) !important;
 }
 

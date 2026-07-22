@@ -71,7 +71,6 @@ export function SupportLetterFold({
                   {buttonLabel || '후원 상담 신청'}
                 </Button>
                 <Button
-                  className="!border-bg-warm-white/24 !bg-bg-warm-white/[0.06] !text-bg-warm-white hover:!border-gold-soft hover:!text-gold-soft"
                   focusTone="dark"
                   href="/contact"
                   size="lg"
