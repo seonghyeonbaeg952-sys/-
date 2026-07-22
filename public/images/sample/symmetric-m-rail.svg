@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 96" role="presentation">
+  <g fill="none" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M48 24H628M972 24H1552" stroke="#FF601A" stroke-width="4"/>
+    <path d="M660 72V24L800 72L940 24V72" stroke="#FF601A" stroke-width="4"/>
+    <path d="M48 64H600M1000 64H1552" stroke="#FFD0B8" stroke-width="2"/>
+    <path d="M48 22V72M1552 22V72" stroke="#FFD0B8" stroke-width="2"/>
+  </g>
+</svg>

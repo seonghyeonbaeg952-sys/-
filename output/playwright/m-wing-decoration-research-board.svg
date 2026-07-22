@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1120" viewBox="0 0 1600 1120">
+  <rect width="1600" height="1120" fill="#ffffff"/>
+  <style>
+    .sans { font-family: Pretendard, "Noto Sans KR", Arial, sans-serif; }
+    .serif { font-family: "Noto Serif KR", Georgia, serif; }
+    .ink { fill: #151515; }
+    .muted { fill: #6e554b; }
+    .orange { fill: #ff601a; }
+    .orange-stroke { stroke: #ff601a; }
+    .soft-stroke { stroke: #ffd0b8; }
+    .wash { fill: #fff1e8; }
+  </style>
+
+  <text x="100" y="92" class="sans ink" font-size="18" font-weight="700" letter-spacing="3">SMYC VISUAL LANGUAGE STUDY · 2026.07.22</text>
+  <text x="100" y="158" class="serif ink" font-size="50" font-weight="700">M 심볼 기반 직선 장식 연구</text>
+  <text x="100" y="202" class="sans muted" font-size="20">원본 로고는 수정하지 않고 중앙축 · 좌우대칭 · 수평 날개 · 안쪽 꺾임만 별도 장식 문법으로 추출</text>
+
+  <rect x="100" y="252" width="1400" height="214" rx="2" fill="#fff1e8" stroke="#ffd0b8"/>
+  <text x="136" y="302" class="sans orange" font-size="15" font-weight="800" letter-spacing="2">01 · M-WING RAIL / 균형형</text>
+  <text x="136" y="335" class="sans muted" font-size="16">두 개의 긴 레일이 중앙 M 결절에서 만나며, 좌우 길이와 각도를 완전히 대칭으로 유지</text>
+  <g fill="none" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M140 382 H650 L690 410 L730 366 L770 410 L810 382 H1460" class="soft-stroke" stroke-width="4"/>
+    <path d="M140 430 H650 L690 402 L730 446 L770 402 L810 430 H1460" class="orange-stroke" stroke-width="4"/>
+    <line x1="730" y1="366" x2="730" y2="446" class="orange-stroke" stroke-width="2" opacity=".7"/>
+  </g>
+
+  <rect x="100" y="500" width="1400" height="214" rx="2" fill="#ffffff" stroke="#ffd0b8"/>
+  <text x="136" y="550" class="sans orange" font-size="15" font-weight="800" letter-spacing="2">02 · EDGE M-BRACKET / 여백형</text>
+  <text x="136" y="583" class="sans muted" font-size="16">대부분은 낮은 대비로 두고 중앙 결절만 큐 오렌지로 강조해 제목과 본문보다 먼저 튀지 않게 함</text>
+  <g fill="none" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M100 632 H668" class="soft-stroke" stroke-width="2"/>
+    <path d="M792 632 H1500" class="soft-stroke" stroke-width="2"/>
+    <path d="M668 632 L699 652 L730 616 L761 652 L792 632" class="orange-stroke" stroke-width="4"/>
+    <path d="M100 672 H668" class="soft-stroke" stroke-width="2"/>
+    <path d="M792 672 H1500" class="soft-stroke" stroke-width="2"/>
+    <path d="M668 672 L699 652 L730 688 L761 652 L792 672" class="orange-stroke" stroke-width="4"/>
+  </g>
+
+  <rect x="100" y="748" width="1400" height="226" rx="2" fill="#151515"/>
+  <text x="136" y="798" class="sans" fill="#ffd0b8" font-size="15" font-weight="800" letter-spacing="2">03 · SYMMETRIC M-RAIL / 권장안</text>
+  <text x="136" y="831" class="sans" fill="#fff1e8" font-size="16">사용자 스케치의 옆으로 누운 M 꺾임을 양끝에 거울대칭으로 배치하고, 긴 두 직선과 작은 중앙 큐만 남김</text>
+  <g fill="none" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M210 892 H1390" stroke="#ffd0b8" stroke-width="3"/>
+    <path d="M210 928 H1390" stroke="#ff601a" stroke-width="3"/>
+    <path d="M210 892 L150 902 L205 910 L150 920 L205 928" stroke="#ff601a" stroke-width="4"/>
+    <path d="M1390 892 L1450 902 L1395 910 L1450 920 L1395 928" stroke="#ff601a" stroke-width="4"/>
+    <circle cx="800" cy="910" r="6" fill="#ff601a" stroke="none"/>
+  </g>
+
+  <g transform="translate(100 1024)">
+    <rect width="34" height="34" fill="#ffffff" stroke="#e7d8cf"/>
+    <text x="48" y="24" class="sans ink" font-size="15">읽기 표면</text>
+    <rect x="184" width="34" height="34" fill="#fff1e8"/>
+    <text x="232" y="24" class="sans ink" font-size="15">보조 배경</text>
+    <rect x="374" width="34" height="34" fill="#ffd0b8"/>
+    <text x="422" y="24" class="sans ink" font-size="15">장식 레일</text>
+    <rect x="574" width="34" height="34" fill="#ff601a"/>
+    <text x="622" y="24" class="sans ink" font-size="15">행동·현재 큐</text>
+    <rect x="794" width="34" height="34" fill="#c93a07"/>
+    <text x="842" y="24" class="sans ink" font-size="15">작은 오렌지 글자</text>
+    <rect x="1044" width="34" height="34" fill="#442044"/>
+    <text x="1092" y="24" class="sans ink" font-size="15">악보 표지</text>
+  </g>
+</svg>

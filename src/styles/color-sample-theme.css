@@ -1,0 +1,640 @@
+/*
+ * Approved white-and-orange public theme.
+ *
+ * The same class is used by the production public shell and the retained
+ * /sample mirror. Admin routes do not render PublicLayout and stay unchanged.
+ * Existing transforms, keyframes, durations, and scroll motion are preserved.
+ */
+
+.color-sample-theme {
+  --color-white: #ffffff;
+  --color-orange-wash: #fff1e8;
+  --color-orange-soft: #ffd0b8;
+  --color-orange-cue: #ff601a;
+  --color-orange-deep: #d9470f;
+  --color-orange-ink: #c93a07;
+  --color-score-aubergine: #442044;
+  --color-ink: #151515;
+
+  --color-navy-deep: var(--color-ink);
+  --color-navy-midnight: #241411;
+  --color-gold-warm: var(--color-orange-cue);
+  --color-gold-ink: var(--color-orange-ink);
+  --color-gold-soft: var(--color-orange-soft);
+  --color-bg-ivory: var(--color-orange-wash);
+  --color-bg-warm-white: var(--color-white);
+  --color-text-charcoal: var(--color-ink);
+  --color-text-muted: #6e554b;
+  --color-line-default: #f0d5c8;
+  --color-blue-soft: #ffe6da;
+
+  --home-unified-ivory: 255 241 232;
+  --home-flow-gold: 255 96 26;
+  --home-flow-gold-soft: 255 208 184;
+  --home-flow-navy: 21 21 21;
+
+  --shadow-card: 0 14px 38px rgb(80 35 18 / 0.07);
+  --shadow-card-hover: 0 20px 52px rgb(80 35 18 / 0.11);
+  --shadow-header: 0 10px 30px rgb(80 35 18 / 0.08);
+
+  background-color: var(--color-white) !important;
+  color: var(--color-ink);
+}
+
+.color-sample-theme main,
+.color-sample-theme .home-flow-body::before {
+  background-color: var(--color-white) !important;
+}
+
+/* Home intro: retain the approved word-to-hero motion while replacing the
+ * former navy veil with the production white/orange identity. */
+.color-sample-theme .home-intro-launch::before {
+  color: rgb(255 96 26 / 0.13);
+}
+
+.color-sample-theme .home-intro-launch__field {
+  background: var(--color-white);
+}
+
+.color-sample-theme .home-intro-launch__wordmark {
+  color: var(--color-ink);
+  text-shadow: 0 10px 30px rgb(201 58 7 / 0.12);
+}
+
+.color-sample-theme .home-intro-launch__initial,
+.color-sample-theme .home-intro-launch__seed {
+  color: var(--color-orange-cue);
+}
+
+.color-sample-theme .home-intro-launch__initial {
+  text-shadow: 0 10px 30px rgb(201 58 7 / 0.18);
+}
+
+.color-sample-theme .home-intro-launch__shutters span {
+  background: rgb(255 96 26 / 0.12);
+}
+
+.color-sample-theme .home-intro-launch__sweep {
+  background: rgb(255 96 26 / 0.16);
+  mix-blend-mode: multiply;
+}
+
+/* The accepted Figma direction keeps the photographic home hero intact. */
+.color-sample-theme .home-hero-section {
+  --color-navy-deep: #10233f;
+  --color-navy-midnight: #071526;
+  --color-bg-ivory: #faf7f0;
+  --color-bg-warm-white: #fffdf8;
+  --color-text-charcoal: #222222;
+  --color-text-muted: #666666;
+}
+
+/*
+ * Home cleanup: use one white canvas below the preserved hero. The previous
+ * beige/blue section washes and decorative gradients are flattened into
+ * white or a single orange wash; geometry and motion declarations are not
+ * touched.
+ */
+.color-sample-theme.public-shell-home .home-flow-body {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Keep the concert-program object book-like, but use a crisp rectangular
+ * silhouette instead of the previous soft card radius. Interactive buttons
+ * and the separate programme-note panel keep their own affordance shapes. */
+.color-sample-theme.public-shell-home :is(
+    .motion-program-cover,
+    .motion-program-side,
+    .motion-program-mobile-card
+  ) {
+  border-radius: 0 !important;
+}
+
+.color-sample-theme.public-shell-home .motion-program-cover::before {
+  border-radius: 0 !important;
+}
+
+.color-sample-theme.public-shell-home :is(
+    .flow-section.home-section,
+    .home-about-folio,
+    .home-about-folio-heading,
+    .home-global-identity-plate,
+    .home-flow-sample-chunk__surface,
+    .motion-program-mobile-card,
+    .motion-program-panel,
+    .notice-program-notes,
+    .spirit-scorebook,
+    .spirit-scorebook-shell,
+    .archive-folder-back,
+    .archive-folder-spine,
+    .archive-folder-front,
+    .support-letter-card
+  ) {
+  background-image: none !important;
+}
+
+.color-sample-theme.public-shell-home .flow-section.home-section {
+  background-color: var(--color-white) !important;
+}
+
+.color-sample-theme.public-shell-home
+  .home-section-flow-sample
+  .home-flow-sample-chunk
+  .home-flow-sample-chunk__content
+  >
+  .home-quick-actions[data-flow-section='quick'] {
+  background-color: transparent !important;
+}
+
+.color-sample-theme.public-shell-home
+  .home-section-flow-sample
+  .home-flow-sample-chunk
+  .home-flow-sample-chunk__content
+  >
+  [data-flow-section] {
+  background-color: var(--color-white) !important;
+}
+
+.color-sample-theme.public-shell-home :is(
+    .home-about-folio,
+    .home-flow-sample-chunk__surface,
+    .notice-program-notes,
+    .support-letter-card
+  ) {
+  border-color: var(--color-orange-soft) !important;
+  background-color: var(--color-orange-wash) !important;
+}
+
+.color-sample-theme.public-shell-home :is(
+    .home-global-identity-plate,
+    .motion-program-mobile-card,
+    .motion-program-panel,
+    .spirit-scorebook,
+    .spirit-scorebook-shell,
+    .archive-folder-back,
+    .archive-folder-front
+  ) {
+  border-color: var(--color-orange-soft) !important;
+  background-color: var(--color-white) !important;
+}
+
+.color-sample-theme.public-shell-home :is(
+    .home-global-identity-plate,
+    .support-letter-section
+  ) :is(h2, h3, p, span, strong, small, dt, dd) {
+  color: var(--color-ink) !important;
+}
+
+.color-sample-theme.public-shell-home .archive-folder-spine {
+  background-color: var(--color-orange-cue) !important;
+}
+
+.color-sample-theme.public-shell-home .home-flow-sample-chunk::before,
+.color-sample-theme.public-shell-home .home-flow-sample-chunk__surface::before,
+.color-sample-theme.public-shell-home .home-flow-sample-chunk__surface::after {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+.color-sample-theme.public-shell-home .home-flow-sample-chunk__surface {
+  box-shadow:
+    0 -1px 0 rgb(255 208 184 / 0.72),
+    0 -18px 48px rgb(255 96 26 / 0.08) !important;
+}
+
+/* The 20-frame conducting cue uses the orange identity palette. */
+.color-sample-theme :is(
+    .score-conductor-release,
+    .score-conductor-release-motion,
+    .score-conductor-trails,
+    .score-conductor-motion-sparks
+  ) {
+  color: var(--color-orange-cue) !important;
+}
+
+.color-sample-theme :is(
+    .score-conductor-motion-trail,
+    .score-conductor-motion-echo,
+    .score-conductor-motion-ribbon,
+    .score-conductor-motion-cutoff,
+    .score-conductor-motion-spark,
+    .score-conductor-ictus-glow
+  ) {
+  filter: drop-shadow(0 0 14px rgb(255 96 26 / 0.28)) !important;
+}
+
+.color-sample-theme .score-conductor-signature-symbol {
+  background-color: var(--color-orange-cue) !important;
+  filter: drop-shadow(0 0 14px rgb(255 96 26 / 0.3)) !important;
+}
+
+/* Subpage heroes become white editorial fields with an orange cue. */
+.color-sample-theme section:has(> .page-hero-staff-lines) {
+  border-color: var(--color-orange-soft) !important;
+  background-color: var(--color-white) !important;
+  background-image: none !important;
+  color: var(--color-ink) !important;
+}
+
+.color-sample-theme section:has(> .page-hero-staff-lines) .type-page-title,
+.color-sample-theme section:has(> .page-hero-staff-lines) .type-body {
+  color: var(--color-ink) !important;
+  text-shadow: none !important;
+}
+
+.color-sample-theme section:has(> .page-hero-staff-lines) .staff-line {
+  background-color: var(--color-orange-soft) !important;
+}
+
+/* Gold UI accents map directly to the three orange swatches. */
+.color-sample-theme [class*='bg-linear-to-r'][class*='from-gold'],
+.color-sample-theme [class*='bg-gradient-to-r'][class*='from-gold'] {
+  background-color: var(--color-orange-cue) !important;
+  background-image: none !important;
+}
+
+/* The quick-action cards remain in place, but the repeated staff ornament is
+ * removed from their interior so the page-level music system stays dominant. */
+.color-sample-theme .home-quick-action-staff {
+  display: none !important;
+}
+
+.color-sample-theme :is(
+    .home-quick-action-card,
+    .about-preview-card,
+    .featured-concert-card,
+    .notice-list-card,
+    .gallery-card,
+    .concert-collection-link,
+    .notice-card-link,
+    .poster-card,
+    .inquiry-guide-card
+  ) {
+  border-color: var(--color-orange-soft) !important;
+  background-color: var(--color-white) !important;
+  background-image: none !important;
+}
+
+/* Aubergine is reserved for score/book covers, matching the Figma sample. */
+.color-sample-theme :is(
+    .motet-score-cover,
+    .motion-program-cover,
+    .concert-template-panel__cover,
+    .spirit-scorebook-spine
+  ) {
+  border-color: rgb(255 208 184 / 0.42) !important;
+  background-color: var(--color-score-aubergine) !important;
+  background-image: none !important;
+}
+
+.color-sample-theme :is(
+    .motet-score-cover,
+    .motion-program-cover,
+    .concert-template-panel__cover,
+    .spirit-scorebook-spine
+  ) :is(p, span, strong, small) {
+  color: var(--color-orange-wash) !important;
+}
+
+/* Footer remains light so orange stays an accent rather than a large field. */
+.color-sample-theme .site-footer {
+  --home-flow-gold: 255 96 26;
+  --home-flow-gold-soft: 255 208 184;
+  --home-flow-navy: 21 21 21;
+
+  border-top: 1px solid var(--color-orange-soft);
+  background-color: var(--color-white) !important;
+  background-image: none !important;
+  color: var(--color-ink) !important;
+}
+
+.color-sample-theme .site-footer::after {
+  background: var(--color-orange-soft) !important;
+  opacity: 0.72 !important;
+}
+
+.color-sample-theme .site-footer :is(p, dd, a) {
+  color: #6e554b;
+}
+
+.color-sample-theme .site-footer :is(dt, strong) {
+  color: var(--color-orange-ink);
+}
+
+.color-sample-theme .site-footer :is(.staff-line, [class*='border-bg-warm-white']) {
+  border-color: var(--color-orange-soft) !important;
+}
+
+.color-sample-theme .site-footer img {
+  filter: sepia(1) saturate(2.4) hue-rotate(332deg) brightness(0.72);
+}
+
+/* Keep status semantics recognizable while harmonizing neutral surfaces. */
+.color-sample-theme :is(input, textarea, select) {
+  border-color: var(--color-orange-soft);
+  background-color: var(--color-white);
+  color: var(--color-ink);
+}
+
+.color-sample-theme :is(input, textarea, select):focus {
+  border-color: var(--color-orange-cue);
+}
+
+/*
+ * Spacious editorial pass:
+ * - the photographic hero is followed by a type-led scene, not another photo
+ * - one primary message, one supporting block, and one clear action per scene
+ * - the symmetric M sits at the centre of the rail so it cannot read as arrows
+ *
+ * The home hero, route structure, and motion timing are intentionally untouched.
+ */
+.color-sample-theme.public-shell-home
+  .home-flow-sample-chunk__edge {
+  display: block !important;
+  color: var(--color-white) !important;
+  filter:
+    drop-shadow(0 -1px 0 rgb(255 96 26 / 0.34))
+    drop-shadow(0 -18px 34px rgb(255 96 26 / 0.09)) !important;
+}
+
+.color-sample-theme.public-shell-home
+  .home-flow-sample-chunk__edge-face {
+  fill: var(--color-orange-wash) !important;
+  stroke: rgb(255 96 26 / 0.3) !important;
+  stroke-width: 1.25px !important;
+  vector-effect: non-scaling-stroke;
+}
+
+.color-sample-theme.public-shell-home
+  .home-flow-sample-chunk__edge-depth {
+  fill: var(--color-orange-soft) !important;
+  opacity: 0.42 !important;
+}
+
+.color-sample-theme.public-shell-home
+  .home-flow-sample-chunk__surface {
+  background-color: var(--color-white) !important;
+  box-shadow: none !important;
+}
+
+.color-sample-theme.public-shell-home
+  .home-flow-sample-chunk__surface::after {
+  display: none !important;
+}
+
+.color-sample-theme.public-shell-home
+  .home-flow-body
+  [data-flow-section='about'].flow-section.home-section {
+  min-height: clamp(760px, 88vh, 940px);
+  background-color: var(--color-white) !important;
+  background-image: none !important;
+}
+
+/* The large line is decorative; the real section title and copy remain HTML. */
+.color-sample-theme.public-shell-home
+  .home-flow-body
+  [data-flow-section='about'].flow-section.home-section::before {
+  content: 'ONE VOICE' !important;
+  position: absolute !important;
+  top: 50% !important;
+  right: -0.035em !important;
+  left: -0.035em !important;
+  z-index: 0 !important;
+  display: block !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  color: rgb(255 96 26 / 0.065) !important;
+  font-family: var(--font-display-en) !important;
+  font-size: clamp(116px, 15.3vw, 236px) !important;
+  font-weight: 650 !important;
+  line-height: 0.78 !important;
+  letter-spacing: -0.072em !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  background: none !important;
+  opacity: 1 !important;
+  transform: translateY(-50%) !important;
+  pointer-events: none !important;
+}
+
+.color-sample-theme.public-shell-home
+  [data-flow-section='about']
+  > .mx-auto {
+  position: relative;
+  z-index: 2;
+}
+
+.color-sample-theme.public-shell-home .home-about-grid {
+  min-height: clamp(570px, 67vh, 720px);
+  align-items: center;
+  column-gap: clamp(52px, 7vw, 116px);
+}
+
+.color-sample-theme.public-shell-home .home-about-grid::before {
+  left: 50% !important;
+  bottom: -70px !important;
+  z-index: 3 !important;
+  width: min(92vw, 1440px) !important;
+  height: 76px !important;
+  transform: translateX(-50%) !important;
+  background-color: transparent !important;
+  background-image: url('/images/sample/symmetric-m-rail.svg') !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 100% 100% !important;
+  mask-image: none !important;
+  opacity: 1 !important;
+}
+
+.color-sample-theme.public-shell-home
+  .home-about-grid
+  > .reveal-motion:first-child
+  > div {
+  max-width: 660px;
+  padding: clamp(18px, 2.2vw, 34px) 0 clamp(18px, 2.2vw, 34px)
+    clamp(26px, 3vw, 48px);
+  border-left: 4px solid var(--color-orange-cue);
+  background-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.color-sample-theme.public-shell-home
+  .home-about-grid
+  > .reveal-motion:first-child
+  .type-section-title {
+  max-width: 620px !important;
+  overflow-wrap: normal;
+  font-size: clamp(42px, 4.15vw, 66px);
+  line-height: 1.08;
+  word-break: auto-phrase;
+  text-wrap: balance;
+}
+
+.color-sample-theme.public-shell-home
+  .home-about-grid
+  > .reveal-motion:first-child
+  .type-body {
+  max-width: 34rem;
+  color: #5d493f !important;
+  line-height: 1.72;
+}
+
+.color-sample-theme.public-shell-home
+  .home-about-grid
+  > .about-preview-grid
+  > .reveal-motion:first-child {
+  display: none !important;
+}
+
+.color-sample-theme.public-shell-home
+  .home-about-grid
+  > .about-preview-grid {
+  grid-template-columns: minmax(0, 1fr) !important;
+  align-self: center;
+  gap: 0;
+}
+
+.color-sample-theme.public-shell-home .home-about-folio {
+  border-width: 1px 0 !important;
+  border-color: var(--color-orange-soft) !important;
+  border-radius: 0 !important;
+  background-color: rgb(255 255 255 / 0.84) !important;
+  box-shadow: none !important;
+  backdrop-filter: none;
+}
+
+.color-sample-theme.public-shell-home .home-about-folio::before {
+  display: none !important;
+}
+
+.color-sample-theme.public-shell-home .home-about-folio-heading {
+  background-color: transparent !important;
+  border-color: var(--color-orange-soft) !important;
+  padding-inline: 0 !important;
+}
+
+.color-sample-theme.public-shell-home .home-about-folio-item {
+  border-color: rgb(255 96 26 / 0.26) !important;
+  padding-inline: clamp(14px, 1.6vw, 24px);
+}
+
+.color-sample-theme.public-shell-home .home-global-identity-plate {
+  border-color: var(--color-orange-soft) !important;
+  border-radius: 0 !important;
+  background-color: rgb(255 255 255 / 0.82) !important;
+  box-shadow: none !important;
+}
+
+/* Subpages use the same long, symmetric rail as a quiet scene boundary. */
+.color-sample-theme
+  section:has(> .page-hero-staff-lines) {
+  min-height: clamp(360px, 45vw, 620px);
+  display: flex;
+  align-items: center;
+}
+
+.color-sample-theme
+  section:has(> .page-hero-staff-lines)::after {
+  content: '';
+  position: absolute;
+  right: clamp(18px, 4vw, 64px);
+  bottom: clamp(24px, 4vw, 54px);
+  left: clamp(18px, 4vw, 64px);
+  height: 68px;
+  pointer-events: none;
+  background: url('/images/sample/symmetric-m-rail.svg') center / 100% 100% no-repeat;
+}
+
+@media (max-width: 767px) {
+  .color-sample-theme.public-shell-home
+    .home-flow-body
+    [data-flow-section='about'].flow-section.home-section {
+    min-height: auto;
+  }
+
+  .color-sample-theme.public-shell-home
+    .home-flow-body
+    [data-flow-section='about'].flow-section.home-section::before {
+    top: 18% !important;
+    right: -0.08em !important;
+    left: -0.08em !important;
+    font-size: clamp(76px, 26vw, 108px) !important;
+    line-height: 0.86 !important;
+    letter-spacing: -0.08em !important;
+    transform: none !important;
+  }
+
+  .color-sample-theme.public-shell-home .home-about-grid {
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 28px;
+  }
+
+  .color-sample-theme.public-shell-home .home-about-grid > * {
+    width: 100%;
+    min-width: 0 !important;
+  }
+
+  .color-sample-theme.public-shell-home
+    .home-about-grid
+    > .reveal-motion:first-child
+    > div {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 24px 0 24px 22px;
+  }
+
+  .color-sample-theme.public-shell-home
+    .home-about-grid
+    > .reveal-motion:first-child
+    .type-section-title {
+    font-size: clamp(36px, 11vw, 48px);
+  }
+
+  .color-sample-theme.public-shell-home .home-about-grid::before {
+    bottom: -58px !important;
+    width: calc(100vw - 24px) !important;
+    height: 52px !important;
+  }
+
+  .color-sample-theme
+    section:has(> .page-hero-staff-lines) {
+    min-height: 340px;
+    padding-bottom: 104px;
+  }
+
+  .color-sample-theme
+    section:has(> .page-hero-staff-lines)::after {
+    right: 12px;
+    bottom: 26px;
+    left: 12px;
+    height: 44px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .color-sample-theme.public-shell-home
+    .home-flow-sample-chunk__edge {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .color-sample-theme.public-shell-home
+    .home-flow-sample-chunk__edge {
+    display: none !important;
+  }
+
+  .color-sample-theme.public-shell-home .home-about-grid::before,
+  .color-sample-theme
+    section:has(> .page-hero-staff-lines)::after {
+    animation: none !important;
+    transform: none;
+  }
+
+  .color-sample-theme.public-shell-home .home-about-grid::before {
+    transform: translateX(-50%) !important;
+  }
+}

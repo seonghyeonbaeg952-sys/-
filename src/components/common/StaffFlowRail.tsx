@@ -181,7 +181,7 @@ function ConductorReleaseIcon({
 }) {
   const renderHandFrames = () =>
     conductorHandFrames.map((frame) => {
-      const frameUrl = `/images/effects/conductor-hand-frame-${frame}.png`
+      const frameUrl = `/images/effects/sample-conductor-hand-frame-${frame}.png`
 
       return (
         <img
@@ -282,7 +282,12 @@ function ConductorReleaseIcon({
 
 export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps) {
   const railRef = useRef<HTMLDivElement | null>(null)
-  const [shouldLoadHandFrames, setShouldLoadHandFrames] = useState(false)
+  const [shouldLoadHandFrames, setShouldLoadHandFrames] = useState(() => {
+    return (
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    )
+  })
   const [isDesktopRail, setIsDesktopRail] = useState(() => {
     return typeof window !== 'undefined'
       ? window.matchMedia('(min-width: 1024px)').matches
@@ -430,7 +435,11 @@ export function StaffFlowRail({ className, tone = 'light' }: StaffFlowRailProps)
     const conductor = rail?.querySelector<HTMLElement>('.score-conductor-release')
     const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
 
-    if (!conductor || shouldLoadHandFrames || reducedMotionQuery.matches) {
+    if (!conductor || shouldLoadHandFrames) {
+      return
+    }
+
+    if (reducedMotionQuery.matches) {
       return
     }
 

@@ -1,4 +1,5 @@
 import type { Notice } from '../../types/content'
+import { getColorSampleHref } from '../../utils/colorSamplePath'
 import { formatShortDate } from '../../utils/formatDate'
 import { Badge } from '../common/Badge'
 import { Button } from '../common/Button'
@@ -97,7 +98,7 @@ export function NoticePreview({
                 </Reveal>
                 <a
                   className="grid gap-5 p-6 pl-7 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-ink md:grid-cols-[180px_1fr_auto] md:items-center"
-                  href={`/notices/${notice.id}`}
+                  href={getColorSampleHref(`/notices/${notice.id}`)}
                 >
                   <div>
                     <Badge variant={notice.is_important ? 'navy' : 'gold'}>

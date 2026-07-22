@@ -1,4 +1,5 @@
 import type { Notice } from '../../types/content'
+import { getColorSampleHref } from '../../utils/colorSamplePath'
 import { formatShortDate } from '../../utils/formatDate'
 import { Button } from '../common/Button'
 import { EmptyState } from '../common/EmptyState'
@@ -49,7 +50,7 @@ export function NoticeProgramNotes({ notices }: NoticeProgramNotesProps) {
         {notices.map((notice) => (
           <a
             className="notice-note-row"
-            href={`/notices/${notice.id}`}
+            href={getColorSampleHref(`/notices/${notice.id}`)}
             key={notice.id}
           >
             <span className="min-w-0">

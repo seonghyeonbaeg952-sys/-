@@ -1,4 +1,5 @@
 import { legacyActivitySummary, legacyChoirIntro } from '../../constants/legacyContent'
+import { getColorSampleHref } from '../../utils/colorSamplePath'
 import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 import { Reveal } from '../common/Reveal'
@@ -54,7 +55,7 @@ export function FloatingInfoCards({
               <a
                 className="home-quick-action-card group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-ink"
                 data-card-index={index + 1}
-                href={card.href ?? '/'}
+                href={getColorSampleHref(card.href ?? '/')}
               >
                 <span
                   aria-hidden="true"

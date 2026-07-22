@@ -5,6 +5,10 @@ import { AdminLayout } from './components/admin/AdminLayout'
 import { ProtectedAdminRoute } from './components/admin/ProtectedAdminRoute'
 import { PublicLayout } from './components/layout/PublicLayout'
 import { RouteScrollManager } from './components/layout/RouteScrollManager'
+import {
+  COLOR_SAMPLE_BASENAME,
+  isColorSamplePath,
+} from './utils/colorSamplePath'
 
 const HomeRoute = lazy(() =>
   import('./pages/public/HomeRoute').then((module) => ({ default: module.HomeRoute })),
@@ -191,8 +195,10 @@ function RouteFallback() {
 }
 
 function App() {
+  const isColorSample = isColorSamplePath(window.location.pathname)
+
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={isColorSample ? COLOR_SAMPLE_BASENAME : undefined}>
       <RouteScrollManager />
       <Suspense fallback={<RouteFallback />}>
         <Routes>

@@ -45,13 +45,7 @@ type HomeFlowSampleHoldProps = {
   variant?: 'compact' | 'full'
 }
 
-const sampleEdgePaths = {
-  warm: 'M0 56C228 18 466 16 704 46C962 78 1190 67 1440 30V96H0Z',
-  stage:
-    'M0 52C178 33 330 62 520 45C735 25 914 17 1112 42C1232 57 1334 61 1440 47V96H0Z',
-  finale:
-    'M0 60C182 73 346 48 526 51C738 55 916 72 1103 55C1231 43 1335 39 1440 49V96H0Z',
-} as const
+const homeMEdgePath = 'M0 24H580V72L720 24L860 72V24H1440V102H0Z'
 
 function HomeFlowSampleChunk({
   children,
@@ -80,12 +74,12 @@ function HomeFlowSampleChunk({
         >
           <path
             className="home-flow-sample-chunk__edge-depth"
-            d={sampleEdgePaths[tone]}
+            d={homeMEdgePath}
             transform="translate(0 6)"
           />
           <path
             className="home-flow-sample-chunk__edge-face"
-            d={sampleEdgePaths[tone]}
+            d={homeMEdgePath}
           />
         </svg>
       </div>

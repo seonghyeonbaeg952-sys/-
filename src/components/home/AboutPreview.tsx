@@ -1,5 +1,6 @@
 import type { GalleryImage } from '../../types/content'
 import type { SiteSettings } from '../../types/content'
+import { getColorSampleHref } from '../../utils/colorSamplePath'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
@@ -130,7 +131,7 @@ export function AboutPreview({
               {image ? (
                 <a
                   className="group block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-ink"
-                  href="/gallery"
+                  href={getColorSampleHref('/gallery')}
                 >
                   <StaffFrame className="shadow-card" linePosition="top" radius="balanced" variant="inverted">
                     <ImageTile

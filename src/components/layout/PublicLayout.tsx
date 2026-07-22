@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router'
 
 import { Footer } from './Footer'
 import { Header } from './Header'
+import '../../styles/color-sample-theme.css'
 
 export function PublicLayout() {
   const location = useLocation()
@@ -11,9 +12,10 @@ export function PublicLayout() {
   return (
     <div
       className={[
-        'public-shell min-h-screen bg-bg-warm-white text-text-charcoal',
+        'public-shell color-sample-theme min-h-screen bg-bg-warm-white text-text-charcoal',
         isHome ? 'public-shell-home' : '',
       ].join(' ')}
+      data-public-theme="white-orange"
     >
       <a
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-button focus:bg-gold-warm focus:px-4 focus:py-3 focus:text-sm focus:font-semibold focus:text-navy-midnight"

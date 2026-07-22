@@ -63,7 +63,7 @@ YouTube는 모두 서로 다른 채널 URL이지만 같은 `youtube.com` host를
 
 | 결정 | 이유 | 완료 기준 |
 |---|---|---|
-| 사용자 목적 3개를 첫 화면에서 분리 | 관객, 입단 희망자·보호자, 후원자·파트너의 과제가 다르다. | `공연 보기`, `입단 안내`, `후원·문의`가 10초 안에 발견되고 텍스트 라벨이 있다. |
+| 사용자 목적 3개를 Hero 직후에 분리 | 관객, 입단 희망자·보호자, 후원자·파트너의 과제가 다르다. | 현행 Hero는 보존하고, 바로 아래에서 `공연 보기`, `입단 안내`, `후원·문의`가 10초 안에 발견되며 텍스트 라벨이 있다. |
 | 역할 기반 색 토큰 확정 | 현재 Navy·Gold·Ivory는 강점이지만 Gold 오용 시 대비가 약하다. | surface, text, accent, focus, success, danger 토큰과 허용 조합을 정의하고 WCAG 2.2 AA 대비를 확인한다. |
 | 390px 모바일을 별도 구성 | 데스크톱 축소는 카드·Hero·책 모션의 조작성을 떨어뜨린다. | 가로 overflow 없음, 44px 타깃, 긴 제목·확대 텍스트 대응, 스와이프 없이 핵심 기능 사용 가능. |
 | 모션 목적·중지·대체 상태 정의 | 기존 모션 자산은 좋지만 반복과 스크롤 가로채기는 피로와 접근성 문제를 만든다. | 각 모션에 목적, 시작 조건, 종료 조건, reduced-motion variant가 주석으로 적혀 있다. |
@@ -71,8 +71,8 @@ YouTube는 모두 서로 다른 채널 URL이지만 같은 `youtube.com` host를
 
 ### P1 — 브랜드 차별화를 만드는 핵심
 
-1. 아이보리 프로그램 북의 읽기 경험을 전체 브랜드의 기본 표면으로 사용한다.
-2. 딥 네이비 무대 Hero는 홈의 첫 장면과 마지막 후원 장면에 집중해 희소성을 유지한다.
+1. 현행 full-bleed Hero와 핵심 슬라이드 애니메이션을 다섯 안의 공통 고정 요소로 보존한다.
+2. Hero 아래 정보면에는 흰색·웜 아이보리와 실제 오렌지 심볼을 사용하고, 프로그램 북의 읽기 경험은 B와 장문 모듈에서 집중 검증한다.
 3. 악보·오선·페이지·조명이라는 기존 모션 자산을 `line-draw`, 짧은 page transition, spotlight의 세 계열로 정리한다.
 4. 사진은 인물 중심 홍보보다 악보·지휘·연습 과정·공연 공간·포스터 아카이브를 우선한다.
 5. 가치 문장 바로 아래에 공연, 교육, 기록, 후원 사용처 같은 검증 가능한 근거를 붙인다.
@@ -86,23 +86,23 @@ YouTube는 모두 서로 다른 채널 URL이지만 같은 `youtube.com` host를
 
 ### 권장 조합
 
-최종 홈페이지를 다섯 안 중 하나로 완전히 고르기보다, **B ‘살아 있는 프로그램 북’을 브랜드 뼈대**로 두고 A의 공연 Hero, C의 입단 흐름, D의 기록 탐색, E의 후원·공동체 증거 모듈을 결합하는 편이 조사 결과에 가장 잘 맞는다. 다섯 Figma 샘플은 이 결론을 미리 확정하는 용도가 아니라, 같은 콘텐츠와 과제로 어떤 표현이 가장 잘 작동하는지 비교하는 실험이어야 한다.
+최종 홈페이지는 다섯 안 모두 **현행 full-bleed Hero를 동일하게 보존**한다. 첫 스크롤 아래는 A의 길찾기를 기본 후보로 두거나, 운영 우선순위에 따라 B 프로그램 북, C 상태 우선 입단, D 필터 아카이브, E 참여·후원 모듈을 조합한다. 다섯 Figma 샘플은 Hero를 다섯 방식으로 다시 그리는 실험이 아니라, 동일 Hero 아래에서 어느 과업 구조가 가장 잘 작동하는지 비교하는 실험이다.
 
 ## 4. Figma 샘플 5개 비교축
 
-다섯 안은 동일한 실제 콘텐츠, 동일한 1440px·390px 프레임, 동일한 핵심 CTA로 비교한다. 차이는 아래 다섯 축에서만 의도적으로 크게 만든다.
+다섯 안은 동일한 실제 콘텐츠, 동일한 현행 full-bleed Hero, 동일한 핵심 CTA를 사용한다. Desktop은 `1440×2100`, Mobile과 reduced-motion은 `390×1688`, 근거·주석은 `520×1100` 프레임으로 비교한다. 차이는 첫 스크롤 아래의 과업 구조에서만 의도적으로 크게 만든다.
 
 | 콘셉트 | 색감 | 구성 | 모션 | 모바일 | 접근성 |
 |---|---|---|---|---|---|
-| **A. 무대의 첫 숨** | Stage Black·Midnight Navy 중심, Warm Gold는 조명·날짜·focus에 제한 | 100svh 공연 Hero → 다음 공연 dock → 제작 과정 → 공연 → 정신 → 후원 | 760ms Hero crossfade, 약한 spotlight breathe, `line-draw`, letter fold | 정지 Hero 우선, 다음 공연 dock은 독립 카드, 3개 경로는 세로 목록 | 재생·정지·이전·다음 44px, 사진 위 대비 안전 영역, reduced-motion에서 첫 장면만 표시 |
-| **B. 살아 있는 프로그램 북** | Program Paper·Ivory·Editorial Ink, Oxblood 보조, Brass는 큰 숫자와 선 | masthead → 목차 → 소개 글 → Motet Score → 시즌 일정 → 기록 → 안내문 | `clip-up` 1회, `line-draw`, 수동 scorebook page transition, 얕은 View Transition | 고정 Hero 대신 콘텐츠 높이, 목차 세로화, scorebook 한 장씩, 큰 날짜 목록 | 긴 글 17px 이상, heading·landmark 순서, 페이지 버튼·현재 위치 텍스트, 종이 질감과 무관한 충분한 대비 |
-| **C. 다음 세대 아카데미** | Midnight·Academy Blue·Air Blue, Apricot으로 따뜻한 교육 에너지 | 대상 확인 → 학생/보호자 경로 → 연습·교육 → 단계별 지원 → FAQ → 문의 | 짧은 tab indicator, `card-rise`, 단계선 진행, 성공 상태 피드백 | 질문과 답을 한 열로 배치, 고정 CTA 대신 문맥 CTA, 폼은 짧은 단계와 영구 라벨 | 탭·아코디언 키보드 패턴, 오류를 필드와 연결, 색 외 아이콘·텍스트 상태, 완료 후 명확한 피드백 |
-| **D. 목소리의 아카이브** | Museum White·Ink·Archive Navy, 연도별 절제된 시즌색 | 검색 가능한 연도 index → 대표 기록 → 포스터·프로그램 → 공연 상세 → 전체 연혁 | `archive-stack`, `soft-scale`, 목록→상세 View Transition, 연도 progress | 겹친 stack 대신 세로 카드, 필터는 화면 내 명시적 버튼, 원본 비율 이미지 | 필터 결과 수와 선택 상태를 텍스트로 알림, 키보드 탐색, 이미지 alt·캡션 분리, transition 없는 fallback |
-| **E. 하나의 호흡** | Warm Ivory·Community Navy·Muted Gold, Sage·Clay로 공동체의 온기 | 선언 → 활동 근거 → 함께하는 사람·기관 → 교육 영향 → 후원 사용처 → 문의 | staff progress, 제한된 network pulse, 수치 count가 아닌 정적 근거, letter fold | 사람·기관·성과를 단일 이야기 흐름으로 재배치, 후원 CTA 앞에 사용처 요약 | 관계를 색만으로 표시하지 않음, 자동 마키 없음, 후원 폼 영구 라벨·오류 복구, 개인정보 최소화 |
+| **A. 길찾기 우선** | 현행 Hero 색 유지, 아래 정보면은 White·Ink·실제 Orange | 공통 Hero → 다음 공연 → `공연/입단/후원·문의` 길찾기 → 근거 콘텐츠 | 현행 Hero crossfade 보존, 선택·현재 위치에만 짧은 `line-draw` | Hero 아래 다음 공연과 3개 경로를 한 열로 재배치 | 현행 Hero 제어 44px, 경로 라벨·focus-visible, reduced-motion에서도 같은 정보 |
+| **B. 프로그램 북** | 현행 Hero 색 유지, 아래는 Program Paper·White·Ink·Orange | 공통 Hero → 목차 → 소개 글 → Motet Score → 시즌 일정 → 기록 | 현행 Hero crossfade 보존, `line-draw`, 수동 scorebook page transition | 목차 세로화, scorebook 한 장씩, 큰 날짜 목록 | 긴 글 17px 이상, heading·landmark 순서, 페이지 버튼·현재 위치 텍스트 |
+| **C. 상태 우선 입단** | 현행 Hero 색 유지, 아래는 White·Ink와 Orange 상태 표식 | 공통 Hero → `모집 중/마감/예정` → 대상·일정 → 학생/보호자 경로 → 단계 → FAQ | 현행 Hero crossfade 보존, 짧은 tab indicator·단계선·상태 피드백 | 상태·대상·일정·다음 행동을 한 열로 먼저 배치 | 오류·마감 이유와 다음 선택지를 문장으로 제공, 색 외 아이콘·텍스트 상태 |
+| **D. 필터 아카이브** | 현행 Hero 색 유지, 아래는 Museum White·Ink·Orange 선택 표식 | 공통 Hero → 연도·유형 필터 → 대표 기록 → 포스터·프로그램 → 상세 | 현행 Hero crossfade 보존, `soft-scale`, 목록→상세 View Transition | 겹친 stack 대신 세로 목록, 필터는 명시적 버튼, 원본 비율 이미지 | 결과 수와 선택 상태 텍스트, 키보드 탐색, alt·캡션, transition 없는 fallback |
+| **E. 참여·후원** | 현행 Hero 색 유지, 아래는 Warm White·Ink·Orange CTA | 공통 Hero → 활동 근거 → 참여 경로 → 후원 사용처 → 문의·보호 원칙 | 현행 Hero crossfade 보존, 상태 기반 pulse, 정보가 숨지 않는 letter transition | 참여·사용처·문의 정보를 한 흐름으로 재배치 | 관계를 색만으로 표시하지 않음, 사용처·문의·개인정보 안내를 CTA 가까이에 제공 |
 
 ## 5. 다섯 시안의 공통 Figma 검증 규격
 
-- 프레임: Desktop 1440px, Tablet 768px, Mobile 390px.
+- 프레임: Desktop `1440×2100`, Mobile `390×1688`, Reduced motion `390×1688`, Notes `520×1100`.
 - 공통 과제: 첫 방문자가 합창단 성격 파악, 다음 공연 찾기, 입단 대상 확인, 후원 사용처 확인을 각각 수행한다.
 - 공통 컴포넌트: Header, Hero, route card, 공연 카드, 공지 카드, score/spirit, archive, sponsor, support, Footer.
 - 공통 variant: default, hover, focus-visible, active, disabled, loading, empty, error, reduced-motion.

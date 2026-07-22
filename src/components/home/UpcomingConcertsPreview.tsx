@@ -1,4 +1,5 @@
 import type { Concert } from '../../types/content'
+import { getColorSampleHref } from '../../utils/colorSamplePath'
 import { formatKoreanDate } from '../../utils/formatDate'
 import { Badge } from '../common/Badge'
 import { Button } from '../common/Button'
@@ -67,7 +68,7 @@ function ConcertTicketCard({ concert }: { concert: Concert }) {
     <Card className="group overflow-hidden" hoverable radius="formal">
       <a
         className="flex h-full flex-col focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-ink md:grid md:grid-cols-[170px_minmax(0,1fr)] lg:flex lg:flex-col"
-        href={`/concerts/${concert.id}`}
+        href={getColorSampleHref(`/concerts/${concert.id}`)}
       >
         <div className="relative min-w-0 bg-bg-ivory p-4">
           {concert.poster_url ? (

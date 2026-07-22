@@ -15,6 +15,7 @@ import { ImageTile } from '../../components/home/ImageTile'
 import { useNoticesData } from '../../hooks/usePublicData'
 import type { NoticeCategory } from '../../types/content'
 import { getCollectionLayoutMode } from '../../utils/collectionLayout'
+import { getColorSampleHref } from '../../utils/colorSamplePath'
 import { formatShortDate } from '../../utils/formatDate'
 
 const categoryLabels: Record<NoticeCategory, string> = {
@@ -175,7 +176,7 @@ export function NoticesPage() {
                 />
                 <a
                   className="notice-card-link grid gap-5 p-5 pl-7 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-ink md:grid-cols-[168px_1fr_auto] md:items-center"
-                  href={`/notices/${notice.id}`}
+                  href={getColorSampleHref(`/notices/${notice.id}`)}
                 >
                   <ImageTile
                     alt={`${notice.title} 대표 이미지`}

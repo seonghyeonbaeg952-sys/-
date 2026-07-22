@@ -23,9 +23,9 @@ YouTube는 채널 단위로 조사했다. 실제 적용 전에는 각 채널의 
 | Y02 | Webflow — Webflow | [채널](https://www.youtube.com/@Webflow) | 웹 제작·인터랙션 | 최신·공식 | 고급 모션도 재사용 가능한 액션과 컴포넌트로 설계해야 유지보수된다. | 영웅 영역·공연 카드·후원 CTA의 모션을 3–4개 프리셋으로 제한한다. |
 | Y03 | Framer — Framer | [채널](https://www.youtube.com/@framer) | 반응형·마이크로인터랙션 | 최신·공식 | 짧고 가벼운 상호작용이 긴 쇼릴형 애니메이션보다 제품 경험에 유리하다. | hover·focus·메뉴 전환은 150–300ms 중심으로 설계한다. |
 | Y04 | Nielsen Norman Group — NN/g | [채널](https://www.youtube.com/@NNgroup) | 사용성 리서치 | 상시·독립 연구기관 | 사용자는 장식보다 정보 구조, 예측 가능성, 명확한 피드백으로 신뢰를 형성한다. | 방문 목적별로 공연 보기·합창단 소개·입단·후원을 첫 화면에서 분리한다. |
-| Y05 | Interaction Design Foundation — IxDF | [채널](https://www.youtube.com/@InteractionDesignFoundation) | UX 이론·리서치 | 상시·독립 교육기관 | 감정적 디자인도 사용성·접근성·인지 부하라는 기초 위에서 작동한다. | 감성 비주얼과 핵심 행동의 명료성을 별도 레이어로 관리한다. |
+| Y05 | Interaction Design Foundation — IxDF | [채널](https://www.youtube.com/@InteractionDesignOrg) | UX 이론·리서치 | 상시·독립 교육기관 | 감정적 디자인도 사용성·접근성·인지 부하라는 기초 위에서 작동한다. | 감성 비주얼과 핵심 행동의 명료성을 별도 레이어로 관리한다. |
 | Y06 | AJ&Smart — AJ&Smart | [채널](https://www.youtube.com/@AJSmart) | 워크숍·제품 전략 | 상시·독립 | 좋은 시안은 취향 투표보다 구체적인 사용자 과제와 빠른 검증으로 좁혀진다. | 5개 시안을 학부모·지원자·후원자 과제로 테스트한다. |
-| Y07 | Femke — Femke van der Laan | [채널](https://www.youtube.com/@femke.design) | 제품 디자인·커리어 | 최신·독립 | 화면 한 장보다 문제 정의, 사용자 여정, 디자인 의사결정의 연결이 중요하다. | 각 시안에 대상 사용자와 성공 행동을 명시한다. |
+| Y07 | Femke — Femke van der Laan | [채널](https://www.youtube.com/@femkedesign) | 제품 디자인·커리어 | 최신·독립 | 화면 한 장보다 문제 정의, 사용자 여정, 디자인 의사결정의 연결이 중요하다. | 각 시안에 대상 사용자와 성공 행동을 명시한다. |
 | Y08 | Mizko — Michael Wong | [채널](https://www.youtube.com/@Mizko) | UX 감사·전환 | 최신·독립 | 시각적 완성도와 전환은 명확한 가치 제안·사회적 증거·CTA 순서에서 만난다. | 첫 화면 문구 뒤에 공연 실적·교육 철학·다음 행동을 배치한다. |
 | Y09 | Flux Academy — Flux Academy | [채널](https://www.youtube.com/@FluxAcademy) | 웹 디자인·사업 | 최신·독립 | 프리미엄 인상은 효과의 수가 아니라 타이포·간격·이미지 선택의 일관성에서 나온다. | 네이비·아이보리·골드의 역할을 제한하고 여백을 적극 사용한다. |
 | Y10 | The Futur — The Futur | [채널](https://www.youtube.com/@thefutur) | 브랜드 전략 | 최신·독립 | 브랜드는 로고가 아니라 반복되는 언어·행동·감정의 시스템이다. | ‘정직한 음악·공동체·다음 세대’를 문구와 UI 행동에 반복한다. |
@@ -42,18 +42,18 @@ YouTube는 채널 단위로 조사했다. 실제 적용 전에는 각 채널의 
 | Y21 | Chrome for Developers — Google Chrome | [채널](https://www.youtube.com/@ChromeDevs) | CSS·성능·웹 API | 최신·공식 | 새 모션 API는 점진적으로 적용하고 Core Web Vitals를 함께 측정해야 한다. | View Transition은 지원 브라우저에서만 강화하고 기본 탐색은 보존한다. |
 | Y22 | Apple Developer — Apple | [채널](https://www.youtube.com/@AppleDeveloper) | HIG·접근성·모션 | 최신·공식 | 플랫폼 모션은 방향·연속성·상태 변화를 설명할 때 가장 효과적이다. | 메뉴·페이지 전환이 공간 관계를 설명하도록 하고 장식 이동은 줄인다. |
 | Y23 | Microsoft Design — Microsoft | [채널](https://www.youtube.com/@MicrosoftDesign) | 포용적 디자인·시스템 | 최신·공식 | 한 사용자의 제약을 해결한 설계가 더 많은 상황과 사람에게 이익을 준다. | 저시력·운동 민감성·키보드 사용을 초기 시안부터 테스트한다. |
-| Y24 | Adobe Design — Adobe | [채널](https://www.youtube.com/@AdobeDesign) | 크리에이티브·브랜드 | 최신·공식 | 디지털 완성도에 촉감·문화적 맥락·인간적 흔적을 더하는 흐름이 강하다. | 아이보리 종이결과 악보의 질감을 절제해 사용한다. |
-| Y25 | Awwwards — Awwwards | [채널](https://www.youtube.com/@Awwwards) | 실험적 웹 사례 | 최신·독립 큐레이션 | 고급 웹의 타이포·전환·공간감 참고에 좋지만 사용성 검증은 별도로 필요하다. | 시각 아이디어만 참고하고 내비게이션·가독성은 보수적으로 유지한다. |
+| Y24 | Adobe Creative Cloud — Adobe | [채널](https://www.youtube.com/@AdobeCreativeCloud) | 크리에이티브 도구·제작 워크플로 | 최신·공식 | Photoshop·Illustrator·영상 등 시각 제작 과정의 참고 채널이다. 기존 `@AdobeDesign`은 404였고 동일 편집 범위를 확인하지 못했으므로 UI/UX 트렌드의 직접 근거로 쓰지 않는다. | 종이결·악보·영상 자산의 제작 참고에만 쓰고 UX 판단은 W3C·실증연구·제품 관찰로 재검증한다. |
+| Y25 | Awwwards — Awwwards | [채널](https://www.youtube.com/@AwwwardsTV) | 실험적 웹 사례 | 최신·독립 큐레이션 | 고급 웹의 타이포·전환·공간감 참고에 좋지만 사용성 검증은 별도로 필요하다. | 시각 아이디어만 참고하고 내비게이션·가독성은 보수적으로 유지한다. |
 | Y26 | GSAP Learning — GreenSock | [채널](https://www.youtube.com/@GreenSockLearning) | 웹 애니메이션 구현 | 최신·공식 | 타임라인·컨텍스트·미디어 쿼리로 복잡한 모션을 제어하고 정리할 수 있다. | 섹션 진입 모션을 scoped timeline과 reduced-motion 분기로 설계한다. |
-| Y27 | Codrops — Codrops | [채널](https://www.youtube.com/@codrops) | 크리에이티브 코딩 | 최신·독립 매체 | 실험적 전환과 타이포 모션의 구현 원리를 학습하되 제품 UX와 구분해야 한다. | 공연 포스터 전환 같은 한정된 ‘시그니처 순간’에만 실험성을 쓴다. |
+| Y27 | Codrops — Codrops | [채널](https://www.youtube.com/@codropsdev) | 크리에이티브 코딩 | 최신·독립 매체 | 실험적 전환과 타이포 모션의 구현 원리를 학습하되 제품 UX와 구분해야 한다. | 공연 포스터 전환 같은 한정된 ‘시그니처 순간’에만 실험성을 쓴다. |
 | Y28 | Web Dev Simplified — Kyle Cook | [채널](https://www.youtube.com/@WebDevSimplified) | 웹 구현·접근성 | 최신·독립 | 작은 예제로 CSS·JS 동작과 실패 조건을 이해하기 좋다. | 애니메이션 종료 상태·키보드 이벤트·포커스 복원을 구현 전에 확인한다. |
 | Y29 | Kevin Powell — Kevin Powell | [채널](https://www.youtube.com/@KevinPowell) | CSS·반응형 | 최신·독립 | 유동형 타이포, 컨테이너 쿼리, 최신 CSS로 화면별 하드코딩을 줄인다. | `clamp()`와 콘텐츠 기반 레이아웃으로 제목 잘림을 방지한다. |
 | Y30 | Rive — Rive | [채널](https://www.youtube.com/@rive_app) | 상태 기반 벡터 모션 | 최신·공식 | 입력과 상태에 반응하는 애니메이션은 영상 재생보다 제품 UI에 잘 맞는다. | 로고 전체를 움직이기보다 음표·호흡 같은 작은 상태 피드백을 검토한다. |
 | Y31 | LottieFiles — LottieFiles | [채널](https://www.youtube.com/@LottieFiles) | 벡터 애니메이션 | 최신·공식 | 가벼운 벡터 모션도 용량·대체 상태·자동재생 제어가 필요하다. | 로딩·완료 상태에만 쓰고 장식 루프는 피한다. |
 | Y32 | Spline — Spline | [채널](https://www.youtube.com/@splinetool) | 웹 3D·인터랙션 | 최신·공식 | 3D는 시선 유도에는 강하지만 입력·성능·멀미 비용이 크다. | 3D를 기본 방향으로 삼지 않고 별도 실험안에서만 검증한다. |
 | Y33 | Adobe Live — Adobe | [채널](https://www.youtube.com/@AdobeLive) | 실시간 제작 과정 | 최신·공식 | 결과물보다 타이포·이미지·컴포지션을 반복 개선하는 과정에서 판단 기준을 배운다. | 사진과 활자 중심 시안의 크롭·여백·리듬을 구체적으로 다듬는다. |
-| Y34 | UXcel — UXcel | [채널](https://www.youtube.com/@uxcelapp) | UX 패턴·교육 | 최신·독립 교육 | 짧은 패턴 학습과 비교 사례는 팀의 UX 용어를 맞추는 데 유용하다. | 시안 리뷰 시 ‘예쁨’ 대신 계층·피드백·오류 예방으로 말한다. |
-| Y35 | Mobbin — Mobbin | [채널](https://www.youtube.com/@mobbin) | 실제 제품 패턴 | 최신·독립 사례 DB | 실제 서비스의 온보딩·검색·폼 패턴을 비교하면 관습을 파악할 수 있다. | 입단 문의와 후원 폼은 검증된 입력·오류·완료 패턴을 따른다. |
+| Y34 | UXcel — UXcel | [채널](https://www.youtube.com/@uxcel-app) | UX 패턴·교육 | 최신·독립 교육 | 짧은 패턴 학습과 비교 사례는 팀의 UX 용어를 맞추는 데 유용하다. | 시안 리뷰 시 ‘예쁨’ 대신 계층·피드백·오류 예방으로 말한다. |
+| Y35 | Mobbin — Mobbin | [채널](https://www.youtube.com/@mobbindesign) | 실제 제품 패턴 | 최신·독립 사례 DB | 실제 서비스의 온보딩·검색·폼 패턴을 비교하면 관습을 파악할 수 있다. | 입단 문의와 후원 폼은 검증된 입력·오류·완료 패턴을 따른다. |
 | Y36 | Page Flows — Page Flows | [채널](https://www.youtube.com/@PageFlows) | 사용자 흐름 사례 | 최신·독립 사례 DB | 정지 화면보다 시작부터 완료까지의 흐름을 비교해야 UX 품질을 판단할 수 있다. | 메뉴→입단 안내→문의 완료, 공연→상세→예매 흐름을 프로토타입화한다. |
 
 ## 3. 공식 가이드·문서 45개
@@ -152,7 +152,7 @@ YouTube는 채널 단위로 조사했다. 실제 적용 전에는 각 채널의 
 | R40 | Design Trend Report 2026 — Stills | [원문](https://www.stills.com/articles/design-trend-report-2026/) | 비주얼 트렌드 | 2026·독립 스튜디오 | 강한 색·텍스처·초현실 이미지와 절제된 편집 구성이 동시에 나타난다. | 네이비의 깊이 안에 골드 조명과 아이보리 여백을 대비시킨다. |
 | R41 | iF Design Trend Report 2026 — iF Design | [원문](https://ifdesign.com/en/if-magazine/newsroom/if-design-trend-report-2026-key-design-trends-and-countertrends-shaping-innovation-ai-sustainability-and-future-cities-insights-for-designers-companies-and-strategists) | 디자인 거시 트렌드 | 2026·독립 디자인 기관 | AI·지속가능성·도시 변화와 함께 인간 중심의 역트렌드가 병존한다. | 기술 과시보다 오래 쓰는 컴포넌트와 지역 공동체 가치를 강조한다. |
 | R42 | Product Design Trends 2026 — Source Paris | [원문](https://source.paris/en/journal/product-design-trends-2026) | 제품 디자인 분석 | 2026·독립 스튜디오 | 유행의 표면보다 맥락·감정·브랜드 행동을 일관되게 연결하는 설계가 중요하다. | 각 시안의 효과를 합창단 철학과 사용자 과제로 설명한다. |
-| R43 | Digital Trends 2026 Whitepaper — Digital Silk | [PDF](https://www.digitalsilk.com/wp-content/uploads/2026/03/DigitalSilk_Whitepaper_2026.pdf) | 디지털·브랜드 리포트 | 2026·독립 에이전시 | 개인화·AI·몰입형 표현이 늘지만 속도와 전환 설계가 성과를 좌우한다. | 몰입형 홈과 간결한 입단·후원 흐름을 분리해 최적화한다. |
+| R43 | Digital Trends 2026 Guide — Digital Silk | [공식 가이드 페이지](https://www.digitalsilk.com/digital-trends-whitepaper/) | 디지털·브랜드 리포트 | 2026·에이전시 자체 발행 | 개인화·AI·몰입형 표현이 늘지만 속도와 전환 설계가 성과를 좌우한다는 에이전시 관점의 자료다. 독립 연구로 분류하지 않는다. | 몰입형 홈과 간결한 입단·후원 흐름을 분리한다는 가설 생성에만 쓰고 실제 성과 주장은 사용자 테스트로 검증한다. |
 | R44 | Accessibility Trends to Watch in 2026 — Accessibility.com | [원문](https://www.accessibility.com/blog/accessibility-trends-to-watch-in-2026) | 접근성 정책·업계 동향 | 2026·독립 전문매체 | 법·조달·AI·자동 검사 변화로 접근성을 사후 수정이 아닌 운영 체계로 다뤄야 한다. | 디자인 시스템, CMS 편집 가이드, 정기 감사까지 하나의 운영안으로 제안한다. |
 | R45 | Web Design Trends — Coursera | [원문](https://www.coursera.org/articles/trends-web-design) | 트렌드 학습 가이드 | 최신 갱신·독립 교육 | 최신 시각 경향을 기본 UX·반응형·접근성 지식과 함께 학습하도록 정리한다. | 새 스타일을 채택할 때 기본 원칙 체크리스트를 통과시킨다. |
 
@@ -320,4 +320,3 @@ YouTube는 채널 단위로 조사했다. 실제 적용 전에는 각 채널의 
 - 실제 CMS 데이터, `is_visible = true` 조건, 빈 상태, 로딩·오류 상태를 시안에 반영한다.
 - 청소년 단원의 개인정보와 초상 노출을 최소화하고 공동체·활동·파트·그룹 중심으로 표현한다.
 - 시안 평가는 감성(브랜드), 이해(정보 구조), 행동(전환), 포용(접근성), 현실성(구현·운영) 다섯 축으로 진행한다.
-
