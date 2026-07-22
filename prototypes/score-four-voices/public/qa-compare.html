@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>악보 시안 디자인 비교</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #241f22;
+        color: #fff;
+        font: 600 13px system-ui, sans-serif;
+      }
+
+      main {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2px;
+        padding: 2px;
+      }
+
+      figure {
+        margin: 0;
+        overflow: hidden;
+        background: #141214;
+      }
+
+      figcaption {
+        display: flex;
+        height: 36px;
+        align-items: center;
+        padding: 0 14px;
+        letter-spacing: 0.08em;
+      }
+
+      img {
+        display: block;
+        width: 100%;
+        height: 413px;
+        object-fit: cover;
+        object-position: top;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <figure>
+        <figcaption>원본 시안 · 선택한 3번</figcaption>
+        <img src="/reference/selected-option-3.png" alt="선택한 3번 시안" />
+      </figure>
+      <figure>
+        <figcaption>구현 결과 · 애니메이션 완료 상태</figcaption>
+        <img src="/reference/implementation-desktop-viewport.png" alt="구현한 애니메이션의 완료 상태" />
+      </figure>
+    </main>
+  </body>
+</html>

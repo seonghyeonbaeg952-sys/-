@@ -6,6 +6,7 @@ import {
   type CSSProperties,
 } from 'react'
 
+import { Button } from '../common/Button'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 
 const FLUTTER_PAGE_COUNT = 12
@@ -43,9 +44,20 @@ type ScrollScoreBookRevealProps = {
 }
 
 type ScoreStyle = CSSProperties & {
+  '--actions-reveal': string
+  '--book-fade': string
   '--book-final': string
   '--book-open': string
   '--cover-opacity': string
+  '--headline-blur': string
+  '--headline-reveal': string
+  '--headline-scale': string
+  '--headline-y': string
+  '--legend-reveal': string
+  '--paper-reveal': string
+  '--period-reveal': string
+  '--staff-reveal': string
+  '--summary-reveal': string
 }
 
 type WordStyle = CSSProperties & {
@@ -75,6 +87,17 @@ function easeInOut(value: number) {
   return value < 0.5
     ? 4 * value * value * value
     : 1 - Math.pow(-2 * value + 2, 3) / 2
+}
+
+function easeOutBack(value: number) {
+  const overshoot = 1.22
+  const shifted = value - 1
+
+  return (
+    1 +
+    (overshoot + 1) * Math.pow(shifted, 3) +
+    overshoot * Math.pow(shifted, 2)
+  )
 }
 
 function useScoreBookProgress() {
@@ -128,7 +151,7 @@ function useScoreBookProgress() {
     let animationCompleted = false
     let releaseTimer = 0
     let releaseDeadlineTimer = 0
-    const animationDuration = 1800
+    const animationDuration = 3200
     const getStickyTop = () => {
       const stage = section.querySelector<HTMLElement>('.motet-score-sticky-stage')
 
@@ -455,31 +478,21 @@ function splitLines(value: string | undefined, fallback: string[]) {
 }
 
 function getFlutterPageStyle(progress: number, index: number): CSSProperties {
-  const start = 0.28 + index * 0.043
-  const end = start + 0.245
+  const start = 0.19 + index * 0.036
+  const end = start + 0.29
   const localRaw = clamp((progress - start) / (end - start))
   const local = easeInOut(localRaw)
   const before = progress < start
-  const after = progress > end
-  const near = progress > start - 0.03 && progress < end + 0.06
-  let opacity = near ? 1 : 0
-
-  if (after) {
-    opacity = Math.max(0, 0.28 - (progress - end) * 2.8)
-  }
-
-  if (progress > 0.52) {
-    opacity *= 1 - smoothstep(0.52, 0.68, progress)
-  }
-
   const arc = Math.sin(localRaw * Math.PI)
-  const shadowOpacity = 0.12 + arc * 0.18
+  const near = progress > start - 0.025 && progress < end + 0.055
+  const fade = 1 - smoothstep(0.72, 0.86, progress)
+  const shadowOpacity = 0.08 + arc * 0.18
 
   return {
-    filter: `drop-shadow(${(arc * 12).toFixed(2)}px 16px 24px rgb(7 17 31 / ${shadowOpacity.toFixed(3)}))`,
-    opacity,
-    transform: `rotateY(${(-178 * local).toFixed(2)}deg) translateZ(${(28 + arc * 20).toFixed(2)}px) skewY(${(arc * -1.4).toFixed(2)}deg)`,
-    zIndex: before ? 12 + FLUTTER_PAGE_COUNT - index : 28 + index,
+    filter: `drop-shadow(${(arc * 13).toFixed(2)}px 16px 24px rgb(53 21 42 / ${shadowOpacity.toFixed(3)}))`,
+    opacity: near ? fade : 0,
+    transform: `rotateY(${(-179 * local).toFixed(2)}deg) translateZ(${(24 + arc * 48).toFixed(2)}px) rotateZ(${(arc * -1.6).toFixed(2)}deg)`,
+    zIndex: before ? 18 + FLUTTER_PAGE_COUNT - index : 34 + index,
   }
 }
 
@@ -546,22 +559,60 @@ export function ScrollScoreBookReveal({
   valueWordsText,
 }: ScrollScoreBookRevealProps) {
   const { isAnimatedDesktop, progress, sectionRef } = useScoreBookProgress()
-  const open = smoothstep(0.02, 0.38, progress)
-  const final = smoothstep(0.86, 0.98, progress)
+  const open = smoothstep(0.02, 0.3, progress)
+  const paperReveal = smoothstep(0.7, 0.88, progress)
+  const headlineReveal = smoothstep(0.79, 0.91, progress)
+  const legendReveal = smoothstep(0.84, 0.94, progress)
+  const staffReveal = smoothstep(0.82, 0.955, progress)
+  const summaryReveal = smoothstep(0.91, 0.975, progress)
+  const actionsReveal = smoothstep(0.945, 0.995, progress)
+  const periodReveal = smoothstep(0.92, 0.985, progress)
+  const headlineBack = easeOutBack(headlineReveal)
   const scoreStyle: ScoreStyle = {
-    '--book-final': final.toFixed(4),
+    '--actions-reveal': actionsReveal.toFixed(4),
+    '--book-fade': (1 - smoothstep(0.72, 0.88, progress)).toFixed(4),
+    '--book-final': paperReveal.toFixed(4),
     '--book-open': open.toFixed(4),
-    '--cover-opacity': (1 - smoothstep(0.3, 0.5, progress)).toFixed(4),
+    '--cover-opacity': (1 - smoothstep(0.22, 0.42, progress)).toFixed(4),
+    '--headline-blur': `${((1 - headlineReveal) * 5).toFixed(2)}px`,
+    '--headline-reveal': headlineReveal.toFixed(4),
+    '--headline-scale': (0.955 + headlineBack * 0.045).toFixed(4),
+    '--headline-y': `${((1 - headlineReveal) * 24).toFixed(2)}px`,
+    '--legend-reveal': legendReveal.toFixed(4),
+    '--paper-reveal': paperReveal.toFixed(4),
+    '--period-reveal': periodReveal.toFixed(4),
+    '--staff-reveal': staffReveal.toFixed(4),
+    '--summary-reveal': summaryReveal.toFixed(4),
   }
-  const coverLines = splitLines(coverTitle, [
-    '합창단 활동을',
-    '한눈에 보는',
-    'Motet Score',
+  const requestedCoverLines = splitLines(coverTitle, [
+    '함께 부르는',
+    '우리의 노래',
   ])
-  const finalLines = splitLines(finalTitle, [
-    '연습과 공연을',
-    '함께 확인합니다',
+  const coverLines =
+    requestedCoverLines.join('') === '합창단 활동을한눈에 보는Motet Score'
+      ? ['함께 부르는', '우리의 노래']
+      : requestedCoverLines
+  const coverFooter =
+    !coverDescription ||
+    coverDescription.trim() ===
+      '연습, 공연 준비, 주요 안내를 악보집 형식으로 정리했습니다.'
+      ? 'SEOUL MOTET YOUTH CHOIR'
+      : coverDescription
+  const requestedFinalLines = splitLines(finalTitle, [
+    '서로 다른 목소리로,',
+    '같은 음악을 완성합니다',
   ])
+  const finalLines =
+    requestedFinalLines.join('') === '연습과 공연을함께 확인합니다'
+      ? ['서로 다른 목소리로,', '같은 음악을 완성합니다']
+      : requestedFinalLines
+  const finalBody =
+    !finalDescription ||
+    finalDescription.trim() ===
+      '합창단의 교육 방향과 활동 흐름을 한 화면에서 안내합니다.'
+      ? '체계적인 앙상블 교육과\n정기 연습·공연을 통해 음악으로 함께 성장합니다.'
+      : finalDescription
+  const isFinalInteractive = actionsReveal > 0.9
   const flutterPages = useMemo(
     () => Array.from({ length: FLUTTER_PAGE_COUNT }, (_, index) => index),
     [],
@@ -573,7 +624,7 @@ export function ScrollScoreBookReveal({
 
   return (
     <section
-      aria-labelledby="motet-score-final-title"
+      aria-label="합창단 활동을 소개하는 악보 애니메이션"
       className="flow-section motet-score-scroll-section"
       data-flow-section="score-book"
       ref={sectionRef}
@@ -596,12 +647,16 @@ export function ScrollScoreBookReveal({
 
           <div className="motet-score-spread">
             <article className="motet-score-page motet-score-page-left">
+              <div aria-hidden="true" className="motet-score-opening-voice motet-score-opening-voice--left">
+                <span>VOICE</span>
+                <strong>S · A</strong>
+              </div>
               <span aria-hidden="true" className="motet-score-page-ghost">
                 SCORE
               </span>
               <div className="motet-score-final-copy">
                 <p className="motet-score-eyebrow">MOTET SCORE</p>
-                <h2 id="motet-score-final-title">
+                <h2>
                   {finalLines.map((line) => (
                     <span key={line}>{line}</span>
                   ))}
@@ -622,6 +677,10 @@ export function ScrollScoreBookReveal({
             </article>
 
             <article className="motet-score-page">
+              <div aria-hidden="true" className="motet-score-opening-voice">
+                <span>VOICE</span>
+                <strong>T · B</strong>
+              </div>
               <div className="motet-score-final-copy">
                 <span aria-hidden="true" className="motet-score-quote-mark">
                   ”
@@ -658,10 +717,7 @@ export function ScrollScoreBookReveal({
                 ))}
               </h2>
               <span />
-              <strong>
-                {coverDescription ||
-                  '연습, 공연 준비, 주요 안내를 악보집 형식으로 정리했습니다.'}
-              </strong>
+              <strong>{coverFooter}</strong>
             </div>
           </div>
 
@@ -690,11 +746,73 @@ export function ScrollScoreBookReveal({
                   key={index}
                   style={getFlutterPageStyle(progress, index)}
                 >
-                  <div className="motet-score-flutter-face" />
-                  <div className="motet-score-flutter-face motet-score-flutter-face-back" />
+                  <div className="motet-score-flutter-face">
+                    <img alt="" src="/images/effects/home-score-m-staff.png" />
+                  </div>
+                  <div className="motet-score-flutter-face motet-score-flutter-face-back">
+                    <img alt="" src="/images/effects/home-score-m-staff.png" />
+                  </div>
                 </div>
               ))
             : null}
+        </div>
+
+        <div
+          aria-hidden={!isFinalInteractive}
+          className={`motet-score-final-sheet${isFinalInteractive ? ' is-interactive' : ''}`}
+        >
+          <img
+            alt=""
+            aria-hidden="true"
+            className="motet-score-final-paper"
+            src="/images/textures/home-score-paper-background.png"
+          />
+          <div className="motet-score-final-sheet-content">
+            <h2 id="motet-score-final-title">
+              {finalLines.map((line, index) => (
+                <span key={line}>
+                  {line}
+                  {index === finalLines.length - 1 ? (
+                    <span aria-hidden="true" className="motet-score-final-period">.</span>
+                  ) : null}
+                </span>
+              ))}
+            </h2>
+
+            <div aria-label="합창 성부" className="motet-score-voice-legend">
+              {['SOPRANO', 'ALTO', 'TENOR', 'BASS'].map((voice) => (
+                <span key={voice}>{voice}</span>
+              ))}
+            </div>
+
+            <img
+              alt=""
+              aria-hidden="true"
+              className="motet-score-final-staff"
+              src="/images/effects/home-score-m-staff.png"
+            />
+
+            <p className="motet-score-final-summary">{finalBody}</p>
+
+            <div className="motet-score-final-actions">
+              <Button
+                className="motet-score-final-primary"
+                disabled={!isFinalInteractive}
+                href="/gallery"
+                showArrow={false}
+              >
+                우리의 활동 보기
+              </Button>
+              <Button
+                className="motet-score-final-secondary"
+                disabled={!isFinalInteractive}
+                href="/concerts"
+                variant="ghost"
+              >
+                공연과 소식
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
