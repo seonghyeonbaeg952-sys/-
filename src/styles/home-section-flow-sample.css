@@ -249,6 +249,14 @@
   ) !important;
 }
 
+@media (min-width: 1024px) {
+  .home-section-flow-sample
+    .home-flow-sample-chunk--warm
+    [data-flow-section="about"] {
+    translate: 0 -96px;
+  }
+}
+
 .home-section-flow-sample
   .home-flow-sample-chunk--warm
   [data-flow-section="join-letter"] {
