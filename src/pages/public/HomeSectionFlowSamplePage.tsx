@@ -5,13 +5,16 @@ import '../../styles/home-v6-fixes.css'
 import '../../styles/home-premium-polish.css'
 import '../../styles/home-global-refinement.css'
 import '../../styles/home-section-flow-sample.css'
+import '../../styles/home-spirit-editorial.css'
 
 type HomeSectionFlowExperienceProps = {
   showPreviewStatus?: boolean
+  useEditorialSpirit?: boolean
 }
 
 function HomeSectionFlowExperience({
   showPreviewStatus = false,
+  useEditorialSpirit = false,
 }: HomeSectionFlowExperienceProps) {
   useLayoutEffect(() => {
     const root = document.querySelector<HTMLElement>('.home-section-flow-sample')
@@ -155,7 +158,10 @@ function HomeSectionFlowExperience({
 
   return (
     <div className="home-section-flow-sample">
-      <HomePage mode="section-flow-sample" />
+      <HomePage
+        mode="section-flow-sample"
+        spiritPresentation={useEditorialSpirit ? 'editorial' : 'scorebook'}
+      />
       {showPreviewStatus ? (
         <aside
           aria-label="Sample preview status"
@@ -170,9 +176,9 @@ function HomeSectionFlowExperience({
 }
 
 export function HomeSectionFlowPage() {
-  return <HomeSectionFlowExperience />
+  return <HomeSectionFlowExperience useEditorialSpirit />
 }
 
 export function HomeSectionFlowSamplePage() {
-  return <HomeSectionFlowExperience showPreviewStatus />
+  return <HomeSectionFlowExperience showPreviewStatus useEditorialSpirit />
 }

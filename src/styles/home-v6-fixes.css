@@ -2072,10 +2072,6 @@
   display: none !important;
 }
 
-.motet-score-scroll-section .home-section-staff-cue--score {
-  display: none !important;
-}
-
 .home-flow-body [data-flow-section="score-book"]::before,
 .home-flow-body [data-flow-section="score-book"]::after {
   display: none !important;
@@ -3273,9 +3269,8 @@
   }
 }
 
-/* Score section decoration removal: keep the book itself, remove the drifting
-   staff rails/washes that make the final pinned frame look like it slides. */
-.home-flow-root .motet-score-scroll-section .home-section-staff-cue--score,
+/* Keep the score-side cue while removing only the drifting rails/washes that
+   make the final pinned frame look like it slides. */
 .home-flow-root .motet-score-scroll-section .motet-score-orbit,
 .home-flow-root .motet-score-scroll-section .motet-score-sticky-stage::before,
 .home-flow-root .motet-score-scroll-section .motet-score-sticky-stage::after,

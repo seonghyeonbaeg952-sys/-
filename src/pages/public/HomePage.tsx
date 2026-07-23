@@ -31,6 +31,7 @@ type HomePageMode = 'default' | 'section-flow-sample'
 
 type HomePageProps = {
   mode?: HomePageMode
+  spiritPresentation?: 'editorial' | 'scorebook'
 }
 
 type HomeFlowSampleChunkProps = {
@@ -202,7 +203,10 @@ function renderSmycTitleLine(line: string) {
   )
 }
 
-export function HomePage({ mode = 'default' }: HomePageProps) {
+export function HomePage({
+  mode = 'default',
+  spiritPresentation = 'scorebook',
+}: HomePageProps) {
   const homeData = useHomeData()
   const {
     aboutSections,
@@ -434,6 +438,7 @@ export function HomePage({ mode = 'default' }: HomePageProps) {
           >
             <HomeSpiritScoreBook
               image={spiritVisualImage}
+              presentation={spiritPresentation}
               sections={aboutSections}
             />
           </HomeFlowSampleHold>

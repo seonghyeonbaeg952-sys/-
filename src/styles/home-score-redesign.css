@@ -12,8 +12,7 @@
 }
 
 .motet-score-scroll-section .motet-score-stage-label,
-.motet-score-scroll-section .motet-score-orbit,
-.motet-score-scroll-section .home-section-staff-cue--score {
+.motet-score-scroll-section .motet-score-orbit {
   display: none !important;
 }
 

@@ -15,10 +15,12 @@ import { Reveal } from '../common/Reveal'
 import { StaffLines } from '../common/StaffLines'
 import { TransitionLink } from '../common/TransitionLink'
 import { ImageTile } from './ImageTile'
+import { HomeSpiritEditorial } from './HomeSpiritEditorial'
 import { KineticHeadline } from './KineticHeadline'
 
 type HomeSpiritScoreBookProps = {
   image?: GalleryImage
+  presentation?: 'editorial' | 'scorebook'
   sections: AboutSectionRow[]
 }
 
@@ -35,7 +37,22 @@ function createPages(sections: AboutSectionRow[]) {
   )
 }
 
-export function HomeSpiritScoreBook({ image, sections }: HomeSpiritScoreBookProps) {
+export function HomeSpiritScoreBook({
+  image,
+  presentation = 'scorebook',
+  sections,
+}: HomeSpiritScoreBookProps) {
+  if (presentation === 'editorial') {
+    return <HomeSpiritEditorial sections={sections} />
+  }
+
+  return <HomeSpiritScoreBookLegacy image={image} sections={sections} />
+}
+
+function HomeSpiritScoreBookLegacy({
+  image,
+  sections,
+}: Pick<HomeSpiritScoreBookProps, 'image' | 'sections'>) {
   const pages = useMemo(() => createPages(sections), [sections])
   const [activeIndex, setActiveIndex] = useState(0)
   const activePage = pages[activeIndex]

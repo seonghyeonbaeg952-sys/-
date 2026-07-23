@@ -601,6 +601,36 @@
   box-shadow: none !important;
 }
 
+.color-sample-theme.public-shell-home .home-global-identity-footer nav {
+  align-items: stretch;
+  gap: 8px;
+}
+
+.color-sample-theme.public-shell-home .home-global-identity-footer a {
+  min-height: 44px;
+  justify-content: space-between;
+  border-color: var(--color-orange-soft) !important;
+  background-color: var(--color-orange-wash) !important;
+  color: var(--color-ink) !important;
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.9) inset;
+}
+
+.color-sample-theme.public-shell-home .home-global-identity-footer a > span {
+  color: var(--color-orange-deep) !important;
+}
+
+.color-sample-theme.public-shell-home .home-global-identity-footer a:hover,
+.color-sample-theme.public-shell-home .home-global-identity-footer a:focus-visible {
+  border-color: var(--color-orange-cue) !important;
+  background-color: var(--color-orange-cue) !important;
+  color: var(--color-white) !important;
+}
+
+.color-sample-theme.public-shell-home .home-global-identity-footer a:hover > span,
+.color-sample-theme.public-shell-home .home-global-identity-footer a:focus-visible > span {
+  color: var(--color-white) !important;
+}
+
 /* Subpages use the same long, symmetric rail as a quiet scene boundary. */
 .color-sample-theme
   section:has(> .page-hero-staff-lines) {
