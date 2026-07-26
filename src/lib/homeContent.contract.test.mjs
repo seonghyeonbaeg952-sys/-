@@ -122,6 +122,21 @@ test('renders safely when no CMS rows exist', () => {
   )
 })
 
+test('keeps numbered about paragraphs in their original one-based order', () => {
+  const flattened = homeContent.flattenHomeContentV2(
+    constants.HOME_CONTENT_DEFAULTS_V2,
+  )
+
+  assert.equal(
+    flattened['home.about.paragraphs.1'],
+    constants.HOME_CONTENT_DEFAULTS_V2.about.paragraphs[0],
+  )
+  assert.equal(
+    flattened['home.about.paragraphs.2'],
+    constants.HOME_CONTENT_DEFAULTS_V2.about.paragraphs[1],
+  )
+})
+
 test('keeps the additive SQL migration synchronized with every V2 key', async () => {
   const migration = await readFile(
     'supabase/migrations/20260723_sync_home_content_v2.sql',
@@ -132,5 +147,36 @@ test('keeps the additive SQL migration synchronized with every V2 key', async ()
     assert.equal(migration.includes(key), true, key)
   }
 
+  assert.equal(/^\s*(delete|drop|truncate)\s/im.test(migration), false)
+})
+
+test('keeps the V2 HTML restore migration synchronized with exact defaults', async () => {
+  const migration = await readFile(
+    'supabase/migrations/20260724_restore_home_copy_from_v2_html.sql',
+    'utf8',
+  )
+  const tuples = new Map(
+    [...migration.matchAll(/\('((?:''|[^'])*)',\s*'((?:''|[^'])*)'\)/g)].map(
+      (match) => [
+        match[1].replaceAll("''", "'"),
+        match[2].replaceAll("''", "'"),
+      ],
+    ),
+  )
+  const expected = homeContent.flattenHomeContentV2(
+    constants.HOME_CONTENT_DEFAULTS_V2,
+  )
+
+  assert.equal(tuples.size, Object.keys(expected).length)
+  for (const [key, value] of Object.entries(expected)) {
+    assert.equal(tuples.get(key), value, key)
+  }
+
+  assert.equal(
+    /update\s+public\.(concerts|notices|gallery|join_info|sponsors|media)/i.test(
+      migration,
+    ),
+    false,
+  )
   assert.equal(/^\s*(delete|drop|truncate)\s/im.test(migration), false)
 })

@@ -24,6 +24,8 @@ import type {
 
 type HomeFieldValues = Record<string, string>
 
+const FIXED_HOME_HERO_PREFIX = 'home.heroSupplement.'
+
 const defaultValues: HomeFieldValues = Object.fromEntries(
   homeFieldDefinitions.map((definition) => [
     definition.key,
@@ -45,7 +47,11 @@ function createValuesFromRows(
   const values = { ...defaultValues }
 
   for (const row of rows) {
-    if (!row.is_active || !(row.key in values)) {
+    if (
+      !row.is_active ||
+      !(row.key in values) ||
+      row.key.startsWith(FIXED_HOME_HERO_PREFIX)
+    ) {
       continue
     }
 
@@ -160,11 +166,13 @@ function HomeField({
   value: string
 }) {
   const id = getInputId(definition.key)
+  const isFixedHeroReference = definition.sectionId === 'heroSupplement'
 
   if (definition.inputType === 'textarea') {
     return (
       <AdminTextarea
         description={definition.description}
+        disabled={isFixedHeroReference}
         error={error}
         id={id}
         label={definition.label}
@@ -214,6 +222,7 @@ function HomeField({
   return (
     <AdminFormField
       description={definition.description}
+      disabled={isFixedHeroReference}
       error={error}
       id={id}
       label={definition.label}

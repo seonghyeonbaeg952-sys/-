@@ -18,7 +18,7 @@ export function HomeRoute() {
   const [searchParams] = useSearchParams()
 
   if (searchParams.get('motionBenchmark') !== '1') {
-    return <HomeSectionFlowPage />
+    return <HomeSectionFlowPage joinPresentation="open-score" />
   }
 
   return (

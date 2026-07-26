@@ -6,13 +6,16 @@ import '../../styles/home-premium-polish.css'
 import '../../styles/home-global-refinement.css'
 import '../../styles/home-section-flow-sample.css'
 import '../../styles/home-spirit-editorial.css'
+import '../../styles/home-join-open-score.css'
 
 type HomeSectionFlowExperienceProps = {
+  joinPresentation?: 'legacy' | 'open-score'
   showPreviewStatus?: boolean
   useEditorialSpirit?: boolean
 }
 
 function HomeSectionFlowExperience({
+  joinPresentation = 'legacy',
   showPreviewStatus = false,
   useEditorialSpirit = false,
 }: HomeSectionFlowExperienceProps) {
@@ -49,6 +52,7 @@ function HomeSectionFlowExperience({
     const reset = () => {
       getTracks().forEach((track) => {
         track.removeAttribute('data-hold-state')
+        track.removeAttribute('data-hold-mode')
         track.style.removeProperty('--sample-hold-height')
         track.style.removeProperty('--sample-hold-top')
       })
@@ -75,9 +79,28 @@ function HomeSectionFlowExperience({
         const isFullPanel = track.classList.contains(
           'home-flow-sample-hold-track--full',
         )
+        const isEditorialPanel = track.classList.contains(
+          'home-flow-sample-hold-track--editorial',
+        )
+        const editorialHoldTop = 96
+        const canHoldEditorialPanel =
+          panelHeight <= window.innerHeight - editorialHoldTop
+
+        if (isEditorialPanel && !canHoldEditorialPanel) {
+          track.dataset.holdMode = 'flow'
+          track.removeAttribute('data-hold-state')
+          track.style.removeProperty('--sample-hold-height')
+          track.style.removeProperty('--sample-hold-top')
+          return
+        }
+
+        track.removeAttribute('data-hold-mode')
+
         const holdTop = isFullPanel
           ? Math.min(20, window.innerHeight - panelHeight - 16)
-          : 143
+          : isEditorialPanel
+            ? editorialHoldTop
+            : 143
         const panelHeightValue = `${panelHeight}px`
         const holdTopValue = `${holdTop}px`
 
@@ -159,6 +182,7 @@ function HomeSectionFlowExperience({
   return (
     <div className="home-section-flow-sample">
       <HomePage
+        joinPresentation={joinPresentation}
         mode="section-flow-sample"
         spiritPresentation={useEditorialSpirit ? 'editorial' : 'scorebook'}
       />
@@ -175,10 +199,25 @@ function HomeSectionFlowExperience({
   )
 }
 
-export function HomeSectionFlowPage() {
-  return <HomeSectionFlowExperience useEditorialSpirit />
+export function HomeSectionFlowPage({
+  joinPresentation = 'legacy',
+}: {
+  joinPresentation?: 'legacy' | 'open-score'
+}) {
+  return (
+    <HomeSectionFlowExperience
+      joinPresentation={joinPresentation}
+      useEditorialSpirit
+    />
+  )
 }
 
 export function HomeSectionFlowSamplePage() {
-  return <HomeSectionFlowExperience showPreviewStatus useEditorialSpirit />
+  return (
+    <HomeSectionFlowExperience
+      joinPresentation="open-score"
+      showPreviewStatus
+      useEditorialSpirit
+    />
+  )
 }

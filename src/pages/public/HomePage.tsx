@@ -14,6 +14,7 @@ import { HomeHeroSlideshow } from '../../components/home/HomeHeroSlideshow'
 import { HomePopupManager } from '../../components/home/HomePopupManager'
 import { HomeSpiritScoreBook } from '../../components/home/HomeSpiritScoreBook'
 import { JoinCTA } from '../../components/home/JoinCTA'
+import { JoinOpenScoreCTA } from '../../components/home/JoinOpenScoreCTA'
 import { PerformanceNewsPreview } from '../../components/home/PerformanceNewsPreview'
 import { ScrollScoreBookReveal } from '../../components/home/ScrollScoreBookReveal'
 import { SponsorQuietMarquee } from '../../components/home/SponsorQuietMarquee'
@@ -26,6 +27,7 @@ import type { Concert, GalleryImage } from '../../types/content'
 type HomePageMode = 'default' | 'section-flow-sample'
 
 type HomePageProps = {
+  joinPresentation?: 'legacy' | 'open-score'
   mode?: HomePageMode
   spiritPresentation?: 'editorial' | 'scorebook'
 }
@@ -39,7 +41,7 @@ type HomeFlowSampleChunkProps = {
 type HomeFlowSampleHoldProps = {
   children: ReactNode
   enabled: boolean
-  variant?: 'compact' | 'full'
+  variant?: 'compact' | 'editorial' | 'full'
 }
 
 const homeMEdgePath = 'M0 24H580V72L720 24L860 72V24H1440V102H0Z'
@@ -129,6 +131,7 @@ function getNextConcert(concerts: Concert[]) {
 }
 
 export function HomePage({
+  joinPresentation = 'legacy',
   mode = 'default',
   spiritPresentation = 'scorebook',
 }: HomePageProps) {
@@ -251,14 +254,24 @@ export function HomePage({
               />
               <HomeFlowSampleHold
                 enabled={mode === 'section-flow-sample'}
+                variant={
+                  joinPresentation === 'open-score' ? 'editorial' : 'compact'
+                }
               >
-                <JoinCTA
-                  buttonLabel={homeContent.joinLetter.ctaLabel}
-                  joinInfo={joinInfo}
-                  kicker={homeContent.joinLetter.eyebrowEn}
-                  text={homeContent.joinLetter.description}
-                  title={homeContent.joinLetter.title}
-                />
+                {joinPresentation === 'open-score' ? (
+                  <JoinOpenScoreCTA
+                    buttonLabel={homeContent.joinLetter.ctaLabel}
+                    joinInfo={joinInfo}
+                  />
+                ) : (
+                  <JoinCTA
+                    buttonLabel={homeContent.joinLetter.ctaLabel}
+                    joinInfo={joinInfo}
+                    kicker={homeContent.joinLetter.eyebrowEn}
+                    text={homeContent.joinLetter.description}
+                    title={homeContent.joinLetter.title}
+                  />
+                )}
               </HomeFlowSampleHold>
             </HomeFlowSampleChunk>
 

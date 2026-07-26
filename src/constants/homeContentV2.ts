@@ -399,8 +399,8 @@ const scoreValueFields = HOME_CONTENT_DEFAULTS_V2.scoreBook.valueItems.flatMap(
 export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
   field({
     key: 'home.heroSupplement.fallbackDescription',
-    label: 'Hero 빈 상태 설명',
-    description: '공개 Hero 슬라이드가 없을 때만 표시되는 설명입니다.',
+    label: 'Hero 기준 소개 문구',
+    description: 'V2 HTML에서 확정한 고정 문구입니다. 공개 홈에서는 편집할 수 없습니다.',
     inputType: 'textarea',
     defaultValue: HOME_CONTENT_DEFAULTS_V2.heroSupplement.fallbackDescription,
     sectionId: 'heroSupplement',
@@ -409,8 +409,8 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
   ...HOME_CONTENT_DEFAULTS_V2.heroSupplement.mottoChips.map((value, index) =>
     field({
       key: `home.heroSupplement.mottoChips.${index + 1}`,
-      label: `Hero 공통 가치 ${index + 1}`,
-      description: '모든 Hero 슬라이드 아래에 공통으로 표시됩니다.',
+      label: `Hero 기준 가치 ${index + 1}`,
+      description: 'V2 HTML에서 확정한 고정 가치 문구입니다. 공개 홈에서는 편집할 수 없습니다.',
       inputType: 'text',
       defaultValue: value,
       sectionId: 'heroSupplement',
@@ -716,13 +716,13 @@ export const HOME_CONTENT_V2_KEYS = homeContentSiteTextDefinitions.map(
 export const homeContentSectionDefinitions: HomeContentSectionDefinition[] = [
   {
     id: 'heroSupplement',
-    title: 'Hero 보조 문구',
-    description: '슬라이드별 제목·설명·CTA는 홈 슬라이드 관리가 소유합니다.',
+    title: 'Hero 기준 문구 (고정)',
+    description: '브랜드 문구와 CTA는 V2 HTML 기준으로 고정되며, 아래 값은 복원 기준으로만 보관합니다.',
     publicOrder: 1,
     managedElsewhere: [
       {
         label: '홈 슬라이드 관리',
-        description: '이미지, 제목, 부제, 설명, CTA, 공개 순서를 수정합니다.',
+        description: 'Hero 배경 이미지, 공개 여부와 표시 순서를 관리합니다.',
         adminHref: '/admin/hero-slides',
         source: 'hero_slides',
       },

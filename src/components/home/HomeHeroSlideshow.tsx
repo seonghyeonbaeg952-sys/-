@@ -225,7 +225,7 @@ function PlaybackIcon({ isPaused }: { isPaused: boolean }) {
   )
 }
 
-function MottoChips({ chips }: { chips: string[] }) {
+function MottoChips({ chips }: { chips: readonly string[] }) {
   return (
     <div aria-label="합창단 핵심 가치" className="home-hero-motto-chips">
       {chips.map((chip) => (
@@ -425,7 +425,7 @@ export function HomeHeroSlideshow({ intervalMs = 5000, slides }: HomeHeroSlidesh
             </div>
           </Reveal>
           <Reveal delayMs={280}>
-            <MottoChips chips={[...HOME_HERO_REFERENCE_COPY.mottoChips]} />
+            <MottoChips chips={HOME_HERO_REFERENCE_COPY.mottoChips} />
           </Reveal>
 
             {hasMultipleSlides ? (

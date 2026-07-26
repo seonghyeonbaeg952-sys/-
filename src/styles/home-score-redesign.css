@@ -403,3 +403,25 @@
   visibility: visible;
   opacity: 1;
 }
+
+.home-section-flow-sample
+  .home-flow-sample-chunk--warm:has(
+    .home-flow-sample-hold-track--editorial[data-hold-state="fixed"]
+  )
+  + .home-flow-sample-chunk--stage
+  > .home-flow-sample-chunk__surface
+  > .home-flow-sample-chunk__edge {
+  visibility: visible;
+  opacity: 1;
+}
+
+.home-section-flow-sample
+  .home-flow-sample-chunk--warm:has(
+    .home-flow-sample-hold-track--editorial[data-hold-mode="flow"]
+  )
+  + .home-flow-sample-chunk--stage
+  > .home-flow-sample-chunk__surface
+  > .home-flow-sample-chunk__edge {
+  visibility: visible;
+  opacity: 1;
+}
