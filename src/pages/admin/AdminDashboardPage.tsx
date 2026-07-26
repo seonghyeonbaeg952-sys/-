@@ -34,7 +34,7 @@ const quickLinks = [
   {
     title: '홈 문구',
     description: '주요 제목과 안내 문구를 수정합니다.',
-    href: '/admin/site-texts',
+    href: '/admin/home',
   },
   {
     title: '공지사항',

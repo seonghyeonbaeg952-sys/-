@@ -4,13 +4,12 @@ import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 import { Reveal } from '../common/Reveal'
 import { StaffLines } from '../common/StaffLines'
 import { StaffSectionLabel } from '../common/StaffSectionLabel'
+import type { JoinInfoRow } from '../../types/cms'
 
 type JoinCTAProps = {
   buttonLabel?: string | null
   kicker?: string | null
-  process?: string | null
-  schedule?: string | null
-  target?: string | null
+  joinInfo?: JoinInfoRow | null
   text?: string | null
   title?: string | null
 }
@@ -33,16 +32,29 @@ const joinSummary = [
 export function JoinCTA({
   buttonLabel,
   kicker,
-  process,
-  schedule,
-  target,
+  joinInfo,
   text,
   title,
 }: JoinCTAProps) {
+  const rehearsalSummary = [
+    joinInfo?.rehearsal_time?.trim(),
+    joinInfo?.rehearsal_location?.trim(),
+  ]
+    .filter(Boolean)
+    .join(' · ')
   const summaryItems = [
-    { label: joinSummary[0].label, value: target || joinSummary[0].value },
-    { label: joinSummary[1].label, value: schedule || joinSummary[1].value },
-    { label: joinSummary[2].label, value: process || joinSummary[2].value },
+    {
+      label: joinSummary[0].label,
+      value: joinInfo?.target?.trim() || joinSummary[0].value,
+    },
+    {
+      label: joinSummary[1].label,
+      value: rehearsalSummary || joinSummary[1].value,
+    },
+    {
+      label: joinSummary[2].label,
+      value: joinInfo?.audition_process?.trim() || joinSummary[2].value,
+    },
   ]
 
   return (

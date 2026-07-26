@@ -1,5 +1,5 @@
-import { HOME_SPONSOR_COPY } from '../../constants/sponsors'
 import type { Sponsor } from '../../types/content'
+import type { HomeContentV2 } from '../../types/homeContent'
 import { classNames } from '../../utils/classNames'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
@@ -8,10 +8,14 @@ import { StaffLines } from '../common/StaffLines'
 import { SponsorLogoCard } from '../sponsors/SponsorLogoCard'
 
 type SponsorQuietMarqueeProps = {
+  content: HomeContentV2['sponsors']
   sponsors: Sponsor[]
 }
 
-export function SponsorQuietMarquee({ sponsors }: SponsorQuietMarqueeProps) {
+export function SponsorQuietMarquee({
+  content,
+  sponsors,
+}: SponsorQuietMarqueeProps) {
   const visibleSponsors = sponsors
     .filter((sponsor) => sponsor.is_visible && sponsor.show_on_home)
     .sort((first, second) => first.display_order - second.display_order)
@@ -32,22 +36,22 @@ export function SponsorQuietMarquee({ sponsors }: SponsorQuietMarqueeProps) {
           <div className="sponsor-quiet-panel">
             <div>
               <p className="type-eyebrow text-gold-ink">
-                {HOME_SPONSOR_COPY.eyebrow}
+                {content.eyebrow}
               </p>
               <StaffLines className="mt-3 max-w-64 opacity-45" density="light" variant="gold" />
               <h2 className="type-section-title mt-4 text-navy-deep">
-                {HOME_SPONSOR_COPY.title}
+                {content.title}
               </h2>
               <p className="type-body mt-4 text-text-muted">
-                {HOME_SPONSOR_COPY.body}
+                {content.description}
               </p>
               <Button
                 className="mt-5"
-                href={HOME_SPONSOR_COPY.ctaHref}
+                href="/contact?section=sponsors"
                 size="sm"
                 variant="secondary"
               >
-                {HOME_SPONSOR_COPY.ctaLabel}
+                {content.ctaLabel}
               </Button>
             </div>
 

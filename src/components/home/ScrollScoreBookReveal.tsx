@@ -6,19 +6,11 @@ import {
   type CSSProperties,
 } from 'react'
 
+import type { HomeScoreBookContent } from '../../types/homeContent'
 import { Button } from '../common/Button'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 
 const FLUTTER_PAGE_COUNT = 12
-
-const valueWords = [
-  { word: '귀 기울임', body: '먼저 듣는 마음' },
-  { word: '어울림', body: '서로의 자리를 살피는 태도' },
-  { word: '꾸준함', body: '약속한 시간을 지키는 힘' },
-  { word: '약속', body: '내 파트를 준비하는 마음' },
-  { word: '조화', body: '다른 소리와 함께 숨 쉬는 일' },
-  { word: '비전', body: '노래 너머의 삶을 바라보는 눈' },
-]
 
 const wordPositions = [
   { fromX: -420, fromY: -172, left: '18%', tilt: -5.2, top: '25%' },
@@ -34,13 +26,7 @@ const WORD_WAVE_INTERVAL = 0.34
 const WORD_STAGGER_INTERVAL = 0.035
 
 type ScrollScoreBookRevealProps = {
-  coverDescription?: string
-  coverTitle?: string
-  finalDescription?: string
-  finalTitle?: string
-  rightBody?: string
-  rightTitle?: string
-  valueWordsText?: string
+  content: HomeScoreBookContent
 }
 
 type ScoreStyle = CSSProperties & {
@@ -468,15 +454,6 @@ function useScoreBookProgress() {
   }
 }
 
-function splitLines(value: string | undefined, fallback: string[]) {
-  const lines = value
-    ?.split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-
-  return lines?.length ? lines : fallback
-}
-
 function getFlutterPageStyle(progress: number, index: number): CSSProperties {
   const start = 0.19 + index * 0.036
   const end = start + 0.29
@@ -533,30 +510,8 @@ function getWordStyle(
   }
 }
 
-function getValueWords(value: string | undefined) {
-  const words = value
-    ?.split(',')
-    .map((word) => word.trim())
-    .filter(Boolean)
-
-  if (!words?.length) {
-    return valueWords
-  }
-
-  return words.slice(0, 6).map((word, index) => ({
-    body: valueWords[index]?.body ?? '',
-    word,
-  }))
-}
-
 export function ScrollScoreBookReveal({
-  coverDescription,
-  coverTitle,
-  finalDescription,
-  finalTitle,
-  rightBody,
-  rightTitle,
-  valueWordsText,
+  content,
 }: ScrollScoreBookRevealProps) {
   const { isAnimatedDesktop, progress, sectionRef } = useScoreBookProgress()
   const open = smoothstep(0.02, 0.3, progress)
@@ -584,47 +539,27 @@ export function ScrollScoreBookReveal({
     '--staff-reveal': staffReveal.toFixed(4),
     '--summary-reveal': summaryReveal.toFixed(4),
   }
-  const requestedCoverLines = splitLines(coverTitle, [
-    '함께 부르는',
-    '우리의 노래',
-  ])
-  const coverLines =
-    requestedCoverLines.join('') === '합창단 활동을한눈에 보는Motet Score'
-      ? ['함께 부르는', '우리의 노래']
-      : requestedCoverLines
-  const coverFooter =
-    !coverDescription ||
-    coverDescription.trim() ===
-      '연습, 공연 준비, 주요 안내를 악보집 형식으로 정리했습니다.'
-      ? 'SEOUL MOTET YOUTH CHOIR'
-      : coverDescription
-  const requestedFinalLines = splitLines(finalTitle, [
-    '서로 다른 목소리로,',
-    '같은 음악을 완성합니다',
-  ])
-  const finalLines =
-    requestedFinalLines.join('') === '연습과 공연을함께 확인합니다'
-      ? ['서로 다른 목소리로,', '같은 음악을 완성합니다']
-      : requestedFinalLines
-  const finalBody =
-    !finalDescription ||
-    finalDescription.trim() ===
-      '합창단의 교육 방향과 활동 흐름을 한 화면에서 안내합니다.'
-      ? '체계적인 앙상블 교육과\n정기 연습·공연을 통해 음악으로 함께 성장합니다.'
-      : finalDescription
+  const coverLines = content.cover.titleLines
+  const coverFooter = content.cover.brandLabel
+  const finalLines = content.final.titleLines
+  const finalBody = content.final.summary
   const isFinalInteractive = actionsReveal > 0.9
   const flutterPages = useMemo(
     () => Array.from({ length: FLUTTER_PAGE_COUNT }, (_, index) => index),
     [],
   )
   const displayedValueWords = useMemo(
-    () => getValueWords(valueWordsText),
-    [valueWordsText],
+    () =>
+      content.valueItems.slice(0, 6).map((item) => ({
+        body: item.description,
+        word: item.label,
+      })),
+    [content.valueItems],
   )
 
   return (
     <section
-      aria-label="합창단 활동을 소개하는 악보 애니메이션"
+      aria-label={`${content.eyebrowKo}: 합창단 활동을 소개하는 악보 애니메이션`}
       className="flow-section motet-score-scroll-section"
       data-flow-section="score-book"
       ref={sectionRef}
@@ -657,21 +592,19 @@ export function ScrollScoreBookReveal({
               <div className="motet-score-final-copy">
                 <p className="motet-score-eyebrow">MOTET SCORE</p>
                 <h2>
-                  {finalLines.map((line) => (
+                  {content.leftPage.titleLines.map((line) => (
                     <span key={line}>{line}</span>
                   ))}
                 </h2>
                 <p className="motet-score-final-body">
-                  {finalDescription ||
-                    '합창단의 교육 방향과 활동 흐름을 한 화면에서 안내합니다.'}
+                  {content.leftPage.body}
                 </p>
-                <p className="motet-score-keywords">발성 · 악보 · 파트</p>
+                <p className="motet-score-keywords">
+                  {content.leftPage.keywords}
+                </p>
                 <div className="motet-score-final-callout">
-                  <strong>연습이 남기는 것</strong>
-                  <p>
-                    한 곡을 준비하며 단원들은 음정, 박자, 발음, 호흡을
-                    반복해서 맞춥니다.
-                  </p>
+                  <strong>{content.leftPage.calloutTitle}</strong>
+                  <p>{content.leftPage.calloutBody}</p>
                 </div>
               </div>
             </article>
@@ -686,21 +619,20 @@ export function ScrollScoreBookReveal({
                   ”
                 </span>
                 <h3>
-                  {rightTitle || '공동체 연습'}
-                  <span>파트별 역할과</span>
-                  <span>앙상블을 배웁니다</span>
+                  {content.rightPage.prefix}
+                  {content.rightPage.titleLines.map((line) => (
+                    <span key={line}>{line}</span>
+                  ))}
                 </h3>
                 <p className="motet-score-final-body">
-                  {rightBody ||
-                    '파트별 역할을 익히고, 다른 단원의 소리를 들으며 함께 맞춰 갑니다.'}
+                  {content.rightPage.body}
                 </p>
-                <p className="motet-score-keywords">앙상블 · 공연 · 안내</p>
+                <p className="motet-score-keywords">
+                  {content.rightPage.keywords}
+                </p>
                 <div className="motet-score-final-callout">
-                  <strong>무대가 이어 주는 것</strong>
-                  <p>
-                    연습한 곡은 정기연주회, 초청연주, 나눔 공연에서
-                    발표됩니다.
-                  </p>
+                  <strong>{content.rightPage.calloutTitle}</strong>
+                  <p>{content.rightPage.calloutBody}</p>
                 </div>
               </div>
             </article>
@@ -801,7 +733,7 @@ export function ScrollScoreBookReveal({
                 href="/gallery"
                 showArrow={false}
               >
-                우리의 활동 보기
+                {content.final.primaryCtaLabel}
               </Button>
               <Button
                 className="motet-score-final-secondary"
@@ -809,7 +741,7 @@ export function ScrollScoreBookReveal({
                 href="/concerts"
                 variant="ghost"
               >
-                공연과 소식
+                {content.final.secondaryCtaLabel}
               </Button>
             </div>
           </div>

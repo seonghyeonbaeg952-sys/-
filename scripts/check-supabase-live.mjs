@@ -81,11 +81,11 @@ const privateTableChecks = [
 ]
 
 const requiredSiteTextKeys = [
-  'home.hero.title.line3',
-  'home.hero.title.line4',
-  'home.hero.subtitle',
-  'home.gallery.empty.title',
-  'home.gallery.empty.description',
+  'home.heroSupplement.fallbackDescription',
+  'home.quickActions.join.title',
+  'home.about.paragraphs.1',
+  'home.scoreBook.cover.titleLines',
+  'home.supportLetter.title',
 ]
 
 function parseEnvFile(filePath) {

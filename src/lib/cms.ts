@@ -431,6 +431,45 @@ export async function createRow<TTable extends CmsTableName>(
   return { data: row, error: null }
 }
 
+export async function upsertSiteTextRows(
+  payloads: CmsMutationPayload[],
+): Promise<CmsResult<Array<CmsRowFor<'site_texts'>>>> {
+  const clientResult = getSupabaseClientSafe()
+
+  if (!clientResult.data) {
+    return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
+  }
+
+  if (payloads.length === 0) {
+    return { data: [], error: null }
+  }
+
+  const { data, error } = await clientResult.data
+    .from('site_texts')
+    .upsert(payloads, { onConflict: 'key' })
+    .select()
+
+  if (error) {
+    if (isMissingTableError(error, 'site_texts')) {
+      return {
+        data: null,
+        error:
+          `사이트 문구 테이블이 아직 없습니다. Supabase SQL Editor에서 ${SITE_TEXTS_SCHEMA_MIGRATION} migration을 먼저 실행해 주세요.`,
+      }
+    }
+
+    return {
+      data: null,
+      error: toCmsError(error, '홈 문구 저장에 실패했습니다.'),
+    }
+  }
+
+  return {
+    data: normalizeRows<'site_texts'>(data),
+    error: null,
+  }
+}
+
 export async function updateRow<TTable extends CmsTableName>(
   table: TTable,
   id: string,

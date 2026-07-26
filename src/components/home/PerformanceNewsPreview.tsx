@@ -14,11 +14,19 @@ type PerformanceNewsPreviewProps = {
   concerts: Concert[]
   description?: string
   detailButtonLabel?: string
+  emptyConcertText?: string
+  emptyConcertButtonLabel?: string
+  emptyConcertTitle?: string
+  emptyNoticeText?: string
+  emptyNoticeButtonLabel?: string
+  emptyNoticeTitle?: string
   eyebrow?: string
   ghost?: string
   inquiryButtonLabel?: string
   notices: Notice[]
   noticeButtonLabel?: string
+  noticePanelButtonLabel?: string
+  noticePanelTitle?: string
   programNoteLabel?: string
   title?: string
 }
@@ -28,11 +36,19 @@ export function PerformanceNewsPreview({
   concerts,
   description = '다가오는 공연의 날짜와 장소, 준비 중인 무대 소식을 한곳에서 확인합니다.',
   detailButtonLabel = '자세히 보기',
+  emptyConcertText = '새로운 공연 일정이 확정되면 이 공간에서 안내합니다.',
+  emptyConcertButtonLabel = '공연 일정 보기',
+  emptyConcertTitle = '등록된 공연이 없습니다',
+  emptyNoticeText = '새로운 공지와 합창단 소식을 준비하고 있습니다.',
+  emptyNoticeButtonLabel = '공지사항 보기',
+  emptyNoticeTitle = '등록된 공지사항이 없습니다',
   eyebrow = 'CONCERTS',
   ghost = 'PROGRAM',
   inquiryButtonLabel = '문의',
   notices,
   noticeButtonLabel = '공지사항 보기',
+  noticePanelButtonLabel = '전체 보기',
+  noticePanelTitle = '프로그램 노트',
   programNoteLabel = 'PROGRAM NOTE',
   title = '공연과 소식',
 }: PerformanceNewsPreviewProps) {
@@ -85,12 +101,22 @@ export function PerformanceNewsPreview({
             <BenchmarkConcertTemplate
               concerts={featuredConcerts}
               detailButtonLabel={detailButtonLabel}
+              emptyDescription={emptyConcertText}
+              emptyButtonLabel={emptyConcertButtonLabel}
+              emptyTitle={emptyConcertTitle}
               inquiryButtonLabel={inquiryButtonLabel}
               programNoteLabel={programNoteLabel}
             />
           </Reveal>
           <Reveal delay={80} variant="card-rise">
-            <NoticeProgramNotes notices={visibleNotices} />
+            <NoticeProgramNotes
+              emptyDescription={emptyNoticeText}
+              emptyButtonLabel={emptyNoticeButtonLabel}
+              emptyTitle={emptyNoticeTitle}
+              notices={visibleNotices}
+              panelButtonLabel={noticePanelButtonLabel}
+              panelTitle={noticePanelTitle}
+            />
           </Reveal>
         </div>
       </Container>

@@ -237,6 +237,7 @@ function App() {
           >
             <Route index element={<AdminDashboardPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
+            <Route path="home" element={<AdminSiteTextsPage />} />
             <Route path="site-texts" element={<AdminSiteTextsPage />} />
             <Route path="hero-slides" element={<AdminHeroSlidesPage />} />
             <Route path="popups" element={<AdminPopupNoticesPage />} />

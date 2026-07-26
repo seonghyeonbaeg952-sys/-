@@ -1,508 +1,566 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { siteTextDefinitions } from '../../constants/siteTextDefaults'
-import { AdminCrudListPage } from '../../components/admin/AdminCrudListPage'
+import { AdminErrorState } from '../../components/admin/AdminErrorState'
+import { AdminFormField } from '../../components/admin/AdminFormField'
+import { AdminLoadingState } from '../../components/admin/AdminLoadingState'
+import { AdminPageTitle } from '../../components/admin/AdminPageTitle'
+import { AdminTextarea } from '../../components/admin/AdminTextarea'
+import {
+  homeFieldDefinitions,
+  homeFieldSections,
+} from '../../components/admin/home/homeFieldDefinitions'
+import { Button } from '../../components/common/Button'
 import { getCurrentUser } from '../../lib/auth'
-import type { AdminFieldConfig } from '../../components/admin/AdminRecordForm'
-import type { AdminTableColumn } from '../../components/admin/AdminTable'
-import type { CmsMutationPayload, SiteTextRow } from '../../types/cms'
+import { upsertSiteTextRows } from '../../lib/cms'
+import { useCrudList } from '../../hooks/useCrudList'
+import {
+  invalidatePublicDataCache,
+} from '../../hooks/usePublicData'
+import { useUnsavedChangesGuard } from '../../hooks/useUnsavedChangesGuard'
+import type {
+  HomeContentSectionId,
+  HomeContentSiteTextDefinition,
+} from '../../types/homeContent'
 
-type SiteTextUsage = 'current' | 'legacy' | 'optional' | 'unknown'
+type HomeFieldValues = Record<string, string>
 
-const groupLabels: Record<string, string> = {
-  'common.button': '공통 버튼',
-  'home.about': '홈 소개',
-  'home.concert': '공연·공지',
-  'home.footer': '푸터',
-  'home.gallery': '갤러리',
-  'home.hero': '히어로',
-  'home.join': '입단 CTA',
-  'home.quick': '빠른 진입',
-  'home.score': 'Motet Score',
-  'home.support': '후원·문의',
+const defaultValues: HomeFieldValues = Object.fromEntries(
+  homeFieldDefinitions.map((definition) => [
+    definition.key,
+    definition.defaultValue,
+  ]),
+)
+
+function getInputId(key: string) {
+  return `home-field-${key.replace(/[^a-z0-9]+/gi, '-')}`
 }
 
-const groupOptions = Object.entries(groupLabels).map(([value, label]) => ({
-  label,
-  value,
-}))
-
-const inputTypeOptions = [
-  { label: '짧은 문구', value: 'text' },
-  { label: '긴 문구', value: 'textarea' },
-  { label: 'URL', value: 'url' },
-  { label: '라벨', value: 'label' },
-]
-
-const defaultDefinition = siteTextDefinitions[0]
-const legacyKeyPrefixes = [
-  'home.quick.1.',
-  'home.quick.2.',
-  'home.quick.3.',
-  'home.scorebook.',
-] as const
-const legacyKeys = new Set([
-  'home.hero.title',
-  'home.hero.description',
-  'home.concert.concertButton',
-  'home.concert.noticeButton',
-  'home.concert.sectionTitle',
-  'home.gallery.eyebrow',
-  'home.gallery.sectionTitle',
-  'home.gallery.sectionDescription',
-  'home.support.button',
-  'home.support.secondaryButton',
-  'home.support.cardTitle',
-  'home.support.cardDescription',
-])
-const optionalKeys = new Set([
-  'home.quick.gallery.title',
-  'home.quick.gallery.description',
-])
-
-const usageOptions = [
-  { label: '현재 홈 문구', value: 'current' },
-  { label: '전체 문구', value: 'all' },
-  { label: '선택 사용 문구', value: 'optional' },
-  { label: '미사용·호환 문구', value: 'legacy' },
-  { label: '정의 없는 문구', value: 'unknown' },
-]
-
-function getDefinition(row: SiteTextRow) {
-  return siteTextDefinitions.find((item) => item.key === row.key)
+function normalizeAdminValue(value: string | null | undefined) {
+  return value?.trim() ?? ''
 }
 
-function getUsage(row: SiteTextRow): SiteTextUsage {
-  if (optionalKeys.has(row.key)) {
-    return 'optional'
-  }
-
-  if (
-    legacyKeys.has(row.key) ||
-    legacyKeyPrefixes.some((prefix) => row.key.startsWith(prefix))
-  ) {
-    return 'legacy'
-  }
-
-  return getDefinition(row) ? 'current' : 'unknown'
-}
-
-function getUsageLabel(row: SiteTextRow) {
-  const usage = getUsage(row)
-
-  if (!row.is_active) {
-    return '미사용'
-  }
-
-  if (usage === 'legacy') {
-    return '미사용·호환'
-  }
-
-  if (usage === 'optional') {
-    return '선택 사용'
-  }
-
-  if (usage === 'unknown') {
-    return '정의 없음'
-  }
-
-  return '현재 사용'
-}
-
-const fields = [
-  {
-    description: '관리자 화면에서 묶어 볼 문구 그룹입니다.',
-    label: '그룹',
-    name: 'group_name',
-    options: groupOptions,
-    required: true,
-    type: 'select',
-  },
-  { label: '관리 라벨', name: 'label', type: 'text' },
-  {
-    description: '빈 값으로 저장하면 public 화면에서는 기본 문구가 표시됩니다.',
-    label: '현재 문구',
-    name: 'value',
-    rows: 5,
-    type: 'textarea',
-  },
-  {
-    label: '입력 유형',
-    name: 'input_type',
-    options: inputTypeOptions,
-    required: true,
-    type: 'select',
-  },
-  { label: '관리 설명', name: 'description', rows: 3, type: 'textarea' },
-  { label: '정렬 순서', name: 'sort_order', type: 'number' },
-  { label: '사용 여부', name: 'is_active', type: 'switch' },
-] satisfies Array<AdminFieldConfig<SiteTextRow>>
-
-function getGroupLabel(row: SiteTextRow) {
-  const group = row.group_name || row.section || row.page || ''
-
-  return groupLabels[group] ?? group ?? '-'
-}
-
-function shortText(value: string | null | undefined) {
-  const normalized = value?.replace(/\s+/g, ' ').trim()
-
-  if (!normalized) {
-    return '기본 문구 사용'
-  }
-
-  return normalized.length > 64 ? `${normalized.slice(0, 64)}...` : normalized
-}
-
-function formatDateTime(value: string | null | undefined) {
-  if (!value) {
-    return null
-  }
-
-  const date = new Date(value)
-
-  if (Number.isNaN(date.getTime())) {
-    return value
-  }
-
-  return new Intl.DateTimeFormat('ko-KR', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(date)
-}
-
-function getEditorName(
-  editorId: string | null | undefined,
-  currentUserId: string | null,
-  currentUserEmail: string | null,
+function createValuesFromRows(
+  rows: Array<{ is_active: boolean; key: string; value: string | null }>,
 ) {
-  if (!editorId) {
-    return '수정자 정보 없음'
+  const values = { ...defaultValues }
+
+  for (const row of rows) {
+    if (!row.is_active || !(row.key in values)) {
+      continue
+    }
+
+    const value = normalizeAdminValue(row.value)
+    if (value) {
+      values[row.key] = value
+    }
   }
 
-  if (editorId === currentUserId && currentUserEmail) {
-    return currentUserEmail
-  }
-
-  return '관리자'
+  return values
 }
 
-const columns = [
-  { header: '그룹', render: getGroupLabel },
-  {
-    header: '문구',
-    render: (row) => (
-      <div>
-        <p className="font-semibold text-navy-deep">
-          {row.label || getDefinition(row)?.label || row.key}
-        </p>
-        <p className="mt-1 text-xs text-text-muted">{row.key}</p>
-      </div>
-    ),
-  },
-  { header: '현재 문구', render: (row) => shortText(row.value) },
-  {
-    header: '기본 문구',
-    render: (row) => shortText(getDefinition(row)?.defaultValue || row.default_value),
-  },
-  {
-    header: '사용 위치',
-    render: getUsageLabel,
-  },
-  { header: '수정일', render: (row) => row.updated_at?.slice(0, 10) ?? '-' },
-  {
-    header: '수정자',
-    render: (row) => (row.updated_by ? '관리자' : '수정자 정보 없음'),
-  },
-] satisfies Array<AdminTableColumn<SiteTextRow>>
-
-function hasHtmlTag(value: string) {
-  return /<\s*\/?\s*[a-z][^>]*>/i.test(value)
-}
-
-function hasScriptLikeValue(value: string) {
-  return /javascript:|on\w+\s*=|<\s*(script|iframe|style)\b/i.test(value)
-}
-
-function hasForbiddenLiteral(value: string) {
+function hasUnsafeText(value: string) {
   return [
-    /href\s*=\s*["']?#["']?/i,
+    /<\s*\/?\s*[a-z][^>]*>/i,
+    /javascript:/i,
+    /on\w+\s*=/i,
     /\bTODO\b/i,
     /placeholder/i,
     /undefined/i,
     /\bnull\b/i,
-    /미정/,
-    /준비중/,
-    /테스트/,
-    /임시/,
-    /등록 예정/,
-    /관리자 등록 예정/,
+    /href\s*=\s*["']?#["']?/i,
   ].some((pattern) => pattern.test(value))
 }
 
-function isValidOptionalUrl(value: string) {
-  const trimmed = value.trim()
-
-  if (!trimmed) {
-    return true
-  }
-
-  try {
-    const url = new URL(trimmed)
-
-    return url.protocol === 'http:' || url.protocol === 'https:'
-  } catch {
-    return false
-  }
-}
-
-function prepareSiteTextPayload(
-  payload: CmsMutationPayload,
-  row: SiteTextRow | null,
-  currentUserId: string | null,
+function validateField(
+  definition: HomeContentSiteTextDefinition,
+  value: string,
 ) {
-  const key =
-    typeof payload.key === 'string' && payload.key.trim()
-      ? payload.key.trim()
-      : row?.key ?? ''
-  const groupName =
-    typeof payload.group_name === 'string' ? payload.group_name.trim() : ''
-  const definition = siteTextDefinitions.find((item) => item.key === key)
-  const inputType =
-    typeof payload.input_type === 'string' && payload.input_type
-      ? payload.input_type
-      : definition?.inputType ?? 'text'
-  const value = typeof payload.value === 'string' ? payload.value.trim() : ''
-  const defaultValue =
-    typeof payload.default_value === 'string'
-      ? payload.default_value.trim()
-      : definition?.defaultValue ?? row?.default_value ?? ''
-
-  const nextPayload: CmsMutationPayload = {
-    ...payload,
-    default_value: defaultValue,
-    description:
-      typeof payload.description === 'string'
-        ? payload.description.trim()
-        : definition?.description ?? '',
-    group_name: groupName || definition?.groupName || 'home.hero',
-    input_type: inputType,
-    is_active: payload.is_active ?? true,
-    key,
-    label:
-      typeof payload.label === 'string' && payload.label.trim()
-        ? payload.label.trim()
-        : definition?.label ?? key,
-    page: groupName.split('.')[0] || definition?.groupName.split('.')[0] || 'home',
-    section: groupName || definition?.groupName || 'home.hero',
-    sort_order:
-      typeof payload.sort_order === 'number'
-        ? payload.sort_order
-        : definition?.sortOrder ?? 0,
-    value,
-    value_type: inputType === 'textarea' ? 'textarea' : 'text',
+  if (!value.trim()) {
+    return '빈 값은 저장할 수 없습니다. 기본값 복원을 사용해 주세요.'
   }
 
-  if (currentUserId) {
-    nextPayload.updated_by = currentUserId
+  if (hasUnsafeText(value)) {
+    return 'HTML, script, TODO, placeholder 같은 임시·위험 문구는 저장할 수 없습니다.'
   }
 
-  return nextPayload
-}
-
-function validateSiteTextPayload(payload: CmsMutationPayload) {
-  const key = typeof payload.key === 'string' ? payload.key.trim() : ''
-  const value = typeof payload.value === 'string' ? payload.value : ''
-  const defaultValue =
-    typeof payload.default_value === 'string' ? payload.default_value : ''
-  const inputType = typeof payload.input_type === 'string' ? payload.input_type : 'text'
-
-  if (!key) {
-    return '문구 키를 입력해 주세요.'
+  if (
+    definition.maxLength &&
+    value.trim().length > definition.maxLength
+  ) {
+    return `${definition.maxLength}자 이내로 입력해 주세요.`
   }
 
-  if (hasHtmlTag(value) || hasHtmlTag(defaultValue)) {
-    return 'HTML 태그는 저장할 수 없습니다. 줄바꿈이 필요하면 textarea 줄바꿈을 사용해 주세요.'
+  if (
+    definition.inputType === 'boolean' &&
+    !['true', 'false'].includes(value)
+  ) {
+    return '공개 여부 값이 올바르지 않습니다.'
   }
 
-  if (hasScriptLikeValue(value) || hasScriptLikeValue(defaultValue)) {
-    return 'script, iframe, style 또는 javascript: 형식의 문구는 저장할 수 없습니다.'
-  }
+  if (definition.inputType === 'number') {
+    const numberValue = Number.parseInt(value, 10)
 
-  if (hasForbiddenLiteral(value) || hasForbiddenLiteral(defaultValue)) {
-    return 'TODO, placeholder, undefined, null, 미정, 준비중, 테스트, 임시, 등록 예정, href="#" 같은 임시 문구는 저장할 수 없습니다.'
-  }
-
-  if (inputType === 'url' && !isValidOptionalUrl(value)) {
-    return 'URL 문구는 http:// 또는 https://로 시작하는 주소만 저장할 수 있습니다.'
+    if (
+      !Number.isFinite(numberValue) ||
+      (definition.min !== undefined && numberValue < definition.min) ||
+      (definition.max !== undefined && numberValue > definition.max)
+    ) {
+      return `${definition.min ?? 0}~${definition.max ?? '최대값'} 사이의 숫자를 입력해 주세요.`
+    }
   }
 
   return null
 }
 
-function SiteTextMeta({
-  currentUserEmail,
-  currentUserId,
-  row,
+function ManagedElsewhereLinks({
+  sectionId,
 }: {
-  currentUserEmail: string | null
-  currentUserId: string | null
-  row: SiteTextRow
+  sectionId: HomeContentSectionId
 }) {
+  const section = homeFieldSections.find((item) => item.id === sectionId)
+
+  if (!section?.managedElsewhere?.length) {
+    return null
+  }
+
   return (
-    <section className="rounded-formal border border-line-default bg-bg-warm-white p-5">
-      <h3 className="text-sm font-semibold text-navy-deep">수정 이력</h3>
-      <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-        <div>
-          <dt className="text-xs font-semibold text-text-muted">문구 key</dt>
-          <dd className="mt-1 break-all text-navy-deep">{row.key}</dd>
-        </div>
-        <div>
-          <dt className="text-xs font-semibold text-text-muted">사용 위치</dt>
-          <dd className="mt-1 text-navy-deep">{getUsageLabel(row)}</dd>
-        </div>
-        <div className="sm:col-span-2">
-          <dt className="text-xs font-semibold text-text-muted">기본 문구</dt>
-          <dd className="mt-1 whitespace-pre-line rounded-button bg-bg-ivory px-3 py-2 text-navy-deep">
-            {getDefinition(row)?.defaultValue || row.default_value || '-'}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-xs font-semibold text-text-muted">마지막 수정일</dt>
-          <dd className="mt-1 text-navy-deep">
-            {formatDateTime(row.updated_at) ?? '수정일 정보 없음'}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-xs font-semibold text-text-muted">수정자</dt>
-          <dd className="mt-1 text-navy-deep">
-            {getEditorName(row.updated_by, currentUserId, currentUserEmail)}
-          </dd>
-        </div>
-      </dl>
-    </section>
+    <aside className="rounded-formal border border-gold-warm/35 bg-gold-soft/20 p-4">
+      <p className="text-sm font-semibold text-navy-deep">
+        다른 메뉴에서 관리하는 실제 데이터
+      </p>
+      <div className="mt-3 grid gap-3 md:grid-cols-2">
+        {section.managedElsewhere.map((item) => (
+          <a
+            className="min-h-11 rounded-button border border-line-default bg-bg-warm-white px-4 py-3 transition hover:border-gold-warm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink"
+            href={item.adminHref}
+            key={`${sectionId}-${item.source}-${item.adminHref}`}
+          >
+            <strong className="block text-sm text-navy-deep">
+              {item.label}
+            </strong>
+            <span className="mt-1 block text-xs leading-5 text-text-muted">
+              {item.description}
+            </span>
+          </a>
+        ))}
+      </div>
+    </aside>
+  )
+}
+
+function HomeField({
+  definition,
+  error,
+  onChange,
+  value,
+}: {
+  definition: HomeContentSiteTextDefinition
+  error?: string | null
+  onChange: (value: string) => void
+  value: string
+}) {
+  const id = getInputId(definition.key)
+
+  if (definition.inputType === 'textarea') {
+    return (
+      <AdminTextarea
+        description={definition.description}
+        error={error}
+        id={id}
+        label={definition.label}
+        onChange={(event) => onChange(event.target.value)}
+        rows={4}
+        value={value}
+      />
+    )
+  }
+
+  if (definition.inputType === 'boolean') {
+    const descriptionId = `${id}-description`
+    return (
+      <div>
+        <span className="text-sm font-semibold text-navy-deep">
+          {definition.label}
+        </span>
+        <p
+          className="mt-1 text-xs leading-5 text-text-muted"
+          id={descriptionId}
+        >
+          {definition.description}
+        </p>
+        <label className="mt-3 flex min-h-11 cursor-pointer items-center gap-3 rounded-button border border-line-default bg-bg-warm-white px-4">
+          <input
+            aria-describedby={descriptionId}
+            checked={value === 'true'}
+            className="size-5 accent-gold-warm"
+            onChange={(event) =>
+              onChange(event.target.checked ? 'true' : 'false')
+            }
+            type="checkbox"
+          />
+          <span className="text-sm text-navy-deep">
+            {value === 'true' ? '공개' : '숨김'}
+          </span>
+        </label>
+        {error ? (
+          <p className="mt-2 text-sm text-state-error" role="alert">
+            {error}
+          </p>
+        ) : null}
+      </div>
+    )
+  }
+
+  return (
+    <AdminFormField
+      description={definition.description}
+      error={error}
+      id={id}
+      label={definition.label}
+      max={definition.max}
+      min={definition.min}
+      onChange={(event) => onChange(event.target.value)}
+      type={definition.inputType === 'number' ? 'number' : 'text'}
+      value={value}
+    />
   )
 }
 
 export function AdminSiteTextsPage() {
+  const crud = useCrudList({
+    order: { column: 'sort_order', ascending: true },
+    table: 'site_texts',
+  })
+  const [values, setValues] = useState<HomeFieldValues>(defaultValues)
+  const [initialValues, setInitialValues] =
+    useState<HomeFieldValues>(defaultValues)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isSaving, setIsSaving] = useState(false)
+  const [message, setMessage] = useState<string | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
-  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null)
-  const [usageFilter, setUsageFilter] = useState('current')
+  const [openSections, setOpenSections] = useState<
+    Set<HomeContentSectionId>
+  >(() => new Set([homeFieldSections[0].id]))
+  const initializedRef = useRef(false)
+  const isDirty = useMemo(
+    () => JSON.stringify(values) !== JSON.stringify(initialValues),
+    [initialValues, values],
+  )
+
+  useUnsavedChangesGuard({ enabled: isDirty })
 
   useEffect(() => {
     let isMounted = true
 
-    async function loadCurrentUser() {
-      const result = await getCurrentUser()
-
+    void getCurrentUser().then((result) => {
       if (isMounted) {
         setCurrentUserId(result.data?.id ?? null)
-        setCurrentUserEmail(result.data?.email ?? null)
       }
-    }
-
-    void loadCurrentUser()
+    })
 
     return () => {
       isMounted = false
     }
   }, [])
 
-  const prepareRows = useCallback(
-    (rows: SiteTextRow[]) =>
-      rows.filter((row) => {
-        if (usageFilter === 'all') {
-          return true
-        }
+  useEffect(() => {
+    if (crud.isLoading || (initializedRef.current && isDirty)) {
+      return
+    }
 
-        if (!row.is_active) {
-          return usageFilter === 'legacy'
-        }
+    const nextValues = createValuesFromRows(crud.rows)
+    setValues(nextValues)
+    setInitialValues(nextValues)
+    initializedRef.current = true
+  }, [crud.isLoading, crud.rows, isDirty])
 
-        return getUsage(row) === usageFilter
-      }),
-    [usageFilter],
-  )
+  const updateValue = (key: string, value: string) => {
+    setValues((current) => ({ ...current, [key]: value }))
+    setErrors((current) => {
+      if (!current[key]) {
+        return current
+      }
+
+      const next = { ...current }
+      delete next[key]
+      return next
+    })
+    setMessage(null)
+    setSaveError(null)
+  }
+
+  const updateSectionOpenState = (
+    sectionId: HomeContentSectionId,
+    isOpen: boolean,
+  ) => {
+    setOpenSections((current) => {
+      const next = new Set(current)
+
+      if (isOpen) {
+        next.add(sectionId)
+      } else {
+        next.delete(sectionId)
+      }
+
+      return next
+    })
+  }
+
+  const resetSection = (sectionId: HomeContentSectionId) => {
+    const section = homeFieldSections.find((item) => item.id === sectionId)
+
+    if (
+      !window.confirm(
+        `${section?.title ?? '이 섹션'} 문구를 코드 기본값으로 되돌릴까요? 저장 전에는 public 화면에 반영되지 않습니다.`,
+      )
+    ) {
+      return
+    }
+
+    setValues((current) => {
+      const next = { ...current }
+      for (const definition of homeFieldDefinitions) {
+        if (definition.sectionId === sectionId) {
+          next[definition.key] = definition.defaultValue
+        }
+      }
+      return next
+    })
+    setMessage(null)
+    setSaveError(null)
+  }
+
+  const restoreV2HtmlReferenceCopy = () => {
+    if (
+      !window.confirm(
+        '홈 V2 HTML 기준 문구로 모든 홈 래퍼 문구를 복원할까요? 공연·공지·입단·미디어 같은 실제 데이터는 변경하지 않습니다.',
+      )
+    ) {
+      return
+    }
+
+    setValues({ ...defaultValues })
+    setErrors({})
+    setMessage(null)
+    setSaveError(null)
+  }
+
+  const save = async () => {
+    const nextErrors: Record<string, string> = {}
+
+    for (const definition of homeFieldDefinitions) {
+      const error = validateField(
+        definition,
+        values[definition.key] ?? definition.defaultValue,
+      )
+
+      if (error) {
+        nextErrors[definition.key] = error
+      }
+    }
+
+    setErrors(nextErrors)
+
+    if (Object.keys(nextErrors).length > 0) {
+      setSaveError('입력값을 확인해 주세요. 오류가 있는 필드로 이동해 수정할 수 있습니다.')
+      const firstKey = Object.keys(nextErrors)[0]
+      document.getElementById(getInputId(firstKey))?.focus()
+      return
+    }
+
+    setIsSaving(true)
+    setMessage(null)
+    setSaveError(null)
+
+    const payloads = homeFieldDefinitions.map((definition) => ({
+      default_value: definition.defaultValue,
+      description: definition.description,
+      group_name: `home.${definition.sectionId}`,
+      input_type:
+        definition.inputType === 'textarea' ? 'textarea' : 'text',
+      is_active: true,
+      key: definition.key,
+      label: definition.label,
+      page: 'home',
+      section: `home.${definition.sectionId}`,
+      sort_order: definition.sortOrder,
+      updated_by: currentUserId ?? undefined,
+      value: values[definition.key].trim(),
+      value_type:
+        definition.inputType === 'textarea' ? 'textarea' : 'text',
+    }))
+    const result = await upsertSiteTextRows(payloads)
+
+    setIsSaving(false)
+
+    if (result.error) {
+      setSaveError(result.error)
+      return
+    }
+
+    const savedValues = { ...values }
+    setInitialValues(savedValues)
+    setMessage('홈 문구를 저장했습니다. 공개 홈 새로고침 후 반영 내용을 확인할 수 있습니다.')
+    invalidatePublicDataCache()
+    crud.reload()
+  }
 
   return (
-    <AdminCrudListPage
-      canCreate={false}
-      canDelete={false}
-      columns={columns}
-      defaultValues={{
-        default_value: defaultDefinition.defaultValue,
-        description: defaultDefinition.description,
-        group_name: defaultDefinition.groupName,
-        input_type: defaultDefinition.inputType,
-        is_active: true,
-        key: defaultDefinition.key,
-        label: defaultDefinition.label,
-        page: 'home',
-        section: defaultDefinition.groupName,
-        sort_order: defaultDefinition.sortOrder,
-        value: '',
-        value_type: 'text',
-      }}
-      description="홈페이지에 표시되는 주요 문구를 수정합니다."
-      emptyMessage="조건에 맞는 문구가 없습니다. 전체 문구 또는 미사용·호환 문구 필터를 확인하세요."
-      fields={fields}
-      filters={[
-        {
-          allLabel: '전체 그룹',
-          column: 'group_name',
-          label: '문구 그룹',
-          options: groupOptions,
-        },
-        {
-          allLabel: '전체 상태',
-          column: 'is_active',
-          label: '사용 여부',
-          options: [
-            { label: '사용', value: 'true' },
-            { label: '미사용', value: 'false' },
-          ],
-        },
-      ]}
-      info="빈 값으로 저장하면 기본 문구가 사용됩니다. HTML 태그는 사용할 수 없고, public 화면에는 TODO/undefined/null 같은 임시 문구가 노출되지 않습니다. 문구를 숨기려면 삭제 대신 사용 여부를 끄세요."
-      order={{ column: 'sort_order', ascending: true }}
-      prepareInitialData={(row) => {
-        const definition = getDefinition(row)
-
-        return {
-          ...row,
-          default_value: row.default_value || definition?.defaultValue || '',
-          description: row.description || definition?.description || '',
-          group_name: row.group_name || definition?.groupName || 'home.hero',
-          input_type: row.input_type || definition?.inputType || 'text',
-          label: row.label || definition?.label || row.key,
-          sort_order: row.sort_order || definition?.sortOrder || 0,
+    <div className="space-y-7 pb-24">
+      <AdminPageTitle
+        action={
+          <div className="flex flex-wrap gap-2">
+            <Button href="/" target="_blank" variant="secondary">
+              공개 홈 미리보기
+            </Button>
+            <Button
+              disabled={isSaving}
+              onClick={restoreV2HtmlReferenceCopy}
+              variant="secondary"
+            >
+              V2 HTML 기준 복원
+            </Button>
+            <Button
+              disabled={!isDirty || isSaving}
+              onClick={() => void save()}
+              variant="primary"
+            >
+              {isSaving ? '저장 중…' : '변경사항 저장'}
+            </Button>
+          </div>
         }
-      }}
-      preparePayload={(payload, row) =>
-        prepareSiteTextPayload(payload, row, currentUserId)
-      }
-      prepareRows={prepareRows}
-      renderBeforeForm={(row) => (
-        <SiteTextMeta
-          currentUserEmail={currentUserEmail}
-          currentUserId={currentUserId}
-          row={row}
+        description="공개 홈의 현재 섹션 순서대로 wrapper 문구를 관리합니다. 공연·입단·정신·미디어 같은 실제 데이터는 각 전용 메뉴가 소유합니다."
+        title="홈 문구 관리 V2"
+      />
+
+      <div className="rounded-formal border border-line-default bg-bg-warm-white p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-navy-deep">
+              저장 상태
+            </p>
+            <p className="mt-1 text-sm text-text-muted" role="status">
+              {isDirty
+                ? '저장하지 않은 변경사항이 있습니다.'
+                : '저장된 내용과 일치합니다.'}
+            </p>
+          </div>
+          <span
+            className={`rounded-pill px-3 py-2 text-xs font-semibold ${
+              isDirty
+                ? 'bg-gold-soft/50 text-gold-ink'
+                : 'bg-state-success/10 text-state-success'
+            }`}
+          >
+            {isDirty ? '미저장' : '저장됨'}
+          </span>
+        </div>
+        {message ? (
+          <p className="mt-4 text-sm text-state-success" role="status">
+            {message}
+          </p>
+        ) : null}
+        {saveError ? (
+          <p className="mt-4 text-sm text-state-error" role="alert">
+            {saveError}
+          </p>
+        ) : null}
+      </div>
+
+      {crud.isLoading ? <AdminLoadingState label="홈 문구를 불러오는 중입니다" /> : null}
+      {crud.error && !crud.isLoading ? (
+        <AdminErrorState
+          action={
+            <Button onClick={crud.reload} variant="secondary">
+              다시 시도
+            </Button>
+          }
+          description={crud.error}
         />
-      )}
-      searchColumn="key"
-      searchPlaceholder="문구 key 검색"
-      showVisibility={false}
-      table="site_texts"
-      title="홈 문구 관리"
-      toolbarFilters={[
-        {
-          label: '사용 위치',
-          onChange: setUsageFilter,
-          options: usageOptions,
-          value: usageFilter,
-        },
-      ]}
-      validatePayload={validateSiteTextPayload}
-    />
+      ) : null}
+
+      {!crud.isLoading && !crud.error
+        ? homeFieldSections.map((section) => {
+            const sectionFields = homeFieldDefinitions.filter(
+              (definition) => definition.sectionId === section.id,
+            )
+
+            return (
+              <details
+                className="group rounded-formal border border-line-default bg-bg-warm-white shadow-sm"
+                key={section.id}
+                onToggle={(event) =>
+                  updateSectionOpenState(section.id, event.currentTarget.open)
+                }
+                open={openSections.has(section.id)}
+              >
+                <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink">
+                  <span>
+                    <span className="block text-base font-semibold text-navy-deep">
+                      {String(section.publicOrder).padStart(2, '0')}.{' '}
+                      {section.title}
+                    </span>
+                    <span className="mt-1 block text-xs leading-5 text-text-muted">
+                      {section.description}
+                    </span>
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className="text-xl text-gold-ink transition group-open:rotate-45"
+                  >
+                    +
+                  </span>
+                </summary>
+                <div className="space-y-6 border-t border-line-default px-5 py-6">
+                  <ManagedElsewhereLinks sectionId={section.id} />
+                  <div className="grid gap-6 lg:grid-cols-2">
+                    {sectionFields.map((definition) => (
+                      <HomeField
+                        definition={definition}
+                        error={errors[definition.key]}
+                        key={definition.key}
+                        onChange={(value) =>
+                          updateValue(definition.key, value)
+                        }
+                        value={
+                          values[definition.key] ?? definition.defaultValue
+                        }
+                      />
+                    ))}
+                  </div>
+                  <div className="flex justify-end border-t border-line-default pt-5">
+                    <Button
+                      onClick={() => resetSection(section.id)}
+                      size="sm"
+                      variant="ghost"
+                    >
+                      이 섹션 기본값 복원
+                    </Button>
+                  </div>
+                </div>
+              </details>
+            )
+          })
+        : null}
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line-default bg-bg-warm-white/95 p-3 shadow-[0_-8px_28px_rgb(16_35_63/0.12)] backdrop-blur md:left-[var(--admin-sidebar-width,0px)]">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
+          <p className="hidden text-sm text-text-muted sm:block">
+            {isDirty
+              ? '변경사항을 저장해야 공개 홈에 반영됩니다.'
+              : '모든 변경사항이 저장되었습니다.'}
+          </p>
+          <Button
+            className="ml-auto w-full sm:w-auto"
+            disabled={!isDirty || isSaving}
+            onClick={() => void save()}
+            variant="primary"
+          >
+            {isSaving ? '저장 중…' : '변경사항 저장'}
+          </Button>
+        </div>
+      </div>
+    </div>
   )
 }

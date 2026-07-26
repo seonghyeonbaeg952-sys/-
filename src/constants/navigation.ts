@@ -152,7 +152,7 @@ export const adminNavigationGroups: AdminNavigationGroup[] = [
         href: '/admin/settings',
         resource: 'site_settings',
       },
-      { label: '홈 문구 관리', href: '/admin/site-texts', resource: 'site_texts' },
+      { label: '홈 문구 관리', href: '/admin/home', resource: 'site_texts' },
       {
         label: '홈 슬라이드 관리',
         href: '/admin/hero-slides',

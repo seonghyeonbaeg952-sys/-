@@ -1,40 +1,14 @@
-import { legacyActivitySummary, legacyChoirIntro } from '../../constants/legacyContent'
+import type { HomeQuickActionItem } from '../../types/homeContent'
 import { getColorSampleHref } from '../../utils/colorSamplePath'
 import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 import { Reveal } from '../common/Reveal'
 import { StaffLines } from '../common/StaffLines'
 
-type FloatingInfoCardContent = {
-  description: string
-  href?: string
-  title: string
-}
-
-const fallbackCards = [
-  {
-    description: '청소년아카데미 부설 합창단으로 시작한 음악 여정',
-    href: '/spirit',
-    title: `${legacyChoirIntro.foundedYear} 창단`,
-  },
-  {
-    description: legacyActivitySummary.slice(0, 3).join(' · '),
-    href: '/concerts',
-    title: '정기연주회·초청연주',
-  },
-  {
-    description: '입단 안내와 일반 문의를 공식 채널로 연결',
-    href: '/join',
-    title: '입단 및 문의',
-  },
-] satisfies FloatingInfoCardContent[]
-
-const cardEyebrows = ['JOIN', 'STAGE', 'CONNECT'] as const
-
 export function FloatingInfoCards({
-  cards = fallbackCards,
+  cards,
 }: {
-  cards?: FloatingInfoCardContent[]
+  cards: HomeQuickActionItem[]
 }) {
   return (
     <section
@@ -79,7 +53,7 @@ export function FloatingInfoCards({
                 </div>
                 <div className="home-quick-action-copy">
                   <p className="home-quick-action-eyebrow">
-                    {cardEyebrows[index] ?? 'DISCOVER'}
+                  {card.code}
                   </p>
                   <h2 className="text-xl font-semibold leading-7 text-navy-deep">
                     {card.title}
@@ -89,7 +63,7 @@ export function FloatingInfoCards({
                   </p>
                 </div>
                 <div className="home-quick-action-link" aria-hidden="true">
-                  VIEW
+                  {card.ctaLabel}
                   <span>→</span>
                 </div>
               </a>

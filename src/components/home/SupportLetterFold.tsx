@@ -1,5 +1,6 @@
 import { legacyLocationSeed } from '../../constants/legacyContent'
 import type { SiteSettings } from '../../types/content'
+import type { HomeContentV2 } from '../../types/homeContent'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
@@ -8,13 +9,8 @@ import { StaffLines } from '../common/StaffLines'
 import { StaffSectionLabel } from '../common/StaffSectionLabel'
 
 type SupportLetterFoldProps = {
-  buttonLabel?: string | null
-  cardDescription?: string | null
-  cardTitle?: string | null
-  secondaryButtonLabel?: string | null
+  content: HomeContentV2['supportLetter']
   settings?: SiteSettings
-  supportText?: string | null
-  title?: string | null
 }
 
 const fallback = {
@@ -24,13 +20,8 @@ const fallback = {
 }
 
 export function SupportLetterFold({
-  buttonLabel,
-  cardDescription,
-  cardTitle,
-  secondaryButtonLabel,
+  content,
   settings,
-  supportText,
-  title,
 }: SupportLetterFoldProps) {
   const phone = settings?.phone || legacyLocationSeed.phone
   const address =
@@ -44,7 +35,7 @@ export function SupportLetterFold({
     >
       <HomeSectionStaffCue
         className="home-section-staff-cue--support"
-        label="후원"
+        label={content.eyebrowKo}
         noteOffset={11}
         symbol="♩"
       />
@@ -58,17 +49,17 @@ export function SupportLetterFold({
             <div>
               <div className="mb-6 h-1 w-16 rounded-full bg-gold-warm" />
               <StaffSectionLabel className="max-w-sm" variant="inverted">
-                SUPPORT
+                {content.eyebrowEn}
               </StaffSectionLabel>
               <h2 className="mt-4 max-w-3xl whitespace-pre-line break-keep text-[clamp(2rem,4vw,3rem)] font-semibold leading-[1.14]">
-                {title || fallback.title}
+                {content.title || fallback.title}
               </h2>
               <p className="mt-5 max-w-2xl whitespace-pre-line break-keep text-base leading-8 text-bg-ivory/76">
-                {supportText || fallback.body}
+                {content.description || fallback.body}
               </p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Button focusTone="dark" href="/contact?section=support#form" size="lg" variant="gold">
-                  {buttonLabel || '후원 상담 신청'}
+                  {content.primaryCtaLabel}
                 </Button>
                 <Button
                   focusTone="dark"
@@ -76,7 +67,7 @@ export function SupportLetterFold({
                   size="lg"
                   variant="secondary"
                 >
-                  {secondaryButtonLabel || '문의'}
+                  {content.secondaryCtaLabel}
                 </Button>
               </div>
             </div>
@@ -85,13 +76,14 @@ export function SupportLetterFold({
           <Reveal delay={90} variant="card-rise">
             <article className="support-letter-card">
               <StaffLines className="mb-6 opacity-45" density="light" variant="gold" />
-              <p className="type-eyebrow text-gold-ink">PLEDGE LETTER</p>
+              <p className="type-eyebrow text-gold-ink">
+                {content.pledgeEyebrow}
+              </p>
               <h3 className="type-card-title mt-4 text-navy-deep">
-                {cardTitle || '문의 접수 안내'}
+                {content.pledgeTitle}
               </h3>
               <p className="type-body mt-4 text-text-muted">
-                {cardDescription ||
-                  '공연 초청, 후원 상담, 입단 문의를 공식 문의 폼으로 접수합니다. 담당자가 확인한 뒤 이메일 또는 연락처로 안내합니다.'}
+                {content.pledgeDescription}
               </p>
               <dl className="support-letter-contact">
                 <div>

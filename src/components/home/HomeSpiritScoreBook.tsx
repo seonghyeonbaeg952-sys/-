@@ -7,6 +7,7 @@ import {
 } from '../../constants/spiritContent'
 import type { AboutSectionRow } from '../../types/cms'
 import type { GalleryImage } from '../../types/content'
+import type { HomeContentV2 } from '../../types/homeContent'
 import { classNames } from '../../utils/classNames'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
@@ -22,6 +23,7 @@ type HomeSpiritScoreBookProps = {
   image?: GalleryImage
   presentation?: 'editorial' | 'scorebook'
   sections: AboutSectionRow[]
+  wrapper: HomeContentV2['spiritWrapper']
 }
 
 function createPages(sections: AboutSectionRow[]) {
@@ -41,18 +43,26 @@ export function HomeSpiritScoreBook({
   image,
   presentation = 'scorebook',
   sections,
+  wrapper,
 }: HomeSpiritScoreBookProps) {
   if (presentation === 'editorial') {
-    return <HomeSpiritEditorial sections={sections} />
+    return <HomeSpiritEditorial sections={sections} wrapper={wrapper} />
   }
 
-  return <HomeSpiritScoreBookLegacy image={image} sections={sections} />
+  return (
+    <HomeSpiritScoreBookLegacy
+      image={image}
+      sections={sections}
+      wrapper={wrapper}
+    />
+  )
 }
 
 function HomeSpiritScoreBookLegacy({
   image,
   sections,
-}: Pick<HomeSpiritScoreBookProps, 'image' | 'sections'>) {
+  wrapper,
+}: Pick<HomeSpiritScoreBookProps, 'image' | 'sections' | 'wrapper'>) {
   const pages = useMemo(() => createPages(sections), [sections])
   const [activeIndex, setActiveIndex] = useState(0)
   const activePage = pages[activeIndex]
@@ -108,9 +118,9 @@ function HomeSpiritScoreBookLegacy({
                   </p>
                 }
                 className="max-w-4xl"
-                eyebrow="SPIRIT SCOREBOOK"
+                eyebrow={wrapper.eyebrowKo}
                 ghost="MOTET"
-                lines={['합창단 정신']}
+                lines={[wrapper.title]}
               />
             </Reveal>
 
@@ -196,7 +206,7 @@ function HomeSpiritScoreBookLegacy({
                     href={activePage.ctaUrl || '/spirit'}
                     variant="secondary"
                   >
-                    {activePage.ctaLabel || '자세히 보기'}
+                    {activePage.ctaLabel || wrapper.ctaLabel}
                   </Button>
                 </div>
               </div>

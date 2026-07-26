@@ -6,12 +6,14 @@ import {
   homeSpiritBookletPages,
 } from '../../constants/spiritContent'
 import type { AboutSectionRow } from '../../types/cms'
+import type { HomeContentV2 } from '../../types/homeContent'
 import { classNames } from '../../utils/classNames'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 
 type HomeSpiritEditorialProps = {
+  wrapper: HomeContentV2['spiritWrapper']
   sections: AboutSectionRow[]
 }
 
@@ -37,11 +39,14 @@ const movementGhostWords = [
   'FUTURE',
 ] as const
 
-function createPages(sections: AboutSectionRow[]) {
+function createPages(
+  sections: AboutSectionRow[],
+  defaultCtaLabel: string,
+) {
   return homeSpiritBookletPages.map((page, index) => ({
     ...getAboutSectionCopy(sections, `home_spirit_${page.id}`, {
       body: page.body,
-      ctaLabel: page.ctaLabel,
+      ctaLabel: page.ctaLabel || defaultCtaLabel,
       ctaUrl: page.ctaHref,
       eyebrow: page.eyebrow,
       subtitle: page.summary,
@@ -59,8 +64,12 @@ function normalizeIndex(index: number, length: number) {
 
 export function HomeSpiritEditorial({
   sections,
+  wrapper,
 }: HomeSpiritEditorialProps) {
-  const pages = useMemo(() => createPages(sections), [sections])
+  const pages = useMemo(
+    () => createPages(sections, wrapper.ctaLabel),
+    [sections, wrapper.ctaLabel],
+  )
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([])
   const [activeIndex, setActiveIndex] = useState(0)
   const [direction, setDirection] = useState<SpiritDirection>('next')
@@ -132,7 +141,7 @@ export function HomeSpiritEditorial({
       style={sectionStyle}
     >
       <h2 className="sr-only" id="home-spirit-editorial-heading">
-        서울모테트청소년합창단의 다섯 가지 정신
+        {wrapper.title}
       </h2>
       <HomeSectionStaffCue
         className="home-section-staff-cue--spirit"
@@ -157,7 +166,7 @@ export function HomeSpiritEditorial({
 
       <Container className="home-spirit-editorial__container">
         <div
-          aria-label="합창단 정신 다섯 가지"
+          aria-label={wrapper.title}
           aria-roledescription="carousel"
           className="home-spirit-editorial__experience"
           role="region"
@@ -262,7 +271,7 @@ export function HomeSpiritEditorial({
 
           <div className="home-spirit-editorial__index">
             <div className="home-spirit-editorial__index-heading">
-              <p>FIVE MOVEMENTS · MOTET SPIRIT</p>
+              <p>{wrapper.eyebrowKo}</p>
               <span>
                 {String(activeIndex + 1).padStart(2, '0')} /{' '}
                 {String(pages.length).padStart(2, '0')}

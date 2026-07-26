@@ -10,12 +10,15 @@ import { ImageTile } from './ImageTile'
 
 type ArchivePageStackProps = {
   buttonLabel: string
+  collapseLabel?: string
   description: string
   emptyDescription?: string
   emptyTitle?: string
   eyebrow: string
+  expandLabel?: string
   images: GalleryImage[]
   posters?: Poster[]
+  title?: string
   videos?: VideoItem[]
 }
 
@@ -86,12 +89,15 @@ function buildArchiveItems(
 
 export function ArchivePageStack({
   buttonLabel,
+  collapseLabel = '접기',
   description,
   emptyDescription = '현재 공개된 공연·연습 기록이 없습니다.',
   emptyTitle = '공개된 갤러리 자료가 없습니다',
   eyebrow,
+  expandLabel = '기록 펼치기',
   images,
   posters = [],
+  title = '사진 · 영상 · 포스터',
   videos = [],
 }: ArchivePageStackProps) {
   const [isOpen, setIsOpen] = useState(false)
@@ -143,12 +149,12 @@ export function ArchivePageStack({
             {archiveItems.length > 0 ? (
               <button
                 aria-expanded={isOpen}
-                aria-label={isOpen ? '갤러리 기록 접기' : '갤러리 기록 펼치기'}
+                aria-label={isOpen ? collapseLabel : expandLabel}
                 className="archive-inline-toggle"
                 onClick={handleToggle}
                 type="button"
               >
-                {isOpen ? '접기' : '기록 펼치기'}
+                {isOpen ? collapseLabel : expandLabel}
               </button>
             ) : null}
             <Button href="/gallery" variant="secondary">
@@ -170,7 +176,7 @@ export function ArchivePageStack({
           <Reveal variant="fade-up">
             <div className="archive-preview-copy">
               <p className="type-eyebrow text-gold-ink">ARCHIVE BOOK</p>
-              <h3 className="type-section-title mt-4 text-navy-deep">사진 · 영상 · 포스터</h3>
+              <h3 className="type-section-title mt-4 text-navy-deep">{title}</h3>
             </div>
           </Reveal>
 

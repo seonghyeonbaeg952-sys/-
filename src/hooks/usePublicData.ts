@@ -37,7 +37,7 @@ import type {
   Sponsor,
   VideoItem,
 } from '../types/content'
-import type { AboutSectionRow, SiteTextRow } from '../types/cms'
+import type { AboutSectionRow, JoinInfoRow, SiteTextRow } from '../types/cms'
 import { hasSupabaseConfig } from '../lib/supabase'
 
 type PublicDataState<TData> = {
@@ -251,6 +251,7 @@ export type HomeData = {
   concerts: Concert[]
   gallery: GalleryImage[]
   heroSlides: HeroSlide[]
+  joinInfo: JoinInfoRow | null
   notices: Notice[]
   posters: Poster[]
   popupNotices: PopupNotice[]
@@ -269,6 +270,7 @@ type HomeDataQueryResults = {
   aboutSections: PublicDataResult<AboutSectionRow[]>
   concerts: PublicDataResult<Concert[]>
   gallery: PublicDataResult<GalleryImage[]>
+  join: PublicDataResult<PublicJoinData>
   notices: PublicDataResult<Notice[]>
   popupNotices: PublicDataResult<PopupNotice[]>
   posters: PublicDataResult<Poster[]>
@@ -290,6 +292,7 @@ const homeFallbackData: HomeData = {
   concerts: publicFallbacks.concerts,
   gallery: publicFallbacks.gallery,
   heroSlides: publicFallbacks.heroSlides,
+  joinInfo: null,
   notices: publicFallbacks.notices,
   posters: [],
   popupNotices: [],
@@ -380,6 +383,7 @@ export function resolveHomeData(
     results.concerts,
     results.notices,
     results.gallery,
+    results.join,
     results.videos,
     results.posters,
     results.aboutSections,
@@ -392,6 +396,7 @@ export function resolveHomeData(
     concerts: results.concerts.data ?? [],
     gallery: results.gallery.data ?? [],
     heroSlides: results.slides.data ?? [],
+    joinInfo: results.join.data?.joinInfo ?? null,
     notices: results.notices.data ?? [],
     popupNotices: results.popupNotices.data ?? [],
     posters: results.posters.data ?? [],
@@ -428,6 +433,7 @@ export function useHomeData() {
       concerts,
       notices,
       gallery,
+      join,
       videos,
       posters,
       aboutSections,
@@ -440,6 +446,7 @@ export function useHomeData() {
       getPublicConcerts({ limit: 6, upcomingOnly: true }),
       getPublicNotices({ limit: 3 }),
       getPublicGalleryImages({ limit: 6 }),
+      getPublicJoinData(),
       getPublicVideos({ limit: 6 }),
       getPublicPosters({ limit: 6 }),
       getPublicAboutSections(),
@@ -451,6 +458,7 @@ export function useHomeData() {
         aboutSections,
         concerts,
         gallery,
+        join,
         notices,
         popupNotices,
         posters,

@@ -1,5 +1,6 @@
 import type { GalleryImage } from '../../types/content'
 import type { SiteSettings } from '../../types/content'
+import type { HomeProgramItem } from '../../types/homeContent'
 import { getColorSampleHref } from '../../utils/colorSamplePath'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
@@ -23,33 +24,48 @@ type AboutPreviewProps = {
     location?: string
     title: string
   }
+  programEyebrow?: string
+  programItems?: HomeProgramItem[]
+  programTitle?: string
   settings?: Pick<SiteSettings, 'instagram_url' | 'youtube_url'>
   summary?: string
   title?: string
 }
 
-const aboutCards = [
+const fallbackProgramItems: HomeProgramItem[] = [
   {
+    id: 'foundation',
     description:
       '서울모테트합창단의 음악적 전통을 바탕으로 청소년 합창교육을 운영합니다.',
+    displayOrder: 1,
+    isVisible: true,
     title: '창단 목적',
   },
   {
+    id: 'education',
     description:
       '발성, 악보 읽기, 파트 연습, 앙상블 기본기를 체계적으로 배웁니다.',
+    displayOrder: 2,
+    isVisible: true,
     title: '교육 목적',
   },
   {
+    id: 'performance',
     description:
       '정기연주회와 초청연주, 특별 무대를 준비하며 연습의 시간을 실제 무대 경험으로 연결합니다.',
+    displayOrder: 3,
+    isVisible: true,
     title: '연주 활동',
   },
   {
+    id: 'growth',
     description:
       '정기 연습과 공연 활동을 통해 협업 태도와 무대 경험을 쌓습니다.',
+    displayOrder: 4,
+    isVisible: true,
     title: '단원 성장',
   },
-] as const
+]
 
 const fallbackSummary =
   '서울모테트청소년합창단은 청소년이 합창의 기본기와 무대 경험을 함께 배우는 음악교육 공동체입니다.'
@@ -74,6 +90,9 @@ export function AboutPreview({
   image,
   kicker = 'ABOUT',
   nextStage,
+  programEyebrow = 'CHOIR PROGRAM',
+  programItems = fallbackProgramItems,
+  programTitle = '교육과 활동',
   settings,
   summary,
   title = '서울모테트청소년합창단 소개',
@@ -183,13 +202,13 @@ export function AboutPreview({
               >
                 <div className="home-about-folio-heading">
                   <div>
-                    <p>CHOIR PROGRAM</p>
-                    <h3 id="home-about-program-title">교육과 활동</h3>
+                    <p>{programEyebrow}</p>
+                    <h3 id="home-about-program-title">{programTitle}</h3>
                   </div>
                   <StaffLines density="light" variant="gold" />
                 </div>
                 <ol className="home-about-folio-list">
-                  {aboutCards.map((card, index) => (
+                  {programItems.map((card, index) => (
                     <li className="home-about-folio-item" key={card.title}>
                       <span aria-hidden="true" className="type-number">
                         {String(index + 1).padStart(2, '0')}

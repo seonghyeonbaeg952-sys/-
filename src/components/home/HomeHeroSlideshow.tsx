@@ -1,69 +1,50 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { ReactNode } from 'react'
 
+import { HOME_HERO_REFERENCE_COPY } from '../../constants/homeHeroReference'
 import type { HeroSlide } from '../../types/content'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
 import { OptimizedImage } from '../common/OptimizedImage'
 import { Reveal } from '../common/Reveal'
-import { softenPublicCopy } from '../../utils/softenPublicCopy'
 import { getStorageImageUrl } from '../../utils/supabaseImage'
 
 type HomeHeroSlideshowProps = {
-  body?: string
-  eyebrow?: string
-  fallbackDescription?: string
-  fallbackSubtitle?: string
-  fallbackTitle?: string
-  headline?: ReactNode
   intervalMs?: number
-  mottoChips?: string[]
-  primaryCtaLabel?: string
-  secondaryCtaLabel?: string
   slides: HeroSlide[]
-}
-
-const heroCopy = {
-  body:
-    '서울모테트청소년합창단은 청소년이 합창을 배우고 정기 연습과 공연을 경험하는 음악교육 공동체입니다.',
-  eyebrow: '서울모테트청소년합창단',
-  headline: (
-    <>
-      <span className="block">SEOUL</span>
-      <span className="block">MOTET</span>
-      <span className="block">YOUTH</span>
-      <span className="block">CHOIR</span>
-    </>
-  ),
-  primaryCta: '합창단 정신 보기',
-  secondaryCta: '입단 안내',
 }
 
 const fallbackSlide: HeroSlide = {
   id: 'hero-fallback',
   title: 'SEOUL MOTET YOUTH CHOIR',
-  subtitle: 'A refined choral voice for the next generation',
-  description:
-    '서울모테트청소년합창단은 청소년이 합창을 배우고 정기 연습과 공연을 경험하는 음악교육 공동체입니다.',
+  subtitle: HOME_HERO_REFERENCE_COPY.eyebrow,
+  description: HOME_HERO_REFERENCE_COPY.description,
   image_url: '',
   image_alt: '서울모테트청소년합창단 공연 이미지',
-  primary_cta_label: heroCopy.primaryCta,
-  primary_cta_href: '/spirit',
-  secondary_cta_label: heroCopy.secondaryCta,
-  secondary_cta_href: '/join',
+  primary_cta_label: HOME_HERO_REFERENCE_COPY.primaryCta.label,
+  primary_cta_href: HOME_HERO_REFERENCE_COPY.primaryCta.href,
+  secondary_cta_label: HOME_HERO_REFERENCE_COPY.secondaryCta.label,
+  secondary_cta_href: HOME_HERO_REFERENCE_COPY.secondaryCta.href,
   display_order: 1,
   is_visible: true,
 }
 
-const heroMottoChips = ['합창 교육', '정기 연습', '공연 활동']
 const heroImageWidths = [960, 1440, 1920, 2560, 3200, 3840]
 const warmedHeroImageUrls = new Set<string>()
 const warmingHeroImages = new Map<string, HTMLImageElement>()
 
-function softenMottoChip(chip: string) {
-  const normalizedChip = chip.trim()
+function renderHeroTitleLine(line: string) {
+  const normalized = line.trim().toUpperCase()
 
-  return softenPublicCopy(normalizedChip)
+  if (!['SEOUL', 'MOTET', 'YOUTH', 'CHOIR'].includes(normalized)) {
+    return line
+  }
+
+  return (
+    <>
+      <span className="smyc-wordmark-initial">{line.slice(0, 1)}</span>
+      {line.slice(1)}
+    </>
+  )
 }
 
 function getExternalImageOrigin(imageUrl: string) {
@@ -256,34 +237,13 @@ function MottoChips({ chips }: { chips: string[] }) {
   )
 }
 
-export function HomeHeroSlideshow({
-  body,
-  eyebrow,
-  fallbackDescription,
-  fallbackSubtitle,
-  fallbackTitle,
-  headline,
-  intervalMs = 5000,
-  mottoChips,
-  primaryCtaLabel,
-  secondaryCtaLabel,
-  slides,
-}: HomeHeroSlideshowProps) {
+export function HomeHeroSlideshow({ intervalMs = 5000, slides }: HomeHeroSlideshowProps) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [isInteractionPaused, setIsInteractionPaused] = useState(false)
   const [isUserPaused, setIsUserPaused] = useState(false)
   const [failedImageIds, setFailedImageIds] = useState<Set<string>>(() => new Set())
   const isDocumentVisible = useDocumentVisibility()
   const prefersReducedMotion = usePrefersReducedMotion()
-  const resolvedFallbackSlide = useMemo<HeroSlide>(() => {
-    return {
-      ...fallbackSlide,
-      description: fallbackDescription?.trim() || fallbackSlide.description,
-      subtitle: fallbackSubtitle?.trim() || fallbackSlide.subtitle,
-      title: fallbackTitle?.trim() || fallbackSlide.title,
-    }
-  }, [fallbackDescription, fallbackSubtitle, fallbackTitle])
-
   const visibleSlides = useMemo(() => {
     return [...slides]
       .filter((slide) => slide.is_visible)
@@ -291,16 +251,12 @@ export function HomeHeroSlideshow({
   }, [slides])
 
   const renderedSlides = useMemo(() => {
-    return visibleSlides.length > 0 ? visibleSlides : [resolvedFallbackSlide]
-  }, [resolvedFallbackSlide, visibleSlides])
+    return visibleSlides.length > 0 ? visibleSlides : [fallbackSlide]
+  }, [visibleSlides])
   const hasMultipleSlides = renderedSlides.length > 1
   const safeActiveIndex = activeIndex % renderedSlides.length
   const isAutoplayPaused =
     isInteractionPaused || isUserPaused || prefersReducedMotion
-  const visibleMottoChips = (mottoChips?.filter((chip) => chip.trim()) ?? heroMottoChips)
-    .map(softenMottoChip)
-  const heroBody = body === undefined ? heroCopy.body : body.trim()
-
   useEffect(() => {
     if (
       !hasMultipleSlides ||
@@ -429,39 +385,47 @@ export function HomeHeroSlideshow({
           <Reveal delayMs={0}>
             <div className="mb-6 h-1 w-16 rounded-full bg-gold-warm" />
             <p className="type-eyebrow mb-4 text-gold-soft">
-              {eyebrow?.trim() || heroCopy.eyebrow}
+              {HOME_HERO_REFERENCE_COPY.eyebrow}
             </p>
           </Reveal>
           <Reveal delayMs={80}>
             <h1 className="type-hero-title home-hero-title-en max-w-[12ch] text-bg-warm-white">
-              {headline ?? heroCopy.headline}
+              {HOME_HERO_REFERENCE_COPY.titleLines.map((line) => (
+                <span className="block" key={line}>
+                  {renderHeroTitleLine(line)}
+                </span>
+              ))}
             </h1>
           </Reveal>
-          {heroBody ? (
-            <Reveal delayMs={150}>
-              <p className="type-body mt-6 max-w-[560px] text-bg-ivory/88">
-                {heroBody}
-              </p>
-            </Reveal>
-          ) : null}
+          <Reveal delayMs={150}>
+            <p className="type-body mt-6 max-w-[560px] text-bg-ivory/88">
+              {HOME_HERO_REFERENCE_COPY.description}
+            </p>
+          </Reveal>
           <Reveal delayMs={220}>
             <div className="home-hero-cta-row mt-9 grid gap-3 sm:flex sm:flex-wrap">
-              <Button className="w-full sm:w-auto" focusTone="dark" href="/join" size="lg" variant="gold">
-                {primaryCtaLabel?.trim() || heroCopy.secondaryCta}
+              <Button
+                className="w-full sm:w-auto"
+                focusTone="dark"
+                href={HOME_HERO_REFERENCE_COPY.primaryCta.href}
+                size="lg"
+                variant="gold"
+              >
+                {HOME_HERO_REFERENCE_COPY.primaryCta.label}
               </Button>
               <Button
                 className="w-full !border-bg-warm-white/72 !bg-bg-warm-white/[0.07] !text-bg-warm-white hover:!border-bg-warm-white hover:!bg-bg-warm-white/[0.12] hover:!text-gold-soft sm:w-auto"
                 focusTone="dark"
-                href="/concerts"
+                href={HOME_HERO_REFERENCE_COPY.secondaryCta.href}
                 size="lg"
                 variant="secondary"
               >
-                {secondaryCtaLabel?.trim() || '공연 일정'}
+                {HOME_HERO_REFERENCE_COPY.secondaryCta.label}
               </Button>
             </div>
           </Reveal>
           <Reveal delayMs={280}>
-            <MottoChips chips={visibleMottoChips} />
+            <MottoChips chips={[...HOME_HERO_REFERENCE_COPY.mottoChips]} />
           </Reveal>
 
             {hasMultipleSlides ? (
@@ -472,7 +436,7 @@ export function HomeHeroSlideshow({
                 <div className="home-hero-dots" role="tablist">
                   {renderedSlides.map((slide, index) => (
                     <button
-                      aria-label={`${index + 1}번째 슬라이드 보기: ${slide.title}`}
+                      aria-label={`${index + 1}번째 Hero 이미지 보기`}
                       aria-selected={index === safeActiveIndex}
                       className={[
                         'home-hero-dot',

@@ -10,6 +10,9 @@ import { ImageTile } from '../ImageTile'
 type BenchmarkConcertTemplateProps = {
   concerts: Concert[]
   detailButtonLabel?: string
+  emptyDescription?: string
+  emptyButtonLabel?: string
+  emptyTitle?: string
   inquiryButtonLabel?: string
   programNoteLabel?: string
 }
@@ -44,6 +47,9 @@ function hasNoteContent(concert: Concert) {
 export function BenchmarkConcertTemplate({
   concerts,
   detailButtonLabel = '자세히 보기',
+  emptyDescription = '새로운 공연 일정이 확정되면 이 공간에서 안내합니다.',
+  emptyButtonLabel = '전체 공연 보기',
+  emptyTitle = '등록된 공연이 없습니다',
   inquiryButtonLabel = '문의',
   programNoteLabel = 'PROGRAM NOTE',
 }: BenchmarkConcertTemplateProps) {
@@ -69,11 +75,11 @@ export function BenchmarkConcertTemplate({
       <EmptyState
         action={
           <Button href="/concerts" variant="secondary">
-            전체 공연 보기
+            {emptyButtonLabel}
           </Button>
         }
-        description="새로운 공연 일정이 확정되면 이 공간에서 안내합니다."
-        title="등록된 공연이 없습니다"
+        description={emptyDescription}
+        title={emptyTitle}
       />
     )
   }

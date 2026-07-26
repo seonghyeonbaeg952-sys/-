@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "check:supabase-env": "node scripts/check-supabase-env.mjs",
     "check:supabase-live": "node scripts/check-supabase-live.mjs",
+    "check:home-copy-contract": "node --test src/lib/homeContent.contract.test.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "node --test src/lib/publicData.test.mjs"

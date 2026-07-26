@@ -5,7 +5,12 @@ import { Button } from '../common/Button'
 import { EmptyState } from '../common/EmptyState'
 
 type NoticeProgramNotesProps = {
+  emptyDescription?: string
+  emptyButtonLabel?: string
+  emptyTitle?: string
   notices: Notice[]
+  panelButtonLabel?: string
+  panelTitle?: string
 }
 
 const categoryLabels: Record<Notice['category'], string> = {
@@ -17,18 +22,25 @@ const categoryLabels: Record<Notice['category'], string> = {
   rehearsal: '연습',
 }
 
-export function NoticeProgramNotes({ notices }: NoticeProgramNotesProps) {
+export function NoticeProgramNotes({
+  emptyDescription = '새로운 공지와 합창단 소식을 준비하고 있습니다.',
+  emptyButtonLabel = '공지사항 보기',
+  emptyTitle = '등록된 공지사항이 없습니다',
+  notices,
+  panelButtonLabel = '전체 보기',
+  panelTitle = '프로그램 노트',
+}: NoticeProgramNotesProps) {
   if (notices.length === 0) {
     return (
       <aside className="notice-program-notes">
         <EmptyState
           action={
             <Button href="/notices" variant="secondary">
-              공지사항 보기
+              {emptyButtonLabel}
             </Button>
           }
-          description="새로운 공지와 합창단 소식을 준비하고 있습니다."
-          title="등록된 공지사항이 없습니다"
+          description={emptyDescription}
+          title={emptyTitle}
         />
       </aside>
     )
@@ -39,10 +51,10 @@ export function NoticeProgramNotes({ notices }: NoticeProgramNotesProps) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="type-eyebrow text-gold-ink">NOTICE</p>
-          <h3 className="type-card-title mt-3 text-navy-deep">프로그램 노트</h3>
+          <h3 className="type-card-title mt-3 text-navy-deep">{panelTitle}</h3>
         </div>
         <Button href="/notices" size="sm" variant="secondary">
-          전체 보기
+          {panelButtonLabel}
         </Button>
       </div>
 

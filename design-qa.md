@@ -55,3 +55,81 @@ A separate crop was not required because the native-size first-viewport captures
 - No P3 item is required for this rollout.
 
 final result: passed
+
+---
+
+# V2 home content synchronization design QA
+
+## Comparison target
+
+- Visual source of truth: the existing V2 public home component tree, motion
+  classes, responsive layout and live Supabase content.
+- User-supplied historical references:
+  - `C:\Users\seong\AppData\Local\Temp\codex-clipboard-02bd74c0-22db-4ed9-ac33-209bd3e734e4.png`
+  - `C:\Users\seong\AppData\Local\Temp\codex-clipboard-5b1f0dc7-9344-49a5-95b6-6ac8ac66b343.png`
+- Implementation captures:
+  - 390 x 844 public home:
+    `C:\Users\seong\AppData\Local\Temp\motet-home-v2-390-viewport.png`
+  - 768 x 1024 public home:
+    `C:\Users\seong\AppData\Local\Temp\motet-home-v2-768-settled.png`
+  - 1440 x 1000 public home:
+    `C:\Users\seong\AppData\Local\Temp\motet-home-v2-1440.png`
+  - 390 x 844 admin home editor:
+    `C:\Users\seong\AppData\Local\Temp\motet-admin-home-v2-390-settled.png`
+
+The historical screenshots and implementation captures were reviewed together
+for the shared header, ivory paper surface, orange staff-line ornament, editorial
+typography, archive/spirit transitions and mobile rhythm. They are different
+scroll states and viewport sizes, so they were not treated as a pixel-diff
+baseline. The CMS work deliberately retains the current V2 components and only
+replaces embedded copy reads with the normalized contract.
+
+## Required fidelity surfaces
+
+- Section order remains Hero, quick actions, introduction, choir program, join
+  letter, concerts/news, MOTET SCORE, five spirits, archive, sponsors and support
+  letter.
+- Existing photo assets, cover behavior, Deep Navy/Warm Gold/Ivory tokens,
+  typography classes, staff-line ornaments and motion class names are retained.
+- Hero slide images, titles, descriptions and CTAs still come from
+  `hero_slides`; join, concerts, notices, spirits, archive media, sponsors and
+  support settings remain owned by their dedicated tables/admin screens.
+- Decorative motion continues to use the existing reduced-motion behavior.
+- The only shared visual adjustment is a 45px minimum height for small and
+  medium buttons, guaranteeing the 44px mobile touch-target requirement.
+
+## Interaction and runtime evidence
+
+- Public home loaded live data and all eleven V2 wrapper sections.
+- Hero autoplay, previous/next controls and slide tabs remained present.
+- Mobile navigation opened with `aria-expanded`, changed its accessible name to
+  `모바일 메뉴 닫기`, exposed all nested links and closed normally.
+- `/admin/home` loaded 133 editable fields in eleven public-order sections.
+- Editing a field enabled both save actions and changed the status to
+  `저장하지 않은 변경사항이 있습니다.`; restoring the original value disabled
+  both save actions and returned the status to `저장된 내용과 일치합니다.`
+- The mobile admin editor has no horizontal overflow and keeps the save action
+  fixed within reach.
+- Public route checks at 390px passed for `/`, `/spirit`, all required `/about`
+  sections, `/join` and `/contact?section=support`.
+- Public home checks at 390px, 768px and 1440px found no horizontal overflow.
+
+## Data and safety evidence
+
+- The production Supabase migration completed successfully.
+- Active V2 rows: 133.
+- Active legacy home rows: 0.
+- Retained inactive legacy rows: 89.
+- `site_texts` RLS enabled: true.
+- `site_texts` forced RLS: true.
+- No row, column, RLS policy, grant or stored legacy value was deleted.
+
+## Findings
+
+- No actionable P0, P1 or P2 visual, interaction, responsive or data-contract
+  issue remains.
+- The supplied historical captures do not represent the same live V2 state as
+  the final Hero captures, so they are retained as qualitative brand references,
+  not claimed as exact screenshot matches.
+
+final result: PASSED
