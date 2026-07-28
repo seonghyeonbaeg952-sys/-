@@ -34,6 +34,11 @@ const HomeSectionFlowSamplePage = lazy(() =>
     default: module.HomeSectionFlowSamplePage,
   })),
 )
+const HomeV4SamplePage = lazy(() =>
+  import('./pages/sample/HomeV4SamplePage').then((module) => ({
+    default: module.HomeV4SamplePage,
+  })),
+)
 const ConcertsPage = lazy(() =>
   import('./pages/public/ConcertsPage').then((module) => ({ default: module.ConcertsPage })),
 )
@@ -209,6 +214,10 @@ function App() {
       <RouteScrollManager />
       <Suspense fallback={<RouteFallback />}>
         <Routes>
+          {isColorSample ? (
+            <Route path="home-v4" element={<HomeV4SamplePage />} />
+          ) : null}
+
           <Route path="/" element={<PublicLayout />}>
             <Route index element={<HomeRoute />} />
             <Route path="home-hero-intro-sample" element={<HomeHeroIntroSamplePage />} />

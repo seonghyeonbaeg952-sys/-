@@ -672,8 +672,7 @@
   }
 
   .join-open-score__mobile-rail {
-    left: 8px;
-    width: 18px;
+    display: none;
   }
 
   .join-open-score__mobile-rail-note {
@@ -707,7 +706,7 @@
     width: auto;
     min-height: 844px;
     margin: 0;
-    padding: 52px 32px 18px 48px;
+    padding: 52px 32px 18px;
   }
 
   .join-open-score__eyebrow {
