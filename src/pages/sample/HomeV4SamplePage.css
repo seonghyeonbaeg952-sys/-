@@ -1153,83 +1153,83 @@
   border-radius: 0 !important;
 }
 
-/* V4-only wave handoffs.
-   Each upper panel reaches its pinned position before the following edge enters.
-   The first edge also travels a few pixels past the header line so its final
-   movement does not appear to stop short. */
-.public-shell-home-sample-v4[data-design-candidate='home-v4']
-  .home-flow-sample-chunk--stage {
-  margin-top: calc(
-    var(--sample-panel-hold) * -1 + clamp(56px, 7vh, 72px)
-  );
-}
-
-.public-shell-home-sample-v4[data-design-candidate='home-v4']
-  .home-flow-sample-chunk--finale {
-  margin-top: calc(
-    var(--sample-panel-hold) * -1 + clamp(100px, 13vh, 140px)
-  );
-}
-
-.public-shell-home-sample-v4[data-design-candidate='home-v4']
-  .home-flow-sample-hold-track--full[data-v4-hold-state='before']
-  .home-flow-sample-hold {
-  position: relative;
-  top: auto;
-  right: auto;
-  bottom: auto;
-  left: auto;
-}
-
-.public-shell-home-sample-v4[data-design-candidate='home-v4']
-  .home-flow-sample-hold-track--full[data-v4-hold-state='fixed']
-  .home-flow-sample-hold {
-  position: fixed;
-  top: 96px;
-  right: 0;
-  bottom: auto;
-  left: 0;
-}
-
-.public-shell-home-sample-v4[data-design-candidate='home-v4']
-  .home-flow-sample-hold-track--full[data-v4-hold-state='ended']
-  .home-flow-sample-hold {
-  position: absolute;
-  top: auto;
-  right: 0;
-  bottom: 0;
-  left: 0;
-}
-
-@supports (animation-timeline: view()) {
+/* V4-only desktop wave handoffs.
+   Mobile keeps the shared static section flow from home-section-flow-sample.css. */
+@media (min-width: 1024px) {
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
-    .home-flow-sample-chunk--stage
-    .home-flow-sample-chunk__surface {
-    --home-v4-stage-overtravel: clamp(8px, 1vh, 12px);
-    --home-v4-stage-overtravel-y: clamp(-12px, -1vh, -8px);
-    height: calc(
-      100svh - var(--sample-header-offset) + var(--home-v4-stage-overtravel)
+    .home-flow-sample-chunk--stage {
+    margin-top: calc(
+      var(--sample-panel-hold) * -1 + clamp(56px, 7vh, 72px)
     );
-    margin-bottom: calc(
-      (
-          100svh - var(--sample-header-offset) +
-            var(--home-v4-stage-overtravel)
-        ) * -1
-    );
-    animation: home-v4-stage-wave-rise-extended 1ms linear both;
-    animation-timeline: --sample-stage-panel;
-    animation-range: entry 0% entry 100%;
   }
 
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
-    .home-flow-sample-chunk--finale
-    .home-flow-sample-chunk__surface,
+    .home-flow-sample-chunk--finale {
+    margin-top: calc(
+      var(--sample-panel-hold) * -1 + clamp(100px, 13vh, 140px)
+    );
+  }
+
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
-    .home-flow-sample-chunk--finale
-    .home-flow-sample-chunk__content {
-    animation: home-v4-wave-rise-solid 1ms linear both;
-    animation-timeline: --sample-finale-panel;
-    animation-range: entry 0% entry 100%;
+    .home-flow-sample-hold-track--full[data-v4-hold-state='before']
+    .home-flow-sample-hold {
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
+  }
+
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    .home-flow-sample-hold-track--full[data-v4-hold-state='fixed']
+    .home-flow-sample-hold {
+    position: fixed;
+    top: 96px;
+    right: 0;
+    bottom: auto;
+    left: 0;
+  }
+
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    .home-flow-sample-hold-track--full[data-v4-hold-state='ended']
+    .home-flow-sample-hold {
+    position: absolute;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+
+  @supports (animation-timeline: view()) {
+    .public-shell-home-sample-v4[data-design-candidate='home-v4']
+      .home-flow-sample-chunk--stage
+      .home-flow-sample-chunk__surface {
+      --home-v4-stage-overtravel: clamp(8px, 1vh, 12px);
+      --home-v4-stage-overtravel-y: clamp(-12px, -1vh, -8px);
+      height: calc(
+        100svh - var(--sample-header-offset) + var(--home-v4-stage-overtravel)
+      );
+      margin-bottom: calc(
+        (
+            100svh - var(--sample-header-offset) +
+              var(--home-v4-stage-overtravel)
+          ) * -1
+      );
+      animation: home-v4-stage-wave-rise-extended 1ms linear both;
+      animation-timeline: --sample-stage-panel;
+      animation-range: entry 0% entry 100%;
+    }
+
+    .public-shell-home-sample-v4[data-design-candidate='home-v4']
+      .home-flow-sample-chunk--finale
+      .home-flow-sample-chunk__surface,
+    .public-shell-home-sample-v4[data-design-candidate='home-v4']
+      .home-flow-sample-chunk--finale
+      .home-flow-sample-chunk__content {
+      animation: home-v4-wave-rise-solid 1ms linear both;
+      animation-timeline: --sample-finale-panel;
+      animation-range: entry 0% entry 100%;
+    }
   }
 }
 
@@ -1258,6 +1258,63 @@
     opacity: 1;
     scale: none;
     translate: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    .home-section-flow-sample {
+    timeline-scope: none;
+  }
+
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    :is(.home-flow-sample-chunk--stage, .home-flow-sample-chunk--finale) {
+    margin-top: 0;
+    view-timeline-name: none;
+  }
+
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    :is(.home-flow-sample-chunk--stage, .home-flow-sample-chunk--finale)
+    .home-flow-sample-chunk__surface {
+    position: absolute;
+    inset: 0;
+    height: auto;
+    margin: 0;
+    animation: none;
+    animation-timeline: auto;
+    opacity: 1;
+    rotate: none;
+    scale: none;
+    translate: none;
+  }
+
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    :is(.home-flow-sample-chunk--stage, .home-flow-sample-chunk--finale)
+    .home-flow-sample-chunk__edge {
+    display: none !important;
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    .home-flow-sample-chunk--finale
+    .home-flow-sample-chunk__content {
+    animation: none;
+    animation-timeline: auto;
+    opacity: 1;
+    rotate: none;
+    scale: none;
+    translate: none;
+  }
+
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    .home-flow-sample-hold-track--full
+    .home-flow-sample-hold {
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
   }
 }
 

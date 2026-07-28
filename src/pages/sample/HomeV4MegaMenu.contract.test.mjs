@@ -162,6 +162,10 @@ test('V4 shell does not override the production wave track box model', () => {
 })
 
 test('V4 finale wave settles the spirit panel before synchronized archive travel', () => {
+  assert.match(
+    cssSource,
+    /@media \(min-width: 1024px\) \{[\s\S]*home-flow-sample-chunk--stage[\s\S]*home-flow-sample-chunk--finale[\s\S]*data-v4-hold-state='fixed'[\s\S]*@supports \(animation-timeline: view\(\)\)/,
+  )
   assert.match(pageSource, /const V4_FINALE_HOLD_TOP = 96/)
   assert.match(pageSource, /data-v4-hold-state/)
   assert.match(pageSource, /sampleHeader\.getBoundingClientRect\(\)\.bottom/)
@@ -200,6 +204,25 @@ test('V4 finale wave settles the spirit panel before synchronized archive travel
   assert.doesNotMatch(
     cssSource,
     /data-v4-(?:stage|finale)-phase='rising'/,
+  )
+})
+
+test('V4 mobile disables both wave transitions and returns panels to normal flow', () => {
+  assert.match(
+    cssSource,
+    /@media \(max-width: 1023px\) \{[\s\S]*timeline-scope: none;[\s\S]*:is\(\.home-flow-sample-chunk--stage, \.home-flow-sample-chunk--finale\)[\s\S]*margin-top: 0;[\s\S]*view-timeline-name: none;/,
+  )
+  assert.match(
+    cssSource,
+    /:is\(\.home-flow-sample-chunk--stage, \.home-flow-sample-chunk--finale\)[\s\S]*\.home-flow-sample-chunk__surface \{[\s\S]*animation: none;[\s\S]*translate: none;/,
+  )
+  assert.match(
+    cssSource,
+    /\.home-flow-sample-chunk__edge \{[\s\S]*display: none !important;[\s\S]*visibility: hidden;/,
+  )
+  assert.match(
+    cssSource,
+    /home-flow-sample-chunk--finale[\s\S]*home-flow-sample-chunk__content \{[\s\S]*animation: none;[\s\S]*translate: none;/,
   )
 })
 
