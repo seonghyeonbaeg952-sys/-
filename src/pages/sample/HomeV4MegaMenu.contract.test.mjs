@@ -5,21 +5,48 @@ import test from 'node:test'
 const read = (relativePath) =>
   readFile(new URL(relativePath, import.meta.url), 'utf8')
 
-const [pageSource, headerSource, megaMenuSource, mobileMenuSource, cssSource] =
+const [
+  pageSource,
+  headerSource,
+  megaMenuSource,
+  mobileMenuSource,
+  flowSource,
+  cssSource,
+] =
   await Promise.all([
     read('./HomeV4SamplePage.tsx'),
     read('../../components/sample/home-v4/HomeV4SampleHeader.tsx'),
     read('../../components/sample/home-v4/HomeV4SampleMegaMenu.tsx'),
     read('../../components/sample/home-v4/HomeV4SampleMobileMenu.tsx'),
+    read('../public/HomeSectionFlowSamplePage.tsx'),
     read('./HomeV4SamplePage.css'),
   ])
 
 test('V4 remains a production-home mirror with an isolated sample header', () => {
   assert.match(pageSource, /<HomeV4SampleHeader \/>/)
-  assert.match(pageSource, /<HomeRoute \/>/)
+  assert.match(
+    pageSource,
+    /<HomeRoute aboutPresentation="collective-portrait" \/>/,
+  )
   assert.match(pageSource, /<Footer \/>/)
   assert.match(pageSource, /data-sample-mirror="production-home"/)
   assert.match(pageSource, /data-surface-rule="rectilinear"/)
+  assert.match(
+    cssSource,
+    /--home-v4-panel-ivory: #fffefa;/,
+  )
+  assert.match(
+    cssSource,
+    /\.join-open-score \{[\s\S]*--join-ivory: var\(--home-v4-panel-ivory\);/,
+  )
+  assert.match(
+    cssSource,
+    /:is\(\[data-flow-section='about'\], \[data-flow-section='join-letter'\]\) \{[\s\S]*background-color: var\(--home-v4-panel-ivory\) !important;/,
+  )
+  assert.match(
+    cssSource,
+    /@media \(min-width: 1024px\) \{[\s\S]*\.home-flow-body \{[\s\S]*--home-hero-handoff-start: clamp\(184px, 15vw, 208px\);[\s\S]*\.home-flow-body::before \{[\s\S]*background: var\(--home-v4-panel-ivory\) !important;/,
+  )
 })
 
 test('desktop mega menu supports hover, pinned click, Escape, and focus return', () => {
@@ -204,6 +231,17 @@ test('V4 finale wave settles the spirit panel before synchronized archive travel
   assert.doesNotMatch(
     cssSource,
     /data-v4-(?:stage|finale)-phase='rising'/,
+  )
+})
+
+test('V4 keeps the Figma-height Join panel eligible for the first wave hold', () => {
+  assert.match(
+    flowSource,
+    /const allowTallEditorialPanel =[\s\S]*data-design-candidate='home-v4'/,
+  )
+  assert.match(
+    flowSource,
+    /isEditorialPanel &&[\s\S]*!canHoldEditorialPanel &&[\s\S]*!allowTallEditorialPanel/,
   )
 })
 

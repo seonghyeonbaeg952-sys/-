@@ -15,6 +15,10 @@
   color: var(--join-burgundy);
 }
 
+.join-open-score__design-canvas {
+  display: contents;
+}
+
 .home-flow-body .join-open-score::before,
 .home-flow-body .join-open-score::after {
   display: none !important;

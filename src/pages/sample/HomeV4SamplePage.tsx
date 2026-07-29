@@ -174,7 +174,10 @@ export function HomeV4SamplePage() {
       </a>
       <HomeV4SampleHeader />
       <main id="main-content" tabIndex={-1}>
-        <HomeRoute />
+        <HomeRoute
+          aboutPresentation="collective-portrait"
+          joinOpenScorePresentation="figma-open-score"
+        />
       </main>
       <Footer />
     </div>

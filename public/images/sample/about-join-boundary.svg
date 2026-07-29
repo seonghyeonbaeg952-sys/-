@@ -1,0 +1,21 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="1312"
+  height="64"
+  viewBox="0 0 1312 64"
+  fill="none"
+  preserveAspectRatio="none"
+>
+  <path
+    d="M0 1H533L656 54L779 1H1312"
+    stroke="#F35A1F"
+    stroke-width="2"
+    vector-effect="non-scaling-stroke"
+  />
+  <path
+    d="M0 25H510.45M801.55 25H1312"
+    stroke="#F3B9A4"
+    stroke-width="1"
+    vector-effect="non-scaling-stroke"
+  />
+</svg>

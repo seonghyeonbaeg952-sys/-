@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { useSearchParams } from 'react-router'
 
 import { LoadingState } from '../../components/common/LoadingState'
+import type { AboutPreviewPresentation } from '../../components/home/AboutPreview'
 import { HomeSectionFlowPage } from './HomeSectionFlowSamplePage'
 import '../../styles/home-v6-fixes.css'
 import '../../styles/home-premium-polish.css'
@@ -14,11 +15,23 @@ const HomeMotionBenchmarkPage = lazy(() =>
   })),
 )
 
-export function HomeRoute() {
+export function HomeRoute({
+  aboutPresentation = 'default',
+  joinOpenScorePresentation = 'default',
+}: {
+  aboutPresentation?: AboutPreviewPresentation
+  joinOpenScorePresentation?: 'default' | 'figma-open-score'
+} = {}) {
   const [searchParams] = useSearchParams()
 
   if (searchParams.get('motionBenchmark') !== '1') {
-    return <HomeSectionFlowPage joinPresentation="open-score" />
+    return (
+      <HomeSectionFlowPage
+        aboutPresentation={aboutPresentation}
+        joinPresentation="open-score"
+        joinOpenScorePresentation={joinOpenScorePresentation}
+      />
+    )
   }
 
   return (

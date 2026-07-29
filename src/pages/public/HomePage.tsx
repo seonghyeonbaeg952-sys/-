@@ -5,7 +5,10 @@ import { Container } from '../../components/common/Container'
 import { ErrorState } from '../../components/common/ErrorState'
 import { SeoHead } from '../../components/common/SeoHead'
 import { StaffFlowRail } from '../../components/common/StaffFlowRail'
-import { AboutPreview } from '../../components/home/AboutPreview'
+import {
+  AboutPreview,
+  type AboutPreviewPresentation,
+} from '../../components/home/AboutPreview'
 import { FloatingInfoCards } from '../../components/home/FloatingInfoCards'
 import { GalleryPreview } from '../../components/home/GalleryPreview'
 import { HomeFlowProvider } from '../../components/home/HomeFlowProvider'
@@ -27,7 +30,9 @@ import type { Concert, GalleryImage } from '../../types/content'
 type HomePageMode = 'default' | 'section-flow-sample'
 
 type HomePageProps = {
+  aboutPresentation?: AboutPreviewPresentation
   joinPresentation?: 'legacy' | 'open-score'
+  joinOpenScorePresentation?: 'default' | 'figma-open-score'
   mode?: HomePageMode
   spiritPresentation?: 'editorial' | 'scorebook'
 }
@@ -131,6 +136,8 @@ function getNextConcert(concerts: Concert[]) {
 }
 
 export function HomePage({
+  aboutPresentation = 'default',
+  joinOpenScorePresentation = 'default',
   joinPresentation = 'legacy',
   mode = 'default',
   spiritPresentation = 'scorebook',
@@ -231,7 +238,19 @@ export function HomePage({
             >
               <FloatingInfoCards cards={homeContent.quickActions.items} />
               <AboutPreview
+                presentation={aboutPresentation}
                 buttonLabel={homeContent.about.ctaLabel}
+                collectivePortraitImage={
+                  seoSlide
+                    ? {
+                        alt:
+                          seoSlide.image_alt ||
+                          '서울모테트청소년합창단 공연 무대',
+                        caption: 'HERO 01 · 서울모테트 공연 기록',
+                        src: seoSlide.image_url,
+                      }
+                    : undefined
+                }
                 identityDescription={homeContent.about.globalDescription}
                 identityTagline={homeContent.about.globalTagline}
                 image={aboutVisualImage}
@@ -262,6 +281,7 @@ export function HomePage({
                   <JoinOpenScoreCTA
                     buttonLabel={homeContent.joinLetter.ctaLabel}
                     joinInfo={joinInfo}
+                    presentation={joinOpenScorePresentation}
                   />
                 ) : (
                   <JoinCTA

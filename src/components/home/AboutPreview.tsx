@@ -14,7 +14,13 @@ import { GlobalIdentityPlate } from './GlobalIdentityPlate'
 import { ImageTile } from './ImageTile'
 
 type AboutPreviewProps = {
+  presentation?: AboutPreviewPresentation
   buttonLabel?: string
+  collectivePortraitImage?: {
+    alt: string
+    caption: string
+    src: string
+  }
   identityDescription?: string
   identityTagline?: string
   image?: GalleryImage
@@ -31,6 +37,15 @@ type AboutPreviewProps = {
   summary?: string
   title?: string
 }
+
+export type AboutPreviewPresentation = 'collective-portrait' | 'default'
+
+const collectivePortraitFacts = [
+  { label: 'FOUNDED', value: '2014' },
+  { label: 'BASE', value: 'SEOUL, KOREA' },
+  { label: 'FOCUS', value: 'CHORAL EDUCATION' },
+  { label: 'STAGE', value: 'CONCERT & EXCHANGE' },
+] as const
 
 const fallbackProgramItems: HomeProgramItem[] = [
   {
@@ -83,8 +98,135 @@ function getSummaryParagraphs(summary?: string) {
   return [fallbackSummary]
 }
 
+type CollectivePortraitProps = Pick<
+  AboutPreviewProps,
+  'buttonLabel' | 'collectivePortraitImage'
+>
+
+function CollectivePortrait({
+  buttonLabel = '합창단 소개 보기',
+  collectivePortraitImage,
+}: CollectivePortraitProps) {
+  const portraitImage = collectivePortraitImage ?? {
+    alt: '서울모테트청소년합창단 공연 무대',
+    caption: 'SEOUL MOTET YOUTH CHOIR · PERFORMANCE',
+    src: '/images/sample/about-collective-portrait.png',
+  }
+
+  return (
+    <section
+      aria-labelledby="home-about-portrait-title"
+      className="flow-section home-section home-about-portrait relative overflow-hidden"
+      data-about-presentation="collective-portrait"
+      data-flow-section="about"
+    >
+      <HomeSectionStaffCue
+        className="home-section-staff-cue--about"
+        label="소개"
+        noteOffset={7}
+        symbol="♫"
+      />
+      <Container>
+        <div className="home-about-portrait__stage">
+          <span aria-hidden="true" className="home-about-portrait__rail">
+            <i />
+          </span>
+
+          <Reveal
+            className="home-about-portrait__intro"
+            variant="fade-up"
+          >
+            <div className="home-about-portrait__eyebrow">
+              <span aria-hidden="true" />
+              <p>ABOUT · COLLECTIVE PORTRAIT</p>
+              <i aria-hidden="true" />
+            </div>
+            <h2 id="home-about-portrait-title">
+              <span>함께 빚어가는 화음,</span>
+              <span>다음 세대의 노래</span>
+            </h2>
+          </Reveal>
+
+          <Reveal
+            className="home-about-portrait__copy"
+            delay={60}
+            variant="fade-up"
+          >
+            <p>
+              서울모테트청소년합창단은 음악과 신앙, 공동체의 가치를 통해
+              <br />
+              청소년의 삶을 아름답게 세워갑니다.
+            </p>
+          </Reveal>
+
+          <Reveal
+            className="home-about-portrait__visual"
+            delay={80}
+            variant="soft-scale"
+          >
+            <figure>
+              <ImageTile
+                alt={portraitImage.alt}
+                className="home-about-portrait__image"
+                imgClassName="people-photo-tone"
+                objectFit="cover"
+                sizes="(min-width: 1440px) 1312px, (min-width: 1024px) calc(100vw - 96px), calc(100vw - 32px)"
+                src={portraitImage.src}
+              />
+              <span
+                aria-hidden="true"
+                className="home-about-portrait__blueprint-frame"
+              >
+                <i data-corner="top-left" />
+                <i data-corner="top-right" />
+                <i data-corner="bottom-left" />
+                <i data-corner="bottom-right" />
+              </span>
+              <figcaption>{portraitImage.caption}</figcaption>
+            </figure>
+          </Reveal>
+
+          <Reveal
+            className="home-about-portrait__facts"
+            delay={120}
+            variant="fade-up"
+          >
+            <dl aria-label="합창단 핵심 정보">
+              {collectivePortraitFacts.map((fact) => (
+                <div key={fact.label}>
+                  <dt>{fact.label}</dt>
+                  <dd>{fact.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </Reveal>
+
+          <Reveal
+            className="home-about-portrait__cta"
+            delay={100}
+            variant="fade-up"
+          >
+            <Button href="/about" variant="secondary">
+              {buttonLabel}
+            </Button>
+            <p>VOICE · LEARNING · STAGE</p>
+          </Reveal>
+
+          <span
+            aria-hidden="true"
+            className="home-about-portrait__transition"
+          >
+            <img alt="" src="/images/sample/about-join-boundary.svg" />
+          </span>
+        </div>
+      </Container>
+    </section>
+  )
+}
+
 export function AboutPreview({
   buttonLabel = '합창단 소개 보기',
+  collectivePortraitImage,
   identityDescription,
   identityTagline,
   image,
@@ -93,10 +235,20 @@ export function AboutPreview({
   programEyebrow = 'CHOIR PROGRAM',
   programItems = fallbackProgramItems,
   programTitle = '교육과 활동',
+  presentation = 'default',
   settings,
   summary,
   title = '서울모테트청소년합창단 소개',
 }: AboutPreviewProps) {
+  if (presentation === 'collective-portrait') {
+    return (
+      <CollectivePortrait
+        buttonLabel={buttonLabel}
+        collectivePortraitImage={collectivePortraitImage}
+      />
+    )
+  }
+
   return (
     <section
       className="flow-section home-section relative overflow-hidden bg-bg-ivory"

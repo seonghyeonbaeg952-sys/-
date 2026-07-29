@@ -1,5 +1,6 @@
 import { useLayoutEffect } from 'react'
 
+import type { AboutPreviewPresentation } from '../../components/home/AboutPreview'
 import { HomePage } from './HomePage'
 import '../../styles/home-v6-fixes.css'
 import '../../styles/home-premium-polish.css'
@@ -9,13 +10,17 @@ import '../../styles/home-spirit-editorial.css'
 import '../../styles/home-join-open-score.css'
 
 type HomeSectionFlowExperienceProps = {
+  aboutPresentation?: AboutPreviewPresentation
   joinPresentation?: 'legacy' | 'open-score'
+  joinOpenScorePresentation?: 'default' | 'figma-open-score'
   showPreviewStatus?: boolean
   useEditorialSpirit?: boolean
 }
 
 function HomeSectionFlowExperience({
+  aboutPresentation = 'default',
   joinPresentation = 'legacy',
+  joinOpenScorePresentation = 'default',
   showPreviewStatus = false,
   useEditorialSpirit = false,
 }: HomeSectionFlowExperienceProps) {
@@ -30,6 +35,8 @@ function HomeSectionFlowExperience({
     const reducedMotionQuery = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
     )
+    const allowTallEditorialPanel =
+      root.closest<HTMLElement>("[data-design-candidate='home-v4']") !== null
     let frame = 0
 
     const getTracks = () =>
@@ -86,7 +93,11 @@ function HomeSectionFlowExperience({
         const canHoldEditorialPanel =
           panelHeight <= window.innerHeight - editorialHoldTop
 
-        if (isEditorialPanel && !canHoldEditorialPanel) {
+        if (
+          isEditorialPanel &&
+          !canHoldEditorialPanel &&
+          !allowTallEditorialPanel
+        ) {
           track.dataset.holdMode = 'flow'
           track.removeAttribute('data-hold-state')
           track.style.removeProperty('--sample-hold-height')
@@ -99,7 +110,9 @@ function HomeSectionFlowExperience({
         const holdTop = isFullPanel
           ? Math.min(20, window.innerHeight - panelHeight - 16)
           : isEditorialPanel
-            ? editorialHoldTop
+            ? canHoldEditorialPanel
+              ? editorialHoldTop
+              : window.innerHeight - panelHeight
             : 143
         const panelHeightValue = `${panelHeight}px`
         const holdTopValue = `${holdTop}px`
@@ -182,7 +195,9 @@ function HomeSectionFlowExperience({
   return (
     <div className="home-section-flow-sample">
       <HomePage
+        aboutPresentation={aboutPresentation}
         joinPresentation={joinPresentation}
+        joinOpenScorePresentation={joinOpenScorePresentation}
         mode="section-flow-sample"
         spiritPresentation={useEditorialSpirit ? 'editorial' : 'scorebook'}
       />
@@ -200,13 +215,19 @@ function HomeSectionFlowExperience({
 }
 
 export function HomeSectionFlowPage({
+  aboutPresentation = 'default',
   joinPresentation = 'legacy',
+  joinOpenScorePresentation = 'default',
 }: {
+  aboutPresentation?: AboutPreviewPresentation
   joinPresentation?: 'legacy' | 'open-score'
+  joinOpenScorePresentation?: 'default' | 'figma-open-score'
 }) {
   return (
     <HomeSectionFlowExperience
+      aboutPresentation={aboutPresentation}
       joinPresentation={joinPresentation}
+      joinOpenScorePresentation={joinOpenScorePresentation}
       useEditorialSpirit
     />
   )
