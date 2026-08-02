@@ -42,6 +42,7 @@ type OptimizedImageProps = {
   fallbackLabel?: string
   fallbackSrcs?: string[]
   fallbackVariant?: ImageFallbackVariant
+  height?: number
   imageClassName?: string
   loading?: 'eager' | 'lazy'
   objectFit?: ImageObjectFit
@@ -50,6 +51,7 @@ type OptimizedImageProps = {
   sizes?: string
   src?: string | null
   transform?: ImageTransform
+  width?: number
 }
 
 const fallbackLabels: Record<ImageFallbackVariant, string> = {
@@ -96,6 +98,7 @@ export function OptimizedImage({
   fallbackLabel,
   fallbackSrcs = emptyFallbackSources,
   fallbackVariant = 'default',
+  height,
   imageClassName,
   loading,
   objectFit = 'cover',
@@ -104,6 +107,7 @@ export function OptimizedImage({
   sizes,
   src,
   transform,
+  width,
 }: OptimizedImageProps) {
   const [failureState, setFailureState] = useState<ImageFailureState>({
     activeSourceIndex: 0,
@@ -179,6 +183,7 @@ export function OptimizedImage({
           )}
           decoding="async"
           fetchPriority={priority ? 'high' : 'auto'}
+          height={height}
           loading={renderedLoading}
           onError={() => {
             if (renderedSrc !== normalizedSrc) {
@@ -208,6 +213,7 @@ export function OptimizedImage({
           sizes={sizes}
           src={renderedSrc}
           srcSet={srcSet}
+          width={width}
         />
       ) : (
         <>

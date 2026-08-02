@@ -168,10 +168,12 @@ function CollectivePortrait({
               <ImageTile
                 alt={portraitImage.alt}
                 className="home-about-portrait__image"
+                height={720}
                 imgClassName="people-photo-tone"
                 objectFit="cover"
                 sizes="(min-width: 1440px) 1312px, (min-width: 1024px) calc(100vw - 96px), calc(100vw - 32px)"
                 src={portraitImage.src}
+                width={960}
               />
               <span
                 aria-hidden="true"

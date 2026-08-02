@@ -34,6 +34,7 @@ type HomePageProps = {
   joinPresentation?: 'legacy' | 'open-score'
   joinOpenScorePresentation?: 'default' | 'figma-open-score'
   mode?: HomePageMode
+  performancePresentation?: 'default' | 'figma-template-carousel'
   spiritPresentation?: 'editorial' | 'scorebook'
 }
 
@@ -140,6 +141,7 @@ export function HomePage({
   joinOpenScorePresentation = 'default',
   joinPresentation = 'legacy',
   mode = 'default',
+  performancePresentation = 'default',
   spiritPresentation = 'scorebook',
 }: HomePageProps) {
   const homeData = useHomeData()
@@ -342,6 +344,7 @@ export function HomePage({
                   homeContent.concertProgram.noticePanelTitle
                 }
                 programNoteLabel="PROGRAM NOTE"
+                presentation={performancePresentation}
                 title={homeContent.concertProgram.title}
               />
               <ScrollScoreBookReveal content={homeContent.scoreBook} />

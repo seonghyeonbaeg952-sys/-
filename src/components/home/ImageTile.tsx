@@ -8,6 +8,7 @@ type ImageTileProps = {
   className?: string
   fallbackSrcs?: string[]
   fallbackVariant?: 'default' | 'gallery' | 'hero' | 'logo' | 'poster' | 'profile'
+  height?: number
   imgClassName?: string
   loading?: 'eager' | 'lazy'
   objectFit?: 'contain' | 'cover'
@@ -21,6 +22,7 @@ type ImageTileProps = {
     width?: number
     widths?: number[]
   }
+  width?: number
 }
 
 export function ImageTile({
@@ -29,6 +31,7 @@ export function ImageTile({
   className,
   fallbackSrcs,
   fallbackVariant = 'gallery',
+  height,
   imgClassName,
   loading = 'lazy',
   objectFit = 'cover',
@@ -36,6 +39,7 @@ export function ImageTile({
   sizes,
   src,
   transform,
+  width,
 }: ImageTileProps) {
   return (
     <OptimizedImage
@@ -43,6 +47,7 @@ export function ImageTile({
       className={className}
       fallbackSrcs={fallbackSrcs}
       fallbackVariant={fallbackVariant}
+      height={height}
       imageClassName={imgClassName}
       loading={loading}
       objectFit={objectFit}
@@ -50,6 +55,7 @@ export function ImageTile({
       sizes={sizes}
       src={src}
       transform={transform}
+      width={width}
     >
       {children}
     </OptimizedImage>

@@ -8,6 +8,7 @@
   --home-v4-orange-soft: #ffd0b8;
   --home-v4-orange: #ff601a;
   --home-v4-orange-ink: #c93a07;
+  --home-v4-orange-text: #a63e19;
   --home-v4-aubergine: #442044;
   --home-v4-ink: #151515;
   --home-v4-muted: #6e554b;
@@ -31,7 +32,7 @@
   --join-ivory: #fffdf9;
   --join-paper: #fffdf9;
   --join-orange: #f35a1f;
-  --join-orange-deep: #d84b17;
+  --join-orange-deep: var(--home-v4-orange-text);
   --join-burgundy: #3b1733;
   --join-brown: #6e554b;
   --join-rule: #f3b9a4;
@@ -45,7 +46,7 @@
   .home-about-portrait {
   --home-v4-panel-ivory: #fbf8f2;
   --home-v4-orange: #f35a1f;
-  --home-v4-orange-ink: #d84b17;
+  --home-v4-orange-ink: var(--home-v4-orange-text);
   --home-v4-orange-soft: #f3b9a4;
   --home-v4-aubergine: #3b1733;
   --home-v4-sans:
@@ -3524,8 +3525,8 @@
   .join-open-score {
   background-color: #fbf8f2 !important;
   background-image:
-    linear-gradient(rgb(255 253 249 / 0.54), rgb(255 253 249 / 0.54)),
-    url('/images/sample/home-v4-watercolor-paper.png') !important;
+    linear-gradient(rgb(255 253 249 / 0.68), rgb(255 253 249 / 0.68)),
+    url('/images/sample/home-v4-watercolor-paper.webp') !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
   background-size: cover !important;
@@ -3534,4 +3535,63 @@
 .public-shell-home-sample-v4[data-design-candidate='home-v4']
   .join-open-score__surface {
   background: transparent;
+}
+
+/* UI/UX Pro Max accessibility pass: retain vivid orange on large controls and
+   rules while giving small editorial labels an AA-safe ink. */
+.public-shell-home-sample-v4[data-design-candidate='home-v4']
+  :is(
+    .home-about-portrait__eyebrow p,
+    .home-about-portrait__facts dt,
+    .home-about-portrait__cta p,
+    .home-about-portrait .home-section-staff-cue__note,
+    .home-about-portrait .home-section-staff-cue__label,
+    .join-open-score__eyebrow,
+    .join-open-score__process-heading > p,
+    .join-open-score__step-number,
+    .join-open-score__fact dt,
+    .join-open-score__guardian > p,
+    .join-open-score__guardian li,
+    .join-open-score .home-section-staff-cue__note,
+    .join-open-score .home-section-staff-cue__label
+  ) {
+  color: var(--home-v4-orange-text);
+}
+
+@media (max-width: 767px) {
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    .join-open-score__eyebrow,
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    .join-open-score__process-heading
+    > p {
+    font-size: 0.75rem;
+    line-height: 1.5;
+  }
+
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    .join-open-score__description {
+    font-size: 0.9375rem;
+    line-height: 1.7;
+  }
+
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    .join-open-score__fact
+    dt,
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    .join-open-score__step-number,
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    .join-open-score__guardian
+    li {
+    font-size: 0.75rem;
+  }
+
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    .join-open-score__fact
+    dd,
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    .join-open-score__step
+    h4 {
+    font-size: 0.875rem;
+    line-height: 1.65;
+  }
 }

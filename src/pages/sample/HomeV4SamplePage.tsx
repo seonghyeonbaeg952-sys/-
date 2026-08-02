@@ -177,6 +177,7 @@ export function HomeV4SamplePage() {
         <HomeRoute
           aboutPresentation="collective-portrait"
           joinOpenScorePresentation="figma-open-score"
+          performancePresentation="figma-template-carousel"
         />
       </main>
       <Footer />

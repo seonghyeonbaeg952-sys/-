@@ -227,14 +227,37 @@ export function JoinOpenScoreCTA({
               className="join-open-score__description join-open-score__reveal"
               style={getRevealStyle(300)}
             >
-              발성·악보 읽기·파트 연습부터 공연까지,
-              <br />
-              <span className="join-open-score__description--desktop">
-                청소년이 음악 안에서 자신을 발견하고 함께 성장하는 과정입니다.
-              </span>
-              <span className="join-open-score__description--compact">
-                음악 안에서 함께 성장하는 과정입니다.
-              </span>
+              {isFigmaPresentation ? (
+                <>
+                  <span className="sr-only">
+                    발성·악보 읽기·파트 연습부터 공연까지, 청소년이 음악
+                    안에서 자신을 발견하고 함께 성장하는 과정입니다.
+                  </span>
+                  <span aria-hidden="true">
+                    발성·악보 읽기·파트 연습부터 공연까지,
+                    <br />
+                    <span className="join-open-score__description--desktop">
+                      청소년이 음악 안에서 자신을 발견하고 함께 성장하는
+                      과정입니다.
+                    </span>
+                    <span className="join-open-score__description--compact">
+                      음악 안에서 함께 성장하는 과정입니다.
+                    </span>
+                  </span>
+                </>
+              ) : (
+                <>
+                  발성·악보 읽기·파트 연습부터 공연까지,
+                  <br />
+                  <span className="join-open-score__description--desktop">
+                    청소년이 음악 안에서 자신을 발견하고 함께 성장하는
+                    과정입니다.
+                  </span>
+                  <span className="join-open-score__description--compact">
+                    음악 안에서 함께 성장하는 과정입니다.
+                  </span>
+                </>
+              )}
             </p>
 
             <div

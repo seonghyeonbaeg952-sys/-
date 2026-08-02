@@ -1,13 +1,22 @@
+import { lazy, Suspense } from 'react'
+
 import type { Concert, Notice } from '../../types/content'
 import { selectUpcomingConcerts } from '../../lib/publicData'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
+import { LoadingState } from '../common/LoadingState'
 import { Reveal } from '../common/Reveal'
 import { BenchmarkConcertTemplate } from './benchmark/BenchmarkConcertTemplate'
 import { KineticHeadline } from './KineticHeadline'
 import { NoticeProgramNotes } from './NoticeProgramNotes'
 import '../../styles/home-motion-benchmark.css'
+
+const HomeV4PerformanceCarousel = lazy(() =>
+  import('../sample/home-v4/HomeV4PerformanceCarousel').then((module) => ({
+    default: module.HomeV4PerformanceCarousel,
+  })),
+)
 
 type PerformanceNewsPreviewProps = {
   concertButtonLabel?: string
@@ -27,6 +36,7 @@ type PerformanceNewsPreviewProps = {
   noticeButtonLabel?: string
   noticePanelButtonLabel?: string
   noticePanelTitle?: string
+  presentation?: 'default' | 'figma-template-carousel'
   programNoteLabel?: string
   title?: string
 }
@@ -49,6 +59,7 @@ export function PerformanceNewsPreview({
   noticeButtonLabel = '공지사항 보기',
   noticePanelButtonLabel = '전체 보기',
   noticePanelTitle = '프로그램 노트',
+  presentation = 'default',
   programNoteLabel = 'PROGRAM NOTE',
   title = '공연과 소식',
 }: PerformanceNewsPreviewProps) {
@@ -63,6 +74,50 @@ export function PerformanceNewsPreview({
       return second.created_at.localeCompare(first.created_at)
     })
     .slice(0, 4)
+
+  if (presentation === 'figma-template-carousel') {
+    return (
+      <section
+        className="flow-section home-section home-section--v4-performance relative overflow-hidden bg-bg-warm-white"
+        data-flow-section="concert-program"
+        data-performance-presentation="figma-template-carousel"
+      >
+        <HomeSectionStaffCue
+          className="home-section-staff-cue--concert"
+          label="공연"
+          noteOffset={13}
+          symbol="♪"
+        />
+        <Suspense
+          fallback={
+            <div className="min-h-[55vh] bg-bg-ivory px-5 py-24">
+              <LoadingState label="공연 템플릿을 준비하고 있습니다." />
+            </div>
+          }
+        >
+          <HomeV4PerformanceCarousel
+            concerts={featuredConcerts}
+            detailButtonLabel={detailButtonLabel}
+            emptyButtonLabel={emptyConcertButtonLabel}
+            emptyDescription={emptyConcertText}
+            emptyTitle={emptyConcertTitle}
+          />
+        </Suspense>
+        <Container className="home-v4-performance-notice-wrap">
+          <Reveal delay={80} variant="card-rise">
+            <NoticeProgramNotes
+              emptyDescription={emptyNoticeText}
+              emptyButtonLabel={emptyNoticeButtonLabel}
+              emptyTitle={emptyNoticeTitle}
+              notices={visibleNotices}
+              panelButtonLabel={noticePanelButtonLabel}
+              panelTitle={noticePanelTitle}
+            />
+          </Reveal>
+        </Container>
+      </section>
+    )
+  }
 
   return (
     <section

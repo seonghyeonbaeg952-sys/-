@@ -120,11 +120,6 @@
       transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .motion-program-slot:nth-child(3) .motion-program-note {
-    right: calc(50% + 54px);
-    left: auto;
-  }
-
   .motion-program-note::before {
     position: absolute;
     top: 30px;
@@ -133,11 +128,6 @@
     height: 1px;
     background: rgb(201 164 92 / 0.42);
     content: '';
-  }
-
-  .motion-program-slot:nth-child(3) .motion-program-note::before {
-    right: auto;
-    left: 100%;
   }
 
   .motion-program-note[data-hidden='true'] {

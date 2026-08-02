@@ -26,7 +26,7 @@ test('V4 remains a production-home mirror with an isolated sample header', () =>
   assert.match(pageSource, /<HomeV4SampleHeader \/>/)
   assert.match(
     pageSource,
-    /<HomeRoute aboutPresentation="collective-portrait" \/>/,
+    /<HomeRoute[\s\S]*aboutPresentation="collective-portrait"[\s\S]*joinOpenScorePresentation="figma-open-score"[\s\S]*\/>/,
   )
   assert.match(pageSource, /<Footer \/>/)
   assert.match(pageSource, /data-sample-mirror="production-home"/)
@@ -37,7 +37,7 @@ test('V4 remains a production-home mirror with an isolated sample header', () =>
   )
   assert.match(
     cssSource,
-    /\.join-open-score \{[\s\S]*--join-ivory: var\(--home-v4-panel-ivory\);/,
+    /\.join-open-score \{[\s\S]*--join-ivory: #fffdf9;[\s\S]*--join-paper: #fffdf9;/,
   )
   assert.match(
     cssSource,

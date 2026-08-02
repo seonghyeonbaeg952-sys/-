@@ -18,9 +18,11 @@ const HomeMotionBenchmarkPage = lazy(() =>
 export function HomeRoute({
   aboutPresentation = 'default',
   joinOpenScorePresentation = 'default',
+  performancePresentation = 'default',
 }: {
   aboutPresentation?: AboutPreviewPresentation
   joinOpenScorePresentation?: 'default' | 'figma-open-score'
+  performancePresentation?: 'default' | 'figma-template-carousel'
 } = {}) {
   const [searchParams] = useSearchParams()
 
@@ -30,6 +32,7 @@ export function HomeRoute({
         aboutPresentation={aboutPresentation}
         joinPresentation="open-score"
         joinOpenScorePresentation={joinOpenScorePresentation}
+        performancePresentation={performancePresentation}
       />
     )
   }

@@ -18,7 +18,7 @@ const [samplePageSource, routeSource, flowSource, homeSource, aboutSource, cssSo
 test('V4 alone selects the collective portrait presentation', () => {
   assert.match(
     samplePageSource,
-    /<HomeRoute aboutPresentation="collective-portrait" \/>/,
+    /<HomeRoute[\s\S]*aboutPresentation="collective-portrait"[\s\S]*joinOpenScorePresentation="figma-open-score"[\s\S]*\/>/,
   )
   assert.match(routeSource, /aboutPresentation = 'default'/)
   assert.match(flowSource, /aboutPresentation=\{aboutPresentation\}/)
@@ -76,7 +76,14 @@ test('collective portrait keeps one people-first visual and four thin facts', ()
   assert.match(cssSource, /min-height: 1350px;/)
   assert.match(cssSource, /height: 600px;/)
   assert.match(cssSource, /zoom: 1 !important;/)
-  assert.match(cssSource, /\.join-open-score \{\s+min-height: 1080px;/)
+  assert.match(
+    cssSource,
+    /\.join-open-score \{\s+min-height: 972px;\s+height: 972px;/,
+  )
+  assert.match(
+    cssSource,
+    /\.join-open-score__design-canvas \{[\s\S]*height: 1080px;[\s\S]*scale: 0\.9;/,
+  )
   assert.doesNotMatch(aboutSource, /home-about-portrait__handoff/)
   assert.doesNotMatch(cssSource, /\.home-about-portrait__handoff/)
   assert.doesNotMatch(

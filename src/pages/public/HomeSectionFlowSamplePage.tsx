@@ -13,6 +13,7 @@ type HomeSectionFlowExperienceProps = {
   aboutPresentation?: AboutPreviewPresentation
   joinPresentation?: 'legacy' | 'open-score'
   joinOpenScorePresentation?: 'default' | 'figma-open-score'
+  performancePresentation?: 'default' | 'figma-template-carousel'
   showPreviewStatus?: boolean
   useEditorialSpirit?: boolean
 }
@@ -21,6 +22,7 @@ function HomeSectionFlowExperience({
   aboutPresentation = 'default',
   joinPresentation = 'legacy',
   joinOpenScorePresentation = 'default',
+  performancePresentation = 'default',
   showPreviewStatus = false,
   useEditorialSpirit = false,
 }: HomeSectionFlowExperienceProps) {
@@ -199,6 +201,7 @@ function HomeSectionFlowExperience({
         joinPresentation={joinPresentation}
         joinOpenScorePresentation={joinOpenScorePresentation}
         mode="section-flow-sample"
+        performancePresentation={performancePresentation}
         spiritPresentation={useEditorialSpirit ? 'editorial' : 'scorebook'}
       />
       {showPreviewStatus ? (
@@ -218,16 +221,19 @@ export function HomeSectionFlowPage({
   aboutPresentation = 'default',
   joinPresentation = 'legacy',
   joinOpenScorePresentation = 'default',
+  performancePresentation = 'default',
 }: {
   aboutPresentation?: AboutPreviewPresentation
   joinPresentation?: 'legacy' | 'open-score'
   joinOpenScorePresentation?: 'default' | 'figma-open-score'
+  performancePresentation?: 'default' | 'figma-template-carousel'
 }) {
   return (
     <HomeSectionFlowExperience
       aboutPresentation={aboutPresentation}
       joinPresentation={joinPresentation}
       joinOpenScorePresentation={joinOpenScorePresentation}
+      performancePresentation={performancePresentation}
       useEditorialSpirit
     />
   )
