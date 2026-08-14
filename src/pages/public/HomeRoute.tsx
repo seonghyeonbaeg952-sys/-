@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router'
 
 import { LoadingState } from '../../components/common/LoadingState'
 import type { AboutPreviewPresentation } from '../../components/home/AboutPreview'
+import type { HomeSpiritPresentation } from '../../components/home/HomeSpiritScoreBook'
 import { HomeSectionFlowPage } from './HomeSectionFlowSamplePage'
 import '../../styles/home-v6-fixes.css'
 import '../../styles/home-premium-polish.css'
@@ -19,10 +20,12 @@ export function HomeRoute({
   aboutPresentation = 'default',
   joinOpenScorePresentation = 'default',
   performancePresentation = 'default',
+  spiritPresentation = 'editorial',
 }: {
   aboutPresentation?: AboutPreviewPresentation
   joinOpenScorePresentation?: 'default' | 'figma-open-score'
   performancePresentation?: 'default' | 'figma-template-carousel'
+  spiritPresentation?: HomeSpiritPresentation
 } = {}) {
   const [searchParams] = useSearchParams()
 
@@ -33,6 +36,7 @@ export function HomeRoute({
         joinPresentation="open-score"
         joinOpenScorePresentation={joinOpenScorePresentation}
         performancePresentation={performancePresentation}
+        spiritPresentation={spiritPresentation}
       />
     )
   }

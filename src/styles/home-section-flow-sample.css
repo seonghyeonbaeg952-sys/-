@@ -295,7 +295,7 @@
 .home-section-flow-sample
   .home-flow-sample-chunk--stage
   .home-flow-sample-chunk__content
-  > [data-flow-section="concert-program"] {
+  > [data-flow-section="concert-program"]:not(.home-section--v4-performance) {
   background-color: color-mix(
     in srgb,
     var(--sample-surface) 86%,

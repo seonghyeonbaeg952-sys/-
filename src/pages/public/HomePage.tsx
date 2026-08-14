@@ -15,7 +15,10 @@ import { HomeFlowProvider } from '../../components/home/HomeFlowProvider'
 import { HomeHeroIntroOverlay } from '../../components/home/HomeHeroIntroOverlay'
 import { HomeHeroSlideshow } from '../../components/home/HomeHeroSlideshow'
 import { HomePopupManager } from '../../components/home/HomePopupManager'
-import { HomeSpiritScoreBook } from '../../components/home/HomeSpiritScoreBook'
+import {
+  HomeSpiritScoreBook,
+  type HomeSpiritPresentation,
+} from '../../components/home/HomeSpiritScoreBook'
 import { JoinCTA } from '../../components/home/JoinCTA'
 import { JoinOpenScoreCTA } from '../../components/home/JoinOpenScoreCTA'
 import { PerformanceNewsPreview } from '../../components/home/PerformanceNewsPreview'
@@ -35,7 +38,7 @@ type HomePageProps = {
   joinOpenScorePresentation?: 'default' | 'figma-open-score'
   mode?: HomePageMode
   performancePresentation?: 'default' | 'figma-template-carousel'
-  spiritPresentation?: 'editorial' | 'scorebook'
+  spiritPresentation?: HomeSpiritPresentation
 }
 
 type HomeFlowSampleChunkProps = {

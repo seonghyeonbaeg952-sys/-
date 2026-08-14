@@ -6,8 +6,6 @@ import { HomeRoute } from '../public/HomeRoute'
 import '../../styles/color-sample-theme.css'
 import './HomeV4SamplePage.css'
 
-const V4_FINALE_HOLD_TOP = 96
-
 export function HomeV4SamplePage() {
   const shellRef = useRef<HTMLDivElement>(null)
 
@@ -101,7 +99,7 @@ export function HomeV4SamplePage() {
         `${safeHeaderOffset}px`,
       )
 
-      const fixedStart = trackTop - V4_FINALE_HOLD_TOP
+      const fixedStart = trackTop - safeHeaderOffset
       const fixedEnd = finaleTop - safeHeaderOffset
 
       const holdState =
@@ -178,6 +176,7 @@ export function HomeV4SamplePage() {
           aboutPresentation="collective-portrait"
           joinOpenScorePresentation="figma-open-score"
           performancePresentation="figma-template-carousel"
+          spiritPresentation="chorus-orbit"
         />
       </main>
       <Footer />

@@ -27,6 +27,13 @@
   line-height: 1.5;
 }
 
+@media (min-width: 1100px) {
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    .score-flow-rail {
+    width: 38px !important;
+  }
+}
+
 .public-shell-home-sample-v4[data-design-candidate='home-v4']
   .join-open-score {
   --join-ivory: #fffdf9;
@@ -1279,7 +1286,7 @@
     .home-flow-sample-hold-track--full[data-v4-hold-state='fixed']
     .home-flow-sample-hold {
     position: fixed;
-    top: 96px;
+    top: var(--sample-header-offset, 58px);
     right: 0;
     bottom: auto;
     left: 0;

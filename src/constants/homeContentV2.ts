@@ -205,7 +205,12 @@ export const HOME_CONTENT_DEFAULTS_V2: HomeContentV2 = {
     },
   },
   spiritWrapper: {
+    backgroundPosterUrl: '/videos/spirit/spirit-cinematic-orbit-poster.webp',
+    backgroundVideoUrl: '/videos/spirit/spirit-cinematic-orbit-1600.mp4',
     eyebrowKo: 'FIVE MOVEMENTS · MOTET SPIRIT',
+    orbitEyebrow: 'FIVE VOICES · ONE CHORUS',
+    orbitHeadline: '정직한 음악을\n함께 부르고\n다음 세대에 전합니다',
+    orbitSignature: 'MOTET SPIRIT',
     title: '서울모테트청소년합창단의 다섯 가지 정신',
     ctaLabel: '정신 자세히 보기',
   },
@@ -630,13 +635,23 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
       ['eyebrowKo', '정신 wrapper 라벨'],
       ['title', '정신 wrapper 제목'],
       ['ctaLabel', '정신 기본 CTA'],
+      ['orbitEyebrow', '원형 안 영문 라벨'],
+      ['orbitHeadline', '원형 안 핵심 문구'],
+      ['orbitSignature', '원형 안 서명'],
+      ['backgroundVideoUrl', '배경 영상 URL'],
+      ['backgroundPosterUrl', '배경 영상 포스터 URL'],
     ] as const
   ).map(([property, label], index) =>
     field({
       key: `home.spiritWrapper.${property}`,
       label,
-      description: '정신 상세 항목은 합창단 소개 관리에서 가져옵니다.',
-      inputType: 'text',
+      description:
+        property === 'backgroundVideoUrl'
+          ? '음소거 자동 재생용 MP4 주소입니다. 데스크톱 V4 정신 섹션에만 적용됩니다.'
+          : property === 'backgroundPosterUrl'
+            ? '영상 재생 전과 모션 감소 설정에서 표시할 정지 이미지 주소입니다.'
+            : '정신 상세 항목은 합창단 소개 관리에서 가져옵니다.',
+      inputType: property === 'orbitHeadline' ? 'textarea' : 'text',
       defaultValue: HOME_CONTENT_DEFAULTS_V2.spiritWrapper[property],
       sectionId: 'spiritWrapper',
       sortOrder: 900 + index,

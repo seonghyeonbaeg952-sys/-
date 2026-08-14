@@ -20,6 +20,9 @@ type HomeV4PerformanceCarouselProps = {
 
 type TemplatePosition = 'center' | 'left' | 'right'
 type ProgramBookState = 'folded' | 'front' | 'side' | 'open'
+type CarouselDirection = -1 | 1
+
+const CAROUSEL_TRANSITION_MS = 660
 
 const statusLabels: Record<Concert['status'], string> = {
   cancelled: '취소',
@@ -129,10 +132,12 @@ function getTemplatePosition(
 
 function TemplateFace({
   concert,
+  isRepositioning = false,
   position,
   programState = 'front',
 }: {
   concert: Concert
+  isRepositioning?: boolean
   position: TemplatePosition
   programState?: ProgramBookState
 }) {
@@ -143,7 +148,10 @@ function TemplateFace({
   return (
     <article
       aria-hidden={position !== 'center'}
-      className={`home-v4-template-face home-v4-template-face--${position}`}
+      className={`home-v4-template-face home-v4-template-face--${position}${
+        isRepositioning ? ' home-v4-template-face--repositioning' : ''
+      }`}
+      data-carousel-repositioning={isRepositioning ? 'true' : 'false'}
       data-program-state={position === 'center' ? programState : 'front'}
       data-template-position={position}
       style={style}
@@ -338,9 +346,34 @@ function ArchitectureForeground() {
           src={ARCHITECTURE_ASSET}
         />
       ))}
+      <span className="home-v4-architecture__pocket home-v4-architecture__pocket--left" />
+      <span className="home-v4-architecture__pocket home-v4-architecture__pocket--right" />
+    </div>
+  )
+}
+
+function ArchitectureDepthLayer() {
+  return (
+    <div aria-hidden="true" className="home-v4-architecture__depth-layer">
       <span className="home-v4-architecture__depth home-v4-architecture__depth--left-outer" />
+      <span className="home-v4-architecture__depth home-v4-architecture__depth--left-inner" />
+      <span className="home-v4-architecture__depth home-v4-architecture__depth--right-inner" />
       <span className="home-v4-architecture__depth home-v4-architecture__depth--right-outer" />
     </div>
+  )
+}
+
+function ArchitectureBlueprintFrame() {
+  return (
+    <span
+      aria-hidden="true"
+      className="home-v4-architecture__blueprint-frame"
+    >
+      <i data-corner="top-left" />
+      <i data-corner="top-right" />
+      <i data-corner="bottom-left" />
+      <i data-corner="bottom-right" />
+    </span>
   )
 }
 
@@ -352,6 +385,11 @@ export function HomeV4PerformanceCarousel({
   const [isTemplateOpen, setIsTemplateOpen] = useState(false)
   const [programBookState, setProgramBookState] =
     useState<ProgramBookState>('front')
+  const [repositioningIndex, setRepositioningIndex] = useState<number | null>(
+    null,
+  )
+  const carouselTimerRef = useRef<number | null>(null)
+  const carouselTransitioningRef = useRef(false)
   const visibleConcerts =
     concerts.length > 0
       ? [...concerts.slice(0, 3), ...V4_FALLBACK_CONCERTS].slice(0, 3)
@@ -359,15 +397,66 @@ export function HomeV4PerformanceCarousel({
 
   const safeActiveIndex = activeIndex % visibleConcerts.length
   const activeConcert = visibleConcerts[safeActiveIndex]
+  const isCarouselTransitioning = repositioningIndex !== null
 
-  const move = (step: number) => {
-    if (programBookState !== 'front') {
+  useLayoutEffect(
+    () => () => {
+      if (carouselTimerRef.current !== null) {
+        window.clearTimeout(carouselTimerRef.current)
+      }
+    },
+    [],
+  )
+
+  const selectConcert = (
+    nextIndex: number,
+    requestedDirection?: CarouselDirection,
+  ) => {
+    if (
+      programBookState !== 'front' ||
+      carouselTransitioningRef.current ||
+      nextIndex === safeActiveIndex
+    ) {
       return
     }
 
-    setActiveIndex(
-      (currentIndex) =>
-        (currentIndex + step + visibleConcerts.length) % visibleConcerts.length,
+    const count = visibleConcerts.length
+    const normalizedIndex = (nextIndex + count) % count
+    const forwardDistance = (normalizedIndex - safeActiveIndex + count) % count
+    const direction =
+      requestedDirection ?? (forwardDistance <= count / 2 ? 1 : -1)
+    const bypassIndex =
+      count > 2
+        ? direction === 1
+          ? (safeActiveIndex - 1 + count) % count
+          : (safeActiveIndex + 1) % count
+        : null
+
+    carouselTransitioningRef.current = true
+    setRepositioningIndex(bypassIndex)
+    setActiveIndex(normalizedIndex)
+
+    if (carouselTimerRef.current !== null) {
+      window.clearTimeout(carouselTimerRef.current)
+    }
+
+    const transitionDuration = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches
+      ? 0
+      : CAROUSEL_TRANSITION_MS
+
+    carouselTimerRef.current = window.setTimeout(() => {
+      carouselTransitioningRef.current = false
+      setRepositioningIndex(null)
+      carouselTimerRef.current = null
+    }, transitionDuration)
+  }
+
+  const move = (step: number) => {
+    selectConcert(
+      safeActiveIndex + step,
+      step > 0 ? 1 : -1,
     )
   }
 
@@ -382,7 +471,6 @@ export function HomeV4PerformanceCarousel({
         <div className="home-v4-performance-carousel__rail" aria-hidden="true">
           <span />
         </div>
-        <p className="home-v4-performance-carousel__eyebrow">PERFORMANCE</p>
         <h2>공연과 소식</h2>
         <p className="home-v4-performance-carousel__description">
           다가오는 공연의 날짜, 장소, 공지사항을 확인합니다.
@@ -424,9 +512,11 @@ export function HomeV4PerformanceCarousel({
               <button
                 aria-current={index === safeActiveIndex ? 'true' : undefined}
                 aria-label={`${index + 1}번 공연 ${concert.title} 보기`}
-                disabled={programBookState !== 'front'}
+                disabled={
+                  programBookState !== 'front' || isCarouselTransitioning
+                }
                 onClick={() => {
-                  setActiveIndex(index)
+                  selectConcert(index)
                 }}
                 type="button"
               >
@@ -440,7 +530,11 @@ export function HomeV4PerformanceCarousel({
 
       <div className="home-v4-performance-carousel__stage">
         <div
+          aria-busy={isCarouselTransitioning}
           className="home-v4-architecture"
+          data-carousel-transitioning={
+            isCarouselTransitioning ? 'true' : 'false'
+          }
           data-template-expanded={
             programBookState === 'front' ? 'false' : 'true'
           }
@@ -451,6 +545,7 @@ export function HomeV4PerformanceCarousel({
             className="home-v4-architecture__rear"
             src={ARCHITECTURE_ASSET}
           />
+          <ArchitectureDepthLayer />
           <div className="home-v4-architecture__track">
             {visibleConcerts.map((concert, index) => {
               const position = getTemplatePosition(
@@ -462,6 +557,7 @@ export function HomeV4PerformanceCarousel({
               return position ? (
                 <TemplateFace
                   concert={concert}
+                  isRepositioning={index === repositioningIndex}
                   key={concert.id}
                   position={position}
                   programState={
@@ -474,6 +570,7 @@ export function HomeV4PerformanceCarousel({
           <button
             aria-label={`${activeConcert.title} 템플릿 펼치기`}
             className="home-v4-architecture__center-trigger"
+            disabled={isCarouselTransitioning}
             onClick={() => setIsTemplateOpen(true)}
             type="button"
           />
@@ -485,11 +582,14 @@ export function HomeV4PerformanceCarousel({
             onStateChange={setProgramBookState}
           />
           <ArchitectureForeground />
+          <ArchitectureBlueprintFrame />
           <div className="home-v4-architecture__controls">
             <button
               aria-label="이전 공연 템플릿"
               disabled={
-                visibleConcerts.length < 2 || programBookState !== 'front'
+                visibleConcerts.length < 2 ||
+                programBookState !== 'front' ||
+                isCarouselTransitioning
               }
               onClick={() => move(-1)}
               type="button"
@@ -501,6 +601,7 @@ export function HomeV4PerformanceCarousel({
               aria-controls={`concert-template-details-${activeConcert.id}`}
               aria-label={isTemplateOpen ? '공연 템플릿 접기' : '공연 템플릿 펼치기'}
               className="home-v4-architecture__expand"
+              disabled={isCarouselTransitioning}
               onClick={() => setIsTemplateOpen((current) => !current)}
               type="button"
             >
@@ -510,7 +611,9 @@ export function HomeV4PerformanceCarousel({
             <button
               aria-label="다음 공연 템플릿"
               disabled={
-                visibleConcerts.length < 2 || programBookState !== 'front'
+                visibleConcerts.length < 2 ||
+                programBookState !== 'front' ||
+                isCarouselTransitioning
               }
               onClick={() => move(1)}
               type="button"

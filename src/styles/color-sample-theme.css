@@ -211,7 +211,7 @@
   .home-flow-sample-chunk
   .home-flow-sample-chunk__content
   >
-  [data-flow-section] {
+  [data-flow-section]:not(.home-section--v4-performance) {
   background-color: var(--color-white) !important;
 }
 
@@ -223,6 +223,11 @@
   ) {
   border-color: var(--color-orange-soft) !important;
   background-color: var(--color-orange-wash) !important;
+}
+
+.color-sample-theme.public-shell-home
+  .home-section--v4-performance[data-performance-presentation='figma-template-carousel'] {
+  background-color: #fbf8f2 !important;
 }
 
 .color-sample-theme.public-shell-home :is(

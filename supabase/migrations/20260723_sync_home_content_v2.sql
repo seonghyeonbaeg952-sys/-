@@ -127,7 +127,12 @@ home.scoreBook.valueItems.guide.label
 home.scoreBook.valueItems.guide.description
 home.scoreBook.valueItems.guide.displayOrder
 home.scoreBook.valueItems.guide.isVisible
+home.spiritWrapper.backgroundPosterUrl
+home.spiritWrapper.backgroundVideoUrl
 home.spiritWrapper.eyebrowKo
+home.spiritWrapper.orbitEyebrow
+home.spiritWrapper.orbitHeadline
+home.spiritWrapper.orbitSignature
 home.spiritWrapper.title
 home.spiritWrapper.ctaLabel
 home.archive.eyebrowKo

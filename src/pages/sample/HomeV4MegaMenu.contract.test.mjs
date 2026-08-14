@@ -49,6 +49,13 @@ test('V4 remains a production-home mirror with an isolated sample header', () =>
   )
 })
 
+test('V4 desktop keeps the left score rail compact', () => {
+  assert.match(
+    cssSource,
+    /@media \(min-width: 1100px\) \{[\s\S]*\.score-flow-rail \{[\s\S]*width: 38px !important;/,
+  )
+})
+
 test('desktop mega menu supports hover, pinned click, Escape, and focus return', () => {
   assert.match(headerSource, /setDesktopMenuPinned\(true\)/)
   assert.match(headerSource, /if \(!desktopMenuPinned\) \{[\s\S]*openDesktopMenu\(item\.href\)/)
@@ -193,7 +200,6 @@ test('V4 finale wave settles the spirit panel before synchronized archive travel
     cssSource,
     /@media \(min-width: 1024px\) \{[\s\S]*home-flow-sample-chunk--stage[\s\S]*home-flow-sample-chunk--finale[\s\S]*data-v4-hold-state='fixed'[\s\S]*@supports \(animation-timeline: view\(\)\)/,
   )
-  assert.match(pageSource, /const V4_FINALE_HOLD_TOP = 96/)
   assert.match(pageSource, /data-v4-hold-state/)
   assert.match(pageSource, /sampleHeader\.getBoundingClientRect\(\)\.bottom/)
   assert.match(pageSource, /flowRoot\.style\.setProperty/)
@@ -201,7 +207,7 @@ test('V4 finale wave settles the spirit panel before synchronized archive travel
   assert.match(pageSource, /window\.setTimeout\(update, 240\)/)
   assert.match(pageSource, /window\.addEventListener\('scroll', update/)
   assert.match(pageSource, /const syncRestoredScroll = \(\) => \{[\s\S]*update\(\)/)
-  assert.match(pageSource, /const fixedStart = trackTop - V4_FINALE_HOLD_TOP/)
+  assert.match(pageSource, /const fixedStart = trackTop - safeHeaderOffset/)
   assert.doesNotMatch(pageSource, /fixedBeforeWave/)
   assert.match(
     cssSource,
@@ -213,7 +219,7 @@ test('V4 finale wave settles the spirit panel before synchronized archive travel
   )
   assert.match(
     cssSource,
-    /home-flow-sample-hold-track--full\[data-v4-hold-state='fixed'\][\s\S]*position: fixed;[\s\S]*top: 96px;/,
+    /home-flow-sample-hold-track--full\[data-v4-hold-state='fixed'\][\s\S]*position: fixed;[\s\S]*top: var\(--sample-header-offset, 58px\);/,
   )
   assert.match(
     cssSource,

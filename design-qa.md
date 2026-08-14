@@ -133,3 +133,65 @@ replaces embedded copy reads with the normalized contract.
   not claimed as exact screenshot matches.
 
 final result: PASSED
+
+---
+
+# Home V4 spirit browser-viewport parity QA
+
+## Comparison target
+
+- User Chrome reference:
+  `C:\Users\seong\AppData\Local\Temp\codex-clipboard-6bb3b3eb-7190-4a6b-829b-4d39427e22c9.png`
+- User in-app-browser reference:
+  `C:\Users\seong\AppData\Local\Temp\codex-clipboard-be27e67a-77e6-4e06-a042-9bfc828ffb32.png`
+- Verified route:
+  `http://127.0.0.1:5175/sample/home-v4?qa=wrap-long`
+- Post-fix Chrome capture:
+  `C:\Users\seong\AppData\Local\Temp\codex-spirit-chrome-after.png`
+- Post-fix in-app-browser capture:
+  `C:\Users\seong\AppData\Local\Temp\codex-spirit-iab-after.png`
+- Combined post-fix browser comparison:
+  `C:\Users\seong\AppData\Local\Temp\codex-spirit-browser-comparison.png`
+- Chrome reference and post-fix comparison:
+  `C:\Users\seong\AppData\Local\Temp\codex-spirit-chrome-reference-comparison.png`
+
+## Viewport and fixed-state measurements
+
+- Connected Chrome: 1536 x 770 CSS px, DPR 1.25.
+- In-app browser: 1536 x 900 CSS px, DPR 1.25.
+- The supplied 1920 x 1200 Chrome capture corresponds to an approximately
+  1536 x 824 CSS-pixel page viewport after browser chrome and the Windows
+  taskbar are excluded.
+- In both live browsers the pinned section top measured 58.4px and matched the
+  header bottom at 58.4px.
+- Chrome's shortest verified viewport keeps 87.25px below the CTA; the in-app
+  browser keeps 84.6px. The former Chrome composition placed the CTA at or
+  below the short viewport edge.
+
+## Fix and fidelity evidence
+
+- The existing 16:9 video, `object-fit: contain`, copy, orbit behavior, colors,
+  and desktop-only presentation were retained.
+- The existing <=900px compact desktop rule remains the normal desktop basis.
+- A <=850px rule reduces the orbit to a maximum of 420px and tightens its top
+  rhythm for ordinary Chrome windows near the supplied screenshot height.
+- A <=790px rule reduces the orbit to a maximum of 400px and tightens the top
+  rhythm again for unusually short browser windows.
+- The rules change only vertical-density breakpoints at desktop width. Mobile
+  and tablet still render the original spirit section.
+
+## Fixed and transition evidence
+
+- Chrome fixed state: section top 58.4px, header bottom 58.4px.
+- The finale/wave surface entered the viewport while the spirit section stayed
+  fixed.
+- Continuing the scroll changed the hold state from `fixed` to `ended` and
+  released the spirit section normally; no wave timing or transition code was
+  changed.
+
+## Findings
+
+- No actionable P0, P1, or P2 mismatch remains for the requested Chrome versus
+  in-app-browser spacing and fixed-position behavior.
+
+final result: PASSED

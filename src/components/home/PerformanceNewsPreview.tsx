@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 
 import type { Concert, Notice } from '../../types/content'
 import { selectUpcomingConcerts } from '../../lib/publicData'
@@ -7,6 +7,7 @@ import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 import { LoadingState } from '../common/LoadingState'
 import { Reveal } from '../common/Reveal'
+import { HomeV4ProgramNoticeStrip } from '../sample/home-v4/HomeV4ProgramNoticeStrip'
 import { BenchmarkConcertTemplate } from './benchmark/BenchmarkConcertTemplate'
 import { KineticHeadline } from './KineticHeadline'
 import { NoticeProgramNotes } from './NoticeProgramNotes'
@@ -17,6 +18,28 @@ const HomeV4PerformanceCarousel = lazy(() =>
     default: module.HomeV4PerformanceCarousel,
   })),
 )
+
+const desktopPerformanceQuery = '(min-width: 1024px)'
+
+function useDesktopPerformanceLayout() {
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window === 'undefined'
+      ? true
+      : window.matchMedia(desktopPerformanceQuery).matches,
+  )
+
+  useEffect(() => {
+    const query = window.matchMedia(desktopPerformanceQuery)
+    const update = () => setIsDesktop(query.matches)
+
+    update()
+    query.addEventListener('change', update)
+
+    return () => query.removeEventListener('change', update)
+  }, [])
+
+  return isDesktop
+}
 
 type PerformanceNewsPreviewProps = {
   concertButtonLabel?: string
@@ -63,6 +86,11 @@ export function PerformanceNewsPreview({
   programNoteLabel = 'PROGRAM NOTE',
   title = '공연과 소식',
 }: PerformanceNewsPreviewProps) {
+  const isDesktopPerformanceLayout = useDesktopPerformanceLayout()
+  const useFigmaDesktopLayout =
+    presentation === 'figma-template-carousel' && isDesktopPerformanceLayout
+  const useOriginalResponsiveLayout =
+    presentation === 'figma-template-carousel' && !isDesktopPerformanceLayout
   const featuredConcerts = selectUpcomingConcerts(concerts, { limit: 3 })
   const visibleNotices = [...notices]
     .filter((notice) => notice.is_visible)
@@ -75,7 +103,7 @@ export function PerformanceNewsPreview({
     })
     .slice(0, 4)
 
-  if (presentation === 'figma-template-carousel') {
+  if (useFigmaDesktopLayout) {
     return (
       <section
         className="flow-section home-section home-section--v4-performance relative overflow-hidden bg-bg-warm-white"
@@ -103,25 +131,25 @@ export function PerformanceNewsPreview({
             emptyTitle={emptyConcertTitle}
           />
         </Suspense>
-        <Container className="home-v4-performance-notice-wrap">
-          <Reveal delay={80} variant="card-rise">
-            <NoticeProgramNotes
-              emptyDescription={emptyNoticeText}
-              emptyButtonLabel={emptyNoticeButtonLabel}
-              emptyTitle={emptyNoticeTitle}
-              notices={visibleNotices}
-              panelButtonLabel={noticePanelButtonLabel}
-              panelTitle={noticePanelTitle}
-            />
-          </Reveal>
-        </Container>
+        <div className="home-v4-performance-notice-wrap">
+          <HomeV4ProgramNoticeStrip
+            emptyDescription={emptyNoticeText}
+            emptyButtonLabel={emptyNoticeButtonLabel}
+            emptyTitle={emptyNoticeTitle}
+            notices={visibleNotices.slice(0, 3)}
+            panelButtonLabel={noticePanelButtonLabel}
+            panelTitle={noticePanelTitle}
+          />
+        </div>
       </section>
     )
   }
 
   return (
     <section
-      className="flow-section home-section relative overflow-hidden bg-bg-warm-white"
+      className={`flow-section home-section relative overflow-hidden bg-bg-warm-white${
+        useOriginalResponsiveLayout ? ' home-section--v4-mobile-original' : ''
+      }`}
       data-flow-section="concert-program"
     >
       <HomeSectionStaffCue
@@ -131,7 +159,7 @@ export function PerformanceNewsPreview({
         symbol="♪"
       />
       <Container>
-        <Reveal variant="fade-up">
+        <Reveal variant={useOriginalResponsiveLayout ? 'none' : 'fade-up'}>
           <div className="section-title">
             <KineticHeadline
               body={description ? <p>{description}</p> : undefined}
@@ -152,7 +180,7 @@ export function PerformanceNewsPreview({
           </div>
         </Reveal>
         <div className="home-performance-news mt-9">
-          <Reveal variant="card-rise">
+          <Reveal variant={useOriginalResponsiveLayout ? 'none' : 'card-rise'}>
             <BenchmarkConcertTemplate
               concerts={featuredConcerts}
               detailButtonLabel={detailButtonLabel}
@@ -163,7 +191,10 @@ export function PerformanceNewsPreview({
               programNoteLabel={programNoteLabel}
             />
           </Reveal>
-          <Reveal delay={80} variant="card-rise">
+          <Reveal
+            delay={useOriginalResponsiveLayout ? 0 : 80}
+            variant={useOriginalResponsiveLayout ? 'none' : 'card-rise'}
+          >
             <NoticeProgramNotes
               emptyDescription={emptyNoticeText}
               emptyButtonLabel={emptyNoticeButtonLabel}

@@ -17,11 +17,17 @@ import { StaffLines } from '../common/StaffLines'
 import { TransitionLink } from '../common/TransitionLink'
 import { ImageTile } from './ImageTile'
 import { HomeSpiritEditorial } from './HomeSpiritEditorial'
+import { HomeSpiritChorusOrbit } from './HomeSpiritChorusOrbit'
 import { KineticHeadline } from './KineticHeadline'
+
+export type HomeSpiritPresentation =
+  | 'chorus-orbit'
+  | 'editorial'
+  | 'scorebook'
 
 type HomeSpiritScoreBookProps = {
   image?: GalleryImage
-  presentation?: 'editorial' | 'scorebook'
+  presentation?: HomeSpiritPresentation
   sections: AboutSectionRow[]
   wrapper: HomeContentV2['spiritWrapper']
 }
@@ -45,6 +51,10 @@ export function HomeSpiritScoreBook({
   sections,
   wrapper,
 }: HomeSpiritScoreBookProps) {
+  if (presentation === 'chorus-orbit') {
+    return <HomeSpiritChorusOrbit sections={sections} wrapper={wrapper} />
+  }
+
   if (presentation === 'editorial') {
     return <HomeSpiritEditorial sections={sections} wrapper={wrapper} />
   }

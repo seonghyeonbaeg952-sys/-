@@ -1,6 +1,7 @@
 import { useLayoutEffect } from 'react'
 
 import type { AboutPreviewPresentation } from '../../components/home/AboutPreview'
+import type { HomeSpiritPresentation } from '../../components/home/HomeSpiritScoreBook'
 import { HomePage } from './HomePage'
 import '../../styles/home-v6-fixes.css'
 import '../../styles/home-premium-polish.css'
@@ -15,7 +16,7 @@ type HomeSectionFlowExperienceProps = {
   joinOpenScorePresentation?: 'default' | 'figma-open-score'
   performancePresentation?: 'default' | 'figma-template-carousel'
   showPreviewStatus?: boolean
-  useEditorialSpirit?: boolean
+  spiritPresentation?: HomeSpiritPresentation
 }
 
 function HomeSectionFlowExperience({
@@ -24,7 +25,7 @@ function HomeSectionFlowExperience({
   joinOpenScorePresentation = 'default',
   performancePresentation = 'default',
   showPreviewStatus = false,
-  useEditorialSpirit = false,
+  spiritPresentation = 'editorial',
 }: HomeSectionFlowExperienceProps) {
   useLayoutEffect(() => {
     const root = document.querySelector<HTMLElement>('.home-section-flow-sample')
@@ -202,7 +203,7 @@ function HomeSectionFlowExperience({
         joinOpenScorePresentation={joinOpenScorePresentation}
         mode="section-flow-sample"
         performancePresentation={performancePresentation}
-        spiritPresentation={useEditorialSpirit ? 'editorial' : 'scorebook'}
+        spiritPresentation={spiritPresentation}
       />
       {showPreviewStatus ? (
         <aside
@@ -222,11 +223,13 @@ export function HomeSectionFlowPage({
   joinPresentation = 'legacy',
   joinOpenScorePresentation = 'default',
   performancePresentation = 'default',
+  spiritPresentation = 'editorial',
 }: {
   aboutPresentation?: AboutPreviewPresentation
   joinPresentation?: 'legacy' | 'open-score'
   joinOpenScorePresentation?: 'default' | 'figma-open-score'
   performancePresentation?: 'default' | 'figma-template-carousel'
+  spiritPresentation?: HomeSpiritPresentation
 }) {
   return (
     <HomeSectionFlowExperience
@@ -234,7 +237,7 @@ export function HomeSectionFlowPage({
       joinPresentation={joinPresentation}
       joinOpenScorePresentation={joinOpenScorePresentation}
       performancePresentation={performancePresentation}
-      useEditorialSpirit
+      spiritPresentation={spiritPresentation}
     />
   )
 }
@@ -244,7 +247,7 @@ export function HomeSectionFlowSamplePage() {
     <HomeSectionFlowExperience
       joinPresentation="open-score"
       showPreviewStatus
-      useEditorialSpirit
+      spiritPresentation="editorial"
     />
   )
 }

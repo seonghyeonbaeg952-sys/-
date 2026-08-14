@@ -124,8 +124,15 @@ WITH reference_copy(key, value) AS (
     ('home.scoreBook.valueItems.voice.displayOrder', '1'),
     ('home.scoreBook.valueItems.voice.isVisible', 'true'),
     ('home.scoreBook.valueItems.voice.label', '귀 기울임'),
+    ('home.spiritWrapper.backgroundPosterUrl', '/videos/spirit/spirit-cinematic-orbit-poster.webp'),
+    ('home.spiritWrapper.backgroundVideoUrl', '/videos/spirit/spirit-cinematic-orbit-1600.mp4'),
     ('home.spiritWrapper.ctaLabel', '정신 자세히 보기'),
     ('home.spiritWrapper.eyebrowKo', 'FIVE MOVEMENTS · MOTET SPIRIT'),
+    ('home.spiritWrapper.orbitEyebrow', 'FIVE VOICES · ONE CHORUS'),
+    ('home.spiritWrapper.orbitHeadline', '정직한 음악을
+함께 부르고
+다음 세대에 전합니다'),
+    ('home.spiritWrapper.orbitSignature', 'MOTET SPIRIT'),
     ('home.spiritWrapper.title', '서울모테트청소년합창단의 다섯 가지 정신'),
     ('home.sponsors.ctaLabel', '후원사 전체 보기'),
     ('home.sponsors.description', '청소년들이 안정적으로 배우고 무대에 설 수 있도록 곁에서 힘을 보태는 후원사와 협력기관입니다. 보이지 않는 응원이 연습과 공연, 다음 무대의 준비로 이어집니다.'),

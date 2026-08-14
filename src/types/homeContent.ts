@@ -152,8 +152,13 @@ export interface HomeContentV2 {
     title: string
   }
   spiritWrapper: {
+    backgroundPosterUrl: string
+    backgroundVideoUrl: string
     ctaLabel: string
     eyebrowKo: string
+    orbitEyebrow: string
+    orbitHeadline: string
+    orbitSignature: string
     title: string
   }
   supportLetter: {
