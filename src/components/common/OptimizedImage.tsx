@@ -38,6 +38,7 @@ type OptimizedImageProps = {
   aspectRatio?: string
   children?: ReactNode
   className?: string
+  crossOrigin?: 'anonymous' | 'use-credentials'
   decorative?: boolean
   fallbackLabel?: string
   fallbackSrcs?: string[]
@@ -94,6 +95,7 @@ export function OptimizedImage({
   aspectRatio,
   children,
   className,
+  crossOrigin,
   decorative = false,
   fallbackLabel,
   fallbackSrcs = emptyFallbackSources,
@@ -182,6 +184,7 @@ export function OptimizedImage({
             imageClassName,
           )}
           decoding="async"
+          crossOrigin={crossOrigin}
           fetchPriority={priority ? 'high' : 'auto'}
           height={height}
           loading={renderedLoading}

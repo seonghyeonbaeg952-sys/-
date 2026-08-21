@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#fffdf9" />
+    <title>서울모테트청소년합창단 — 기록 섹션 모션 샘플</title>
+    <link rel="stylesheet" href="./archive-exposure-current.css" />
+  </head>
+  <body>
+    <section
+      class="archive-exposure"
+      id="archiveExposure"
+      data-stage="ready"
+      data-year="2026"
+      aria-label="기록 섹션 모션그래픽"
+      aria-busy="false"
+    >
+      <div aria-hidden="true" class="archive-exposure__grain"></div>
+      <div aria-hidden="true" class="archive-exposure__orb archive-exposure__orb--a"></div>
+      <div aria-hidden="true" class="archive-exposure__orb archive-exposure__orb--b"></div>
+
+      <div aria-hidden="true" class="archive-exposure__topline">
+        <span>Archive study · exposure sequence</span>
+        <small>Light / Time / Memory</small>
+      </div>
+
+      <div class="archive-exposure__layout">
+        <div class="archive-exposure__copy" id="archiveCopy">
+          <p class="archive-exposure__eyebrow" id="archiveEyebrow">00 · Ready</p>
+          <div id="archiveHeadingSlot">
+            <h1 class="archive-exposure__heading">
+              <span>무대의 순간을</span>
+              <span>한 장씩 다시 펼칩니다</span>
+            </h1>
+          </div>
+          <p class="archive-exposure__body" id="archiveBody">
+            공연 사진과 포스터, 영상으로 남은 기록을 빛과 시간의 순서로 천천히 만나보세요.
+          </p>
+          <div id="archiveDetailSlot">
+            <p class="archive-exposure__status">2026 · 공연 기록</p>
+          </div>
+          <div class="archive-exposure__actions">
+            <button class="archive-exposure__primary" id="archiveStart" type="button">
+              <span>기록 펼치기</span><span aria-hidden="true">→</span>
+            </button>
+            <a class="archive-exposure__secondary" id="archiveGallery" href="/gallery" hidden>
+              <span>갤러리 보기</span><span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="archive-exposure__visual" id="archiveVisual">
+          <div class="archive-exposure__apparatus" id="archiveApparatus">
+            <div aria-hidden="true" class="archive-exposure__surface"></div>
+            <div aria-hidden="true" class="archive-exposure__film-bed" id="archiveFilmBed"></div>
+            <div aria-hidden="true" class="archive-exposure__develop-glow" id="archiveDevelopGlow"></div>
+            <div aria-hidden="true" class="archive-exposure__archive-field" id="archiveField"></div>
+
+            <div aria-hidden="true" class="archive-exposure__crop-marks" id="archiveCropMarks">
+              <i></i><i></i><i></i><i></i>
+            </div>
+
+            <div aria-hidden="true" class="archive-exposure__film-ghosts" id="archiveFilmGhosts">
+              <span class="archive-exposure__film-ghost">
+                <img src="./images/sample/about-collective-portrait.png" alt="" /><small>01</small>
+              </span>
+              <span class="archive-exposure__film-ghost">
+                <img src="./images/sample/about-collective-portrait.png" alt="" /><small>02</small>
+              </span>
+              <span class="archive-exposure__film-ghost">
+                <img src="./images/sample/about-collective-portrait.png" alt="" /><small>04</small>
+              </span>
+              <span class="archive-exposure__film-ghost">
+                <img src="./images/sample/about-collective-portrait.png" alt="" /><small>05</small>
+              </span>
+            </div>
+
+            <figure class="archive-exposure__carrier" id="archiveCarrier">
+              <div class="archive-exposure__carrier-media" id="archiveCarrierMedia">
+                <img
+                  src="./images/sample/about-collective-portrait.png"
+                  alt="서울모테트청소년합창단 겨울 수련회 단체 사진"
+                />
+                <span aria-hidden="true" class="archive-exposure__carrier-grain"></span>
+                <span aria-hidden="true" class="archive-exposure__latent-veil" id="archiveVeil"></span>
+                <span aria-hidden="true" class="archive-exposure__reveal-edge" id="archiveRevealEdge"></span>
+                <span aria-hidden="true" class="archive-exposure__scan-line" id="archiveScanLine"></span>
+              </div>
+              <figcaption>
+                <span id="archiveCarrierIndex">01 / 사진</span>
+                <small id="archiveCarrierCaption">기록의 시작점</small>
+              </figcaption>
+            </figure>
+
+            <a class="archive-exposure__record archive-exposure__record--poster" id="archivePoster" href="/gallery#poster" tabindex="-1">
+              <span class="archive-exposure__record-media">
+                <img src="./images/placeholders/poster-placeholder.svg" alt="서울모테트청소년합창단 공연 포스터" />
+              </span>
+              <span class="archive-exposure__record-label"><b>02</b><span>/ 포스터</span></span>
+            </a>
+
+            <a class="archive-exposure__record archive-exposure__record--video" id="archiveVideo" href="/gallery#video" tabindex="-1">
+              <span class="archive-exposure__record-media">
+                <img src="./images/sample/about-collective-portrait.png" alt="서울모테트청소년합창단 공연 영상 썸네일" />
+                <span aria-hidden="true" class="archive-exposure__play">▶</span>
+              </span>
+              <span class="archive-exposure__record-label"><b>03</b><span>/ 영상</span></span>
+            </a>
+
+            <span aria-hidden="true" class="archive-exposure__measure" id="archiveMeasure">Sequence complete · 03 records</span>
+            <div aria-hidden="true" class="archive-exposure__flash" id="archiveFlash"></div>
+          </div>
+        </div>
+      </div>
+
+      <div aria-hidden="true" class="archive-exposure__footer">
+        <span id="archiveFooterLabel">00 READY</span>
+        <div class="archive-exposure__progress" id="archiveProgress">
+          <i class="is-active"></i><i></i><i></i>
+        </div>
+        <small id="archiveFooterCopy">기록을 고르고 빛을 준비합니다</small>
+      </div>
+
+      <p aria-live="polite" class="sr-only" id="archiveLive"></p>
+    </section>
+
+    <script type="module">
+      import {
+        animate,
+        createTimeline,
+        cubicBezier,
+        engine,
+        stagger,
+      } from "./vendor/anime.esm.min.js";
+
+      engine.pauseOnDocumentHidden = true;
+
+      const section = document.querySelector("#archiveExposure");
+      const copy = document.querySelector("#archiveCopy");
+      const visual = document.querySelector("#archiveVisual");
+      const apparatus = document.querySelector("#archiveApparatus");
+      const carrier = document.querySelector("#archiveCarrier");
+      const carrierMedia = document.querySelector("#archiveCarrierMedia");
+      const carrierIndex = document.querySelector("#archiveCarrierIndex");
+      const carrierCaption = document.querySelector("#archiveCarrierCaption");
+      const startButton = document.querySelector("#archiveStart");
+      const galleryButton = document.querySelector("#archiveGallery");
+      const cropMarks = document.querySelector("#archiveCropMarks");
+      const cropCorners = [...cropMarks.querySelectorAll("i")];
+      const scanLine = document.querySelector("#archiveScanLine");
+      const flash = document.querySelector("#archiveFlash");
+      const filmBed = document.querySelector("#archiveFilmBed");
+      const filmGhosts = [...document.querySelectorAll(".archive-exposure__film-ghost")];
+      const developGlow = document.querySelector("#archiveDevelopGlow");
+      const veil = document.querySelector("#archiveVeil");
+      const revealEdge = document.querySelector("#archiveRevealEdge");
+      const archiveField = document.querySelector("#archiveField");
+      const poster = document.querySelector("#archivePoster");
+      const video = document.querySelector("#archiveVideo");
+      const measure = document.querySelector("#archiveMeasure");
+      const progressItems = [...document.querySelectorAll("#archiveProgress i")];
+      const live = document.querySelector("#archiveLive");
+      const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+      const EASE_ENTER = cubicBezier(0.23, 1, 0.32, 1);
+      const EASE_MOVE = cubicBezier(0.77, 0, 0.175, 1);
+      const EASE_EXIT = cubicBezier(0.4, 0, 1, 1);
+
+      const TRANSFORM = {
+        ready: "translate3d(-50%, -50%, 0) rotateZ(-1.2deg) scale(0.94)",
+        capture: "translate3d(-50%, -52%, 46px) rotateX(2.2deg) rotateY(-2.8deg) rotateZ(-0.35deg) scale(0.985)",
+        negative: "translate3d(-50%, -50%, 8px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(0.43)",
+        develop: "translate3d(-50%, -50%, 32px) rotateX(-1.4deg) rotateY(1.2deg) rotateZ(0.4deg) scale(0.965)",
+        archive: "translate3d(-73%, -65%, 0) rotateZ(-1.15deg) scale(0.7)",
+      };
+
+      const GHOST_TRANSFORMS = [
+        "translate3d(-330%, -50%, 0) rotateZ(-2.6deg) scale(1)",
+        "translate3d(-190%, -50%, 0) rotateZ(-1.1deg) scale(1)",
+        "translate3d(90%, -50%, 0) rotateZ(1.2deg) scale(1)",
+        "translate3d(230%, -50%, 0) rotateZ(2.4deg) scale(1)",
+      ];
+
+      const RECORD_TRANSFORMS = {
+        posterStart: "translate3d(-96%, 52%, -150px) rotateX(7deg) rotateY(18deg) rotateZ(-7deg) scale(0.78)",
+        posterFinal: "translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg) rotateZ(1.3deg) scale(1)",
+        videoStart: "translate3d(-72%, -58%, -120px) rotateX(-6deg) rotateY(16deg) rotateZ(8deg) scale(0.8)",
+        videoFinal: "translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg) rotateZ(-1.1deg) scale(1)",
+      };
+
+      const stages = [
+        {
+          id: "ready",
+          number: "00",
+          english: "Ready",
+          heading: ["노래가 머문 순간을", "기록으로 다시 엽니다"],
+          body: "공연과 연습의 순간을 사진·포스터·영상으로 모았습니다. 한 장의 사진에서 전체 아카이브로 이어지는 흐름을 펼쳐 보세요.",
+          detail: "공연·연습 아카이브",
+          progress: "한 장의 사진에서 기록을 시작합니다",
+          carrier: "기록의 시작점",
+        },
+        {
+          id: "exposure",
+          number: "01",
+          english: "Exposure",
+          heading: ["한 장의 사진에서", "무대의 시간이 이어집니다"],
+          body: "사진의 빛을 읽고 연속된 순간을 펼친 뒤, 포스터와 영상으로 기록의 맥락을 넓힙니다.",
+          detail: "기록의 흐름을 구성하는 중",
+          progress: "한 장의 사진에서 기록의 흐름을 펼칩니다",
+          carrier: "사진 속 장면을 읽는 중",
+        },
+        {
+          id: "archive",
+          number: "02",
+          english: "Archive",
+          heading: ["노래한 시간은 기록이 되어", "다음 무대로 이어집니다"],
+          body: "공연과 연습의 순간을 사진·포스터·영상으로 모아, 오늘의 목소리가 다음 무대로 이어지는 기록으로 남깁니다.",
+          detail: "모든 기록을 펼쳤습니다",
+          progress: "사진·포스터·영상 기록이 모두 준비되었습니다",
+          carrier: "보관 완료",
+        },
+      ];
+
+      const year = section.dataset.year || "2026";
+      let motionTimeline = null;
+      let running = false;
+      let pointerFrame = 0;
+      let recordFrame = 0;
+
+      const RECORD_BASE = new Map([
+        [poster, { rotate: 1.3 }],
+        [video, { rotate: -1.1 }],
+      ]);
+
+      function setInline(element, styles) {
+        Object.assign(element.style, styles);
+      }
+
+      function animateStageTypography() {
+        if (reducedMotionQuery.matches) return;
+
+        const headlineParts = [
+          ...copy.querySelectorAll(".archive-exposure__heading span, .archive-exposure__year, .archive-exposure__heading--final"),
+        ];
+        const supportingParts = [
+          copy.querySelector("#archiveBody"),
+          copy.querySelector(".archive-exposure__status, .archive-exposure__meta"),
+        ].filter(Boolean);
+
+        animate(headlineParts, {
+          y: [18, 0],
+          letterSpacing: ["0.015em", "-0.04em"],
+          duration: 520,
+          delay: stagger(54),
+          ease: EASE_ENTER,
+        });
+        animate(supportingParts, {
+          y: [8, 0],
+          duration: 420,
+          delay: stagger(62, { start: 120 }),
+          ease: EASE_ENTER,
+        });
+      }
+
+      function clearTypographyState() {
+        copy
+          .querySelectorAll(".archive-exposure__heading span, .archive-exposure__year, .archive-exposure__heading--final, #archiveBody, .archive-exposure__status, .archive-exposure__meta")
+          .forEach((element) => {
+            element.style.removeProperty("opacity");
+            element.style.removeProperty("transform");
+            element.style.removeProperty("letter-spacing");
+          });
+      }
+
+      function renderStage(index, announce = true) {
+        const stage = stages[index];
+        section.dataset.stage = stage.id;
+        document.querySelector("#archiveEyebrow").textContent = `${stage.number} · ${stage.english}`;
+
+        const headingSlot = document.querySelector("#archiveHeadingSlot");
+        const detailSlot = document.querySelector("#archiveDetailSlot");
+        if (stage.id === "archive") {
+          headingSlot.innerHTML = `
+            <strong class="archive-exposure__year">${year}</strong>
+            <h1 class="archive-exposure__heading archive-exposure__heading--final">${stage.heading.join("<br />")}</h1>`;
+          detailSlot.innerHTML = `
+            <dl class="archive-exposure__meta">
+              <div><dt>Collection</dt><dd>Seoul Motet Youth Choir</dd></div>
+              <div><dt>Medium</dt><dd>Photo · Poster · Video</dd></div>
+              <div><dt>Archive no.</dt><dd>SMY—${year}</dd></div>
+            </dl>`;
+        } else {
+          headingSlot.innerHTML = `<h1 class="archive-exposure__heading">${stage.heading
+            .map((line) => `<span>${line}</span>`)
+            .join("")}</h1>`;
+          detailSlot.innerHTML = `<p class="archive-exposure__status">${stage.id === "ready" ? `${year} · ${stage.detail}` : `${stage.number} / 02 · ${stage.detail}`}</p>`;
+        }
+
+        document.querySelector("#archiveBody").textContent = stage.body;
+        clearTypographyState();
+        document.querySelector("#archiveFooterLabel").textContent = `${stage.number} ${stage.english.toUpperCase()}`;
+        document.querySelector("#archiveFooterCopy").textContent = stage.progress;
+        progressItems.forEach((item, itemIndex) => {
+          item.classList.toggle("is-active", itemIndex <= index);
+        });
+
+        carrierIndex.textContent = "01 / 사진";
+        carrierCaption.textContent = stage.id === "archive" ? "함께 부른 시간의 기록" : stage.carrier;
+        galleryButton.hidden = stage.id !== "archive";
+        poster.tabIndex = stage.id === "archive" ? 0 : -1;
+        video.tabIndex = stage.id === "archive" ? 0 : -1;
+        startButton.querySelector("span").textContent = running
+          ? "기록을 펼치는 중…"
+          : stage.id === "archive"
+            ? "다시 펼치기"
+            : "기록 펼치기";
+
+        if (announce) live.textContent = stage.progress;
+      }
+
+      function resetVisualState() {
+        setInline(copy, { opacity: "1", transform: "translate3d(0, 0, 0)" });
+        setInline(carrier, { opacity: "1", transform: TRANSFORM.ready });
+        setInline(cropMarks, { opacity: "0" });
+        cropCorners.forEach((corner) => setInline(corner, { transform: "scale(0.72)" }));
+        setInline(scanLine, { opacity: "0", transform: "translate3d(0, 0, 0)" });
+        setInline(flash, { opacity: "0", transform: "scale(0.72) rotateZ(-1deg)" });
+        setInline(carrierMedia, {
+          filter: "brightness(1) contrast(1) saturate(1)",
+          transform: "translate3d(0, 0, 0) scale(1)",
+        });
+        setInline(filmBed, { opacity: "0" });
+        filmGhosts.forEach((ghost) => setInline(ghost, {
+          opacity: "0",
+          transform: "translate3d(-50%, -50%, -120px) rotateZ(0deg) scale(0.42)",
+        }));
+        setInline(developGlow, { opacity: "0" });
+        setInline(veil, { opacity: "0", transform: "scaleX(1)" });
+        setInline(revealEdge, { opacity: "0", transform: "translate3d(0, 0, 0)" });
+        setInline(archiveField, { opacity: "0" });
+        setInline(poster, {
+          opacity: "0",
+          transform: RECORD_TRANSFORMS.posterStart,
+        });
+        setInline(video, {
+          opacity: "0",
+          transform: RECORD_TRANSFORMS.videoStart,
+        });
+        setInline(measure, { opacity: "0" });
+        progressItems.forEach((item) => {
+          item.style.removeProperty("background");
+          item.style.removeProperty("transform");
+        });
+      }
+
+      function lockArchiveVisualState() {
+        setInline(copy, { opacity: "1", transform: "translate3d(0, 0, 0)" });
+        setInline(carrier, { opacity: "1", transform: TRANSFORM.archive });
+        setInline(carrierMedia, {
+          filter: "brightness(1) contrast(1) saturate(1)",
+          transform: "translate3d(0, 0, 0) scale(1)",
+        });
+        setInline(cropMarks, { opacity: "0" });
+        setInline(scanLine, { opacity: "0" });
+        setInline(flash, { opacity: "0" });
+        setInline(filmBed, { opacity: "0" });
+        filmGhosts.forEach((ghost) => setInline(ghost, { opacity: "0" }));
+        setInline(developGlow, { opacity: "0" });
+        setInline(veil, { opacity: "0", transform: "scaleX(0)" });
+        setInline(revealEdge, { opacity: "0" });
+        setInline(archiveField, { opacity: "1" });
+        setInline(poster, {
+          opacity: "1",
+          transform: RECORD_TRANSFORMS.posterFinal,
+        });
+        setInline(video, {
+          opacity: "1",
+          transform: RECORD_TRANSFORMS.videoFinal,
+        });
+        setInline(measure, { opacity: "1" });
+        progressItems.forEach((item) => setInline(item, {
+          background: "var(--archive-orange)",
+          transform: "scaleX(1)",
+        }));
+      }
+
+      function applyArchiveState() {
+        resetVisualState();
+        renderStage(2, false);
+        lockArchiveVisualState();
+      }
+
+      function applyExposureState() {
+        resetVisualState();
+        renderStage(1, false);
+        setInline(filmBed, { opacity: "1" });
+        setInline(carrier, { opacity: "1", transform: TRANSFORM.negative });
+        filmGhosts.forEach((ghost, index) => setInline(ghost, {
+          opacity: "1",
+          transform: GHOST_TRANSFORMS[index],
+        }));
+        carrierIndex.textContent = "03 / 선택 프레임";
+        carrierCaption.textContent = "이어지는 장면을 한 흐름으로 모읍니다";
+        document.querySelector("#archiveFooterCopy").textContent = "이어지는 장면을 한 흐름으로 모읍니다";
+      }
+
+      function queueCopyStage(timeline, index, at) {
+        timeline
+          .add(copy, {
+            opacity: 0,
+            transform: "translate3d(0, -8px, 0)",
+            duration: 150,
+            ease: EASE_EXIT,
+          }, at - 150)
+          .call(() => {
+            renderStage(index);
+            animateStageTypography();
+          }, at)
+          .set(copy, { transform: "translate3d(0, 11px, 0)" }, at)
+          .add(copy, {
+            opacity: 1,
+            transform: "translate3d(0, 0, 0)",
+            duration: 420,
+            ease: EASE_ENTER,
+          }, at + 10);
+      }
+
+      function createArchiveTimeline() {
+        const scanTravel = Math.max(280, carrierMedia.getBoundingClientRect().height - 18);
+        const revealTravel = Math.max(320, carrierMedia.getBoundingClientRect().width - 4);
+        const timeline = createTimeline({
+          autoplay: false,
+          onComplete: () => {
+            running = false;
+            section.classList.remove("is-running");
+            section.setAttribute("aria-busy", "false");
+            startButton.disabled = false;
+            renderStage(2, false);
+            lockArchiveVisualState();
+            window.requestAnimationFrame(lockArchiveVisualState);
+            motionTimeline = null;
+            live.textContent = "사진·포스터·영상 기록을 모두 펼쳤습니다.";
+          },
+        });
+
+        queueCopyStage(timeline, 1, 180);
+        timeline
+          .add(carrier, { transform: TRANSFORM.capture, duration: 520, ease: EASE_MOVE }, 40)
+          .add(carrierMedia, {
+            filter: "brightness(1.08) contrast(0.96) saturate(0.88)",
+            transform: "translate3d(0, -1px, 0) scale(1.012)",
+            duration: 420,
+            ease: EASE_ENTER,
+          }, 80)
+          .add(cropMarks, { opacity: 1, duration: 210, ease: EASE_ENTER }, 110)
+          .add(cropCorners, {
+            transform: "scale(1)", duration: 260, delay: stagger(34), ease: EASE_ENTER,
+          }, 120)
+          .add(scanLine, {
+            opacity: [0, 1], transform: `translate3d(0, ${scanTravel}px, 0)`, duration: 640, ease: EASE_MOVE,
+          }, 420)
+          .add(scanLine, { opacity: 0, duration: 90, ease: EASE_EXIT }, 980)
+          .add(flash, {
+            opacity: [0, 0.88, 0],
+            transform: ["scale(0.72) rotateZ(-1deg)", "scale(1.16) rotateZ(0.4deg)"],
+            duration: 132,
+            ease: EASE_ENTER,
+          }, 982)
+          .add(carrierMedia, {
+            filter: "brightness(0.82) contrast(1.2) saturate(0.16)",
+            transform: "translate3d(0, 0, 0) scale(1)",
+            duration: 300,
+            ease: EASE_MOVE,
+          }, 1010)
+          .add(cropMarks, { opacity: 0, duration: 130, ease: EASE_EXIT }, 1030)
+          .add(filmBed, { opacity: 1, duration: 320, ease: EASE_ENTER }, 1020)
+          .add(carrier, { transform: TRANSFORM.negative, duration: 520, ease: EASE_MOVE }, 1000)
+          .add(filmGhosts, {
+            opacity: 1,
+            transform: (_, index) => GHOST_TRANSFORMS[index],
+            duration: 420,
+            delay: stagger(42, { from: "center" }),
+            ease: EASE_ENTER,
+          }, 1210)
+          .call(() => {
+            carrierIndex.textContent = "03 / 선택 프레임";
+            carrierCaption.textContent = "이어지는 장면을 한 흐름으로 모읍니다";
+            document.querySelector("#archiveFooterCopy").textContent = "이어지는 장면을 한 흐름으로 모읍니다";
+          }, 1390)
+          .add(filmGhosts, {
+            opacity: 0,
+            transform: "translate3d(-50%, -50%, -100px) rotateZ(0deg) scale(0.55)",
+            duration: 280,
+            delay: stagger(28, { from: "center" }),
+            ease: EASE_EXIT,
+          }, 1650)
+          .add(filmBed, { opacity: 0, duration: 380, ease: EASE_EXIT }, 1690)
+          .add(developGlow, { opacity: 1, duration: 480, ease: EASE_ENTER }, 1660)
+          .add(carrier, { transform: TRANSFORM.develop, duration: 620, ease: EASE_MOVE }, 1600)
+          .add(carrierMedia, {
+            filter: "brightness(1) contrast(1) saturate(1)",
+            transform: "translate3d(0, 0, 0) scale(1.006)",
+            duration: 720,
+            ease: EASE_ENTER,
+          }, 1690)
+          .set(veil, { opacity: 1, transform: "scaleX(1)" }, 1980)
+          .set(revealEdge, { opacity: 0, transform: "translate3d(0, 0, 0)" }, 1980)
+          .call(() => {
+            carrierIndex.textContent = "01 / 사진";
+            carrierCaption.textContent = "한 장의 사진이 온전한 기록으로 드러납니다";
+            document.querySelector("#archiveFooterCopy").textContent = "한 장의 사진이 온전한 기록으로 드러납니다";
+          }, 2020)
+          .add(veil, { transform: "scaleX(0)", duration: 860, ease: EASE_MOVE }, 2040)
+          .add(revealEdge, {
+            opacity: [0, 1], transform: `translate3d(${revealTravel}px, 0, 0)`, duration: 820, ease: EASE_MOVE,
+          }, 2060)
+          .add(revealEdge, { opacity: 0, duration: 90, ease: EASE_EXIT }, 2860);
+
+        queueCopyStage(timeline, 2, 3130);
+        timeline
+          .add(developGlow, { opacity: 0, duration: 300, ease: EASE_EXIT }, 2900)
+          .add(archiveField, { opacity: 1, duration: 480, ease: EASE_ENTER }, 2920)
+          .add(carrier, { transform: TRANSFORM.archive, duration: 680, ease: EASE_MOVE }, 2900)
+          .add(poster, {
+            opacity: 1,
+            transform: RECORD_TRANSFORMS.posterFinal,
+            duration: 620,
+            ease: EASE_ENTER,
+          }, 3200)
+          .add(video, {
+            opacity: 1,
+            transform: RECORD_TRANSFORMS.videoFinal,
+            duration: 620,
+            ease: EASE_ENTER,
+          }, 3300)
+          .add(measure, { opacity: 1, duration: 280, ease: EASE_ENTER }, 3750);
+
+        return timeline;
+      }
+
+      function stopMotion() {
+        if (motionTimeline) {
+          motionTimeline.revert();
+          motionTimeline = null;
+        }
+        running = false;
+        section.classList.remove("is-running");
+        section.setAttribute("aria-busy", "false");
+        startButton.disabled = false;
+      }
+
+      function startSequence() {
+        if (running) return;
+        stopMotion();
+
+        if (reducedMotionQuery.matches) {
+          applyArchiveState();
+          live.textContent = "움직임을 줄여 완성된 기록을 표시했습니다.";
+          return;
+        }
+
+        resetVisualState();
+        renderStage(0, false);
+        running = true;
+        section.classList.add("is-running");
+        section.setAttribute("aria-busy", "true");
+        startButton.disabled = true;
+        startButton.querySelector("span").textContent = "기록을 펼치는 중…";
+        live.textContent = "기록 펼치기를 시작합니다.";
+        motionTimeline = createArchiveTimeline();
+        motionTimeline.play();
+      }
+
+      function handlePointerMove(event) {
+        if (running || reducedMotionQuery.matches || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+        cancelAnimationFrame(pointerFrame);
+        pointerFrame = requestAnimationFrame(() => {
+          const bounds = visual.getBoundingClientRect();
+          const normalizedX = (event.clientX - bounds.left) / bounds.width;
+          const normalizedY = (event.clientY - bounds.top) / bounds.height;
+          const x = (normalizedX - 0.5) * 7;
+          const y = (normalizedY - 0.5) * 5;
+          apparatus.style.setProperty("--archive-light-x", `${(normalizedX * 100).toFixed(1)}%`);
+          apparatus.style.setProperty("--archive-light-y", `${(normalizedY * 100).toFixed(1)}%`);
+          section.style.setProperty("--archive-pointer-x", `${(normalizedX * 100).toFixed(1)}%`);
+          section.style.setProperty("--archive-pointer-y", `${(normalizedY * 100).toFixed(1)}%`);
+          apparatus.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) rotateX(${(-y * 0.16).toFixed(2)}deg) rotateY(${(x * 0.14).toFixed(2)}deg)`;
+        });
+      }
+
+      function resetPointer() {
+        cancelAnimationFrame(pointerFrame);
+        apparatus.style.setProperty("--archive-light-x", "50%");
+        apparatus.style.setProperty("--archive-light-y", "45%");
+        section.style.setProperty("--archive-pointer-x", "50%");
+        section.style.setProperty("--archive-pointer-y", "45%");
+        apparatus.style.transform = "translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg)";
+      }
+
+      function handleRecordPointerMove(event) {
+        if (running || reducedMotionQuery.matches || section.dataset.stage !== "archive") return;
+        const record = event.currentTarget;
+        const bounds = record.getBoundingClientRect();
+        const x = (event.clientX - bounds.left) / bounds.width - 0.5;
+        const y = (event.clientY - bounds.top) / bounds.height - 0.5;
+        const base = RECORD_BASE.get(record);
+
+        cancelAnimationFrame(recordFrame);
+        recordFrame = requestAnimationFrame(() => {
+          record.style.zIndex = "13";
+          record.style.transform = `translate3d(${(x * 8).toFixed(2)}px, ${(y * 6).toFixed(2)}px, 24px) rotateX(${(-y * 7).toFixed(2)}deg) rotateY(${(x * 8).toFixed(2)}deg) rotateZ(${base.rotate}deg) scale(1.018)`;
+        });
+      }
+
+      function resetRecordPointer(event) {
+        cancelAnimationFrame(recordFrame);
+        const record = event.currentTarget;
+        const base = RECORD_BASE.get(record);
+        record.style.zIndex = "9";
+        record.style.transform = `translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg) rotateZ(${base.rotate}deg) scale(1)`;
+      }
+
+      startButton.addEventListener("click", startSequence);
+      visual.addEventListener("pointermove", handlePointerMove, { passive: true });
+      visual.addEventListener("pointerleave", resetPointer, { passive: true });
+      [poster, video].forEach((record) => {
+        record.addEventListener("pointermove", handleRecordPointerMove, { passive: true });
+        record.addEventListener("pointerleave", resetRecordPointer, { passive: true });
+      });
+      window.addEventListener("beforeunload", stopMotion);
+
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("stage") === "archive") {
+        applyArchiveState();
+      } else if (params.get("stage") === "exposure") {
+        applyExposureState();
+      } else {
+        resetVisualState();
+        renderStage(0, false);
+        if (params.get("autoplay") === "1") window.setTimeout(startSequence, 450);
+      }
+    </script>
+  </body>
+</html>

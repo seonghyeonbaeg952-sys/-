@@ -84,7 +84,7 @@ export function Footer() {
       />
       <div
         aria-hidden="true"
-        className="absolute -right-20 top-10 hidden size-72 rounded-full border border-bg-warm-white/10 bg-bg-warm-white/[0.03] lg:block"
+        className="footer-orbit-decoration absolute -right-8 top-20 hidden size-36 rounded-full border border-bg-warm-white/10 bg-bg-warm-white/[0.03] lg:block"
       />
       <Container className="relative grid gap-8 py-10 lg:grid-cols-[1.2fr_0.8fr_0.8fr] lg:py-12">
         <section>

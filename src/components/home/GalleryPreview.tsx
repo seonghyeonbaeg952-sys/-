@@ -1,7 +1,32 @@
+import { useEffect, useState } from 'react'
+
 import type { GalleryImage, Poster, VideoItem } from '../../types/content'
 import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 import { ArchivePageStack } from './ArchivePageStack'
+import { ArchivePageStackLegacy } from './ArchivePageStackLegacy'
+
+const desktopArchiveQuery = '(min-width: 1024px)'
+
+function useDesktopArchiveLayout() {
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window === 'undefined'
+      ? false
+      : window.matchMedia(desktopArchiveQuery).matches,
+  )
+
+  useEffect(() => {
+    const query = window.matchMedia(desktopArchiveQuery)
+    const update = () => setIsDesktop(query.matches)
+
+    update()
+    query.addEventListener('change', update)
+
+    return () => query.removeEventListener('change', update)
+  }, [])
+
+  return isDesktop
+}
 
 type GalleryPreviewProps = {
   buttonLabel?: string
@@ -30,6 +55,22 @@ export function GalleryPreview({
   title = '활동 기록',
   videos = [],
 }: GalleryPreviewProps) {
+  const isDesktop = useDesktopArchiveLayout()
+
+  const archiveProps = {
+    buttonLabel,
+    collapseLabel,
+    description,
+    emptyDescription,
+    emptyTitle,
+    eyebrow,
+    expandLabel,
+    images,
+    posters,
+    title,
+    videos,
+  }
+
   return (
     <section
       aria-label={title}
@@ -42,21 +83,13 @@ export function GalleryPreview({
         noteOffset={39}
         symbol="♬"
       />
-      <Container>
-        <ArchivePageStack
-          buttonLabel={buttonLabel}
-          collapseLabel={collapseLabel}
-          description={description}
-          emptyDescription={emptyDescription}
-          emptyTitle={emptyTitle}
-          eyebrow={eyebrow}
-          expandLabel={expandLabel}
-          images={images}
-          posters={posters}
-          title={title}
-          videos={videos}
-        />
-      </Container>
+      {isDesktop ? (
+        <ArchivePageStack {...archiveProps} />
+      ) : (
+        <Container>
+          <ArchivePageStackLegacy {...archiveProps} />
+        </Container>
+      )}
     </section>
   )
 }

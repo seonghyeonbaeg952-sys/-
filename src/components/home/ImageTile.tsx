@@ -6,6 +6,8 @@ type ImageTileProps = {
   alt: string
   children?: ReactNode
   className?: string
+  crossOrigin?: 'anonymous' | 'use-credentials'
+  decorative?: boolean
   fallbackSrcs?: string[]
   fallbackVariant?: 'default' | 'gallery' | 'hero' | 'logo' | 'poster' | 'profile'
   height?: number
@@ -29,6 +31,8 @@ export function ImageTile({
   alt,
   children,
   className,
+  crossOrigin,
+  decorative = false,
   fallbackSrcs,
   fallbackVariant = 'gallery',
   height,
@@ -45,6 +49,8 @@ export function ImageTile({
     <OptimizedImage
       alt={alt}
       className={className}
+      crossOrigin={crossOrigin}
+      decorative={decorative}
       fallbackSrcs={fallbackSrcs}
       fallbackVariant={fallbackVariant}
       height={height}

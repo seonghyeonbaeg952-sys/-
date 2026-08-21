@@ -75,10 +75,13 @@ test('V4 header preserves the production header density and pill CTA contract', 
   assert.match(headerSource, /home-v4-sample-header__bar max-w-content/)
   assert.match(headerSource, /window\.matchMedia\('\(min-width: 1024px\)'\)/)
   assert.match(headerSource, /className="home-v4-sample-header__cta"/)
-  assert.match(headerSource, /href="\/sample\/join"/)
   assert.match(
     headerSource,
-    /className="home-v4-sample-header__cta"[\s\S]*입단 안내/,
+    /href="\/sample\/join\?section=contact#application"/,
+  )
+  assert.match(
+    headerSource,
+    /className="home-v4-sample-header__cta"[\s\S]*href="\/sample\/join\?section=contact#application"[\s\S]*입단신청/,
   )
   assert.match(cssSource, /--home-v4-menu-content: 1024px/)
   assert.match(

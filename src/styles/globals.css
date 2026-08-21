@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@source not "../../output";
+@source not "../../artifacts";
 
 @font-face {
   font-family: "AritaBuri";

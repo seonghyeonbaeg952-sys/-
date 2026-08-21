@@ -277,10 +277,10 @@ export function HomeV4SampleHeader() {
 
         <a
           className="home-v4-sample-header__cta"
-          href="/sample/join"
+          href="/sample/join?section=contact#application"
           onClick={() => closeDesktopMenu(false)}
         >
-          입단 안내
+          입단신청
         </a>
 
         <button

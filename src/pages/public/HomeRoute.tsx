@@ -9,6 +9,7 @@ import '../../styles/home-v6-fixes.css'
 import '../../styles/home-premium-polish.css'
 import '../../styles/home-global-refinement.css'
 import '../../styles/home-score-redesign.css'
+import '../../styles/home-archive-exposure.css'
 
 const HomeMotionBenchmarkPage = lazy(() =>
   import('./HomeMotionBenchmarkPage').then((module) => ({

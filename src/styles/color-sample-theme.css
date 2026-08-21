@@ -376,37 +376,60 @@
   color: var(--color-orange-wash) !important;
 }
 
-/* Footer remains light so orange stays an accent rather than a large field. */
+/* The footer closes the light editorial sequence on a black stage. Orange is
+ * retained as the score-line and interaction cue, while warm ivory keeps long
+ * copy legible without the glare of pure white. */
 .color-sample-theme .site-footer {
   --home-flow-gold: 255 96 26;
   --home-flow-gold-soft: 255 208 184;
   --home-flow-navy: 21 21 21;
 
-  border-top: 1px solid var(--color-orange-soft);
-  background-color: var(--color-white) !important;
+  border-top: 1px solid rgb(255 96 26 / 0.52);
+  background-color: #0a0909 !important;
   background-image: none !important;
-  color: var(--color-ink) !important;
+  color: #fff7f1 !important;
+  color-scheme: dark;
 }
 
 .color-sample-theme .site-footer::after {
-  background: var(--color-orange-soft) !important;
-  opacity: 0.72 !important;
+  background: var(--color-orange-cue) !important;
+  height: 18px;
+  opacity: 0.16 !important;
+}
+
+.color-sample-theme .site-footer .footer-staff-divider {
+  opacity: 0.24 !important;
 }
 
 .color-sample-theme .site-footer :is(p, dd, a) {
-  color: #6e554b;
+  color: #cdbeb6;
 }
 
-.color-sample-theme .site-footer :is(dt, strong) {
-  color: var(--color-orange-ink);
+.color-sample-theme .site-footer :is(
+    dt,
+    strong,
+    [class*='text-gold-soft']
+  ) {
+  color: #ff8d55 !important;
+}
+
+.color-sample-theme .site-footer a:hover,
+.color-sample-theme .site-footer a:focus-visible {
+  color: #ffb18d;
 }
 
 .color-sample-theme .site-footer :is(.staff-line, [class*='border-bg-warm-white']) {
-  border-color: var(--color-orange-soft) !important;
+  border-color: rgb(255 96 26 / 0.4) !important;
+}
+
+.color-sample-theme .site-footer .footer-orbit-decoration {
+  border-color: rgb(255 96 26 / 0.14) !important;
+  background: transparent !important;
+  opacity: 0.55;
 }
 
 .color-sample-theme .site-footer img {
-  filter: sepia(1) saturate(2.4) hue-rotate(332deg) brightness(0.72);
+  filter: none;
 }
 
 /* Keep status semantics recognizable while harmonizing neutral surfaces. */

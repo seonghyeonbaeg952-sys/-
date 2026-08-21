@@ -217,9 +217,9 @@ export const HOME_CONTENT_DEFAULTS_V2: HomeContentV2 = {
   archive: {
     eyebrowKo: '기록',
     eyebrowEn: 'ARCHIVE',
-    title: '사진 · 영상 · 포스터',
-    description: '공연 사진, 연습 사진, 영상, 포스터를 모아 확인합니다.',
-    expandLabel: '기록 펼치기',
+    title: '포스터 · 사진 · 동영상',
+    description: '한 장의 공연 사진이 빛을 담고, 필름을 지나, 오래 남을 기록이 되는 과정을 따라갑니다.',
+    expandLabel: '기록 현상하기',
     collapseLabel: '접기',
     ctaLabel: '갤러리 보기',
     emptyTitle: '공개된 갤러리 자료가 없습니다',
