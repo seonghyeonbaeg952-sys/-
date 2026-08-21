@@ -10,6 +10,11 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+/output/
+/artifacts/
+/design-assets/
+/prototypes/
+/figma-performance-static-note-check.png
 .env
 .env.local
 .env.*.local
