@@ -29,6 +29,15 @@ const fallbackSlide: HeroSlide = {
 }
 
 const heroImageWidths = [960, 1440, 1920, 2560, 3200, 3840]
+const heroPaperPieceIds = [
+  1, 2, 3, 4,
+  5, 6, 7, 8,
+  9, 10, 11, 12,
+  13, 14, 15, 16,
+  17, 18, 19, 20,
+  21, 22, 23, 24,
+  25, 26,
+] as const
 const warmedHeroImageUrls = new Set<string>()
 const warmingHeroImages = new Map<string, HTMLImageElement>()
 
@@ -239,7 +248,6 @@ function MottoChips({ chips }: { chips: readonly string[] }) {
 
 export function HomeHeroSlideshow({ intervalMs = 5000, slides }: HomeHeroSlideshowProps) {
   const [activeIndex, setActiveIndex] = useState(0)
-  const [isInteractionPaused, setIsInteractionPaused] = useState(false)
   const [isUserPaused, setIsUserPaused] = useState(false)
   const [failedImageIds, setFailedImageIds] = useState<Set<string>>(() => new Set())
   const isDocumentVisible = useDocumentVisibility()
@@ -255,8 +263,7 @@ export function HomeHeroSlideshow({ intervalMs = 5000, slides }: HomeHeroSlidesh
   }, [visibleSlides])
   const hasMultipleSlides = renderedSlides.length > 1
   const safeActiveIndex = activeIndex % renderedSlides.length
-  const isAutoplayPaused =
-    isInteractionPaused || isUserPaused || prefersReducedMotion
+  const isAutoplayPaused = isUserPaused || prefersReducedMotion
   useEffect(() => {
     if (
       !hasMultipleSlides ||
@@ -312,19 +319,6 @@ export function HomeHeroSlideshow({ intervalMs = 5000, slides }: HomeHeroSlidesh
       aria-label="홈 메인 비주얼"
       className="flow-section home-hero-section relative isolate overflow-hidden bg-navy-midnight text-bg-warm-white"
       data-flow-section="hero"
-      onBlurCapture={(event) => {
-        const nextFocusedElement = event.relatedTarget
-
-        if (
-          !(nextFocusedElement instanceof Node) ||
-          !event.currentTarget.contains(nextFocusedElement)
-        ) {
-          setIsInteractionPaused(false)
-        }
-      }}
-      onFocusCapture={() => setIsInteractionPaused(true)}
-      onMouseEnter={() => setIsInteractionPaused(true)}
-      onMouseLeave={() => setIsInteractionPaused(false)}
     >
       <div className="absolute inset-0 bg-linear-to-br from-navy-midnight via-navy-deep to-navy-midnight" />
       <div aria-hidden="true" className="spotlight-glow home-spotlight-glow" />
@@ -379,7 +373,23 @@ export function HomeHeroSlideshow({ intervalMs = 5000, slides }: HomeHeroSlidesh
       })}
 
       <div aria-hidden="true" className="home-hero-overlay absolute inset-0" />
-
+      <div aria-hidden="true" className="home-hero-paper-transition">
+        {heroPaperPieceIds.map((pieceId) => (
+          <span
+            className={`home-hero-paper-piece home-hero-paper-piece--${pieceId}`}
+            data-paper-piece={pieceId}
+            key={pieceId}
+          >
+            {pieceId === 26 ? (
+              <img
+                alt=""
+                className="home-hero-paper-piece__logo"
+                src="/images/brand/smyc-logo-transparent.png"
+              />
+            ) : null}
+          </span>
+        ))}
+      </div>
       <Container className="home-hero-layout relative z-20">
         <div className="home-hero-copy min-w-0">
           <Reveal delayMs={0}>
@@ -484,6 +494,18 @@ export function HomeHeroSlideshow({ intervalMs = 5000, slides }: HomeHeroSlidesh
             ) : null}
         </div>
       </Container>
+      {hasMultipleSlides ? (
+        <div
+          aria-hidden="true"
+          className="home-hero-autoplay-progress"
+          data-paused={isAutoplayPaused ? 'true' : 'false'}
+        >
+          <span
+            key={`${safeActiveIndex}-${isAutoplayPaused ? 'paused' : 'running'}`}
+            style={{ animationDuration: `${intervalMs}ms` }}
+          />
+        </div>
+      ) : null}
     </section>
   )
 }

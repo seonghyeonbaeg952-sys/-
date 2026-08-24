@@ -3,6 +3,7 @@ import { useState } from 'react'
 type HomeV4SampleMobileMenuProps = {
   id: string
   onNavigate: () => void
+  routePrefix?: string
 }
 
 type MobileMenuLink = {
@@ -21,44 +22,44 @@ const mobileMenuSections: MobileMenuSection[] = [
     id: 'about',
     label: '합창단 소개',
     links: [
-      { href: '/sample/about', label: '합창단 소개' },
-      { href: '/sample/spirit', label: '합창단 정신' },
-      { href: '/sample/about?section=conductor', label: '지휘자' },
-      { href: '/sample/about?section=accompanist', label: '반주자' },
-      { href: '/sample/about?section=members', label: '단원 소개' },
+      { href: '/about', label: '합창단 소개' },
+      { href: '/spirit', label: '합창단 정신' },
+      { href: '/about?section=conductor', label: '지휘자' },
+      { href: '/about?section=accompanist', label: '반주자' },
+      { href: '/about?section=members', label: '단원 소개' },
     ],
   },
   {
     id: 'concerts',
     label: '공연·소식',
     links: [
-      { href: '/sample/concerts', label: '공연 일정' },
-      { href: '/sample/concerts?filter=upcoming', label: '예정 공연' },
-      { href: '/sample/concerts?filter=past', label: '지난 공연' },
-      { href: '/sample/notices', label: '공지사항' },
-      { href: '/sample/notices?filter=important', label: '중요 공지' },
+      { href: '/concerts', label: '공연 일정' },
+      { href: '/concerts?filter=upcoming', label: '예정 공연' },
+      { href: '/concerts?filter=past', label: '지난 공연' },
+      { href: '/notices', label: '공지사항' },
+      { href: '/notices?filter=important', label: '중요 공지' },
     ],
   },
   {
     id: 'gallery',
     label: '갤러리',
     links: [
-      { href: '/sample/gallery?tab=photos', label: '사진' },
-      { href: '/sample/gallery?tab=videos', label: '영상' },
-      { href: '/sample/gallery?tab=posters', label: '포스터 아카이브' },
+      { href: '/gallery?tab=photos', label: '사진' },
+      { href: '/gallery?tab=videos', label: '영상' },
+      { href: '/gallery?tab=posters', label: '포스터 아카이브' },
     ],
   },
   {
     id: 'join',
     label: '입단 안내',
     links: [
-      { href: '/sample/join', label: '입단 안내 전체' },
-      { href: '/sample/join?section=eligibility', label: '모집 대상' },
-      { href: '/sample/join?section=process', label: '오디션·절차' },
-      { href: '/sample/join?section=practice', label: '연습 안내' },
-      { href: '/sample/join?section=faq', label: '자주 묻는 질문' },
+      { href: '/join', label: '입단 안내 전체' },
+      { href: '/join?section=eligibility', label: '모집 대상' },
+      { href: '/join?section=process', label: '오디션·절차' },
+      { href: '/join?section=practice', label: '연습 안내' },
+      { href: '/join?section=faq', label: '자주 묻는 질문' },
       {
-        href: '/sample/join?section=contact#application',
+        href: '/join?section=contact#application',
         label: '입단지원서 작성',
       },
     ],
@@ -67,11 +68,11 @@ const mobileMenuSections: MobileMenuSection[] = [
     id: 'contact',
     label: '후원·문의',
     links: [
-      { href: '/sample/contact?section=support', label: '후원 안내' },
-      { href: '/sample/contact?section=sponsors', label: '후원사' },
-      { href: '/sample/contact?section=performance', label: '문의' },
-      { href: '/sample/contact?section=join', label: '입단지원서 작성' },
-      { href: '/sample/contact?section=location', label: '오시는 길·지도' },
+      { href: '/contact?section=support', label: '후원 안내' },
+      { href: '/contact?section=sponsors', label: '후원사' },
+      { href: '/contact?section=performance', label: '문의' },
+      { href: '/contact?section=join', label: '입단지원서 작성' },
+      { href: '/contact?section=location', label: '오시는 길·지도' },
     ],
   },
 ]
@@ -79,6 +80,7 @@ const mobileMenuSections: MobileMenuSection[] = [
 export function HomeV4SampleMobileMenu({
   id,
   onNavigate,
+  routePrefix = '/sample',
 }: HomeV4SampleMobileMenuProps) {
   const [expandedSectionId, setExpandedSectionId] = useState<string>('about')
 
@@ -93,7 +95,7 @@ export function HomeV4SampleMobileMenu({
       <nav aria-label="모바일 주요 메뉴">
         <a
           className="home-v4-mobile-menu__row is-active"
-          href="/sample/"
+          href={routePrefix ? `${routePrefix}/home-v4` : '/'}
           onClick={onNavigate}
         >
           <span>홈</span>
@@ -127,7 +129,11 @@ export function HomeV4SampleMobileMenu({
                 id={accordionId}
               >
                 {section.links.map((link) => (
-                  <a href={link.href} key={link.href} onClick={onNavigate}>
+                  <a
+                    href={`${routePrefix}${link.href}`}
+                    key={link.href}
+                    onClick={onNavigate}
+                  >
                     {link.label}
                   </a>
                 ))}

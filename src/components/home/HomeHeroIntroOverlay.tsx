@@ -49,6 +49,7 @@ export function HomeHeroIntroOverlay() {
     let animationFrameId = 0
     let fontTimeoutId = 0
     let isCancelled = false
+    const heroCopyElement = titleElement.closest<HTMLElement>('.home-hero-copy')
 
     const applyTitleMetrics = () => {
       const rootRect = sampleRoot.getBoundingClientRect()
@@ -229,12 +230,20 @@ export function HomeHeroIntroOverlay() {
     }
 
     void prepareAnimation()
+    const metricsObserver = new ResizeObserver(() => {
+      applyTitleMetrics()
+    })
+    metricsObserver.observe(titleElement)
+    if (heroCopyElement) {
+      metricsObserver.observe(heroCopyElement)
+    }
     window.addEventListener('resize', applyTitleMetrics)
 
     return () => {
       isCancelled = true
       window.cancelAnimationFrame(animationFrameId)
       window.clearTimeout(fontTimeoutId)
+      metricsObserver.disconnect()
       window.removeEventListener('resize', applyTitleMetrics)
     }
   }, [shouldRenderIntro])

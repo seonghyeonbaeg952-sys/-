@@ -8,6 +8,7 @@ type HomeV4SampleMegaMenuProps = {
   onMouseEnter: MouseEventHandler<HTMLElement>
   onMouseLeave: MouseEventHandler<HTMLElement>
   onNavigate: () => void
+  routePrefix?: string
 }
 
 type MegaMenuLink = {
@@ -22,8 +23,8 @@ type MegaMenuGroup = {
   links: MegaMenuLink[]
 }
 
-const toSampleHref = (href: string) =>
-  href.startsWith('/') ? `/sample${href}` : href
+const toRouteHref = (href: string, routePrefix: string) =>
+  href.startsWith('/') ? `${routePrefix}${href}` : href
 
 const aboutMenuGroups: MegaMenuGroup[] = [
   {
@@ -96,6 +97,7 @@ export function HomeV4SampleMegaMenu({
   onMouseEnter,
   onMouseLeave,
   onNavigate,
+  routePrefix = '/sample',
 }: HomeV4SampleMegaMenuProps) {
   const hasMatchingChild = item.children?.some(
     (child) => child.href === item.href,
@@ -179,7 +181,7 @@ export function HomeV4SampleMegaMenu({
                         ? 'true'
                         : undefined
                     }
-                    href={toSampleHref(link.href)}
+                    href={toRouteHref(link.href, routePrefix)}
                     onClick={onNavigate}
                   >
                     <span>{link.label}</span>

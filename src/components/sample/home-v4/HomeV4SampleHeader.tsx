@@ -1,14 +1,34 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useLocation } from 'react-router'
 
 import { publicNavigation } from '../../../constants/navigation'
 import { HomeV4SampleMegaMenu } from './HomeV4SampleMegaMenu'
 import { HomeV4SampleMobileMenu } from './HomeV4SampleMobileMenu'
 import { HomeV4SampleImage } from './HomeV4SampleImage'
+import './HomeV4SampleHeader.css'
 
 const DESKTOP_MENU_ID = 'home-v4-desktop-mega-menu'
 const MOBILE_MENU_ID = 'home-v4-mobile-menu'
 
-export function HomeV4SampleHeader() {
+type HomeV4SampleHeaderProps = {
+  mode?: 'production' | 'sample'
+  transparentAtTop?: boolean
+}
+
+export function HomeV4SampleHeader({
+  mode = 'sample',
+  transparentAtTop = true,
+}: HomeV4SampleHeaderProps) {
+  const location = useLocation()
+  const routePrefix = mode === 'sample' ? '/sample' : ''
+  const homeHref = mode === 'sample' ? '/sample/home-v4' : '/'
+  const joinApplicationHref = `${routePrefix}/join?section=contact#application`
+  const currentPathname =
+    mode === 'sample'
+      ? location.pathname.replace(/^\/sample(?=\/|$)/, '') || '/'
+      : location.pathname
+  const isHomeActive =
+    currentPathname === '/' || currentPathname === '/home-v4'
   const [isScrolled, setIsScrolled] = useState(() => window.scrollY > 12)
   const [activeDesktopMenuHref, setActiveDesktopMenuHref] = useState<
     string | null
@@ -23,7 +43,8 @@ export function HomeV4SampleHeader() {
   const desktopMenuOpen = activeDesktopMenuHref !== null
   const desktopMenuItem =
     publicNavigation.find((item) => item.href === activeDesktopMenuHref) ?? null
-  const isTransparent = !isScrolled && !desktopMenuOpen && !mobileMenuOpen
+  const isTransparent =
+    transparentAtTop && !isScrolled && !desktopMenuOpen && !mobileMenuOpen
 
   const cancelDesktopClose = useCallback(() => {
     if (desktopCloseTimerRef.current === null) {
@@ -208,9 +229,9 @@ export function HomeV4SampleHeader() {
     >
       <div className="home-v4-sample-header__bar max-w-content">
         <a
-          aria-label="서울모테트청소년합창단 V4 샘플 홈"
+          aria-label="서울모테트청소년합창단 홈"
           className="home-v4-brand"
-          href="/sample/home-v4"
+          href={homeHref}
         >
           <HomeV4SampleImage
             alt="서울모테트청소년합창단"
@@ -229,14 +250,20 @@ export function HomeV4SampleHeader() {
 
         <nav aria-label="주요 메뉴" className="home-v4-desktop-nav">
           <a
-            aria-current="page"
-            className="home-v4-desktop-nav__link is-active"
-            href="/sample/home-v4"
+            aria-current={isHomeActive ? 'page' : undefined}
+            className={[
+              'home-v4-desktop-nav__link',
+              isHomeActive ? 'is-active' : '',
+            ].join(' ')}
+            href={homeHref}
           >
             홈
           </a>
           {publicNavigation.slice(1).map((item) => {
             const isOpen = activeDesktopMenuHref === item.href
+            const isActive =
+              currentPathname === item.href ||
+              currentPathname.startsWith(`${item.href}/`)
             const isOptional =
               item.href === '/gallery' || item.href === '/contact'
 
@@ -250,6 +277,7 @@ export function HomeV4SampleHeader() {
                   isOptional
                     ? 'home-v4-desktop-nav__link--optional'
                     : '',
+                  isActive ? 'is-active' : '',
                 ].join(' ')}
                 key={item.href}
                 onClick={(event) => {
@@ -277,7 +305,7 @@ export function HomeV4SampleHeader() {
 
         <a
           className="home-v4-sample-header__cta"
-          href="/sample/join?section=contact#application"
+          href={joinApplicationHref}
           onClick={() => closeDesktopMenu(false)}
         >
           입단신청
@@ -305,6 +333,7 @@ export function HomeV4SampleHeader() {
           onMouseEnter={cancelDesktopClose}
           onMouseLeave={scheduleDesktopClose}
           onNavigate={() => closeDesktopMenu(false)}
+          routePrefix={routePrefix}
         />
       ) : null}
 
@@ -312,6 +341,7 @@ export function HomeV4SampleHeader() {
         <HomeV4SampleMobileMenu
           id={MOBILE_MENU_ID}
           onNavigate={() => closeMobileMenu(false)}
+          routePrefix={routePrefix}
         />
       ) : null}
     </header>

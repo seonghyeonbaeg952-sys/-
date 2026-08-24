@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from 'react-router'
 
+import { HomeV4SampleHeader } from '../sample/home-v4/HomeV4SampleHeader'
 import { Footer } from './Footer'
-import { Header } from './Header'
 import '../../styles/color-sample-theme.css'
 
 export function PublicLayout() {
@@ -23,7 +23,7 @@ export function PublicLayout() {
       >
         본문으로 바로가기
       </a>
-      <Header />
+      <HomeV4SampleHeader mode="production" transparentAtTop={false} />
       <main id="main-content" tabIndex={-1}>
         <Outlet />
       </main>

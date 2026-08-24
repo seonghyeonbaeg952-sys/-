@@ -12,6 +12,9 @@ const [
   mobileMenuSource,
   flowSource,
   cssSource,
+  sharedHeaderCssSource,
+  publicLayoutSource,
+  appSource,
 ] =
   await Promise.all([
     read('./HomeV4SamplePage.tsx'),
@@ -20,16 +23,19 @@ const [
     read('../../components/sample/home-v4/HomeV4SampleMobileMenu.tsx'),
     read('../public/HomeSectionFlowSamplePage.tsx'),
     read('./HomeV4SamplePage.css'),
+    read('../../components/sample/home-v4/HomeV4SampleHeader.css'),
+    read('../../components/layout/PublicLayout.tsx'),
+    read('../../App.tsx'),
   ])
 
-test('V4 remains a production-home mirror with an isolated sample header', () => {
-  assert.match(pageSource, /<HomeV4SampleHeader \/>/)
+test('V4 can serve production home while preserving an isolated sample mode', () => {
+  assert.match(pageSource, /<HomeV4SampleHeader mode=\{mode\} \/>/)
   assert.match(
     pageSource,
     /<HomeRoute[\s\S]*aboutPresentation="collective-portrait"[\s\S]*joinOpenScorePresentation="figma-open-score"[\s\S]*\/>/,
   )
   assert.match(pageSource, /<Footer \/>/)
-  assert.match(pageSource, /data-sample-mirror="production-home"/)
+  assert.match(pageSource, /data-sample-mirror=\{isSample \? 'production-home' : undefined\}/)
   assert.match(pageSource, /data-surface-rule="rectilinear"/)
   assert.match(
     cssSource,
@@ -77,11 +83,11 @@ test('V4 header preserves the production header density and pill CTA contract', 
   assert.match(headerSource, /className="home-v4-sample-header__cta"/)
   assert.match(
     headerSource,
-    /href="\/sample\/join\?section=contact#application"/,
+    /const joinApplicationHref = `\$\{routePrefix\}\/join\?section=contact#application`/,
   )
   assert.match(
     headerSource,
-    /className="home-v4-sample-header__cta"[\s\S]*href="\/sample\/join\?section=contact#application"[\s\S]*입단신청/,
+    /className="home-v4-sample-header__cta"[\s\S]*href=\{joinApplicationHref\}[\s\S]*입단신청/,
   )
   assert.match(cssSource, /--home-v4-menu-content: 1024px/)
   assert.match(
@@ -155,9 +161,24 @@ test('every public navigation category can open three editorial groups', () => {
   )
   assert.doesNotMatch(megaMenuSource, /label: '주요 페이지'/)
   assert.doesNotMatch(megaMenuSource, /label: '세부 안내'/)
-  assert.match(megaMenuSource, /toSampleHref/)
+  assert.match(megaMenuSource, /toRouteHref/)
   assert.match(megaMenuSource, /<ul>/)
   assert.doesNotMatch(megaMenuSource, /role="dialog"/)
+})
+
+test('the promoted V4 header and mega menu are shared by every production public route', () => {
+  assert.match(
+    publicLayoutSource,
+    /<HomeV4SampleHeader mode="production" transparentAtTop=\{false\} \/>/,
+  )
+  assert.match(appSource, /path="\/" element=\{<HomeV4ProductionPage \/>\}/)
+  assert.match(appSource, /path="home-classic" element=\{<HomeRoute \/>\}/)
+  assert.match(headerSource, /const routePrefix = mode === 'sample' \? '\/sample' : ''/)
+  assert.match(headerSource, /useLocation\(\)/)
+  assert.match(headerSource, /currentPathname\.startsWith/)
+  assert.match(sharedHeaderCssSource, /\.home-v4-mega-menu \{[\s\S]*position: absolute;/)
+  assert.match(sharedHeaderCssSource, /@media \(max-width: 1023px\)/)
+  assert.match(sharedHeaderCssSource, /prefers-reduced-motion: reduce/)
 })
 
 test('desktop surface is full-width, cardless, rectilinear, and responsive', () => {

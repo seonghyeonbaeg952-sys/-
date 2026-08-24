@@ -39,6 +39,11 @@ const HomeV4SamplePage = lazy(() =>
     default: module.HomeV4SamplePage,
   })),
 )
+const HomeV4ProductionPage = lazy(() =>
+  import('./pages/sample/HomeV4SamplePage').then((module) => ({
+    default: module.HomeV4ProductionPage,
+  })),
+)
 const ConcertsPage = lazy(() =>
   import('./pages/public/ConcertsPage').then((module) => ({ default: module.ConcertsPage })),
 )
@@ -218,8 +223,10 @@ function App() {
             <Route path="home-v4" element={<HomeV4SamplePage />} />
           ) : null}
 
-          <Route path="/" element={<PublicLayout />}>
-            <Route index element={<HomeRoute />} />
+          <Route path="/" element={<HomeV4ProductionPage />} />
+
+          <Route element={<PublicLayout />}>
+            <Route path="home-classic" element={<HomeRoute />} />
             <Route path="home-hero-intro-sample" element={<HomeHeroIntroSamplePage />} />
             <Route path="home-section-flow-sample" element={<HomeSectionFlowSamplePage />} />
             <Route path="spirit" element={<SpiritPage />} />

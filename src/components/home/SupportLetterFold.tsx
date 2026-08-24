@@ -4,9 +4,6 @@ import type { HomeContentV2 } from '../../types/homeContent'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
-import { Reveal } from '../common/Reveal'
-import { StaffLines } from '../common/StaffLines'
-import { StaffSectionLabel } from '../common/StaffSectionLabel'
 
 type SupportLetterFoldProps = {
   content: HomeContentV2['supportLetter']
@@ -19,6 +16,24 @@ const fallback = {
   title: '후원은 청소년 합창교육과 공연 활동을 지원합니다',
 }
 
+const supportUses = [
+  {
+    description: '배움의 기초를 단단하게',
+    number: '01',
+    title: '악보와 교육 자료',
+  },
+  {
+    description: '좋은 무대를 차분하게',
+    number: '02',
+    title: '연습과 공연 준비',
+  },
+  {
+    description: '다음 목소리를 오래도록',
+    number: '03',
+    title: '다음 세대 합창교육',
+  },
+] as const
+
 export function SupportLetterFold({
   content,
   settings,
@@ -30,7 +45,8 @@ export function SupportLetterFold({
 
   return (
     <section
-      className="flow-section support-letter-section home-section relative"
+      aria-labelledby="home-support-title"
+      className="flow-section support-letter-section support-letter-section--archive-pledge home-section relative"
       data-flow-section="support-letter"
     >
       <HomeSectionStaffCue
@@ -39,64 +55,84 @@ export function SupportLetterFold({
         noteOffset={11}
         symbol="♩"
       />
-      <div
-        aria-hidden="true"
-        className="stage-staff-lines stage-staff-lines-support"
-      />
-      <Container>
-        <div className="support-letter-layout">
-          <Reveal variant="fade-up">
-            <div>
-              <div className="mb-6 h-1 w-16 rounded-full bg-gold-warm" />
-              <StaffSectionLabel className="max-w-sm" variant="inverted">
-                {content.eyebrowEn}
-              </StaffSectionLabel>
-              <h2 className="mt-4 max-w-3xl whitespace-pre-line break-keep text-[clamp(2rem,4vw,3rem)] font-semibold leading-[1.14]">
-                {content.title || fallback.title}
-              </h2>
-              <p className="mt-5 max-w-2xl whitespace-pre-line break-keep text-base leading-8 text-bg-ivory/76">
-                {content.description || fallback.body}
-              </p>
-              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <Button focusTone="dark" href="/contact?section=support#form" size="lg" variant="gold">
-                  {content.primaryCtaLabel}
-                </Button>
-                <Button
-                  focusTone="dark"
-                  href="/contact"
-                  size="lg"
-                  variant="secondary"
-                >
-                  {content.secondaryCtaLabel}
-                </Button>
-              </div>
-            </div>
-          </Reveal>
+      <Container className="support-pledge-container">
+        <header className="support-pledge-folio" aria-hidden="true">
+          <p>SUPPORT LETTER · 다음 기록을 함께 만듭니다</p>
+          <span>STATIC STUDY 01</span>
+        </header>
 
-          <Reveal delay={90} variant="card-rise">
-            <article className="support-letter-card">
-              <StaffLines className="mb-6 opacity-45" density="light" variant="gold" />
-              <p className="type-eyebrow text-gold-ink">
-                {content.pledgeEyebrow}
-              </p>
-              <h3 className="type-card-title mt-4 text-navy-deep">
-                {content.pledgeTitle}
-              </h3>
-              <p className="type-body mt-4 text-text-muted">
-                {content.pledgeDescription}
-              </p>
-              <dl className="support-letter-contact">
-                <div>
-                  <dt>전화</dt>
-                  <dd>{phone}</dd>
-                </div>
-                <div>
-                  <dt>주소</dt>
-                  <dd>{address}</dd>
-                </div>
-              </dl>
-            </article>
-          </Reveal>
+        <div className="support-letter-layout">
+          <div className="support-pledge-copy">
+            <p className="support-pledge-eyebrow">{content.eyebrowEn}</p>
+            <h2 id="home-support-title">
+              {content.title || fallback.title}
+            </h2>
+            <p className="support-pledge-description">
+              {content.description || fallback.body}
+            </p>
+            <p className="support-pledge-values">
+              정직한 음악 <span aria-hidden="true">·</span> 함께 부르는 공동체{' '}
+              <span aria-hidden="true">·</span> 다음 세대 교육
+            </p>
+            <div className="support-pledge-actions">
+              <Button
+                className="support-pledge-action support-pledge-action--primary"
+                href="/contact?section=support#form"
+                size="lg"
+                variant="gold"
+              >
+                {content.primaryCtaLabel}
+              </Button>
+              <Button
+                className="support-pledge-action support-pledge-action--secondary"
+                href="/contact"
+                size="lg"
+                variant="secondary"
+              >
+                {content.secondaryCtaLabel}
+              </Button>
+            </div>
+          </div>
+
+          <article className="support-pledge-letter">
+            <p className="support-pledge-letter__eyebrow">
+              {content.pledgeEyebrow}
+            </p>
+            <h3>{content.pledgeTitle}</h3>
+            <p className="support-pledge-letter__description">
+              {content.pledgeDescription}
+            </p>
+
+            <ol className="support-pledge-uses">
+              {supportUses.map((use) => (
+                <li key={use.number}>
+                  <span className="support-pledge-use__number">{use.number}</span>
+                  <strong>{use.title}</strong>
+                  <span>{use.description}</span>
+                </li>
+              ))}
+            </ol>
+
+            <dl className="support-pledge-contact">
+              <div>
+                <dt>전화</dt>
+                <dd>{phone}</dd>
+              </div>
+              <div>
+                <dt>주소</dt>
+                <dd>{address}</dd>
+              </div>
+            </dl>
+          </article>
+        </div>
+
+        <div className="support-pledge-score" aria-hidden="true">
+          <p>SUPPORT SCORE · 03 USES</p>
+          <ol>
+            <li>교육</li>
+            <li>연습</li>
+            <li>공연</li>
+          </ol>
         </div>
       </Container>
     </section>
