@@ -166,6 +166,16 @@ test('every public navigation category can open three editorial groups', () => {
   assert.doesNotMatch(megaMenuSource, /role="dialog"/)
 })
 
+test('Spirit mega-menu choices deep-link to distinct Spirit sections', () => {
+  assert.match(megaMenuSource, /href: '\/spirit#spirit-overview'/)
+  assert.match(megaMenuSource, /href: '\/spirit#spirit-faith'/)
+  assert.match(megaMenuSource, /href: '\/spirit#spirit-values'/)
+  assert.match(megaMenuSource, /href: '\/spirit#spirit-education'/)
+  assert.match(megaMenuSource, /href: '\/spirit#spirit-community'/)
+  assert.match(mobileMenuSource, /id: 'spirit'/)
+  assert.match(mobileMenuSource, /href: '\/spirit#spirit-education'/)
+})
+
 test('the promoted V4 header and mega menu are shared by every production public route', () => {
   assert.match(
     publicLayoutSource,

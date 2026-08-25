@@ -9,7 +9,9 @@ import { Reveal } from '../common/Reveal'
 import { getStorageImageUrl } from '../../utils/supabaseImage'
 
 type HomeHeroSlideshowProps = {
+  description?: string
   intervalMs?: number
+  mottoChips?: readonly string[]
   slides: HeroSlide[]
 }
 
@@ -246,7 +248,12 @@ function MottoChips({ chips }: { chips: readonly string[] }) {
   )
 }
 
-export function HomeHeroSlideshow({ intervalMs = 5000, slides }: HomeHeroSlideshowProps) {
+export function HomeHeroSlideshow({
+  description = HOME_HERO_REFERENCE_COPY.description,
+  intervalMs = 5000,
+  mottoChips = HOME_HERO_REFERENCE_COPY.mottoChips,
+  slides,
+}: HomeHeroSlideshowProps) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [isUserPaused, setIsUserPaused] = useState(false)
   const [failedImageIds, setFailedImageIds] = useState<Set<string>>(() => new Set())
@@ -409,7 +416,7 @@ export function HomeHeroSlideshow({ intervalMs = 5000, slides }: HomeHeroSlidesh
           </Reveal>
           <Reveal delayMs={150}>
             <p className="type-body mt-6 max-w-[560px] text-bg-ivory/88">
-              {HOME_HERO_REFERENCE_COPY.description}
+              {description}
             </p>
           </Reveal>
           <Reveal delayMs={220}>
@@ -435,7 +442,7 @@ export function HomeHeroSlideshow({ intervalMs = 5000, slides }: HomeHeroSlidesh
             </div>
           </Reveal>
           <Reveal delayMs={280}>
-            <MottoChips chips={HOME_HERO_REFERENCE_COPY.mottoChips} />
+            <MottoChips chips={mottoChips} />
           </Reveal>
 
             {hasMultipleSlides ? (

@@ -46,7 +46,7 @@ export function HomeV4ProgramNoticeStrip({
             d="M0 20 H558 L600 54 L642 20 H1200 M0 20 V62 M1200 20 V62"
           />
         </svg>
-        <span>ARCHITECTURAL PAPER DATUM</span>
+        <span>SEOUL MOTET YOUTH CHOIR</span>
       </div>
       <aside
         aria-label="프로그램 노트"

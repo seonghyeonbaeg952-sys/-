@@ -74,20 +74,18 @@ const partFilters: Array<{ label: string; value: MemberFilterValue }> = [
 type AboutSectionKey =
   | 'all'
   | 'overview'
-  | 'spirit'
   | 'conductor'
   | 'accompanist'
   | 'members'
   | 'history'
 
-const sectionTabs: Array<{
+export const aboutSectionTabs: Array<{
   href: string
   label: string
   value: AboutSectionKey
 }> = [
   { href: '/about', label: '전체', value: 'all' },
   { href: '/about?section=overview', label: '합창단 소개', value: 'overview' },
-  { href: '/about?section=spirit', label: '정신과 교육철학', value: 'spirit' },
   { href: '/about?section=conductor', label: '지휘자 소개', value: 'conductor' },
   { href: '/about?section=accompanist', label: '반주자 소개', value: 'accompanist' },
   { href: '/about?section=members', label: '단원 소개', value: 'members' },
@@ -95,7 +93,7 @@ const sectionTabs: Array<{
 ]
 
 const aboutSectionValues = new Set<AboutSectionKey>(
-  sectionTabs.map((section) => section.value),
+  aboutSectionTabs.map((section) => section.value),
 )
 
 function getActiveAboutSection(value: string | null): AboutSectionKey {
@@ -103,9 +101,25 @@ function getActiveAboutSection(value: string | null): AboutSectionKey {
     return 'all'
   }
 
+  if (value === 'spirit') {
+    return 'overview'
+  }
+
   return aboutSectionValues.has(value as AboutSectionKey)
     ? (value as AboutSectionKey)
     : 'overview'
+}
+
+export function resolveAboutSectionView(value: string | null) {
+  const activeSection = getActiveAboutSection(value)
+  const isOverviewSelection =
+    activeSection === 'all' || activeSection === 'overview'
+
+  return {
+    activeSection,
+    shouldShowOverview: isOverviewSelection,
+    shouldShowSpirit: isOverviewSelection,
+  }
 }
 
 function AboutSectionSelector({ activeSection }: { activeSection: AboutSectionKey }) {
@@ -118,7 +132,7 @@ function AboutSectionSelector({ activeSection }: { activeSection: AboutSectionKe
         <AnimatedSectionTabs
           activeValue={activeSection}
           ariaLabel="소개 섹션 선택"
-          tabs={sectionTabs}
+          tabs={aboutSectionTabs}
           tone="navy"
         />
       </div>
@@ -491,10 +505,12 @@ export function AboutPage() {
     aboutIntroSections[0]?.content ||
     legacyChoirIntro.summary
   const aboutVisualImage = galleryImages.find((image) => image.image_url.trim())
-  const activeSection = getActiveAboutSection(searchParams.get('section'))
+  const {
+    activeSection,
+    shouldShowOverview,
+    shouldShowSpirit,
+  } = resolveAboutSectionView(searchParams.get('section'))
   const shouldShowAll = activeSection === 'all'
-  const shouldShowOverview = shouldShowAll || activeSection === 'overview'
-  const shouldShowSpirit = shouldShowAll || activeSection === 'spirit'
   const shouldShowConductor = shouldShowAll || activeSection === 'conductor'
   const shouldShowAccompanists = shouldShowAll || activeSection === 'accompanist'
   const shouldShowMembers = shouldShowAll || activeSection === 'members'

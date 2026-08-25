@@ -45,6 +45,7 @@ type PerformanceNewsPreviewProps = {
   concertButtonLabel?: string
   concerts: Concert[]
   description?: string
+  desktopConcertButtonLabel?: string
   detailButtonLabel?: string
   emptyConcertText?: string
   emptyConcertButtonLabel?: string
@@ -61,6 +62,7 @@ type PerformanceNewsPreviewProps = {
   noticePanelTitle?: string
   presentation?: 'default' | 'figma-template-carousel'
   programNoteLabel?: string
+  staffLabel?: string
   title?: string
 }
 
@@ -68,6 +70,7 @@ export function PerformanceNewsPreview({
   concertButtonLabel = '공연 일정 보기',
   concerts,
   description = '다가오는 공연의 날짜와 장소, 준비 중인 무대 소식을 한곳에서 확인합니다.',
+  desktopConcertButtonLabel = '전체 일정',
   detailButtonLabel = '자세히 보기',
   emptyConcertText = '새로운 공연 일정이 확정되면 이 공간에서 안내합니다.',
   emptyConcertButtonLabel = '공연 일정 보기',
@@ -84,6 +87,7 @@ export function PerformanceNewsPreview({
   noticePanelTitle = '프로그램 노트',
   presentation = 'default',
   programNoteLabel = 'PROGRAM NOTE',
+  staffLabel = '공연',
   title = '공연과 소식',
 }: PerformanceNewsPreviewProps) {
   const isDesktopPerformanceLayout = useDesktopPerformanceLayout()
@@ -112,7 +116,7 @@ export function PerformanceNewsPreview({
       >
         <HomeSectionStaffCue
           className="home-section-staff-cue--concert"
-          label="공연"
+          label={staffLabel}
           noteOffset={13}
           symbol="♪"
         />
@@ -124,11 +128,14 @@ export function PerformanceNewsPreview({
           }
         >
           <HomeV4PerformanceCarousel
+            concertButtonLabel={desktopConcertButtonLabel}
             concerts={featuredConcerts}
+            description={description}
             detailButtonLabel={detailButtonLabel}
             emptyButtonLabel={emptyConcertButtonLabel}
             emptyDescription={emptyConcertText}
             emptyTitle={emptyConcertTitle}
+            title={title}
           />
         </Suspense>
         <div className="home-v4-performance-notice-wrap">
@@ -154,7 +161,7 @@ export function PerformanceNewsPreview({
     >
       <HomeSectionStaffCue
         className="home-section-staff-cue--concert"
-        label="공연"
+        label={staffLabel}
         noteOffset={13}
         symbol="♪"
       />

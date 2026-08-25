@@ -58,7 +58,6 @@ export function SupportLetterFold({
       <Container className="support-pledge-container">
         <header className="support-pledge-folio" aria-hidden="true">
           <p>SUPPORT LETTER · 다음 기록을 함께 만듭니다</p>
-          <span>STATIC STUDY 01</span>
         </header>
 
         <div className="support-letter-layout">
@@ -127,7 +126,6 @@ export function SupportLetterFold({
         </div>
 
         <div className="support-pledge-score" aria-hidden="true">
-          <p>SUPPORT SCORE · 03 USES</p>
           <ol>
             <li>교육</li>
             <li>연습</li>

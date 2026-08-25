@@ -39,7 +39,12 @@ test('collective portrait keeps one people-first visual and four thin facts', ()
     ).length,
     4,
   )
-  assert.match(aboutSource, /ABOUT · COLLECTIVE PORTRAIT/)
+  const collectivePortraitSource = aboutSource.slice(
+    aboutSource.indexOf('function CollectivePortrait'),
+    aboutSource.indexOf('export function AboutPreview'),
+  )
+  assert.match(collectivePortraitSource, /kicker = 'ABOUT'/)
+  assert.doesNotMatch(collectivePortraitSource, /COLLECTIVE PORTRAIT/)
   assert.match(aboutSource, /함께 빚어가는 화음,/)
   assert.match(aboutSource, /다음 세대의 노래/)
   assert.match(
@@ -48,9 +53,11 @@ test('collective portrait keeps one people-first visual and four thin facts', ()
   )
   assert.match(homeSource, /collectivePortraitImage=\{/)
   assert.match(homeSource, /src: seoSlide\.image_url/)
+  assert.match(aboutSource, /const summaryLines = getSummaryParagraphs\(summary\)/)
+  assert.match(aboutSource, /\{summaryLines\.map\(\(line, index\) => \(/)
   assert.match(
-    aboutSource,
-    /서울모테트청소년합창단은 음악과 신앙, 공동체의 가치를 통해[\s\S]*청소년의 삶을 아름답게 세워갑니다/,
+    homeSource,
+    /summary=\{homeContent\.about\.paragraphs\.join\('\\n\\n'\)\}/,
   )
   assert.match(
     homeSource,
@@ -87,10 +94,7 @@ test('collective portrait keeps one people-first visual and four thin facts', ()
   assert.doesNotMatch(aboutSource, /home-about-portrait__handoff/)
   assert.doesNotMatch(cssSource, /\.home-about-portrait__handoff/)
   assert.doesNotMatch(
-    aboutSource.slice(
-      aboutSource.indexOf('function CollectivePortrait'),
-      aboutSource.indexOf('export function AboutPreview'),
-    ),
+    collectivePortraitSource,
     /ONE VOICE|home-about-folio|GlobalIdentityPlate/,
   )
 })

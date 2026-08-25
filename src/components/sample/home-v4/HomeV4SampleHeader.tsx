@@ -243,7 +243,7 @@ export function HomeV4SampleHeader({
             alt=""
             className="home-v4-brand__symbol"
             fallbackLabel="SMYC"
-            src="/images/brand/smyc-symbol-transparent.png"
+            src="/images/brand/smyc-symbol-vector.svg"
           />
           <span className="home-v4-brand__mobile-name">서울모테트청소년합창단</span>
         </a>

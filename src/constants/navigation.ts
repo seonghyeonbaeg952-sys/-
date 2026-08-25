@@ -24,13 +24,38 @@ export const publicNavigation = [
     description: '합창단의 교육 방향과 활동 기준을 소개합니다.',
     children: [
       {
-        label: '합창단 정신',
-        href: '/spirit',
+        label: '합창단 정신 전체 보기',
+        href: '/spirit#spirit-overview',
         description: '합창단의 핵심 가치와 교육 철학',
       },
       {
+        label: '이어 온 정신과 연혁',
+        href: '/spirit#spirit-lineage',
+        description: '창단에서 오늘까지 이어진 정신',
+      },
+      {
+        label: '정직한 음악',
+        href: '/spirit#spirit-faith',
+        description: '음악과 신앙을 대하는 태도',
+      },
+      {
+        label: '교회음악의 바른 이상',
+        href: '/spirit#spirit-values',
+        description: '합창단이 지키는 네 가지 핵심 가치',
+      },
+      {
+        label: '다음 세대 교육',
+        href: '/spirit#spirit-education',
+        description: '듣고 조율하며 성장하는 교육 과정',
+      },
+      {
+        label: '함께 부르는 공동체',
+        href: '/spirit#spirit-community',
+        description: '서로 다른 목소리가 이루는 공동체',
+      },
+      {
         label: '소개 안에서 보기',
-        href: '/about?section=spirit',
+        href: '/about?section=overview#spirit',
         description: '소개 페이지의 요약형 정신 섹션',
       },
     ],
@@ -44,11 +69,6 @@ export const publicNavigation = [
         label: '합창단 소개',
         href: '/about?section=overview',
         description: '창단 배경과 교육 목적',
-      },
-      {
-        label: '정신과 교육철학',
-        href: '/about?section=spirit',
-        description: '합창단이 지향하는 교육 가치',
       },
       {
         label: '지휘자 소개',

@@ -50,7 +50,8 @@ test('건물 외곽은 소개 사진과 같은 간결한 설계선 장식을 사
 
 test('V4 공연 섹션은 기존 오선지에 공통 음표 표식을 사용한다', () => {
   assert.match(previewSource, /className="home-section-staff-cue--concert"/)
-  assert.match(previewSource, /label="공연"/)
+  assert.match(previewSource, /staffLabel = '공연'/)
+  assert.match(previewSource, /label=\{staffLabel\}/)
   assert.match(previewSource, /symbol="♪"/)
   assert.doesNotMatch(previewSource, /home-v4-performance-datum/)
   assert.doesNotMatch(carouselSource, />PERFORMANCE<\/p>/)

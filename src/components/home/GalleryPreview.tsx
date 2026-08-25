@@ -31,12 +31,14 @@ function useDesktopArchiveLayout() {
 type GalleryPreviewProps = {
   buttonLabel?: string
   collapseLabel?: string
+  desktopTitle?: string
   description?: string
   emptyDescription?: string
   emptyTitle?: string
   eyebrow?: string
   expandLabel?: string
   images: GalleryImage[]
+  leadDescription?: string
   posters?: Poster[]
   title?: string
   videos?: VideoItem[]
@@ -45,12 +47,14 @@ type GalleryPreviewProps = {
 export function GalleryPreview({
   buttonLabel = '갤러리 보기',
   collapseLabel = '접기',
+  desktopTitle = '한 번의 무대는\n세 가지 기록으로\n오래 남습니다',
   description = '공연 사진, 연습 사진, 영상, 포스터를 확인합니다.',
   emptyDescription,
   emptyTitle,
   eyebrow = 'GALLERY',
   expandLabel = '기록 펼치기',
   images,
+  leadDescription = '사진은 순간을 붙잡고, 포스터는 사람을 부르며, 영상은 마지막 음 이후의 시간을 이어갑니다.',
   posters = [],
   title = '활동 기록',
   videos = [],
@@ -60,12 +64,14 @@ export function GalleryPreview({
   const archiveProps = {
     buttonLabel,
     collapseLabel,
+    desktopTitle,
     description,
     emptyDescription,
     emptyTitle,
     eyebrow,
     expandLabel,
     images,
+    leadDescription,
     posters,
     title,
     videos,

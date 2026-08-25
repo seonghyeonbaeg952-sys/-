@@ -1,16 +1,5 @@
 import { SeoHead } from '../../components/common/SeoHead'
-import {
-  EducationJourney,
-  ImpactStatsBand,
-  LegacyFlow,
-  MotetMeaningSection,
-  SongOfMemorySection,
-  SpiritCTA,
-  SpiritManifesto,
-  SpiritValueCardsSection,
-  VoiceConstellation,
-} from '../../components/spirit/SpiritSections'
-import { SpiritDiagonalHero } from '../../components/spirit/SpiritDiagonalHero'
+import { SpiritHeritageExperience } from '../../components/spirit/SpiritHeritageExperience'
 import {
   defaultSpiritCta,
   defaultSpiritHero,
@@ -54,18 +43,14 @@ export function SpiritPage() {
         path="/spirit"
         title="합창단 정신"
       />
-      <div className="spirit-page bg-bg-warm-white">
-        <SpiritDiagonalHero backgroundImageUrl={heroImage} copy={hero} />
-        <SpiritManifesto text={manifesto} />
-        <MotetMeaningSection copy={motetMeaning} />
-        <SongOfMemorySection />
-        <SpiritValueCardsSection values={spiritValues} />
-        <VoiceConstellation />
-        <LegacyFlow />
-        <EducationJourney />
-        <ImpactStatsBand />
-        <SpiritCTA copy={cta} />
-      </div>
+      <SpiritHeritageExperience
+        cta={cta}
+        hero={hero}
+        heroImageUrl={heroImage}
+        manifestoText={manifesto}
+        motetMeaning={motetMeaning}
+        values={spiritValues}
+      />
     </>
   )
 }

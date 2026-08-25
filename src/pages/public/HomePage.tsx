@@ -25,7 +25,6 @@ import { PerformanceNewsPreview } from '../../components/home/PerformanceNewsPre
 import { ScrollScoreBookReveal } from '../../components/home/ScrollScoreBookReveal'
 import { SponsorQuietMarquee } from '../../components/home/SponsorQuietMarquee'
 import { SupportLetterFold } from '../../components/home/SupportLetterFold'
-import { HOME_HERO_REFERENCE_COPY } from '../../constants/homeHeroReference'
 import { useHomeData } from '../../hooks/usePublicData'
 import { normalizeHomeContentV2 } from '../../lib/homeContent'
 import type { Concert, GalleryImage } from '../../types/content'
@@ -204,7 +203,7 @@ export function HomePage({
   return (
     <>
       <SeoHead
-        description={HOME_HERO_REFERENCE_COPY.description}
+        description={homeContent.heroSupplement.fallbackDescription}
         image={seoSlide?.image_url}
         jsonLd={homeStructuredData}
         path="/"
@@ -212,7 +211,11 @@ export function HomePage({
       />
       <HomeFlowProvider>
         <div className="home-intro-real-sample">
-          <HomeHeroSlideshow slides={heroSlides} />
+          <HomeHeroSlideshow
+            description={homeContent.heroSupplement.fallbackDescription}
+            mottoChips={homeContent.heroSupplement.mottoChips}
+            slides={heroSlides}
+          />
           <HomeHeroIntroOverlay />
         </div>
         <HomePopupManager popups={popupNotices} />
@@ -260,6 +263,7 @@ export function HomePage({
                 identityTagline={homeContent.about.globalTagline}
                 image={aboutVisualImage}
                 kicker={homeContent.about.eyebrowEn}
+                label={homeContent.about.eyebrowKo}
                 nextStage={
                   nextConcert
                     ? {
@@ -285,6 +289,7 @@ export function HomePage({
                 {joinPresentation === 'open-score' ? (
                   <JoinOpenScoreCTA
                     buttonLabel={homeContent.joinLetter.ctaLabel}
+                    content={homeContent.joinLetter}
                     joinInfo={joinInfo}
                     presentation={joinOpenScorePresentation}
                   />
@@ -310,6 +315,9 @@ export function HomePage({
                 }
                 concerts={concerts}
                 description={homeContent.concertProgram.description}
+                desktopConcertButtonLabel={
+                  homeContent.concertProgram.desktopConcertsCtaLabel
+                }
                 detailButtonLabel={
                   homeContent.concertProgram.detailCtaLabel
                 }
@@ -348,6 +356,7 @@ export function HomePage({
                 }
                 programNoteLabel="PROGRAM NOTE"
                 presentation={performancePresentation}
+                staffLabel={homeContent.concertProgram.eyebrowKo}
                 title={homeContent.concertProgram.title}
               />
               <ScrollScoreBookReveal content={homeContent.scoreBook} />
@@ -379,6 +388,8 @@ export function HomePage({
                 images={galleryPreviewImages}
                 posters={posters}
                 title={homeContent.archive.title}
+                desktopTitle={homeContent.archive.desktopTitle}
+                leadDescription={homeContent.archive.leadDescription}
                 videos={videos}
               />
               <SponsorQuietMarquee

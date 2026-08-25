@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent } from 'react'
 
 import type { GalleryImage, Poster, VideoItem } from '../../types/content'
+import { HOME_TITLE_LINE_ROLES } from '../../constants/homeTypography'
 import { EmptyState } from '../common/EmptyState'
 import { TransitionLink } from '../common/TransitionLink'
 import { ImageTile } from './ImageTile'
@@ -9,12 +10,14 @@ import { ImageTile } from './ImageTile'
 type ArchivePageStackProps = {
   buttonLabel: string
   collapseLabel?: string
+  desktopTitle?: string
   description: string
   emptyDescription?: string
   emptyTitle?: string
   eyebrow: string
   expandLabel?: string
   images: GalleryImage[]
+  leadDescription?: string
   posters?: Poster[]
   title?: string
   videos?: VideoItem[]
@@ -64,7 +67,7 @@ const stageInfo: StageInfo[] = [
     index: 2,
   },
   {
-    code: '03 ARCHIVE',
+    code: 'ARCHIVE',
     copy: '한 번의 무대가 세 가지 시간으로 남았습니다',
     index: 3,
   },
@@ -513,15 +516,21 @@ function ArchiveMedia({
 
 export function ArchivePageStack({
   buttonLabel,
+  desktopTitle = '한 번의 무대는\n세 가지 기록으로\n오래 남습니다',
   description,
   emptyDescription = '현재 공개된 사진 기록이 없습니다.',
   emptyTitle = '공개된 사진 기록이 없습니다',
   eyebrow,
   images,
+  leadDescription = '사진은 순간을 붙잡고, 포스터는 사람을 부르며, 영상은 마지막 음 이후의 시간을 이어갑니다.',
   posters = [],
   videos = [],
 }: ArchivePageStackProps) {
   const initialReducedMotion = prefersReducedArchiveMotion()
+  const desktopTitleLines = desktopTitle
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
   const [reducedMotion, setReducedMotion] = useState(initialReducedMotion)
   const [isRunning, setIsRunning] = useState(false)
   const [selectedRecord, setSelectedRecord] =
@@ -932,24 +941,24 @@ export function ArchivePageStack({
           <span aria-hidden="true" className="archive__ghost-year">
             {primaryYear}
           </span>
-          <p className="archive__eyebrow">{eyebrow} · Material 01</p>
+          <p className="archive__eyebrow">{eyebrow}</p>
           <span className="archive__year">{primaryYear}</span>
           <h2 className="archive__title">
-            <span className="archive__title-line">
-              <span>한 번의 무대는</span>
-            </span>
-            <span className="archive__title-line">
-              <span className="archive__title-emphasis">세 가지 기록으로</span>
-            </span>
-            <span className="archive__title-line">
-              <span>오래 남습니다</span>
-            </span>
+            {desktopTitleLines.map((line, index) => (
+              <span
+                className={`archive__title-line home-type-line--${HOME_TITLE_LINE_ROLES.archive[index] ?? 'base'}`}
+                key={line}
+              >
+                <span
+                  className={index === 1 ? 'archive__title-emphasis' : undefined}
+                >
+                  {line}
+                </span>
+              </span>
+            ))}
           </h2>
           <p className="archive__body">
-            <strong>
-              사진은 순간을 붙잡고, 포스터는 사람을 부르며, 영상은 마지막
-              음 이후의 시간을 이어갑니다.
-            </strong>{' '}
+            <strong>{leadDescription}</strong>{' '}
             {description}
           </p>
           <dl className="archive__meta">

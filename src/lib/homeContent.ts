@@ -433,25 +433,37 @@ function normalizeFromFlat(source: HomeContentFlatRecord): HomeContentV2 {
   }
   content.quickActions.items = normalizeQuickItems(record)
   content.about = {
-    eyebrowKo: read('home.about.eyebrowKo', defaults.about.eyebrowKo),
-    eyebrowEn: read('home.about.eyebrowEn', defaults.about.eyebrowEn),
-    title: read('home.about.title', defaults.about.title),
+    eyebrowKo: read(
+      'home.current.about.eyebrowKo',
+      defaults.about.eyebrowKo,
+    ),
+    eyebrowEn: read(
+      'home.current.about.eyebrowEn',
+      defaults.about.eyebrowEn,
+    ),
+    title: read('home.current.about.title', defaults.about.title),
     paragraphs: splitParagraphs(
       [
-        read('home.about.paragraphs.1', defaults.about.paragraphs[0]),
-        read('home.about.paragraphs.2', defaults.about.paragraphs[1]),
+        read(
+          'home.current.about.paragraphs.1',
+          defaults.about.paragraphs[0],
+        ),
+        read(
+          'home.current.about.paragraphs.2',
+          defaults.about.paragraphs[1],
+        ),
       ].join('\n\n'),
       defaults.about.paragraphs,
     ),
-    ctaLabel: read('home.about.ctaLabel', defaults.about.ctaLabel),
+    ctaLabel: read(
+      'home.current.about.ctaLabel',
+      defaults.about.ctaLabel,
+    ),
     globalTagline: read(
-      'home.about.globalTagline',
+      'home.current.about.globalTagline',
       defaults.about.globalTagline,
     ),
-    globalDescription: read(
-      'home.about.globalDescription',
-      defaults.about.globalDescription,
-    ),
+    globalDescription: defaults.about.globalDescription,
   }
   content.choirProgram = {
     eyebrowKo: read(
@@ -467,21 +479,29 @@ function normalizeFromFlat(source: HomeContentFlatRecord): HomeContentV2 {
   }
   content.joinLetter = {
     eyebrowKo: read(
-      'home.joinLetter.eyebrowKo',
+      'home.current.join.eyebrowKo',
       defaults.joinLetter.eyebrowKo,
     ),
     eyebrowEn: read(
-      'home.joinLetter.eyebrowEn',
+      'home.current.join.eyebrowEn',
       defaults.joinLetter.eyebrowEn,
     ),
-    title: read('home.joinLetter.title', defaults.joinLetter.title),
+    title: read('home.current.join.title', defaults.joinLetter.title),
     description: read(
-      'home.joinLetter.description',
+      'home.current.join.description',
       defaults.joinLetter.description,
     ),
+    compactDescription: read(
+      'home.current.join.compactDescription',
+      defaults.joinLetter.compactDescription,
+    ),
     ctaLabel: read(
-      'home.joinLetter.ctaLabel',
+      'home.current.join.ctaLabel',
       defaults.joinLetter.ctaLabel,
+    ),
+    secondaryCtaLabel: read(
+      'home.current.join.secondaryCtaLabel',
+      defaults.joinLetter.secondaryCtaLabel,
     ),
   }
 
@@ -600,7 +620,7 @@ function normalizeFromFlat(source: HomeContentFlatRecord): HomeContentV2 {
     keyof HomeContentV2['archive']
   >) {
     content.archive[key] = read(
-      `home.archive.${key}`,
+      `home.current.archive.${key}`,
       defaults.archive[key],
     )
   }
@@ -678,9 +698,25 @@ export function getHomeContentV2Value(
   content: HomeContentV2,
   key: string,
 ): string {
-  const aboutParagraphMatch = key.match(/^home\.about\.paragraphs\.(\d+)$/)
+  const aboutParagraphMatch = key.match(
+    /^home\.current\.about\.paragraphs\.(\d+)$/,
+  )
   if (aboutParagraphMatch) {
     return content.about.paragraphs[Number(aboutParagraphMatch[1]) - 1] ?? ''
+  }
+
+  const currentHomeMatch = key.match(
+    /^home\.current\.(about|join|archive)\.(.+)$/,
+  )
+  if (currentHomeMatch) {
+    const section = currentHomeMatch[1] === 'join'
+      ? 'joinLetter'
+      : currentHomeMatch[1]
+    const value = readNestedValue(
+      content,
+      `home.${section}.${currentHomeMatch[2]}`,
+    )
+    return Array.isArray(value) ? value.join('\n') : String(value ?? '')
   }
 
   const mottoMatch = key.match(/^home\.heroSupplement\.mottoChips\.(\d)$/)

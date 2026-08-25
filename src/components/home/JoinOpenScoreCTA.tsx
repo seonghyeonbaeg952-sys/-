@@ -8,11 +8,19 @@ import {
 
 import { Button } from '../common/Button'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
+import { HOME_CONTENT_DEFAULTS_V2 } from '../../constants/homeContentV2'
+import {
+  HOME_TITLE_ACCENTS,
+  HOME_TITLE_LINE_ROLES,
+} from '../../constants/homeTypography'
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion'
 import type { JoinInfoRow } from '../../types/cms'
+import type { HomeContentV2 } from '../../types/homeContent'
+import { HomeDisplayTitleText } from './HomeDisplayTitleText'
 
 type JoinOpenScoreCTAProps = {
   buttonLabel?: string | null
+  content?: HomeContentV2['joinLetter']
   joinInfo?: JoinInfoRow | null
   presentation?: JoinOpenScorePresentation
 }
@@ -143,6 +151,7 @@ function FactItem({
 
 export function JoinOpenScoreCTA({
   buttonLabel,
+  content = HOME_CONTENT_DEFAULTS_V2.joinLetter,
   joinInfo,
   presentation = 'default',
 }: JoinOpenScoreCTAProps) {
@@ -163,6 +172,13 @@ export function JoinOpenScoreCTA({
       : targetItems.length > 0
       ? targetItems.join(' · ')
       : '정기 연습에 참여할 수 있는 청소년'
+  const descriptionDivider = content.description.indexOf(',')
+  const descriptionLead = descriptionDivider >= 0
+    ? content.description.slice(0, descriptionDivider + 1)
+    : content.description
+  const descriptionDetail = descriptionDivider >= 0
+    ? content.description.slice(descriptionDivider + 1).trim()
+    : ''
 
   return (
     <section
@@ -177,12 +193,14 @@ export function JoinOpenScoreCTA({
         <div aria-hidden="true" className="join-open-score__surface" />
         <div aria-hidden="true" className="join-open-score__mobile-rail">
           <span className="join-open-score__mobile-rail-note">♫</span>
-          <span className="join-open-score__mobile-rail-label">입단</span>
+          <span className="join-open-score__mobile-rail-label">
+            {content.eyebrowKo}
+          </span>
           <span className="join-open-score__mobile-rail-node" />
         </div>
         <HomeSectionStaffCue
           className="home-section-staff-cue--join"
-          label="입단"
+          label={content.eyebrowKo}
           noteOffset={30}
           symbol="♫"
         />
@@ -212,52 +230,44 @@ export function JoinOpenScoreCTA({
               className="join-open-score__eyebrow join-open-score__reveal"
               style={getRevealStyle(120)}
             >
-              JOIN · NEXT VOICE
+              {content.eyebrowEn}
             </p>
             <h2
               className="join-open-score__title join-open-score__reveal"
               id="join-open-score-title"
               style={getRevealStyle(200)}
             >
-              <span>함께 배우고,</span>
-              <span>함께 무대에 서는</span>
-              <span>다음 목소리를 기다립니다</span>
+              {content.title
+                .split(/\r?\n/)
+                .map((line) => line.trim())
+                .filter(Boolean)
+                .map((line, index) => (
+                  <span
+                    className={`home-type-line--${HOME_TITLE_LINE_ROLES.join[index] ?? 'base'}`}
+                    key={line}
+                  >
+                    <HomeDisplayTitleText
+                      accents={HOME_TITLE_ACCENTS.join}
+                      text={line}
+                    />
+                  </span>
+                ))}
             </h2>
             <p
               className="join-open-score__description join-open-score__reveal"
               style={getRevealStyle(300)}
             >
-              {isFigmaPresentation ? (
-                <>
-                  <span className="sr-only">
-                    발성·악보 읽기·파트 연습부터 공연까지, 청소년이 음악
-                    안에서 자신을 발견하고 함께 성장하는 과정입니다.
-                  </span>
-                  <span aria-hidden="true">
-                    발성·악보 읽기·파트 연습부터 공연까지,
-                    <br />
-                    <span className="join-open-score__description--desktop">
-                      청소년이 음악 안에서 자신을 발견하고 함께 성장하는
-                      과정입니다.
-                    </span>
-                    <span className="join-open-score__description--compact">
-                      음악 안에서 함께 성장하는 과정입니다.
-                    </span>
-                  </span>
-                </>
-              ) : (
-                <>
-                  발성·악보 읽기·파트 연습부터 공연까지,
-                  <br />
-                  <span className="join-open-score__description--desktop">
-                    청소년이 음악 안에서 자신을 발견하고 함께 성장하는
-                    과정입니다.
-                  </span>
-                  <span className="join-open-score__description--compact">
-                    음악 안에서 함께 성장하는 과정입니다.
-                  </span>
-                </>
-              )}
+              <span className="sr-only">{content.description}</span>
+              <span aria-hidden="true">
+                {descriptionLead}
+                {descriptionDetail ? <br /> : null}
+                <span className="join-open-score__description--desktop">
+                  {descriptionDetail}
+                </span>
+                <span className="join-open-score__description--compact">
+                  {content.compactDescription}
+                </span>
+              </span>
             </p>
 
             <div
@@ -271,7 +281,7 @@ export function JoinOpenScoreCTA({
                 showArrow={false}
                 size="lg"
               >
-                <span>{buttonLabel || '입단지원서 작성하기'}</span>
+                <span>{buttonLabel || content.ctaLabel}</span>
                 <span aria-hidden="true">→</span>
               </Button>
               <Button
@@ -281,7 +291,7 @@ export function JoinOpenScoreCTA({
                 size="lg"
                 variant="secondary"
               >
-                <span>모집 일정·절차 확인</span>
+                <span>{content.secondaryCtaLabel}</span>
                 <span aria-hidden="true">→</span>
               </Button>
             </div>

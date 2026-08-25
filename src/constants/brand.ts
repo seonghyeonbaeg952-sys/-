@@ -17,7 +17,7 @@ export const BRANDS = {
     name: '서울모테트청소년합창단',
     nameEn: 'Seoul Motet Youth Choir',
     symbolPath: '/images/brand/smyc-symbol.png',
-    symbolTransparentPath: '/images/brand/smyc-symbol-transparent.png',
+    symbolTransparentPath: '/images/brand/smyc-symbol-vector.svg',
   },
 } as const satisfies Record<
   BrandKey,

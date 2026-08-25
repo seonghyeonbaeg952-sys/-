@@ -180,7 +180,7 @@
   left: 50%;
   width: clamp(42px, 5vw, 58px);
   aspect-ratio: 0.82;
-  background: url('/images/brand/smyc-symbol-transparent.png') center / contain no-repeat;
+  background: url('/images/brand/smyc-symbol-vector.svg') center / contain no-repeat;
   content: '';
   filter: sepia(1) saturate(0.5) brightness(1.42);
   opacity: 0.54;

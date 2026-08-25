@@ -98,12 +98,14 @@ export interface HomeContentV2 {
   archive: {
     collapseLabel: string
     ctaLabel: string
+    desktopTitle: string
     description: string
     emptyDescription: string
     emptyTitle: string
     expandLabel: string
     eyebrowEn: string
     eyebrowKo: string
+    leadDescription: string
     title: string
   }
   choirProgram: {
@@ -115,6 +117,7 @@ export interface HomeContentV2 {
   concertProgram: {
     concertsCtaLabel: string
     description: string
+    desktopConcertsCtaLabel: string
     detailCtaLabel: string
     emptyConcertCtaLabel: string
     emptyConcertDescription: string
@@ -135,10 +138,12 @@ export interface HomeContentV2 {
     mottoChips: [string, string, string]
   }
   joinLetter: {
+    compactDescription: string
     ctaLabel: string
     description: string
     eyebrowEn: string
     eyebrowKo: string
+    secondaryCtaLabel: string
     title: string
   }
   quickActions: {

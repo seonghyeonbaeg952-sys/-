@@ -24,8 +24,6 @@ import type {
 
 type HomeFieldValues = Record<string, string>
 
-const FIXED_HOME_HERO_PREFIX = 'home.heroSupplement.'
-
 const defaultValues: HomeFieldValues = Object.fromEntries(
   homeFieldDefinitions.map((definition) => [
     definition.key,
@@ -49,8 +47,7 @@ function createValuesFromRows(
   for (const row of rows) {
     if (
       !row.is_active ||
-      !(row.key in values) ||
-      row.key.startsWith(FIXED_HOME_HERO_PREFIX)
+      !(row.key in values)
     ) {
       continue
     }
@@ -166,13 +163,10 @@ function HomeField({
   value: string
 }) {
   const id = getInputId(definition.key)
-  const isFixedHeroReference = definition.sectionId === 'heroSupplement'
-
   if (definition.inputType === 'textarea') {
     return (
       <AdminTextarea
         description={definition.description}
-        disabled={isFixedHeroReference}
         error={error}
         id={id}
         label={definition.label}
@@ -222,7 +216,6 @@ function HomeField({
   return (
     <AdminFormField
       description={definition.description}
-      disabled={isFixedHeroReference}
       error={error}
       id={id}
       label={definition.label}
@@ -340,10 +333,10 @@ export function AdminSiteTextsPage() {
     setSaveError(null)
   }
 
-  const restoreV2HtmlReferenceCopy = () => {
+  const restoreCurrentHomeCopy = () => {
     if (
       !window.confirm(
-        '홈 V2 HTML 기준 문구로 모든 홈 래퍼 문구를 복원할까요? 공연·공지·입단·미디어 같은 실제 데이터는 변경하지 않습니다.',
+        '현재 공개 홈 기준 문구로 모든 홈 문구를 복원할까요? 공연·공지·입단·미디어 같은 실제 데이터는 변경하지 않습니다.',
       )
     ) {
       return
@@ -425,10 +418,10 @@ export function AdminSiteTextsPage() {
             </Button>
             <Button
               disabled={isSaving}
-              onClick={restoreV2HtmlReferenceCopy}
+              onClick={restoreCurrentHomeCopy}
               variant="secondary"
             >
-              V2 HTML 기준 복원
+              현재 홈 기준 복원
             </Button>
             <Button
               disabled={!isDirty || isSaving}
@@ -439,8 +432,8 @@ export function AdminSiteTextsPage() {
             </Button>
           </div>
         }
-        description="공개 홈의 현재 섹션 순서대로 wrapper 문구를 관리합니다. 공연·입단·정신·미디어 같은 실제 데이터는 각 전용 메뉴가 소유합니다."
-        title="홈 문구 관리 V2"
+        description="화이트·오렌지 공개 홈에 실제 표시되는 문구를 섹션 순서대로 관리합니다. 공연·입단·정신·미디어의 실제 데이터는 각 전용 메뉴가 소유합니다."
+        title="현재 홈 문구 관리"
       />
 
       <div className="rounded-formal border border-line-default bg-bg-warm-white p-5">

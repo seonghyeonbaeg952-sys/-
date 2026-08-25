@@ -1,6 +1,7 @@
 import type { GalleryImage } from '../../types/content'
 import type { SiteSettings } from '../../types/content'
 import type { HomeProgramItem } from '../../types/homeContent'
+import { HOME_TITLE_ACCENTS } from '../../constants/homeTypography'
 import { getColorSampleHref } from '../../utils/colorSamplePath'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
@@ -11,6 +12,7 @@ import { StaffLines } from '../common/StaffLines'
 import { StaffSectionLabel } from '../common/StaffSectionLabel'
 import { VisualArchivePanel } from '../common/VisualArchivePanel'
 import { GlobalIdentityPlate } from './GlobalIdentityPlate'
+import { HomeDisplayTitleText } from './HomeDisplayTitleText'
 import { ImageTile } from './ImageTile'
 
 type AboutPreviewProps = {
@@ -25,6 +27,7 @@ type AboutPreviewProps = {
   identityTagline?: string
   image?: GalleryImage
   kicker?: string
+  label?: string
   nextStage?: {
     date: string
     location?: string
@@ -100,18 +103,34 @@ function getSummaryParagraphs(summary?: string) {
 
 type CollectivePortraitProps = Pick<
   AboutPreviewProps,
-  'buttonLabel' | 'collectivePortraitImage'
+  | 'buttonLabel'
+  | 'collectivePortraitImage'
+  | 'identityTagline'
+  | 'kicker'
+  | 'label'
+  | 'summary'
+  | 'title'
 >
 
 function CollectivePortrait({
   buttonLabel = '합창단 소개 보기',
   collectivePortraitImage,
+  identityTagline = 'VOICE · LEARNING · STAGE',
+  kicker = 'ABOUT',
+  label = '소개',
+  summary,
+  title = '함께 빚어가는 화음,\n다음 세대의 노래',
 }: CollectivePortraitProps) {
   const portraitImage = collectivePortraitImage ?? {
     alt: '서울모테트청소년합창단 공연 무대',
     caption: 'SEOUL MOTET YOUTH CHOIR · PERFORMANCE',
     src: '/images/sample/about-collective-portrait.png',
   }
+  const titleLines = title
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+  const summaryLines = getSummaryParagraphs(summary)
 
   return (
     <section
@@ -122,7 +141,7 @@ function CollectivePortrait({
     >
       <HomeSectionStaffCue
         className="home-section-staff-cue--about"
-        label="소개"
+        label={label}
         noteOffset={7}
         symbol="♫"
       />
@@ -138,12 +157,18 @@ function CollectivePortrait({
           >
             <div className="home-about-portrait__eyebrow">
               <span aria-hidden="true" />
-              <p>ABOUT · COLLECTIVE PORTRAIT</p>
+              <p>{kicker}</p>
               <i aria-hidden="true" />
             </div>
             <h2 id="home-about-portrait-title">
-              <span>함께 빚어가는 화음,</span>
-              <span>다음 세대의 노래</span>
+              {titleLines.map((line) => (
+                <span key={line}>
+                  <HomeDisplayTitleText
+                    accents={HOME_TITLE_ACCENTS.about}
+                    text={line}
+                  />
+                </span>
+              ))}
             </h2>
           </Reveal>
 
@@ -153,9 +178,12 @@ function CollectivePortrait({
             variant="fade-up"
           >
             <p>
-              서울모테트청소년합창단은 음악과 신앙, 공동체의 가치를 통해
-              <br />
-              청소년의 삶을 아름답게 세워갑니다.
+              {summaryLines.map((line, index) => (
+                <span key={line}>
+                  {line}
+                  {index < summaryLines.length - 1 ? <br /> : null}
+                </span>
+              ))}
             </p>
           </Reveal>
 
@@ -211,7 +239,7 @@ function CollectivePortrait({
             <Button href="/about" variant="secondary">
               {buttonLabel}
             </Button>
-            <p>VOICE · LEARNING · STAGE</p>
+            <p>{identityTagline}</p>
           </Reveal>
 
           <span
@@ -233,6 +261,7 @@ export function AboutPreview({
   identityTagline,
   image,
   kicker = 'ABOUT',
+  label = '소개',
   nextStage,
   programEyebrow = 'CHOIR PROGRAM',
   programItems = fallbackProgramItems,
@@ -247,6 +276,11 @@ export function AboutPreview({
       <CollectivePortrait
         buttonLabel={buttonLabel}
         collectivePortraitImage={collectivePortraitImage}
+        identityTagline={identityTagline}
+        kicker={kicker}
+        label={label}
+        summary={summary}
+        title={title}
       />
     )
   }

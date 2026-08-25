@@ -1,0 +1,410 @@
+[
+  {
+    "viewport": {
+      "name": "desktop",
+      "width": 1536,
+      "height": 900
+    },
+    "errors": [],
+    "metrics": {
+      "bodyClientWidth": 1536,
+      "bodyScrollWidth": 1536,
+      "rootClientWidth": 1536,
+      "rootScrollWidth": 1536,
+      "educationCount": 5,
+      "educationLabel": "성장의 다섯 단계",
+      "oneVoice": {
+        "fontFamily": "\"Bodoni Moda\", \"Cormorant Garamond\", Georgia, serif",
+        "fontSize": "126px",
+        "left": 890.1494140625,
+        "right": 1284.672607421875,
+        "cardLeft": 120.64349365234375,
+        "cardRight": 1415.3563842773438,
+        "fitsCard": true
+      },
+      "symbol": {
+        "src": "/images/brand/smyc-symbol-vector.svg",
+        "currentSrc": "http://127.0.0.1:5175/images/brand/smyc-symbol-vector.svg",
+        "naturalWidth": 111,
+        "naturalHeight": 122,
+        "renderedWidth": 147.75,
+        "renderedHeight": 147.75
+      },
+      "visibleTextBounds": [
+        {
+          "selector": "spirit-heritage__display-title",
+          "left": 86,
+          "right": 850,
+          "width": 764.1
+        },
+        {
+          "selector": "spirit-heritage__lineage-title",
+          "left": 120,
+          "right": 630,
+          "width": 510
+        },
+        {
+          "selector": "spirit-heritage__motet-title",
+          "left": 120,
+          "right": 728,
+          "width": 608
+        },
+        {
+          "selector": "spirit-heritage__manifesto-heading",
+          "left": 120,
+          "right": 1416,
+          "width": 1296
+        },
+        {
+          "selector": "spirit-heritage__faith-title",
+          "left": 120,
+          "right": 680,
+          "width": 560
+        },
+        {
+          "selector": "spirit-heritage__values-heading",
+          "left": 120,
+          "right": 578,
+          "width": 458
+        },
+        {
+          "selector": "spirit-heritage__community-heading",
+          "left": 120,
+          "right": 1416,
+          "width": 1296
+        },
+        {
+          "selector": "spirit-heritage__education-title",
+          "left": 120,
+          "right": 571.4,
+          "width": 451.4
+        },
+        {
+          "selector": "spirit-heritage__closing-copy",
+          "left": 183.9,
+          "right": 798.7,
+          "width": 614.8
+        },
+        {
+          "selector": "spirit-heritage__one-voice",
+          "left": 972.8,
+          "right": 1340.8,
+          "width": 368
+        }
+      ]
+    },
+    "anchors": [
+      {
+        "id": "spirit-overview",
+        "top": 72,
+        "scrollY": 0
+      },
+      {
+        "id": "spirit-lineage",
+        "top": 92,
+        "scrollY": 796
+      },
+      {
+        "id": "spirit-faith",
+        "top": 92,
+        "scrollY": 4296
+      },
+      {
+        "id": "spirit-values",
+        "top": 92,
+        "scrollY": 5276
+      },
+      {
+        "id": "spirit-education",
+        "top": 92,
+        "scrollY": 7436
+      },
+      {
+        "id": "spirit-community",
+        "top": 92,
+        "scrollY": 6296
+      },
+      {
+        "id": "spirit-join",
+        "top": 92,
+        "scrollY": 8476
+      }
+    ]
+  },
+  {
+    "viewport": {
+      "name": "tablet",
+      "width": 768,
+      "height": 1024
+    },
+    "errors": [],
+    "metrics": {
+      "bodyClientWidth": 768,
+      "bodyScrollWidth": 768,
+      "rootClientWidth": 768,
+      "rootScrollWidth": 768,
+      "educationCount": 5,
+      "educationLabel": "성장의 다섯 단계",
+      "oneVoice": {
+        "fontFamily": "\"Bodoni Moda\", \"Cormorant Garamond\", Georgia, serif",
+        "fontSize": "96px",
+        "left": 54.818687438964844,
+        "right": 559.8818893432617,
+        "cardLeft": 16.30908203125,
+        "cardRight": 751.69091796875,
+        "fitsCard": true
+      },
+      "symbol": {
+        "src": "/images/brand/smyc-symbol-vector.svg",
+        "currentSrc": "http://127.0.0.1:5175/images/brand/smyc-symbol-vector.svg",
+        "naturalWidth": 111,
+        "naturalHeight": 122,
+        "renderedWidth": 86.6800537109375,
+        "renderedHeight": 86.6796875
+      },
+      "visibleTextBounds": [
+        {
+          "selector": "spirit-heritage__display-title",
+          "left": 14.4,
+          "right": 409,
+          "width": 394.6
+        },
+        {
+          "selector": "spirit-heritage__hero-heading spirit-heritage__hero-heading--mobile",
+          "left": 24,
+          "right": 744,
+          "width": 720
+        },
+        {
+          "selector": "spirit-heritage__lineage-title",
+          "left": 24,
+          "right": 744,
+          "width": 720
+        },
+        {
+          "selector": "spirit-heritage__motet-title",
+          "left": 24,
+          "right": 744,
+          "width": 720
+        },
+        {
+          "selector": "spirit-heritage__manifesto-heading",
+          "left": 24,
+          "right": 744,
+          "width": 720
+        },
+        {
+          "selector": "spirit-heritage__faith-title",
+          "left": 24,
+          "right": 744,
+          "width": 720
+        },
+        {
+          "selector": "spirit-heritage__values-heading",
+          "left": 24,
+          "right": 744,
+          "width": 720
+        },
+        {
+          "selector": "spirit-heritage__community-heading",
+          "left": 24,
+          "right": 744,
+          "width": 720
+        },
+        {
+          "selector": "spirit-heritage__education-title",
+          "left": 24,
+          "right": 744,
+          "width": 720
+        },
+        {
+          "selector": "spirit-heritage__closing-copy",
+          "left": 46.1,
+          "right": 721.9,
+          "width": 675.7
+        },
+        {
+          "selector": "spirit-heritage__one-voice",
+          "left": 143,
+          "right": 615.1,
+          "width": 472.2
+        }
+      ]
+    },
+    "anchors": [
+      {
+        "id": "spirit-overview",
+        "top": 72,
+        "scrollY": 0
+      },
+      {
+        "id": "spirit-lineage",
+        "top": 92,
+        "scrollY": 740
+      },
+      {
+        "id": "spirit-faith",
+        "top": 92.1,
+        "scrollY": 4303
+      },
+      {
+        "id": "spirit-values",
+        "top": 91.8,
+        "scrollY": 5638
+      },
+      {
+        "id": "spirit-education",
+        "top": 92.4,
+        "scrollY": 8658
+      },
+      {
+        "id": "spirit-community",
+        "top": 91.8,
+        "scrollY": 7146
+      },
+      {
+        "id": "spirit-join",
+        "top": 92.4,
+        "scrollY": 9900
+      }
+    ]
+  },
+  {
+    "viewport": {
+      "name": "phone",
+      "width": 390,
+      "height": 844
+    },
+    "errors": [],
+    "metrics": {
+      "bodyClientWidth": 390,
+      "bodyScrollWidth": 390,
+      "rootClientWidth": 390,
+      "rootScrollWidth": 390,
+      "educationCount": 5,
+      "educationLabel": "성장의 다섯 단계",
+      "oneVoice": {
+        "fontFamily": "\"Bodoni Moda\", \"Cormorant Garamond\", Georgia, serif",
+        "fontSize": "57px",
+        "left": 69.35136413574219,
+        "right": 365.6517791748047,
+        "cardLeft": 16.318710327148438,
+        "cardRight": 373.68125915527344,
+        "fitsCard": true
+      },
+      "symbol": {
+        "src": "/images/brand/smyc-symbol-vector.svg",
+        "currentSrc": "http://127.0.0.1:5175/images/brand/smyc-symbol-vector.svg",
+        "naturalWidth": 111,
+        "naturalHeight": 122,
+        "renderedWidth": 86.68002319335938,
+        "renderedHeight": 86.6796875
+      },
+      "visibleTextBounds": [
+        {
+          "selector": "spirit-heritage__display-title",
+          "left": 16,
+          "right": 307.5,
+          "width": 291.5
+        },
+        {
+          "selector": "spirit-heritage__hero-heading spirit-heritage__hero-heading--mobile",
+          "left": 24,
+          "right": 366,
+          "width": 342
+        },
+        {
+          "selector": "spirit-heritage__lineage-title",
+          "left": 24,
+          "right": 366,
+          "width": 342
+        },
+        {
+          "selector": "spirit-heritage__motet-title",
+          "left": 24,
+          "right": 366,
+          "width": 342
+        },
+        {
+          "selector": "spirit-heritage__manifesto-heading",
+          "left": 24,
+          "right": 366,
+          "width": 342
+        },
+        {
+          "selector": "spirit-heritage__faith-title",
+          "left": 24,
+          "right": 366,
+          "width": 342
+        },
+        {
+          "selector": "spirit-heritage__values-heading",
+          "left": 24,
+          "right": 366,
+          "width": 342
+        },
+        {
+          "selector": "spirit-heritage__community-heading",
+          "left": 24,
+          "right": 366,
+          "width": 342
+        },
+        {
+          "selector": "spirit-heritage__education-title",
+          "left": 24,
+          "right": 366,
+          "width": 342
+        },
+        {
+          "selector": "spirit-heritage__closing-copy",
+          "left": 43.3,
+          "right": 346.7,
+          "width": 303.4
+        },
+        {
+          "selector": "spirit-heritage__one-voice",
+          "left": 132,
+          "right": 412.5,
+          "width": 280.5
+        }
+      ]
+    },
+    "anchors": [
+      {
+        "id": "spirit-overview",
+        "top": 72,
+        "scrollY": 0
+      },
+      {
+        "id": "spirit-lineage",
+        "top": 92,
+        "scrollY": 668
+      },
+      {
+        "id": "spirit-faith",
+        "top": 92.1,
+        "scrollY": 4352
+      },
+      {
+        "id": "spirit-values",
+        "top": 91.9,
+        "scrollY": 5837
+      },
+      {
+        "id": "spirit-education",
+        "top": 91.5,
+        "scrollY": 8693
+      },
+      {
+        "id": "spirit-community",
+        "top": 91.6,
+        "scrollY": 7301
+      },
+      {
+        "id": "spirit-join",
+        "top": 92,
+        "scrollY": 9922
+      }
+    ]
+  }
+]

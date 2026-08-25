@@ -3,6 +3,30 @@
 @source not "../../artifacts";
 
 @font-face {
+  font-family: "Hahmlet";
+  src: url("/fonts/Hahmlet-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Grandiflora One";
+  src: url("/fonts/GrandifloraOne-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gowun Batang";
+  src: url("/fonts/GowunBatang-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: "AritaBuri";
   src: url("/fonts/AritaBuri-SemiBold.woff2") format("woff2");
   font-weight: 600;
@@ -15,8 +39,14 @@
     "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont,
     system-ui, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
   --font-heading-kr:
-    "AritaBuri", "Hahmlet", "Pretendard Variable", "Pretendard", "Noto Serif KR",
+    "Hahmlet", "AritaBuri", "Pretendard Variable", "Pretendard", "Noto Serif KR",
     "Apple SD Gothic Neo", "Malgun Gothic", serif;
+  --font-lyric-kr:
+    "Gowun Batang", "Hahmlet", "AritaBuri", "Noto Serif KR", "Malgun Gothic",
+    serif;
+  --font-ornament-kr:
+    "Grandiflora One", "Hahmlet", "AritaBuri", "Noto Serif KR", "Malgun Gothic",
+    serif;
   --font-display-en: "Cormorant Garamond", Georgia, "Times New Roman", serif;
   /* Deprecated alias: kept for compatibility. Korean text should not render as serif. */
   --font-serif-kr: var(--font-heading-kr);
@@ -6660,7 +6690,7 @@ section[role='tabpanel'] {
     filter: drop-shadow(0 0 14px rgb(231 213 163 / 0.42));
     height: 22px;
     left: 50%;
-    mask-image: url('/images/brand/smyc-symbol-transparent.png');
+    mask-image: url('/images/brand/smyc-symbol-vector.svg');
     mask-position: center;
     mask-repeat: no-repeat;
     mask-size: contain;
@@ -6672,7 +6702,7 @@ section[role='tabpanel'] {
     transform-origin: center;
     width: 28px;
     z-index: 3;
-    -webkit-mask-image: url('/images/brand/smyc-symbol-transparent.png');
+    -webkit-mask-image: url('/images/brand/smyc-symbol-vector.svg');
     -webkit-mask-position: center;
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-size: contain;

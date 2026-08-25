@@ -49,8 +49,8 @@
 }
 
 /* Archive, the quiet sponsor bridge, and support read as one continuous
-   paper chapter instead of three adjacent background bands. */
-.home-flow-sample-chunk--finale,
+   paper chapter. Paint only the animated surface/content so the stationary
+   timeline wrapper cannot rise at a different speed from the wave edge. */
 .home-flow-sample-chunk--finale > .home-flow-sample-chunk__surface,
 .home-flow-sample-chunk--finale > .home-flow-sample-chunk__content,
 .home-flow-sample-chunk--finale [data-flow-section='sponsors'] {
@@ -371,6 +371,7 @@
 
 .support-pledge-score ol {
   display: grid;
+  grid-column: 2;
   grid-template-columns: repeat(3, 1fr);
   margin: 0;
   padding: 0;

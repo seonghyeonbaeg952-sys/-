@@ -15,7 +15,7 @@ type SeoHeadProps = {
 const siteName = '서울모테트청소년합창단'
 const defaultDescription =
   '서울모테트청소년합창단의 합창교육, 공연 일정, 활동 기록과 입단 안내를 확인하세요.'
-const defaultImagePath = '/images/brand/smyc-symbol-transparent.png'
+const defaultImagePath = '/images/brand/smyc-symbol-transparent-hd.png'
 
 function normalizeDescription(value: string) {
   const normalizedValue = value.replace(/\s+/g, ' ').trim() || defaultDescription

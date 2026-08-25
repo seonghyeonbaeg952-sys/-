@@ -11,11 +11,14 @@ import { Button } from '../../common/Button'
 import './HomeV4PerformanceCarousel.css'
 
 type HomeV4PerformanceCarouselProps = {
+  concertButtonLabel: string
   concerts: Concert[]
+  description: string
   detailButtonLabel: string
   emptyButtonLabel: string
   emptyDescription: string
   emptyTitle: string
+  title: string
 }
 
 type TemplatePosition = 'center' | 'left' | 'right'
@@ -378,8 +381,11 @@ function ArchitectureBlueprintFrame() {
 }
 
 export function HomeV4PerformanceCarousel({
+  concertButtonLabel,
   concerts,
+  description,
   detailButtonLabel,
+  title,
 }: HomeV4PerformanceCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [isTemplateOpen, setIsTemplateOpen] = useState(false)
@@ -471,11 +477,9 @@ export function HomeV4PerformanceCarousel({
         <div className="home-v4-performance-carousel__rail" aria-hidden="true">
           <span />
         </div>
-        <h2>공연과 소식</h2>
+        <h2>{title}</h2>
         <p className="home-v4-performance-carousel__description">
-          다가오는 공연의 날짜, 장소, 공지사항을 확인합니다.
-          <br />
-          공연 정보가 확정되면 이 섹션에 반영됩니다.
+          {description}
         </p>
         <div className="home-v4-performance-carousel__active-copy" aria-live="polite">
           <p>NEXT CONCERT</p>
@@ -500,7 +504,7 @@ export function HomeV4PerformanceCarousel({
             {detailButtonLabel} <span aria-hidden="true">→</span>
           </Button>
           <Button href="/sample/concerts" showArrow={false} variant="secondary">
-            전체 일정 <span aria-hidden="true">→</span>
+            {concertButtonLabel} <span aria-hidden="true">→</span>
           </Button>
         </div>
         <ol

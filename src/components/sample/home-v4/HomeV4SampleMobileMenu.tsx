@@ -30,6 +30,18 @@ const mobileMenuSections: MobileMenuSection[] = [
     ],
   },
   {
+    id: 'spirit',
+    label: '합창단 정신',
+    links: [
+      { href: '/spirit#spirit-overview', label: '합창단 정신 전체 보기' },
+      { href: '/spirit#spirit-lineage', label: '이어 온 정신과 연혁' },
+      { href: '/spirit#spirit-faith', label: '정직한 음악' },
+      { href: '/spirit#spirit-values', label: '교회음악의 바른 이상' },
+      { href: '/spirit#spirit-education', label: '다음 세대 교육' },
+      { href: '/spirit#spirit-community', label: '함께 부르는 공동체' },
+    ],
+  },
+  {
     id: 'concerts',
     label: '공연·소식',
     links: [

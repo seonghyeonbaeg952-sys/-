@@ -51,15 +51,15 @@ export const HOME_CONTENT_DEFAULTS_V2: HomeContentV2 = {
   about: {
     eyebrowKo: '소개',
     eyebrowEn: 'ABOUT',
-    title: '서울모테트청소년합창단 소개',
+    title: '함께 빚어가는 화음,\n다음 세대의 노래',
     paragraphs: [
-      '서울모테트청소년합창단은 청소년이 합창의 기본기, 악보 읽기, 무대 경험을 체계적으로 배우는 합창교육 공동체입니다.',
-      '정기 연습과 공연 활동을 통해 발성, 앙상블, 협업 태도를 함께 익힙니다.',
+      '서울모테트청소년합창단은 음악과 신앙, 공동체의 가치를 통해',
+      '청소년의 삶을 아름답게 세워갑니다.',
     ],
     ctaLabel: '합창단 소개 보기',
-    globalTagline: 'Voice, learning and the stage',
+    globalTagline: 'VOICE · LEARNING · STAGE',
     globalDescription:
-      '서울에서 시작한 청소년 합창교육과 무대의 기록을 세계 관객과 공유합니다.',
+      '서울모테트청소년합창단은 음악과 신앙, 공동체의 가치를 통해 청소년의 삶을 아름답게 세워갑니다.',
   },
   choirProgram: {
     eyebrowKo: '교육',
@@ -102,11 +102,13 @@ export const HOME_CONTENT_DEFAULTS_V2: HomeContentV2 = {
   },
   joinLetter: {
     eyebrowKo: '입단',
-    eyebrowEn: 'JOIN',
-    title: '노래를 향한 아이보다\n함께 듣고 성장할 준비가 된 아이를 기다립니다',
+    eyebrowEn: 'JOIN · NEXT VOICE',
+    title: '함께 배우고,\n함께 무대에 서는\n다음 목소리를 기다립니다',
     description:
-      '모집 대상, 연습 일정, 오디션 절차를 확인한 뒤 입단지원서를 제출할 수 있습니다. 제출 후 담당자가 보호자 연락처로 안내합니다.',
+      '발성·악보 읽기·파트 연습부터 공연까지, 청소년이 음악 안에서 자신을 발견하고 함께 성장하는 과정입니다.',
+    compactDescription: '음악 안에서 함께 성장하는 과정입니다.',
     ctaLabel: '입단지원서 작성하기',
+    secondaryCtaLabel: '모집 일정·절차 확인',
   },
   concertProgram: {
     eyebrowKo: '공연',
@@ -115,6 +117,7 @@ export const HOME_CONTENT_DEFAULTS_V2: HomeContentV2 = {
     description:
       '다가오는 공연의 날짜, 장소, 공지사항을 확인합니다. 공연 정보가 확정되면 이 섹션에 반영됩니다.',
     concertsCtaLabel: '공연 일정 보기',
+    desktopConcertsCtaLabel: '전체 일정',
     noticesCtaLabel: '공지사항 보기',
     detailCtaLabel: '자세히 보기',
     inquiryCtaLabel: '문의',
@@ -218,6 +221,9 @@ export const HOME_CONTENT_DEFAULTS_V2: HomeContentV2 = {
     eyebrowKo: '기록',
     eyebrowEn: 'ARCHIVE',
     title: '포스터 · 사진 · 동영상',
+    desktopTitle: '한 번의 무대는\n세 가지 기록으로\n오래 남습니다',
+    leadDescription:
+      '사진은 순간을 붙잡고, 포스터는 사람을 부르며, 영상은 마지막 음 이후의 시간을 이어갑니다.',
     description: '한 장의 공연 사진이 빛을 담고, 필름을 지나, 오래 남을 기록이 되는 과정을 따라갑니다.',
     expandLabel: '기록 현상하기',
     collapseLabel: '접기',
@@ -404,8 +410,8 @@ const scoreValueFields = HOME_CONTENT_DEFAULTS_V2.scoreBook.valueItems.flatMap(
 export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
   field({
     key: 'home.heroSupplement.fallbackDescription',
-    label: 'Hero 기준 소개 문구',
-    description: 'V2 HTML에서 확정한 고정 문구입니다. 공개 홈에서는 편집할 수 없습니다.',
+    label: 'Hero 소개 문구',
+    description: '현재 홈 Hero 제목 아래에 표시되는 소개 문구입니다.',
     inputType: 'textarea',
     defaultValue: HOME_CONTENT_DEFAULTS_V2.heroSupplement.fallbackDescription,
     sectionId: 'heroSupplement',
@@ -414,8 +420,8 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
   ...HOME_CONTENT_DEFAULTS_V2.heroSupplement.mottoChips.map((value, index) =>
     field({
       key: `home.heroSupplement.mottoChips.${index + 1}`,
-      label: `Hero 기준 가치 ${index + 1}`,
-      description: 'V2 HTML에서 확정한 고정 가치 문구입니다. 공개 홈에서는 편집할 수 없습니다.',
+      label: `Hero 가치 ${index + 1}`,
+      description: '현재 홈 Hero 아래의 가치 칩에 표시됩니다.',
       inputType: 'text',
       defaultValue: value,
       sectionId: 'heroSupplement',
@@ -424,7 +430,7 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
   ),
   ...quickFields,
   field({
-    key: 'home.about.eyebrowKo',
+    key: 'home.current.about.eyebrowKo',
     label: '소개 한글 라벨',
     description: '소개 섹션의 접근성·운영 라벨입니다.',
     inputType: 'text',
@@ -433,7 +439,7 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
     sortOrder: 300,
   }),
   field({
-    key: 'home.about.eyebrowEn',
+    key: 'home.current.about.eyebrowEn',
     label: '소개 영문 라벨',
     description: '소개 섹션 제목 위에 표시됩니다.',
     inputType: 'text',
@@ -442,19 +448,19 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
     sortOrder: 301,
   }),
   field({
-    key: 'home.about.title',
+    key: 'home.current.about.title',
     label: '소개 제목',
     description: '홈 소개 섹션의 큰 제목입니다.',
-    inputType: 'text',
+    inputType: 'textarea',
     defaultValue: HOME_CONTENT_DEFAULTS_V2.about.title,
     sectionId: 'about',
     sortOrder: 302,
   }),
   ...HOME_CONTENT_DEFAULTS_V2.about.paragraphs.map((value, index) =>
     field({
-      key: `home.about.paragraphs.${index + 1}`,
-      label: `소개 본문 ${index + 1}`,
-      description: '소개 본문은 문단 단위로 표시됩니다.',
+      key: `home.current.about.paragraphs.${index + 1}`,
+      label: `소개 본문 ${index + 1}행`,
+      description: '현재 소개 본문에서 줄바꿈되는 한 행입니다.',
       inputType: 'textarea',
       defaultValue: value,
       sectionId: 'about',
@@ -462,7 +468,7 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
     }),
   ),
   field({
-    key: 'home.about.ctaLabel',
+    key: 'home.current.about.ctaLabel',
     label: '소개 CTA',
     description: '합창단 소개 페이지로 이동하는 버튼 문구입니다.',
     inputType: 'text',
@@ -471,22 +477,13 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
     sortOrder: 305,
   }),
   field({
-    key: 'home.about.globalTagline',
-    label: 'Global Identity tagline',
-    description: 'Global Identity Plate의 영문 tagline입니다.',
+    key: 'home.current.about.globalTagline',
+    label: '소개 하단 영문 문구',
+    description: '소개 CTA 옆에 표시되는 영문 문구입니다.',
     inputType: 'text',
     defaultValue: HOME_CONTENT_DEFAULTS_V2.about.globalTagline,
     sectionId: 'about',
     sortOrder: 306,
-  }),
-  field({
-    key: 'home.about.globalDescription',
-    label: 'Global Identity 설명',
-    description: 'Global Identity Plate에 표시되는 설명입니다.',
-    inputType: 'textarea',
-    defaultValue: HOME_CONTENT_DEFAULTS_V2.about.globalDescription,
-    sectionId: 'about',
-    sortOrder: 307,
   }),
   field({
     key: 'home.choirProgram.eyebrowKo',
@@ -520,18 +517,22 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
     [
       ['eyebrowKo', '입단 한글 라벨', 'text'],
       ['eyebrowEn', '입단 영문 라벨', 'text'],
-      ['title', '입단 Letter 제목', 'text'],
-      ['description', '입단 Letter 설명', 'textarea'],
-      ['ctaLabel', '입단 Letter CTA', 'text'],
+      ['title', '입단 제목', 'textarea'],
+      ['description', '입단 설명', 'textarea'],
+      ['compactDescription', '입단 모바일 요약', 'textarea'],
+      ['ctaLabel', '입단지원 CTA', 'text'],
+      ['secondaryCtaLabel', '입단 절차 CTA', 'text'],
     ] as const
   ).map(([property, label, inputType], index) =>
     field({
-      key: `home.joinLetter.${property}`,
+      key: `home.current.join.${property}`,
       label,
       description:
         property === 'description'
           ? '실제 모집 대상·연습·절차는 입단 안내 관리에서 가져옵니다.'
-          : '홈 입단 Letter에 표시되는 wrapper 문구입니다.',
+          : property === 'compactDescription'
+            ? '작은 화면에서 설명 두 번째 행에 표시됩니다.'
+            : '현재 홈 입단 섹션에 표시되는 문구입니다.',
       inputType,
       defaultValue: String(
         HOME_CONTENT_DEFAULTS_V2.joinLetter[property],
@@ -547,6 +548,7 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
       ['title', '공연과 소식 제목', 'text'],
       ['description', '공연과 소식 설명', 'textarea'],
       ['concertsCtaLabel', '공연 일정 CTA', 'text'],
+      ['desktopConcertsCtaLabel', '공연 데스크톱 전체 일정 CTA', 'text'],
       ['noticesCtaLabel', '공지사항 CTA', 'text'],
       ['detailCtaLabel', '공연 상세 CTA', 'text'],
       ['inquiryCtaLabel', '공연 문의 CTA', 'text'],
@@ -659,19 +661,21 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
   ),
   ...(
     [
-      ['eyebrowKo', 'Archive 한글 라벨', 'text'],
-      ['eyebrowEn', 'Archive 영문 라벨', 'text'],
-      ['title', 'Archive 제목', 'text'],
-      ['description', 'Archive 설명', 'textarea'],
-      ['expandLabel', 'Archive 펼치기 문구', 'text'],
-      ['collapseLabel', 'Archive 접기 문구', 'text'],
-      ['ctaLabel', 'Archive CTA', 'text'],
-      ['emptyTitle', 'Archive 빈 상태 제목', 'text'],
-      ['emptyDescription', 'Archive 빈 상태 설명', 'textarea'],
+      ['eyebrowKo', '기록 한글 라벨', 'text'],
+      ['eyebrowEn', '기록 영문 라벨', 'text'],
+      ['title', '기록 모바일 제목', 'text'],
+      ['desktopTitle', '기록 데스크톱 제목', 'textarea'],
+      ['leadDescription', '기록 첫 설명', 'textarea'],
+      ['description', '기록 둘째 설명', 'textarea'],
+      ['expandLabel', '기록 펼치기 문구', 'text'],
+      ['collapseLabel', '기록 접기 문구', 'text'],
+      ['ctaLabel', '갤러리 CTA', 'text'],
+      ['emptyTitle', '기록 빈 상태 제목', 'text'],
+      ['emptyDescription', '기록 빈 상태 설명', 'textarea'],
     ] as const
   ).map(([property, label, inputType], index) =>
     field({
-      key: `home.archive.${property}`,
+      key: `home.current.archive.${property}`,
       label,
       description: '실제 사진·영상·포스터는 각 미디어 관리 메뉴에서 가져옵니다.',
       inputType,
@@ -731,8 +735,8 @@ export const HOME_CONTENT_V2_KEYS = homeContentSiteTextDefinitions.map(
 export const homeContentSectionDefinitions: HomeContentSectionDefinition[] = [
   {
     id: 'heroSupplement',
-    title: 'Hero 기준 문구 (고정)',
-    description: '브랜드 문구와 CTA는 V2 HTML 기준으로 고정되며, 아래 값은 복원 기준으로만 보관합니다.',
+    title: 'Hero 소개',
+    description: '현재 Hero의 소개 문구와 세 개 가치 칩을 관리합니다. 브랜드 영문 제목과 CTA는 디자인 기준으로 유지됩니다.',
     publicOrder: 1,
     managedElsewhere: [
       {
@@ -752,7 +756,7 @@ export const homeContentSectionDefinitions: HomeContentSectionDefinition[] = [
   {
     id: 'about',
     title: '합창단 소개',
-    description: '소개와 Global Identity wrapper 문구를 관리합니다.',
+    description: '현재 Collective Portrait 소개 영역의 제목, 본문과 CTA를 관리합니다.',
     publicOrder: 3,
     managedElsewhere: [
       {
@@ -761,24 +765,12 @@ export const homeContentSectionDefinitions: HomeContentSectionDefinition[] = [
         adminHref: '/admin/settings',
         source: 'site_settings',
       },
-      {
-        label: '공연 관리',
-        description: 'Global Identity의 다음 무대는 공개 예정 공연에서 자동 선택됩니다.',
-        adminHref: '/admin/concerts',
-        source: 'concerts',
-      },
     ],
   },
   {
-    id: 'choirProgram',
-    title: '교육과 활동',
-    description: 'V2 소개 영역의 네 개 프로그램 카드를 관리합니다.',
-    publicOrder: 4,
-  },
-  {
     id: 'joinLetter',
-    title: '입단 Letter',
-    description: '홈의 입단 wrapper 문구만 관리합니다.',
+    title: '입단 안내',
+    description: '현재 입단 섹션의 제목, 설명과 두 개 CTA를 관리합니다.',
     publicOrder: 5,
     managedElsewhere: [
       {
