@@ -38,7 +38,8 @@
   src: url("/fonts/CormorantGaramond-Italic-Variable.ttf") format("truetype");
 }
 
-.concerts-page {
+.concerts-page,
+.concert-detail {
   --concert-paper: #fcfaf5;
   --concert-cool: #e8ecea;
   --concert-deep: #17191d;
@@ -609,18 +610,18 @@
 
 .concerts-page__event-link {
   display: grid;
-  min-height: 236px;
-  grid-template-columns: 180px minmax(0, 1fr) minmax(110px, auto);
-  gap: 30px;
-  align-items: center;
-  padding-inline: 0 24px;
+  min-height: 196px;
+  grid-template-columns: 320px minmax(0, 1fr) minmax(110px, auto);
+  gap: 32px;
+  align-items: start;
+  padding: 32px 24px 32px 0;
   color: inherit;
   text-decoration: none;
   transition: background-color 220ms ease-out;
 }
 
 .concerts-page__event[data-has-poster="true"] .concerts-page__event-link {
-  grid-template-columns: 180px 112px minmax(0, 1fr) minmax(110px, auto);
+  grid-template-columns: 320px 112px minmax(0, 1fr) minmax(110px, auto);
 }
 
 .concerts-page__event-link:hover,
@@ -639,24 +640,28 @@
   min-width: 0;
   flex-direction: column;
   align-items: flex-start;
+  gap: 12px;
   font-style: normal;
 }
 
 .concerts-page__event-date strong {
-  color: var(--concert-burgundy);
-  font-family: "Concert Cormorant", var(--font-display-en);
-  font-size: 70px;
-  font-weight: 600;
-  letter-spacing: -0.035em;
-  line-height: 72px;
+  max-width: 100%;
+  color: var(--concert-ink);
+  font-family: "Concert Gothic A1", var(--font-sans-kr);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 40px;
+  overflow-wrap: anywhere;
 }
 
 .concerts-page__event-date span {
-  color: var(--concert-orange);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  line-height: 14px;
+  max-width: 100%;
+  color: var(--concert-muted);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 28px;
+  overflow-wrap: anywhere;
 }
 
 .concerts-page__event-poster {
@@ -1055,24 +1060,17 @@
   .concerts-page__event-link,
   .concerts-page__event-list--archive .concerts-page__event-link {
     min-height: 176px;
-    grid-template-columns: 82px minmax(0, 1fr) auto;
-    gap: 40px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 24px;
     padding-right: 14px;
   }
 
   .concerts-page__event[data-has-poster="true"] .concerts-page__event-link {
-    grid-template-columns: 82px 84px minmax(0, 1fr) auto;
-    gap: 20px;
+    grid-template-columns: 84px minmax(0, 1fr) auto;
   }
 
-  .concerts-page__event-date strong {
-    font-size: 52px;
-    line-height: 54px;
-  }
-
-  .concerts-page__event-date span {
-    font-size: 8px;
-    line-height: 12px;
+  .concerts-page__event-date {
+    grid-column: 1 / -1;
   }
 
   .concerts-page__event-poster {
@@ -1343,30 +1341,16 @@
   }
 
   .concerts-page__event-link,
-  .concerts-page__event-list--archive .concerts-page__event-link {
-    min-height: 144px;
-    grid-template-columns: 66px minmax(0, 1fr) 20px;
-    gap: 16px;
-    padding-right: 0;
-  }
-
+  .concerts-page__event-list--archive .concerts-page__event-link,
   .concerts-page__event[data-has-poster="true"] .concerts-page__event-link {
-    grid-template-columns: 66px minmax(0, 1fr) 20px;
-    gap: 16px;
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    padding: 24px 0;
   }
 
   .concerts-page__event-poster {
     display: none;
-  }
-
-  .concerts-page__event-date strong {
-    font-size: 40px;
-    line-height: 42px;
-  }
-
-  .concerts-page__event-date span {
-    font-size: 7px;
-    line-height: 10px;
   }
 
   .concerts-page__event-copy p {
@@ -1391,13 +1375,13 @@
 
   .concerts-page__event-action {
     min-height: 44px;
-    align-self: center;
-    justify-content: center;
+    justify-self: start;
+    justify-content: flex-start;
     font-size: 14px;
   }
 
   .concerts-page__event-action-label {
-    display: none;
+    display: inline;
   }
 
   .concerts-page__archive .concerts-page__section-inner {
@@ -1444,12 +1428,6 @@
   .concerts-page__filter-trigger {
     flex-basis: 92px;
     padding-inline: 10px;
-  }
-
-  .concerts-page__event-link,
-  .concerts-page__event-list--archive .concerts-page__event-link {
-    grid-template-columns: 58px minmax(0, 1fr) 18px;
-    gap: 10px;
   }
 }
 

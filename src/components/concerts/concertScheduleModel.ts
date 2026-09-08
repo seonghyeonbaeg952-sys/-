@@ -29,6 +29,21 @@ export type ConcertFilters = {
 
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 
+export function getConcertDateLabel(value: string | null | undefined) {
+  const dateString = value?.trim() ?? ''
+  if (!ISO_DATE_PATTERN.test(dateString)) return '날짜 미정'
+
+  const date = new Date(`${dateString}T00:00:00Z`)
+  if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== dateString) {
+    return '날짜 미정'
+  }
+  const weekday = new Intl.DateTimeFormat('ko-KR', {
+    weekday: 'short',
+    timeZone: 'UTC',
+  }).format(date)
+  return `${dateString.replaceAll('-', '. ')}. (${weekday})`
+}
+
 function normalizeDate(value: string | null | undefined) {
   const normalized = value?.trim() ?? ''
 

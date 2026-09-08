@@ -5,7 +5,7 @@ import { ConcertFilterDrawer } from '../../components/concerts/ConcertFilterDraw
 import {
   buildConcertSchedule,
   filterConcerts,
-  getConcertMetaLine,
+  getConcertDateLabel,
   getConcertPeriod,
   getConcertStatusLabel,
   getSafeHttpUrl,
@@ -37,21 +37,6 @@ const categoryLabels: Record<string, string> = {
 const concertsPageDescription =
   '서울모테트청소년합창단의 정기연주회, 초청연주, 특별연주 일정과 공연 정보를 확인합니다.'
 
-const monthLabels = [
-  'JAN',
-  'FEB',
-  'MAR',
-  'APR',
-  'MAY',
-  'JUN',
-  'JUL',
-  'AUG',
-  'SEP',
-  'OCT',
-  'NOV',
-  'DEC',
-]
-
 function getCategoryLabel(category: string) {
   return categoryLabels[category] ?? (category.trim() || '기타')
 }
@@ -61,8 +46,6 @@ function getDateParts(dateString: string) {
 
   if (!match) {
     return {
-      day: '—',
-      month: 'DATE',
       monthDay: '—.—',
       weekday: '',
       year: '',
@@ -77,8 +60,6 @@ function getDateParts(dateString: string) {
   }).format(utcDate)
 
   return {
-    day,
-    month: monthLabels[Number(month) - 1] ?? 'DATE',
     monthDay: `${month}.${day}`,
     weekday,
     year,
@@ -175,7 +156,7 @@ function FeaturedStage({ concert, today }: { concert: Concert | null; today: str
 }
 
 function ConcertRow({ concert, today }: { concert: Concert; today: string }) {
-  const dateParts = getDateParts(concert.date)
+  const fullDate = getConcertDateLabel(concert.date)
   const period = getConcertPeriod(concert, today)
   const hasPoster = Boolean(getSafeHttpUrl(concert.poster_url))
 
@@ -186,12 +167,12 @@ function ConcertRow({ concert, today }: { concert: Concert; today: string }) {
         className="concerts-page__event-link"
         to={`/concerts/${concert.id}`}
       >
-        <time className="concerts-page__event-date" dateTime={concert.date || undefined}>
-          <strong>{dateParts.day}</strong>
-          <span>
-            {dateParts.month}
-            {dateParts.year ? ` · ${dateParts.year}` : ''}
-          </span>
+        <time
+          className="concerts-page__event-date"
+          dateTime={fullDate === '날짜 미정' ? undefined : concert.date.trim()}
+        >
+          <strong>{fullDate}</strong>
+          <span>{concert.time.trim() || '시간 미정'}</span>
         </time>
 
         {hasPoster ? (
@@ -206,7 +187,7 @@ function ConcertRow({ concert, today }: { concert: Concert; today: string }) {
             {getConcertStatusLabel(concert.status, period)}
           </p>
           <h3>{concert.title}</h3>
-          <span>{getConcertMetaLine(concert)}</span>
+          <span>{concert.location.trim() || '장소 추후 안내'}</span>
         </div>
 
         <span className="concerts-page__event-action">

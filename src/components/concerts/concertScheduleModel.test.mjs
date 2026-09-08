@@ -26,6 +26,17 @@ after(async () => {
   await vite.close()
 })
 
+test('concert dates retain a full readable date and weekday, independent of local timezone', () => {
+  assert.equal(concertScheduleModel.getConcertDateLabel('2026-09-19'), '2026. 09. 19. (토)')
+  assert.equal(concertScheduleModel.getConcertDateLabel('2024-02-29'), '2024. 02. 29. (목)')
+})
+
+test('missing or impossible concert dates never roll over to a different calendar day', () => {
+  for (const input of ['', null, undefined, '2026-02-29', '2026-04-31', '2026-13-01', '2026-00-01', '2026-09-00', 'not a date']) {
+    assert.equal(concertScheduleModel.getConcertDateLabel(input), '날짜 미정', String(input))
+  }
+})
+
 test('concert schedule model module is available', () => {
   assert.ok(concertScheduleModel, loadError?.message)
 })
