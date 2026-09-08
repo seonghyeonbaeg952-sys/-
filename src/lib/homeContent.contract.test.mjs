@@ -235,7 +235,7 @@ test('registers exact current-home defaults without deleting prior rows', async 
     )].map(
       (match) => [
         match[1].replaceAll("''", "'"),
-        match[2].replaceAll("''", "'"),
+        match[2].replaceAll("''", "'").replaceAll('\r\n', '\n'),
       ],
     ),
   )

@@ -1,15 +1,66 @@
+import { useEffect, useState } from 'react'
 import type { HomeQuickActionItem } from '../../types/homeContent'
 import { getColorSampleHref } from '../../utils/colorSamplePath'
 import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 import { Reveal } from '../common/Reveal'
 import { StaffLines } from '../common/StaffLines'
+import '../../styles/home-responsive-quick.css'
+
+const desktopQuickQuery = '(min-width: 1024px)'
+
+function useDesktopQuickLayout() {
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia(desktopQuickQuery).matches,
+  )
+
+  useEffect(() => {
+    const query = window.matchMedia(desktopQuickQuery)
+    const update = () => setIsDesktop(query.matches)
+    update()
+    query.addEventListener('change', update)
+    return () => query.removeEventListener('change', update)
+  }, [])
+
+  return isDesktop
+}
+
+function ResponsiveQuickActions({ cards }: { cards: HomeQuickActionItem[] }) {
+  if (!cards.length) return null
+
+  return (
+    <section
+      aria-label="합창단 주요 정보"
+      className="flow-section home-quick-actions home-responsive-quick"
+      id="home-responsive-quick"
+      data-flow-section="quick"
+    >
+      <Container className="home-responsive-quick__container">
+        <ul className="home-responsive-quick__list" role="list">
+          {cards.map((card) => (
+            <li key={card.id}>
+              <a className="home-responsive-quick__row" href={getColorSampleHref(card.href)}>
+                <span aria-hidden="true" className="home-responsive-quick__code">{card.code}</span>
+                <span aria-hidden="true" className="home-responsive-quick__divider">/</span>
+                <span className="home-responsive-quick__title">{card.title}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </section>
+  )
+}
 
 export function FloatingInfoCards({
   cards,
 }: {
   cards: HomeQuickActionItem[]
 }) {
+  const isDesktop = useDesktopQuickLayout()
+
+  if (!isDesktop) return <ResponsiveQuickActions cards={cards} />
+
   return (
     <section
       aria-label="합창단 주요 정보"

@@ -10,7 +10,7 @@
 
 ## Constraints
 
-- Only concert detail and concert-list dates are in scope. Join/CMS redesign is excluded.
+- Initial scope: concert detail and concert-list dates. User subsequently approved public admission guide implementation as an additive task; the application schema and admin CMS redesign remain excluded.
 - Preserve `is_visible=true`, public hook, RLS, Auth, admin CRUD, current header/footer.
 - No fabricated poster, ticket link, programme, or fixed date. CMS text is authoritative.
 - Preserve poster ratio. No placeholder column when no poster exists.
@@ -28,3 +28,11 @@
 ## Intentional differences from Figma
 
 The frame's poster is an explicitly labeled example. Production must not show that placeholder. Registered posters display their actual aspect ratio; missing posters do not reserve a blank column. Image viewer controls include operational loading/error/retry and zoom rather than a nonfunctional mock.
+
+## Added task: public admission guide
+
+- Apply Figma `529:988` / `529:989` / `529:990` through `JoinPage.tsx` and scoped `join-page.css` only.
+- Preserve `useJoinData`, all existing section URLs, and `JoinInquiryForm` at `/join?section=contact#application`. Do not change application fields, attachments, consent, database contracts or RLS.
+- Render visible CMS guide content and FAQ in CMS order, with working keyboard accordion. Do not silently reinsert static FAQ entries when the CMS list is empty.
+- Keep date-free introductory copy; current CMS lacks recruitment date-range fields, so automatic application status must not be claimed.
+- Validate CTA to the existing application, FAQ keyboard open/close, all section routes, 1440/768/390px bounds, and before/after identical application field contracts without submitting.

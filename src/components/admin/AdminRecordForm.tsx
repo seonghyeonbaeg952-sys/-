@@ -12,6 +12,7 @@ import { AdminTextarea } from './AdminTextarea'
 
 export type AdminFieldType =
   | 'date'
+  | 'datetime-local'
   | 'email'
   | 'image'
   | 'number'
@@ -28,6 +29,7 @@ export type AdminFieldConfig<TRow extends CmsRecord> = {
   allowSvg?: boolean
   description?: string
   folder?: string
+  formatValue?: (value: CmsValue | undefined) => CmsValue | undefined
   label: string
   maxSizeMb?: number
   name: Extract<keyof TRow, string>
@@ -62,6 +64,8 @@ function getInitialFieldValue<TRow extends CmsRecord>(
   const initialValue = initialData?.[field.name]
   const defaultValue = defaultValues?.[field.name]
   const value = initialValue ?? defaultValue
+
+  if (field.formatValue) return field.formatValue(value)
 
   if (value !== undefined) {
     return value

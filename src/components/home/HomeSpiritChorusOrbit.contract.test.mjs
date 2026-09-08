@@ -25,11 +25,6 @@ test('V4에서만 chorus orbit 프레젠테이션을 선택한다', () => {
   assert.match(v4Source, /spiritPresentation="chorus-orbit"/)
 })
 
-test('태블릿과 모바일은 기존 정신 섹션을 그대로 사용한다', () => {
-  assert.match(componentSource, /desktopSpiritQuery = '\(min-width: 1024px\)'/)
-  assert.match(componentSource, /return <HomeSpiritEditorial \{\.\.\.props\} \/>/)
-})
-
 test('데스크톱 정신 섹션은 CMS 교체 가능한 고화질 배경 영상을 안전하게 재생한다', () => {
   assert.match(componentSource, /wrapper\.backgroundVideoUrl/)
   assert.match(componentSource, /wrapper\.backgroundPosterUrl/)

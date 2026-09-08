@@ -1,0 +1,165 @@
+/* Only the approved mobile/tablet spirit presentation uses this palette.
+   The section ID keeps the solid dark panel above legacy white home washes. */
+@media (max-width: 1023px) {
+  #home-responsive-spirit.home-responsive-spirit {
+    --responsive-spirit-paper: #fbf8f2;
+    --responsive-spirit-burgundy: #3b1733;
+
+    margin: 0 !important;
+    min-height: 0;
+    padding: 48px 0 !important;
+    border: 0;
+    border-radius: 0;
+    background: var(--responsive-spirit-burgundy) !important;
+    color: var(--responsive-spirit-paper);
+  }
+
+  #home-responsive-spirit::before,
+  #home-responsive-spirit::after {
+    display: none !important;
+  }
+
+  #home-responsive-spirit .home-responsive-spirit__container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 24px;
+    width: 100%;
+    min-width: 0;
+    padding-inline: 24px;
+  }
+
+  #home-responsive-spirit :is(p, h2, ol) {
+    margin: 0;
+    color: inherit;
+  }
+
+  #home-responsive-spirit :is(p, h2, li, a) {
+    overflow-wrap: anywhere;
+    word-break: keep-all;
+  }
+
+  #home-responsive-spirit .home-responsive-spirit__eyebrow {
+    font-family: 'Home Responsive Gothic', var(--font-sans-kr);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.6;
+  }
+
+  #home-responsive-spirit .home-responsive-spirit__title {
+    font-family: var(--font-heading-kr);
+    font-size: 31px;
+    font-weight: 400;
+    letter-spacing: -1px;
+    line-height: 1.5;
+    white-space: pre-line;
+  }
+
+  #home-responsive-spirit .home-responsive-spirit__description {
+    font-family: 'Home Responsive Gothic', var(--font-sans-kr);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.9;
+    white-space: pre-line;
+  }
+
+  #home-responsive-spirit .home-responsive-spirit__values {
+    padding: 0;
+    list-style: none;
+  }
+
+  #home-responsive-spirit .home-responsive-spirit__value {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    min-height: 54px;
+    padding-block: 12px;
+    border-top: 1px solid var(--responsive-spirit-paper);
+    font-family: 'Home Responsive Gothic', var(--font-sans-kr);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.6;
+  }
+
+  #home-responsive-spirit .home-responsive-spirit__number {
+    color: var(--color-orange-cue, #ff601a);
+    font-variant-numeric: tabular-nums;
+  }
+
+  #home-responsive-spirit .home-responsive-spirit__cta {
+    justify-content: space-between;
+    gap: 20px;
+    width: 100%;
+    min-width: 0;
+    min-height: 52px;
+    padding: 14px 20px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--color-orange-cue, #ff601a);
+    color: var(--responsive-spirit-burgundy);
+    box-shadow: none;
+    font-family: 'Home Responsive Gothic', var(--font-sans-kr);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.7;
+    text-align: left;
+    white-space: normal;
+  }
+
+  #home-responsive-spirit .home-responsive-spirit__cta > span:first-child {
+    min-width: 0;
+  }
+
+  #home-responsive-spirit .home-responsive-spirit__cta .btn-arrow {
+    flex-shrink: 0;
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  #home-responsive-spirit .home-responsive-spirit__cta:hover {
+    background: var(--color-orange-soft, #ffd0b8);
+  }
+
+  #home-responsive-spirit .home-responsive-spirit__cta:focus-visible {
+    outline: 2px solid var(--responsive-spirit-paper);
+    outline-offset: 4px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  #home-responsive-spirit.home-responsive-spirit {
+    margin: 0 48px 56px !important;
+    padding-block: 36px !important;
+  }
+
+  #home-responsive-spirit .home-responsive-spirit__container {
+    padding-inline: 32px;
+  }
+
+  #home-responsive-spirit .home-responsive-spirit__eyebrow {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  #home-responsive-spirit .home-responsive-spirit__title {
+    font-size: 34px;
+    letter-spacing: 0;
+    line-height: 1.45;
+  }
+
+  #home-responsive-spirit .home-responsive-spirit__description {
+    font-size: 16px;
+    line-height: 1.8;
+  }
+
+  #home-responsive-spirit .home-responsive-spirit__value {
+    font-size: 16px;
+  }
+
+  #home-responsive-spirit .home-responsive-spirit__cta {
+    width: min(294px, 100%);
+  }
+}

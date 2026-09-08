@@ -56,6 +56,12 @@ export type HomeScoreValueItem = {
 }
 
 export type HomeScoreBookContent = {
+  responsiveEyebrow: string
+  responsiveTitle: string
+  responsiveLeftTitle: string
+  responsiveLeftBody: string
+  responsiveRightTitle: string
+  responsiveRightBody: string
   cover: {
     brandLabel: string
     titleLines: string[]
@@ -87,6 +93,11 @@ export type HomeScoreBookContent = {
 
 export interface HomeContentV2 {
   about: {
+    responsiveMobileDescription: string
+    responsiveTabletDescription: string
+    responsiveFounded: string
+    responsiveContext: string
+    responsiveTabletFacts: string
     ctaLabel: string
     eyebrowEn: string
     eyebrowKo: string
@@ -115,6 +126,10 @@ export interface HomeContentV2 {
     title: string
   }
   concertProgram: {
+    responsiveDescription: string
+    responsiveNoticeImportantLabel: string
+    responsiveCardEyebrow: string
+    responsiveNoticeEyebrow: string
     concertsCtaLabel: string
     description: string
     desktopConcertsCtaLabel: string
@@ -138,6 +153,10 @@ export interface HomeContentV2 {
     mottoChips: [string, string, string]
   }
   joinLetter: {
+    responsiveMobileTitle: string
+    responsiveMobileDescription: string
+    responsiveMobileGuardianNotes: string
+    responsiveTabletGuardianNotes: string
     compactDescription: string
     ctaLabel: string
     description: string
@@ -157,6 +176,15 @@ export interface HomeContentV2 {
     title: string
   }
   spiritWrapper: {
+    responsiveEyebrow: string
+    responsiveTitle: string
+    responsiveDescription: string
+    responsiveCtaLabel: string
+    responsiveLabel1: string
+    responsiveLabel2: string
+    responsiveLabel3: string
+    responsiveLabel4: string
+    responsiveLabel5: string
     backgroundPosterUrl: string
     backgroundVideoUrl: string
     ctaLabel: string
@@ -167,6 +195,15 @@ export interface HomeContentV2 {
     title: string
   }
   supportLetter: {
+    responsiveTitle: string
+    responsiveMobileDescription: string
+    responsiveTabletDescription: string
+    responsiveMobilePledgeDescription: string
+    responsiveTabletPledgeDescription: string
+    responsiveTabletEyebrow: string
+    responsiveUse1: string
+    responsiveUse2: string
+    responsiveUse3: string
     description: string
     eyebrowEn: string
     eyebrowKo: string

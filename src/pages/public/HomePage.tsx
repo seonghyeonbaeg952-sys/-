@@ -23,7 +23,9 @@ import { JoinCTA } from '../../components/home/JoinCTA'
 import { JoinOpenScoreCTA } from '../../components/home/JoinOpenScoreCTA'
 import { PerformanceNewsPreview } from '../../components/home/PerformanceNewsPreview'
 import { ScrollScoreBookReveal } from '../../components/home/ScrollScoreBookReveal'
+import { ResponsiveHomeScore } from '../../components/home/ResponsiveHomeScore'
 import { SponsorQuietMarquee } from '../../components/home/SponsorQuietMarquee'
+import { useHomeResponsiveViewport } from '../../components/home/useHomeResponsiveViewport'
 import { SupportLetterFold } from '../../components/home/SupportLetterFold'
 import { useHomeData } from '../../hooks/usePublicData'
 import { normalizeHomeContentV2 } from '../../lib/homeContent'
@@ -146,6 +148,7 @@ export function HomePage({
   performancePresentation = 'default',
   spiritPresentation = 'scorebook',
 }: HomePageProps) {
+  const viewport = useHomeResponsiveViewport()
   const homeData = useHomeData()
   const {
     aboutSections,
@@ -247,6 +250,7 @@ export function HomePage({
               <FloatingInfoCards cards={homeContent.quickActions.items} />
               <AboutPreview
                 presentation={aboutPresentation}
+                responsiveContent={homeContent.about}
                 buttonLabel={homeContent.about.ctaLabel}
                 collectivePortraitImage={
                   seoSlide
@@ -355,11 +359,17 @@ export function HomePage({
                   homeContent.concertProgram.noticePanelTitle
                 }
                 programNoteLabel="PROGRAM NOTE"
+                responsiveCardEyebrow={homeContent.concertProgram.responsiveCardEyebrow}
+                responsiveNoticeEyebrow={homeContent.concertProgram.responsiveNoticeEyebrow}
+                responsiveDescription={homeContent.concertProgram.responsiveDescription}
+                responsiveNoticeImportantLabel={homeContent.concertProgram.responsiveNoticeImportantLabel}
                 presentation={performancePresentation}
                 staffLabel={homeContent.concertProgram.eyebrowKo}
                 title={homeContent.concertProgram.title}
               />
-              <ScrollScoreBookReveal content={homeContent.scoreBook} />
+              {performancePresentation === 'figma-template-carousel'
+                ? <ResponsiveHomeScore content={homeContent.scoreBook} />
+                : <ScrollScoreBookReveal content={homeContent.scoreBook} />}
               <HomeFlowSampleHold
                 enabled={mode === 'section-flow-sample'}
                 variant="full"
@@ -378,6 +388,7 @@ export function HomePage({
               tone="finale"
             >
               <GalleryPreview
+                approvedResponsive={performancePresentation === 'figma-template-carousel'}
                 buttonLabel={homeContent.archive.ctaLabel}
                 collapseLabel={homeContent.archive.collapseLabel}
                 description={homeContent.archive.description}
@@ -392,11 +403,14 @@ export function HomePage({
                 leadDescription={homeContent.archive.leadDescription}
                 videos={videos}
               />
-              <SponsorQuietMarquee
-                content={homeContent.sponsors}
-                sponsors={sponsors}
-              />
+              {(performancePresentation !== 'figma-template-carousel' || viewport === 'desktop') && (
+                <SponsorQuietMarquee
+                  content={homeContent.sponsors}
+                  sponsors={sponsors}
+                />
+              )}
               <SupportLetterFold
+                approvedResponsive={performancePresentation === 'figma-template-carousel'}
                 content={homeContent.supportLetter}
                 settings={siteSettings}
               />

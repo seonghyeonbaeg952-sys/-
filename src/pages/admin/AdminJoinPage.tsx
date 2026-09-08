@@ -3,10 +3,56 @@ import { AdminPageTitle } from '../../components/admin/AdminPageTitle'
 import type { AdminFieldConfig } from '../../components/admin/AdminRecordForm'
 import { AdminSingleRecordSection } from '../../components/admin/AdminSingleRecordSection'
 import type { AdminTableColumn } from '../../components/admin/AdminTable'
-import type { FaqRow, JoinInfoRow } from '../../types/cms'
+import {
+  prepareJoinRecruitmentPeriod,
+  toSeoulDateTimeLocal,
+  validateJoinRecruitmentPeriod,
+} from '../../lib/joinRecruitment'
+import type { CmsMutationPayload, CmsValue, FaqRow, JoinInfoRow } from '../../types/cms'
+
+function formatRecruitmentField(value: CmsValue | undefined) {
+  return toSeoulDateTimeLocal(typeof value === 'string' ? value : null)
+}
+
+function recruitmentPeriod(payload: CmsMutationPayload) {
+  return {
+    recruitment_starts_at: typeof payload.recruitment_starts_at === 'string' ? payload.recruitment_starts_at : null,
+    recruitment_ends_at: typeof payload.recruitment_ends_at === 'string' ? payload.recruitment_ends_at : null,
+  }
+}
+
+function preparePayload(payload: CmsMutationPayload, row: JoinInfoRow | null) {
+  const next = { ...payload }
+  delete next.recruitment_starts_at
+  delete next.recruitment_ends_at
+  return { ...next, ...prepareJoinRecruitmentPeriod(recruitmentPeriod(payload), row) }
+}
+
+function validatePayload(payload: CmsMutationPayload, row: JoinInfoRow | null) {
+  const period = recruitmentPeriod(payload)
+  const error = validateJoinRecruitmentPeriod(period)
+  if (error) return error
+  if (row && (
+    (period.recruitment_starts_at && !('recruitment_starts_at' in row)) ||
+    (period.recruitment_ends_at && !('recruitment_ends_at' in row))
+  )) {
+    return '모집 기간 기능을 위한 데이터베이스 업데이트가 필요합니다. 업데이트 후 페이지를 새로고침하고 다시 저장해 주세요.'
+  }
+  return null
+}
 
 const joinInfoFields = [
   { name: 'title', label: '제목', type: 'text' },
+  {
+    name: 'recruitment_starts_at', label: '모집 시작 (한국 시간)', type: 'datetime-local',
+    description: '이 시각부터 접수를 받습니다. 비우면 시작 제한이 없습니다.',
+    formatValue: formatRecruitmentField,
+  },
+  {
+    name: 'recruitment_ends_at', label: '모집 종료 (한국 시간)', type: 'datetime-local',
+    description: '이 시각부터 접수가 닫힙니다. 비우면 종료 제한이 없습니다.',
+    formatValue: formatRecruitmentField,
+  },
   { name: 'description', label: '설명', type: 'textarea', rows: 4 },
   { name: 'target', label: '지원 대상', type: 'textarea', rows: 4 },
   { name: 'parts', label: '모집 파트', type: 'textarea', rows: 3 },
@@ -41,9 +87,12 @@ export function AdminJoinPage() {
       />
       <AdminSingleRecordSection
         defaultValues={{ is_visible: true }}
+        description="한국 시간(Asia/Seoul) 기준으로 설정합니다. 두 일시를 모두 비우면 상시 접수하며, 설정한 기간에 맞춰 접수가 자동으로 열리고 닫힙니다."
         fields={joinInfoFields}
+        preparePayload={preparePayload}
         table="join_info"
         title="입단 안내"
+        validatePayload={validatePayload}
       />
       <AdminCrudListPage
         columns={faqColumns}

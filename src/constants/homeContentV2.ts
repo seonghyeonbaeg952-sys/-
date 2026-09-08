@@ -49,6 +49,11 @@ export const HOME_CONTENT_DEFAULTS_V2: HomeContentV2 = {
     ],
   },
   about: {
+    responsiveMobileDescription: '음악과 신앙, 공동체의 가치를 통해\n청소년의 삶을 아름답게 세워갑니다.',
+    responsiveTabletDescription: '서울모테트청소년합창단은\n음악과 신앙, 공동체의 가치를 통해\n청소년의 삶을 아름답게 세워갑니다.',
+    responsiveFounded: 'SINCE\n2014',
+    responsiveContext: 'SEOUL, KOREA\nCHORAL EDUCATION\nCONCERT & EXCHANGE',
+    responsiveTabletFacts: '2014 창단\nSEOUL 기반\nCHORAL EDUCATION 교육',
     eyebrowKo: '소개',
     eyebrowEn: 'ABOUT',
     title: '함께 빚어가는 화음,\n다음 세대의 노래',
@@ -101,6 +106,10 @@ export const HOME_CONTENT_DEFAULTS_V2: HomeContentV2 = {
     ],
   },
   joinLetter: {
+    responsiveMobileTitle: '함께 배우고,\n함께 무대에 서는\n다음 목소리를\n기다립니다.',
+    responsiveMobileDescription: '발성부터 악보 읽기, 파트 연습과 공연까지.\n음악 안에서 자신을 발견하고 함께 성장합니다.',
+    responsiveMobileGuardianNotes: '일정·장소는 입단 안내에서 확인하세요.\n지원 후 보호자 연락처로 안내드립니다.',
+    responsiveTabletGuardianNotes: '보호자 연락으로 일정 안내\n사진·개인정보 동의는 별도',
     eyebrowKo: '입단',
     eyebrowEn: 'JOIN · NEXT VOICE',
     title: '함께 배우고,\n함께 무대에 서는\n다음 목소리를 기다립니다',
@@ -111,6 +120,10 @@ export const HOME_CONTENT_DEFAULTS_V2: HomeContentV2 = {
     secondaryCtaLabel: '모집 일정·절차 확인',
   },
   concertProgram: {
+    responsiveDescription: '다가오는 공연의 날짜, 장소, 공지사항을 확인합니다.\n공연 정보가 확정되면 이 섹션에 반영됩니다.',
+    responsiveNoticeImportantLabel: '중요 안내',
+    responsiveCardEyebrow: 'NEXT CONCERT',
+    responsiveNoticeEyebrow: 'NOTICE',
     eyebrowKo: '공연',
     eyebrowEn: 'CONCERTS & NEWS',
     title: '공연과 소식',
@@ -133,6 +146,12 @@ export const HOME_CONTENT_DEFAULTS_V2: HomeContentV2 = {
     emptyNoticeCtaLabel: '공지사항 보기',
   },
   scoreBook: {
+    responsiveEyebrow: '04    MOTET SCORE',
+    responsiveTitle: '서로 다른 목소리로,\n같은 음악을 완성합니다',
+    responsiveLeftTitle: '발성 · 악보 · 파트',
+    responsiveLeftBody: '한 곡을 준비하며 단원들은\n음정, 박자, 발음, 호흡을\n반복해서 맞춥니다.',
+    responsiveRightTitle: '앙상블 · 공연 · 안내',
+    responsiveRightBody: '다른 단원의 소리를 들으며\n함께 맞춘 음악은 정기연주회와\n나눔 공연으로 이어집니다.',
     eyebrowKo: '악보',
     cover: {
       titleLines: ['함께 부르는', '우리의 노래'],
@@ -208,6 +227,15 @@ export const HOME_CONTENT_DEFAULTS_V2: HomeContentV2 = {
     },
   },
   spiritWrapper: {
+    responsiveEyebrow: '04 / FIVE VOICES · ONE CHORUS',
+    responsiveTitle: '서로 다른 목소리,\n하나의 음악.',
+    responsiveDescription: '정직한 음악을 함께 부르고,\n그 울림을 다음 세대에 전합니다.',
+    responsiveCtaLabel: '합창단 정신 자세히 보기',
+    responsiveLabel1: '이름',
+    responsiveLabel2: '정직한 음악',
+    responsiveLabel3: '교회음악',
+    responsiveLabel4: '공동체',
+    responsiveLabel5: '다음 세대',
     backgroundPosterUrl: '/videos/spirit/spirit-cinematic-orbit-poster.webp',
     backgroundVideoUrl: '/videos/spirit/spirit-cinematic-orbit-1600.mp4',
     eyebrowKo: 'FIVE MOVEMENTS · MOTET SPIRIT',
@@ -239,6 +267,15 @@ export const HOME_CONTENT_DEFAULTS_V2: HomeContentV2 = {
     ctaLabel: '후원사 전체 보기',
   },
   supportLetter: {
+    responsiveTitle: '후원은 청소년 합창교육과\n공연 활동을 지원합니다',
+    responsiveMobileDescription: '다음 세대가 음악 안에서 자신을 발견하고\n함께 이어가는 법을 배우도록 돕는 동행입니다.',
+    responsiveTabletDescription: '후원은 단순한 재정 지원이 아니라\n다음 세대가 음악 안에서 자신을 발견하고\n함께 이어가는 법을 배우도록 돕는 동행입니다.',
+    responsiveMobilePledgeDescription: '공연 초청, 후원 상담, 입단 문의를\n공식 문의 폼으로 접수합니다.\n담당자가 확인 후 안내드립니다.',
+    responsiveTabletPledgeDescription: '공연 초청, 후원 상담, 입단 문의를\n공식 문의 폼으로 접수합니다.\n담당자가 확인한 뒤 이메일 또는\n연락처로 안내합니다.',
+    responsiveTabletEyebrow: 'SUPPORT LETTER · 다음 기록을 함께 만듭니다',
+    responsiveUse1: '악보와 교육 자료',
+    responsiveUse2: '연습과 공연 준비',
+    responsiveUse3: '다음 세대 합창교육',
     eyebrowKo: '후원',
     eyebrowEn: 'SUPPORT',
     title: '후원은 청소년 합창교육과 공연 활동을 지원합니다',
@@ -408,6 +445,41 @@ const scoreValueFields = HOME_CONTENT_DEFAULTS_V2.scoreBook.valueItems.flatMap(
 )
 
 export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
+  ...([
+      ['about', 'home.responsive.about.mobileDescription', '모바일 소개 본문', HOME_CONTENT_DEFAULTS_V2.about.responsiveMobileDescription],
+      ['about', 'home.responsive.about.tabletDescription', '태블릿 소개 본문', HOME_CONTENT_DEFAULTS_V2.about.responsiveTabletDescription],
+      ['about', 'home.responsive.about.founded', '모바일 창단 정보', HOME_CONTENT_DEFAULTS_V2.about.responsiveFounded],
+      ['about', 'home.responsive.about.context', '모바일 활동 정보', HOME_CONTENT_DEFAULTS_V2.about.responsiveContext],
+      ['about', 'home.responsive.about.tabletFacts', '태블릿 활동 정보', HOME_CONTENT_DEFAULTS_V2.about.responsiveTabletFacts],
+      ['joinLetter', 'home.responsive.join.mobileTitle', '모바일 입단 제목', HOME_CONTENT_DEFAULTS_V2.joinLetter.responsiveMobileTitle],
+      ['joinLetter', 'home.responsive.join.mobileDescription', '모바일 입단 본문', HOME_CONTENT_DEFAULTS_V2.joinLetter.responsiveMobileDescription],
+      ['joinLetter', 'home.responsive.join.mobileGuardianNotes', '모바일 보호자 안내', HOME_CONTENT_DEFAULTS_V2.joinLetter.responsiveMobileGuardianNotes],
+      ['joinLetter', 'home.responsive.join.tabletGuardianNotes', '태블릿 보호자 안내', HOME_CONTENT_DEFAULTS_V2.joinLetter.responsiveTabletGuardianNotes],
+      ['concertProgram', 'home.concertProgram.responsiveDescription', '모바일·태블릿 공연 설명', HOME_CONTENT_DEFAULTS_V2.concertProgram.responsiveDescription],
+      ['concertProgram', 'home.concertProgram.responsiveNoticeImportantLabel', '모바일·태블릿 중요 공지 라벨', HOME_CONTENT_DEFAULTS_V2.concertProgram.responsiveNoticeImportantLabel],
+      ['scoreBook', 'home.scoreBook.responsiveEyebrow', '태블릿 교육 라벨', HOME_CONTENT_DEFAULTS_V2.scoreBook.responsiveEyebrow],
+      ['scoreBook', 'home.scoreBook.responsiveTitle', '태블릿 교육 제목', HOME_CONTENT_DEFAULTS_V2.scoreBook.responsiveTitle],
+      ['scoreBook', 'home.scoreBook.responsiveLeftTitle', '태블릿 교육 왼쪽 소제목', HOME_CONTENT_DEFAULTS_V2.scoreBook.responsiveLeftTitle],
+      ['scoreBook', 'home.scoreBook.responsiveLeftBody', '태블릿 교육 왼쪽 본문', HOME_CONTENT_DEFAULTS_V2.scoreBook.responsiveLeftBody],
+      ['scoreBook', 'home.scoreBook.responsiveRightTitle', '태블릿 교육 오른쪽 소제목', HOME_CONTENT_DEFAULTS_V2.scoreBook.responsiveRightTitle],
+      ['scoreBook', 'home.scoreBook.responsiveRightBody', '태블릿 교육 오른쪽 본문', HOME_CONTENT_DEFAULTS_V2.scoreBook.responsiveRightBody],
+      ['supportLetter', 'home.supportLetter.responsiveTitle', '모바일·태블릿 후원 제목', HOME_CONTENT_DEFAULTS_V2.supportLetter.responsiveTitle],
+      ['supportLetter', 'home.supportLetter.responsiveMobileDescription', '모바일 후원 본문', HOME_CONTENT_DEFAULTS_V2.supportLetter.responsiveMobileDescription],
+      ['supportLetter', 'home.supportLetter.responsiveTabletDescription', '태블릿 후원 본문', HOME_CONTENT_DEFAULTS_V2.supportLetter.responsiveTabletDescription],
+      ['supportLetter', 'home.supportLetter.responsiveMobilePledgeDescription', '모바일 문의 본문', HOME_CONTENT_DEFAULTS_V2.supportLetter.responsiveMobilePledgeDescription],
+      ['supportLetter', 'home.supportLetter.responsiveTabletPledgeDescription', '태블릿 문의 본문', HOME_CONTENT_DEFAULTS_V2.supportLetter.responsiveTabletPledgeDescription],
+      ['supportLetter', 'home.supportLetter.responsiveTabletEyebrow', '태블릿 후원 라벨', HOME_CONTENT_DEFAULTS_V2.supportLetter.responsiveTabletEyebrow],
+      ['supportLetter', 'home.supportLetter.responsiveUse1', '모바일·태블릿 사용처 01', HOME_CONTENT_DEFAULTS_V2.supportLetter.responsiveUse1],
+      ['supportLetter', 'home.supportLetter.responsiveUse2', '모바일·태블릿 사용처 02', HOME_CONTENT_DEFAULTS_V2.supportLetter.responsiveUse2],
+      ['supportLetter', 'home.supportLetter.responsiveUse3', '모바일·태블릿 사용처 03', HOME_CONTENT_DEFAULTS_V2.supportLetter.responsiveUse3],
+  ] as const).map(([sectionId, key, label, defaultValue], index) => field({
+    key, label, defaultValue, sectionId,
+    description: sectionId === 'scoreBook'
+      ? '768–1023px 태블릿 홈 교육 요약에만 적용됩니다. 데스크톱 악보 문구는 바뀌지 않습니다.'
+      : '1023px 이하 홈 시안 전용 문구입니다. 기존 데스크톱 문구와 별도로 저장됩니다.',
+    inputType: 'textarea',
+    sortOrder: 1400 + index,
+  })),
   field({
     key: 'home.heroSupplement.fallbackDescription',
     label: 'Hero 소개 문구',
@@ -460,7 +532,7 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
     field({
       key: `home.current.about.paragraphs.${index + 1}`,
       label: `소개 본문 ${index + 1}행`,
-      description: '현재 소개 본문에서 줄바꿈되는 한 행입니다.',
+      description: '현재 홈 데스크톱 소개 본문의 한 행입니다. 모바일·태블릿 본문은 별도 전용 필드에서 편집합니다.',
       inputType: 'textarea',
       defaultValue: value,
       sectionId: 'about',
@@ -479,7 +551,7 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
   field({
     key: 'home.current.about.globalTagline',
     label: '소개 하단 영문 문구',
-    description: '소개 CTA 옆에 표시되는 영문 문구입니다.',
+    description: '현재 홈 데스크톱 소개 CTA 옆에 표시됩니다. 모바일·태블릿 시안에는 표시하지 않습니다.',
     inputType: 'text',
     defaultValue: HOME_CONTENT_DEFAULTS_V2.about.globalTagline,
     sectionId: 'about',
@@ -519,7 +591,7 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
       ['eyebrowEn', '입단 영문 라벨', 'text'],
       ['title', '입단 제목', 'textarea'],
       ['description', '입단 설명', 'textarea'],
-      ['compactDescription', '입단 모바일 요약', 'textarea'],
+      ['compactDescription', '입단 보조 설명(데스크톱·태블릿)', 'textarea'],
       ['ctaLabel', '입단지원 CTA', 'text'],
       ['secondaryCtaLabel', '입단 절차 CTA', 'text'],
     ] as const
@@ -531,7 +603,7 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
         property === 'description'
           ? '실제 모집 대상·연습·절차는 입단 안내 관리에서 가져옵니다.'
           : property === 'compactDescription'
-            ? '작은 화면에서 설명 두 번째 행에 표시됩니다.'
+            ? '데스크톱·태블릿 입단 설명의 두 번째 부분입니다. 모바일 본문은 별도 전용 필드에서 편집합니다.'
             : '현재 홈 입단 섹션에 표시되는 문구입니다.',
       inputType,
       defaultValue: String(
@@ -560,12 +632,16 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
       ['emptyNoticeTitle', '공지 빈 상태 제목', 'text'],
       ['emptyNoticeDescription', '공지 빈 상태 설명', 'textarea'],
       ['emptyNoticeCtaLabel', '공지 빈 상태 CTA', 'text'],
+      ['responsiveCardEyebrow', '모바일·태블릿 공연 카드 라벨', 'text'],
+      ['responsiveNoticeEyebrow', '모바일·태블릿 공지 라벨', 'text'],
     ] as const
   ).map(([property, label, inputType], index) =>
     field({
       key: `home.concertProgram.${property}`,
       label,
-      description: '실제 공연·공지 내용은 각 전용 관리자 메뉴에서 가져옵니다.',
+      description: property.startsWith('responsive')
+        ? '1023px 이하 홈 공연 카드에만 적용됩니다. 데스크톱에는 영향을 주지 않습니다.'
+        : '데스크톱과 모바일이 공유하는 문구입니다. 실제 공연·공지 내용은 각 전용 관리자 메뉴에서 가져옵니다.',
       inputType,
       defaultValue: String(
         HOME_CONTENT_DEFAULTS_V2.concertProgram[property],
@@ -642,18 +718,29 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
       ['orbitSignature', '원형 안 서명'],
       ['backgroundVideoUrl', '배경 영상 URL'],
       ['backgroundPosterUrl', '배경 영상 포스터 URL'],
+      ['responsiveEyebrow', '모바일·태블릿 정신 라벨'],
+      ['responsiveTitle', '모바일·태블릿 정신 제목'],
+      ['responsiveDescription', '모바일·태블릿 정신 설명'],
+      ['responsiveCtaLabel', '모바일·태블릿 정신 CTA'],
+      ['responsiveLabel1', '모바일·태블릿 정신 01'],
+      ['responsiveLabel2', '모바일·태블릿 정신 02'],
+      ['responsiveLabel3', '모바일·태블릿 정신 03'],
+      ['responsiveLabel4', '모바일·태블릿 정신 04'],
+      ['responsiveLabel5', '모바일·태블릿 정신 05'],
     ] as const
   ).map(([property, label], index) =>
     field({
       key: `home.spiritWrapper.${property}`,
       label,
       description:
-        property === 'backgroundVideoUrl'
+        property.startsWith('responsive')
+          ? '1023px 이하 홈의 다섯 줄 정신 시안에만 적용됩니다. 데스크톱 정신 문구와 별도로 저장됩니다.'
+          : property === 'backgroundVideoUrl'
           ? '음소거 자동 재생용 MP4 주소입니다. 데스크톱 V4 정신 섹션에만 적용됩니다.'
           : property === 'backgroundPosterUrl'
             ? '영상 재생 전과 모션 감소 설정에서 표시할 정지 이미지 주소입니다.'
             : '정신 상세 항목은 합창단 소개 관리에서 가져옵니다.',
-      inputType: property === 'orbitHeadline' ? 'textarea' : 'text',
+      inputType: ['orbitHeadline', 'responsiveTitle', 'responsiveDescription'].includes(property) ? 'textarea' : 'text',
       defaultValue: HOME_CONTENT_DEFAULTS_V2.spiritWrapper[property],
       sectionId: 'spiritWrapper',
       sortOrder: 900 + index,
@@ -663,8 +750,8 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
     [
       ['eyebrowKo', '기록 한글 라벨', 'text'],
       ['eyebrowEn', '기록 영문 라벨', 'text'],
-      ['title', '기록 모바일 제목', 'text'],
-      ['desktopTitle', '기록 데스크톱 제목', 'textarea'],
+      ['title', '기록 영역 이름·기본형 제목', 'text'],
+      ['desktopTitle', '기록 공통 제목', 'textarea'],
       ['leadDescription', '기록 첫 설명', 'textarea'],
       ['description', '기록 둘째 설명', 'textarea'],
       ['expandLabel', '기록 펼치기 문구', 'text'],
@@ -677,7 +764,13 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
     field({
       key: `home.current.archive.${property}`,
       label,
-      description: '실제 사진·영상·포스터는 각 미디어 관리 메뉴에서 가져옵니다.',
+      description: property === 'desktopTitle'
+        ? '현재 홈의 모바일·태블릿·데스크톱에 함께 표시되는 제목입니다. 실제 사진·영상·포스터는 각 미디어 관리 메뉴에서 가져옵니다.'
+        : property === 'title'
+          ? '현재 홈의 모바일·태블릿에서는 사진·영상·포스터 탐색 영역의 접근성 이름으로 사용합니다. 기본형 홈에서는 제목으로 표시됩니다.'
+          : property === 'description' || property === 'leadDescription'
+            ? '현재 홈 데스크톱 기록 설명입니다. 모바일·태블릿 시안에는 추가 설명을 표시하지 않습니다.'
+            : '실제 사진·영상·포스터는 각 미디어 관리 메뉴에서 가져옵니다.',
       inputType,
       defaultValue: HOME_CONTENT_DEFAULTS_V2.archive[property],
       sectionId: 'archive',
@@ -719,7 +812,9 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
       key: `home.supportLetter.${property}`,
       label,
       description:
-        '전화·주소와 후원 약정 정책은 사이트 설정/후원약정 관리에서 가져옵니다.',
+        ['title', 'description', 'pledgeDescription', 'secondaryCtaLabel'].includes(property)
+          ? '현재 홈 데스크톱 후원 섹션에 적용됩니다. 모바일·태블릿 문구는 전용 필드에서 관리합니다.'
+          : '공유 라벨입니다. 전화·주소와 후원 약정 정책은 사이트 설정/후원약정 관리에서 가져옵니다.',
       inputType,
       defaultValue: HOME_CONTENT_DEFAULTS_V2.supportLetter[property],
       sectionId: 'supportLetter',

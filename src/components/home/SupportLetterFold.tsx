@@ -4,10 +4,13 @@ import type { HomeContentV2 } from '../../types/homeContent'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
+import { ResponsiveSupportLetter } from './ResponsiveSupportLetter'
+import { useHomeResponsiveViewport } from './useHomeResponsiveViewport'
 
 type SupportLetterFoldProps = {
   content: HomeContentV2['supportLetter']
   settings?: SiteSettings
+  approvedResponsive?: boolean
 }
 
 const fallback = {
@@ -37,7 +40,13 @@ const supportUses = [
 export function SupportLetterFold({
   content,
   settings,
+  approvedResponsive = false,
 }: SupportLetterFoldProps) {
+  const viewport = useHomeResponsiveViewport()
+  if (approvedResponsive && viewport !== 'desktop') {
+    return <ResponsiveSupportLetter content={content} viewport={viewport} />
+  }
+
   const phone = settings?.phone || legacyLocationSeed.phone
   const address =
     settings?.address ||

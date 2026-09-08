@@ -14,6 +14,9 @@ import { VisualArchivePanel } from '../common/VisualArchivePanel'
 import { GlobalIdentityPlate } from './GlobalIdentityPlate'
 import { HomeDisplayTitleText } from './HomeDisplayTitleText'
 import { ImageTile } from './ImageTile'
+import { ResponsiveCollectivePortrait } from './ResponsiveAboutJoin'
+import type { AboutResponsiveCopy } from './ResponsiveAboutJoin'
+import { useHomeResponsiveViewport } from './useHomeResponsiveViewport'
 
 type AboutPreviewProps = {
   presentation?: AboutPreviewPresentation
@@ -38,6 +41,7 @@ type AboutPreviewProps = {
   programTitle?: string
   settings?: Pick<SiteSettings, 'instagram_url' | 'youtube_url'>
   summary?: string
+  responsiveContent?: Partial<AboutResponsiveCopy>
   title?: string
 }
 
@@ -267,10 +271,27 @@ export function AboutPreview({
   programItems = fallbackProgramItems,
   programTitle = '교육과 활동',
   presentation = 'default',
+  responsiveContent,
   settings,
   summary,
   title = '서울모테트청소년합창단 소개',
 }: AboutPreviewProps) {
+  const viewport = useHomeResponsiveViewport()
+  if (presentation === 'collective-portrait' && viewport !== 'desktop') {
+    return (
+      <ResponsiveCollectivePortrait
+        buttonLabel={buttonLabel}
+        content={responsiveContent}
+        facts={collectivePortraitFacts}
+        image={collectivePortraitImage}
+        kicker={kicker}
+        summary={getSummaryParagraphs(summary).join('\n\n')}
+        title={title}
+        viewport={viewport}
+      />
+    )
+  }
+
   if (presentation === 'collective-portrait') {
     return (
       <CollectivePortrait

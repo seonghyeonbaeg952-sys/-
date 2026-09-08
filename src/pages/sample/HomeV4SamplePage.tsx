@@ -5,6 +5,8 @@ import { Footer } from '../../components/layout/Footer'
 import { HomeRoute } from '../public/HomeRoute'
 import '../../styles/color-sample-theme.css'
 import './HomeV4SamplePage.css'
+import '../../styles/home-responsive-fonts.css'
+import '../../styles/home-responsive-layout.css'
 
 type HomeV4ExperienceProps = {
   mode: 'production' | 'sample'

@@ -5,6 +5,7 @@ import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 import { ArchivePageStack } from './ArchivePageStack'
 import { ArchivePageStackLegacy } from './ArchivePageStackLegacy'
+import { ResponsiveArchive } from './ResponsiveArchive'
 
 const desktopArchiveQuery = '(min-width: 1024px)'
 
@@ -29,6 +30,7 @@ function useDesktopArchiveLayout() {
 }
 
 type GalleryPreviewProps = {
+  approvedResponsive?: boolean
   buttonLabel?: string
   collapseLabel?: string
   desktopTitle?: string
@@ -45,6 +47,7 @@ type GalleryPreviewProps = {
 }
 
 export function GalleryPreview({
+  approvedResponsive = false,
   buttonLabel = '갤러리 보기',
   collapseLabel = '접기',
   desktopTitle = '한 번의 무대는\n세 가지 기록으로\n오래 남습니다',
@@ -60,6 +63,10 @@ export function GalleryPreview({
   videos = [],
 }: GalleryPreviewProps) {
   const isDesktop = useDesktopArchiveLayout()
+
+  if (approvedResponsive && !isDesktop) {
+    return <ResponsiveArchive buttonLabel={buttonLabel} categoryLabel={title} emptyDescription={emptyDescription} emptyTitle={emptyTitle} eyebrow={eyebrow} images={images} posters={posters} title={desktopTitle} videos={videos} />
+  }
 
   const archiveProps = {
     buttonLabel,

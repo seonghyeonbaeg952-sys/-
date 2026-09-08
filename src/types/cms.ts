@@ -1,4 +1,4 @@
-export type CmsValue = string | number | boolean | null
+export type CmsValue = string | number | boolean | string[] | null
 
 export type CmsMutationPayload = Record<string, CmsValue | undefined>
 
@@ -274,6 +274,8 @@ export interface JoinInfoRow extends CmsRecord {
   rehearsal_time: string | null
   rehearsal_location: string | null
   application_url: string | null
+  recruitment_starts_at?: string | null
+  recruitment_ends_at?: string | null
   is_visible: boolean
 }
 
@@ -328,11 +330,11 @@ export interface SiteTextRow extends CmsRecord {
 }
 
 export type JoinApplicationStatus =
-  | 'accepted'
-  | 'archived'
-  | 'in_review'
+  | 'audition_guided'
+  | 'contacted'
+  | 'done'
   | 'new'
-  | 'rejected'
+  | 'on_hold'
 
 export interface JoinApplicationRow extends CmsRecord {
   admin_notes: string | null
@@ -343,7 +345,11 @@ export interface JoinApplicationRow extends CmsRecord {
   choir_experience: 'no' | 'yes' | null
   contact_time: string | null
   desired_part: string | null
-  email: string
+  desired_parts?: string[] | null
+  form_version?: 1 | 2
+  submission_id?: string | null
+  join_info_id?: string | null
+  email: string | null
   gender: string | null
   grade: string | null
   guardian_name: string | null

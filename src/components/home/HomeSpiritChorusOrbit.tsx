@@ -10,7 +10,7 @@ import type { HomeContentV2 } from '../../types/homeContent'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
-import { HomeSpiritEditorial } from './HomeSpiritEditorial'
+import { ResponsiveSpiritList } from './ResponsiveSpiritList'
 import '../../styles/home-spirit-chorus-orbit.css'
 
 type HomeSpiritChorusOrbitProps = {
@@ -388,7 +388,7 @@ export function HomeSpiritChorusOrbit(props: HomeSpiritChorusOrbitProps) {
   const isDesktop = useDesktopSpiritLayout()
 
   if (!isDesktop) {
-    return <HomeSpiritEditorial {...props} />
+    return <ResponsiveSpiritList wrapper={props.wrapper} />
   }
 
   return <HomeSpiritChorusOrbitDesktop {...props} />

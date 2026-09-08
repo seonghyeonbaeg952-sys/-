@@ -1,0 +1,92 @@
+/* Figma 10:20: compact code/title rows. The tablet extends the same pattern
+   with 48px side padding; desktop retains its original floating cards. */
+@media (max-width: 1023px) {
+  .public-shell-home-sample-v4[data-design-candidate='home-v4'].color-sample-theme.public-shell-home
+    .home-flow-body #home-responsive-quick.home-responsive-quick.home-quick-actions[data-flow-section='quick'] {
+    height: auto;
+    min-height: 0;
+    margin: 0 !important;
+    padding: 24px 0 !important;
+    overflow: visible;
+    background: #fbf8f2 !important;
+    color: #3b1733;
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+  }
+
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    .home-flow-body .home-responsive-quick::before,
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    .home-flow-body .home-responsive-quick::after {
+    display: none !important;
+  }
+
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    .home-responsive-quick .home-responsive-quick__container {
+    width: 100%;
+    max-width: none;
+    padding-inline: 24px;
+  }
+
+  .home-responsive-quick .home-responsive-quick__list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .home-responsive-quick .home-responsive-quick__list > li {
+    min-width: 0;
+  }
+
+  .home-responsive-quick .home-responsive-quick__row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    min-height: 55px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0d5c8;
+    color: #3b1733;
+    font-family: 'Home Responsive Gothic', var(--font-sans-kr);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.6;
+    text-decoration: none;
+  }
+
+  .home-responsive-quick .home-responsive-quick__code {
+    flex: 0 0 auto;
+    color: #ff601a;
+  }
+
+  .home-responsive-quick .home-responsive-quick__divider {
+    flex: 0 0 auto;
+  }
+
+  .home-responsive-quick .home-responsive-quick__title {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
+  }
+
+  .home-responsive-quick .home-responsive-quick__row:hover {
+    background: #fff1e8;
+  }
+
+  .home-responsive-quick .home-responsive-quick__row:focus-visible {
+    outline: 2px solid #c93a07;
+    outline-offset: 3px;
+    background: #fff1e8;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    .home-responsive-quick .home-responsive-quick__container {
+    padding-inline: 48px;
+  }
+}

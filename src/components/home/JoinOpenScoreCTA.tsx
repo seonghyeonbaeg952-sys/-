@@ -17,6 +17,8 @@ import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion'
 import type { JoinInfoRow } from '../../types/cms'
 import type { HomeContentV2 } from '../../types/homeContent'
 import { HomeDisplayTitleText } from './HomeDisplayTitleText'
+import { ResponsiveJoinInvitation } from './ResponsiveAboutJoin'
+import { useHomeResponsiveViewport } from './useHomeResponsiveViewport'
 
 type JoinOpenScoreCTAProps = {
   buttonLabel?: string | null
@@ -156,6 +158,7 @@ export function JoinOpenScoreCTA({
   presentation = 'default',
 }: JoinOpenScoreCTAProps) {
   const { isVisible, ref } = useOpenScoreReveal()
+  const viewport = useHomeResponsiveViewport()
   const isFigmaPresentation = presentation === 'figma-open-score'
   const visibleSteps = isFigmaPresentation ? figmaJoiningSteps : joiningSteps
   const visibleGuardianNotes = isFigmaPresentation
@@ -179,6 +182,20 @@ export function JoinOpenScoreCTA({
   const descriptionDetail = descriptionDivider >= 0
     ? content.description.slice(descriptionDivider + 1).trim()
     : ''
+
+  if (isFigmaPresentation && viewport !== 'desktop') {
+    return (
+      <ResponsiveJoinInvitation
+        buttonLabel={buttonLabel}
+        content={content}
+        fallbackGuardianNotes={figmaGuardianNotes}
+        fallbackSteps={figmaJoiningSteps}
+        joinInfo={joinInfo}
+        tabletDescription={[descriptionLead, content.compactDescription].filter(Boolean).join('\n')}
+        viewport={viewport}
+      />
+    )
+  }
 
   return (
     <section
@@ -297,7 +314,16 @@ export function JoinOpenScoreCTA({
             </div>
 
             <dl className="join-open-score__facts">
-              <FactItem delay={420} label="모집 대상" value={target} />
+              <FactItem
+                delay={420}
+                label="모집 대상"
+                value={isFigmaPresentation ? (
+                  <>
+                    <span className="hidden lg:inline">{target}</span>
+                    <span className="lg:hidden">{targetItems.length ? targetItems.join(' · ') : target}</span>
+                  </>
+                ) : target}
+              />
               <FactItem
                 delay={500}
                 label="연습 안내"

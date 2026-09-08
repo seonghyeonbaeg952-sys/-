@@ -1,0 +1,16 @@
+/* Unique aliases keep the approved small-screen font contract out of desktop. */
+@font-face {
+  font-family: 'Home Responsive Gothic';
+  src: url('/fonts/GothicA1-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Home Responsive Gothic';
+  src: url('/fonts/GothicA1-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}

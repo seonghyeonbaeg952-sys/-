@@ -11,6 +11,7 @@ import { HomeV4ProgramNoticeStrip } from '../sample/home-v4/HomeV4ProgramNoticeS
 import { BenchmarkConcertTemplate } from './benchmark/BenchmarkConcertTemplate'
 import { KineticHeadline } from './KineticHeadline'
 import { NoticeProgramNotes } from './NoticeProgramNotes'
+import { ResponsiveConcertNews } from './ResponsiveConcertNews'
 import '../../styles/home-motion-benchmark.css'
 
 const HomeV4PerformanceCarousel = lazy(() =>
@@ -62,6 +63,10 @@ type PerformanceNewsPreviewProps = {
   noticePanelTitle?: string
   presentation?: 'default' | 'figma-template-carousel'
   programNoteLabel?: string
+  responsiveCardEyebrow?: string
+  responsiveNoticeEyebrow?: string
+  responsiveDescription?: string
+  responsiveNoticeImportantLabel?: string
   staffLabel?: string
   title?: string
 }
@@ -87,13 +92,17 @@ export function PerformanceNewsPreview({
   noticePanelTitle = '프로그램 노트',
   presentation = 'default',
   programNoteLabel = 'PROGRAM NOTE',
+  responsiveCardEyebrow = 'NEXT CONCERT',
+  responsiveNoticeEyebrow = 'NOTICE',
+  responsiveDescription,
+  responsiveNoticeImportantLabel = '중요 안내',
   staffLabel = '공연',
   title = '공연과 소식',
 }: PerformanceNewsPreviewProps) {
   const isDesktopPerformanceLayout = useDesktopPerformanceLayout()
   const useFigmaDesktopLayout =
     presentation === 'figma-template-carousel' && isDesktopPerformanceLayout
-  const useOriginalResponsiveLayout =
+  const useEditorialResponsiveLayout =
     presentation === 'figma-template-carousel' && !isDesktopPerformanceLayout
   const featuredConcerts = selectUpcomingConcerts(concerts, { limit: 3 })
   const visibleNotices = [...notices]
@@ -152,11 +161,34 @@ export function PerformanceNewsPreview({
     )
   }
 
+  if (useEditorialResponsiveLayout) {
+    return (
+      <ResponsiveConcertNews
+        concert={featuredConcerts[0]}
+        concertButtonLabel={concertButtonLabel}
+        description={responsiveDescription ?? description}
+        responsiveNoticeImportantLabel={responsiveNoticeImportantLabel}
+        detailButtonLabel={detailButtonLabel}
+        emptyConcertButtonLabel={emptyConcertButtonLabel}
+        emptyConcertText={emptyConcertText}
+        emptyConcertTitle={emptyConcertTitle}
+        emptyNoticeButtonLabel={emptyNoticeButtonLabel}
+        emptyNoticeText={emptyNoticeText}
+        emptyNoticeTitle={emptyNoticeTitle}
+        eyebrow={eyebrow}
+        notices={visibleNotices}
+        noticePanelButtonLabel={noticePanelButtonLabel}
+        noticePanelTitle={noticePanelTitle}
+        programNoteLabel={responsiveNoticeEyebrow}
+        responsiveCardEyebrow={responsiveCardEyebrow}
+        title={title}
+      />
+    )
+  }
+
   return (
     <section
-      className={`flow-section home-section relative overflow-hidden bg-bg-warm-white${
-        useOriginalResponsiveLayout ? ' home-section--v4-mobile-original' : ''
-      }`}
+      className="flow-section home-section relative overflow-hidden bg-bg-warm-white"
       data-flow-section="concert-program"
     >
       <HomeSectionStaffCue
@@ -166,7 +198,7 @@ export function PerformanceNewsPreview({
         symbol="♪"
       />
       <Container>
-        <Reveal variant={useOriginalResponsiveLayout ? 'none' : 'fade-up'}>
+        <Reveal variant="fade-up">
           <div className="section-title">
             <KineticHeadline
               body={description ? <p>{description}</p> : undefined}
@@ -187,7 +219,7 @@ export function PerformanceNewsPreview({
           </div>
         </Reveal>
         <div className="home-performance-news mt-9">
-          <Reveal variant={useOriginalResponsiveLayout ? 'none' : 'card-rise'}>
+          <Reveal variant="card-rise">
             <BenchmarkConcertTemplate
               concerts={featuredConcerts}
               detailButtonLabel={detailButtonLabel}
@@ -199,8 +231,8 @@ export function PerformanceNewsPreview({
             />
           </Reveal>
           <Reveal
-            delay={useOriginalResponsiveLayout ? 0 : 80}
-            variant={useOriginalResponsiveLayout ? 'none' : 'card-rise'}
+            delay={80}
+            variant="card-rise"
           >
             <NoticeProgramNotes
               emptyDescription={emptyNoticeText}

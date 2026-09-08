@@ -433,6 +433,11 @@ function normalizeFromFlat(source: HomeContentFlatRecord): HomeContentV2 {
   }
   content.quickActions.items = normalizeQuickItems(record)
   content.about = {
+    responsiveMobileDescription: read('home.responsive.about.mobileDescription', defaults.about.responsiveMobileDescription),
+    responsiveTabletDescription: read('home.responsive.about.tabletDescription', defaults.about.responsiveTabletDescription),
+    responsiveFounded: read('home.responsive.about.founded', defaults.about.responsiveFounded),
+    responsiveContext: read('home.responsive.about.context', defaults.about.responsiveContext),
+    responsiveTabletFacts: read('home.responsive.about.tabletFacts', defaults.about.responsiveTabletFacts),
     eyebrowKo: read(
       'home.current.about.eyebrowKo',
       defaults.about.eyebrowKo,
@@ -478,6 +483,10 @@ function normalizeFromFlat(source: HomeContentFlatRecord): HomeContentV2 {
     items: normalizeProgramItems(record),
   }
   content.joinLetter = {
+    responsiveMobileTitle: read('home.responsive.join.mobileTitle', defaults.joinLetter.responsiveMobileTitle),
+    responsiveMobileDescription: read('home.responsive.join.mobileDescription', defaults.joinLetter.responsiveMobileDescription),
+    responsiveMobileGuardianNotes: read('home.responsive.join.mobileGuardianNotes', defaults.joinLetter.responsiveMobileGuardianNotes),
+    responsiveTabletGuardianNotes: read('home.responsive.join.tabletGuardianNotes', defaults.joinLetter.responsiveTabletGuardianNotes),
     eyebrowKo: read(
       'home.current.join.eyebrowKo',
       defaults.joinLetter.eyebrowKo,
@@ -515,6 +524,12 @@ function normalizeFromFlat(source: HomeContentFlatRecord): HomeContentV2 {
   }
 
   content.scoreBook = {
+    responsiveEyebrow: read('home.scoreBook.responsiveEyebrow', defaults.scoreBook.responsiveEyebrow),
+    responsiveTitle: read('home.scoreBook.responsiveTitle', defaults.scoreBook.responsiveTitle),
+    responsiveLeftTitle: read('home.scoreBook.responsiveLeftTitle', defaults.scoreBook.responsiveLeftTitle),
+    responsiveLeftBody: read('home.scoreBook.responsiveLeftBody', defaults.scoreBook.responsiveLeftBody),
+    responsiveRightTitle: read('home.scoreBook.responsiveRightTitle', defaults.scoreBook.responsiveRightTitle),
+    responsiveRightBody: read('home.scoreBook.responsiveRightBody', defaults.scoreBook.responsiveRightBody),
     eyebrowKo: read(
       'home.scoreBook.eyebrowKo',
       defaults.scoreBook.eyebrowKo,
@@ -698,6 +713,16 @@ export function getHomeContentV2Value(
   content: HomeContentV2,
   key: string,
 ): string {
+  const responsiveMatch = key.match(/^home\.responsive\.(about|join)\.(.+)$/)
+  if (responsiveMatch) {
+    const section = responsiveMatch[1] === 'join' ? 'joinLetter' : 'about'
+    const property = responsiveMatch[2]
+    return String(readNestedValue(
+      content,
+      `home.${section}.responsive${property[0].toUpperCase()}${property.slice(1)}`,
+    ) ?? '')
+  }
+
   const aboutParagraphMatch = key.match(
     /^home\.current\.about\.paragraphs\.(\d+)$/,
   )

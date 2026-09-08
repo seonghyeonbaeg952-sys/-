@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
-import { useSearchParams } from 'react-router'
+import { Navigate, useSearchParams } from 'react-router'
 
 import { SupportPledgeForm } from '../../components/contact/SupportPledgeForm'
 import { AnimatedSectionTabs } from '../../components/common/AnimatedSectionTabs'
@@ -15,7 +15,6 @@ import { SeoHead } from '../../components/common/SeoHead'
 import { Reveal } from '../../components/common/Reveal'
 import { SectionTitle } from '../../components/common/SectionTitle'
 import { ImageTile } from '../../components/home/ImageTile'
-import { JoinInquiryForm } from '../../components/join/JoinInquiryForm'
 import { SponsorsSection } from '../../components/sponsors/SponsorsSection'
 import { useContactData } from '../../hooks/usePublicData'
 import { createContactMessage, type ContactMessageInput } from '../../lib/publicData'
@@ -148,6 +147,14 @@ function getContactSuccessMessage(type: ContactMessageInput['type']) {
 }
 
 export function ContactPage() {
+  const [searchParams] = useSearchParams()
+  if (searchParams.get('section') === 'join') {
+    return <Navigate replace to="/join?section=contact#application" />
+  }
+  return <ContactContent />
+}
+
+function ContactContent() {
   const contactData = useContactData()
   const [searchParams] = useSearchParams()
   const activeSection = getContactSection(searchParams.get('section'))
@@ -171,7 +178,6 @@ export function ContactPage() {
     showAll ||
     activeSection === 'performance' ||
     activeSection === 'support'
-  const showJoinInquiry = activeSection === 'join'
   const showLocation = showAll || activeSection === 'location'
   const values =
     storedValues.section === activeSection
@@ -530,48 +536,6 @@ export function ContactPage() {
           {showSponsors ? (
             <Reveal rootMargin="0px 0px -2% 0px" threshold={0.01}>
               <SponsorsSection sponsors={sponsors} />
-            </Reveal>
-          ) : null}
-
-          {showJoinInquiry ? (
-            <Reveal rootMargin="0px 0px -2% 0px" threshold={0.01}>
-              <section id="join" className="grid gap-6 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
-                <Card
-                  className="relative overflow-hidden border-gold-soft/60 bg-bg-warm-white p-6 shadow-card"
-                  radius="formal"
-                >
-                  <div
-                    aria-hidden="true"
-                    className="absolute -right-8 -top-10 size-32 rounded-full bg-gold-soft/20 sm:-right-10 sm:-top-12 sm:size-40"
-                  />
-                  <div className="relative">
-                    <p className="text-xs font-bold tracking-[0.22em] text-gold-ink">
-                      JOIN APPLICATION
-                    </p>
-                    <h2 className="mt-4 break-keep text-2xl font-semibold text-navy-deep">
-                      입단지원서 작성
-                    </h2>
-                    <p className="mt-5 break-keep text-base leading-8 text-text-muted">
-                      서울모테트청소년합창단 입단을 희망하는 학생은 아래 지원서를 작성해 주세요.
-                      일반 문의와 별도로 접수되며, 담당자가 확인한 후 보호자 연락처로 안내드립니다.
-                    </p>
-                    <div className="mt-5">
-                      <Button href="/join?section=contact#application" variant="secondary">
-                        입단 안내에서 작성하기
-                      </Button>
-                    </div>
-                    <div className="mt-6 grid gap-3 text-sm leading-6 text-text-muted">
-                      <p className="rounded-button border border-line-default bg-bg-ivory px-4 py-3">
-                        추천서는 선택 항목입니다. 추천서가 없어도 지원서를 제출할 수 있습니다.
-                      </p>
-                      <p className="rounded-button border border-line-default bg-bg-ivory px-4 py-3">
-                        사진은 최근 반명함판 사진 기준으로 첨부해 주세요.
-                      </p>
-                    </div>
-                  </div>
-                </Card>
-                <JoinInquiryForm />
-              </section>
             </Reveal>
           ) : null}
 

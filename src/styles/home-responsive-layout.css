@@ -1,0 +1,17 @@
+/* Compact quick links sit below the preserved hero, unlike desktop glass cards. */
+@media (max-width: 1023px) {
+  .public-shell-home-sample-v4[data-design-candidate='home-v4'] .home-flow-root .home-flow-body {
+    margin-top: 0 !important;
+    background: #fbf8f2 !important;
+  }
+
+  .public-shell-home-sample-v4[data-design-candidate='home-v4'] .home-flow-root .home-flow-body::before {
+    display: none !important;
+  }
+
+  /* Remove the lower gold staff decoration, keeping the separate autoplay
+     progress indicator and the orange accent above the hero title. */
+  .public-shell-home-sample-v4[data-design-candidate='home-v4'] .home-hero-section::after {
+    display: none !important;
+  }
+}

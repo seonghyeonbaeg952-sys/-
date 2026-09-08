@@ -1,0 +1,73 @@
+.concert-detail { padding-top: 72px; overflow: visible; }
+.concert-detail__container { width: min(100% - 96px, 1368px); margin-inline: auto; padding-bottom: 84px; }
+.concert-detail__breadcrumb { padding-block: 32px 16px; }
+.concert-detail__breadcrumb a { display: inline-flex; min-height: 52px; align-items: center; gap: 12px; padding-inline: 12px; color: var(--concert-muted); font-size: 14px; text-decoration: none; }
+.concert-detail__article { display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; padding-block: 64px 0; }
+.concert-detail__article--with-poster { grid-template-columns: minmax(240px, 420px) minmax(0, 1fr); grid-template-rows: auto auto 1fr; column-gap: 64px; align-items: start; }
+.concert-detail__summary { display: grid; min-width: 0; gap: 28px; }
+.concert-detail__article--with-poster .concert-detail__summary { grid-column: 2; grid-row: 1; }
+.concert-detail__status { margin: 0; color: var(--concert-burgundy); font-size: 14px; font-weight: 600; }
+.concert-detail__summary h1 { margin: 0; color: var(--concert-ink); font: 700 clamp(32px, 3.34vw, 48px)/1.42 Hahmlet, var(--font-heading-kr); letter-spacing: -.025em; word-break: keep-all; overflow-wrap: anywhere; }
+.concert-detail__date { color: var(--concert-ink); font-size: 28px; font-weight: 700; font-variant-numeric: lining-nums tabular-nums; line-height: 1.55; }
+.concert-detail__meta { margin: 0; font-size: 20px; line-height: 1.65; word-break: keep-all; overflow-wrap: anywhere; }
+.concert-detail__actions { display: flex; flex-wrap: wrap; gap: 16px; }
+.concert-detail__article--with-poster .concert-detail__actions { grid-column: 2; grid-row: 2; }
+.concert-detail__button { display: inline-flex; min-height: 52px; align-items: center; justify-content: center; gap: 12px; padding: 12px 28px; border: 0; border-radius: 4px; background: transparent; color: var(--concert-muted); font: 600 14px/24px "Concert Gothic A1", var(--font-sans-kr); text-align: center; text-decoration: none; cursor: pointer; }
+.concert-detail__button--primary { min-width: 200px; background: var(--concert-burgundy); color: var(--concert-paper); }
+.concert-detail__button:hover { background: var(--concert-cool); color: var(--concert-ink); }
+.concert-detail__button--primary:hover { background: var(--concert-burgundy); color: var(--concert-paper); filter: brightness(1.12); }
+.concert-detail :is(a, button):focus-visible { outline: 2px solid var(--concert-burgundy); outline-offset: 4px; }
+.concert-detail__body { display: grid; min-width: 0; gap: 36px; }
+.concert-detail__article--with-poster .concert-detail__body { grid-column: 2; grid-row: 3; }
+.concert-detail__body section { padding-top: 28px; border-top: 1px solid var(--concert-border); }
+.concert-detail__body h2 { margin: 0 0 16px; font: 700 22px/1.5 Hahmlet, var(--font-heading-kr); }
+.concert-detail__body p, .concert-detail__body ul { margin: 0; padding: 0; color: var(--concert-muted); font-size: 17px; line-height: 1.9; white-space: pre-line; overflow-wrap: anywhere; word-break: keep-all; }
+.concert-detail__body ul { list-style: none; display: grid; gap: 8px; }
+.concert-poster { grid-column: 1; grid-row: 1 / 4; min-width: 0; margin: 0; }
+.concert-poster__media { position: relative; min-width: 0; }
+.concert-poster__media.is-loading, .concert-poster__media.is-error { min-height: 280px; background: var(--concert-cool); }
+.concert-poster__loading { position: absolute; z-index: 1; inset: 0; display: grid; place-content: center; margin: 0; padding: 24px; color: var(--concert-muted); font-size: 15px; text-align: center; }
+.concert-poster__image-button { display: block; width: 100%; padding: 0; border: 0; background: transparent; cursor: zoom-in; }
+.concert-poster__image { display: block; width: 100%; height: auto; object-fit: contain; }
+.concert-poster__media.is-loading .concert-poster__image { opacity: 0; }
+.concert-poster__expand { width: 100%; margin-top: 16px; }
+.concert-poster__error { display: grid; min-height: 280px; place-content: center; gap: 16px; padding: 24px; text-align: center; }
+.concert-poster__error p { margin: 0; font-size: 16px; line-height: 1.7; }
+.concert-poster__error button { text-decoration: underline; text-underline-offset: 4px; }
+.concert-poster-viewer { position: fixed; inset: 0; width: min(1200px, calc(100% - 48px)); max-width: none; max-height: calc(100dvh - 48px); margin: auto; padding: 32px; overflow: auto; overscroll-behavior: contain; border: 0; background: var(--concert-paper); color: var(--concert-ink); font-family: "Concert Gothic A1", var(--font-sans-kr); }
+.concert-poster-viewer::backdrop { background: rgb(23 25 29 / .78); }
+.concert-poster-viewer__header { display: flex; align-items: start; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
+.concert-poster-viewer__header > div:first-child { min-width: 0; }
+.concert-poster-viewer__header p { margin: 0 0 8px; color: var(--concert-muted); font-size: 13px; }
+.concert-poster-viewer__header h2 { margin: 0; font-size: 22px; line-height: 1.5; overflow-wrap: anywhere; word-break: keep-all; }
+.concert-poster-viewer__controls { display: flex; flex-shrink: 0; gap: 8px; }
+.concert-poster-viewer__controls button { min-height: 44px; padding: 10px 16px; border: 1px solid var(--concert-border); background: var(--concert-paper); color: var(--concert-ink); font: 600 14px/24px "Concert Gothic A1", var(--font-sans-kr); cursor: pointer; }
+.concert-poster-viewer__controls button:hover { background: var(--concert-cool); }
+.concert-poster-viewer :focus-visible { outline: 2px solid var(--concert-burgundy); outline-offset: 2px; }
+.concert-poster-viewer__canvas { max-height: 65dvh; overflow: auto; overscroll-behavior: contain; }
+.concert-poster-viewer__canvas .concert-poster__image { width: auto; max-width: 100%; max-height: 65dvh; margin-inline: auto; }
+.concert-poster-viewer__canvas.is-zoomed .concert-poster__media { width: 200%; }
+.concert-poster-viewer__canvas.is-zoomed .concert-poster__image { width: 100%; max-height: none; }
+.concert-poster-viewer__hint { margin: 16px 0 0; color: var(--concert-muted); font-size: 13px; line-height: 1.7; }
+@media (max-width: 1099px) {
+  .concert-detail__article--with-poster { column-gap: 36px; grid-template-columns: minmax(220px, .8fr) minmax(0, 1fr); }
+  .concert-detail__summary { gap: 24px; }
+  .concert-detail__date { font-size: 24px; }
+  .concert-detail__meta { font-size: 18px; }
+}
+@media (max-width: 719px) {
+  .concert-detail__container { width: calc(100% - 48px); padding-bottom: 48px; }
+  .concert-detail__breadcrumb { padding-block: 20px 8px; }
+  .concert-detail__article { display: flex; flex-direction: column; gap: 24px; padding-top: 28px; }
+  .concert-detail__summary h1 { font-size: 32px; line-height: 1.44; }
+  .concert-detail__meta { font-size: 17px; }
+  .concert-poster, .concert-detail__summary, .concert-detail__actions, .concert-detail__body { width: 100%; }
+  .concert-detail__actions { flex-direction: column; gap: 8px; }
+  .concert-detail__button { width: 100%; }
+  .concert-poster-viewer { width: calc(100% - 24px); max-height: calc(100dvh - 24px); padding: 20px; }
+  .concert-poster-viewer__header { flex-direction: column; gap: 16px; }
+  .concert-poster-viewer__header h2 { font-size: 18px; }
+  .concert-poster-viewer__controls { width: 100%; justify-content: space-between; }
+  .concert-poster-viewer__canvas, .concert-poster-viewer__canvas .concert-poster__image { max-height: 56dvh; }
+  .concert-poster-viewer__canvas.is-zoomed .concert-poster__image { max-height: none; }
+}

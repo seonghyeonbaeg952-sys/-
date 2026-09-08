@@ -11,10 +11,10 @@ const JOIN_APPLICATION_FILES_BUCKET = 'join-application-files'
 
 const statusOptions = [
   { label: '신규', value: 'new' },
-  { label: '검토 중', value: 'in_review' },
-  { label: '합격', value: 'accepted' },
-  { label: '불합격', value: 'rejected' },
-  { label: '보관', value: 'archived' },
+  { label: '연락 완료', value: 'contacted' },
+  { label: '오디션 안내', value: 'audition_guided' },
+  { label: '보류', value: 'on_hold' },
+  { label: '처리 완료', value: 'done' },
 ]
 
 const statusLabels: Record<string, string> = Object.fromEntries(
@@ -30,14 +30,14 @@ const fields = [
 const columns = [
   { header: '이름', value: 'applicant_name' },
   { header: '학교', render: (row) => displayText(row.school) },
-  { header: '학년', render: (row) => displayText(row.grade) },
-  { header: '성별', render: (row) => getGenderLabel(row.gender) },
+  { header: '학년', render: (row) => row.form_version === 2 ? '—' : displayText(row.grade) },
+  { header: '성별', render: (row) => row.form_version === 2 ? '—' : getGenderLabel(row.gender) },
   { header: '보호자 연락처', render: (row) => displayText(row.guardian_phone) },
-  { header: '지원 파트', render: (row) => displayText(row.desired_part) },
-  { header: '사진 여부', render: (row) => (row.photo_file_path ? '있음' : '없음') },
+  { header: '지원 파트', render: (row) => getDesiredPartsLabel(row) },
+  { header: '사진 여부', render: (row) => row.photo_file_path ? '있음' : row.form_version === 2 ? '—' : '없음' },
   {
     header: '추천서 여부',
-    render: (row) => (row.recommendation_file_path ? '있음' : '없음'),
+    render: (row) => row.recommendation_file_path ? '있음' : row.form_version === 2 ? '—' : '없음',
   },
   { header: '접수일', render: (row) => formatDate(row.created_at) },
   {
@@ -50,6 +50,18 @@ function displayText(value: string | null | undefined) {
   const normalized = value?.trim()
 
   return normalized || '미입력'
+}
+
+const partLabels: Record<string, string> = {
+  soprano: '소프라노', alto: '알토', tenor: '테너', bass: '베이스', other: '기타',
+}
+
+function getDesiredPartsLabel(row: JoinApplicationRow) {
+  const parts = row.desired_parts?.filter(part => typeof part === 'string' && part.trim()) ?? []
+  const values = parts.length ? parts : row.desired_part ? [row.desired_part] : []
+  return [...new Set(values.map(part => part.trim()))]
+    .map(part => Object.hasOwn(partLabels, part) ? partLabels[part] : part)
+    .join(', ') || '미입력'
 }
 
 function formatDate(value: string | null | undefined) {
@@ -65,6 +77,7 @@ function formatDate(value: string | null | undefined) {
 
   return new Intl.DateTimeFormat('ko-KR', {
     dateStyle: 'medium',
+    timeZone: 'Asia/Seoul',
   }).format(date)
 }
 
@@ -82,6 +95,7 @@ function formatDateTime(value: string | null | undefined) {
   return new Intl.DateTimeFormat('ko-KR', {
     dateStyle: 'medium',
     timeStyle: 'short',
+    timeZone: 'Asia/Seoul',
   }).format(date)
 }
 
@@ -309,16 +323,20 @@ function DetailSection({
 }
 
 function preparePayload(payload: CmsMutationPayload) {
-  const isArchived = payload.status === 'archived' || payload.is_archived === true
-
   return {
     admin_notes: payload.admin_notes,
-    is_archived: isArchived,
-    status: isArchived ? 'archived' : payload.status,
+    is_archived: payload.is_archived === true,
+    status: payload.status,
   } satisfies CmsMutationPayload
 }
 
-function JoinApplicationDetails({ row }: { row: JoinApplicationRow }) {
+function validatePayload(payload: CmsMutationPayload) {
+  return statusOptions.some(option => option.value === payload.status)
+    ? null
+    : '처리 상태를 다시 선택해 주세요.'
+}
+
+function LegacyJoinApplicationDetails({ row }: { row: JoinApplicationRow }) {
   return (
     <div className="space-y-5">
       <DetailSection
@@ -354,7 +372,7 @@ function JoinApplicationDetails({ row }: { row: JoinApplicationRow }) {
       />
       <DetailSection
         items={[
-          { label: '지원 파트', value: displayText(row.desired_part) },
+          { label: '지원 파트', value: getDesiredPartsLabel(row) },
           {
             label: '합창 경험',
             value: getBooleanChoiceLabel(row.choir_experience),
@@ -402,7 +420,14 @@ function JoinApplicationDetails({ row }: { row: JoinApplicationRow }) {
         title="자기소개와 지원 동기"
       />
       <JoinApplicationAttachments row={row} />
-      <DetailSection
+      <JoinApplicationReview row={row} />
+    </div>
+  )
+}
+
+function JoinApplicationReview({ row }: { row: JoinApplicationRow }) {
+  return (
+    <DetailSection
         items={[
           {
             label: '현재 상태',
@@ -417,6 +442,34 @@ function JoinApplicationDetails({ row }: { row: JoinApplicationRow }) {
         ]}
         title="관리자 메모/상태"
       />
+  )
+}
+
+function JoinApplicationDetails({ row }: { row: JoinApplicationRow }) {
+  if (row.form_version !== 2) return <LegacyJoinApplicationDetails row={row} />
+  return (
+    <div className="space-y-5">
+      <DetailSection
+        title="입단지원서"
+        items={[
+          { label: '이름', value: displayText(row.applicant_name) },
+          { label: '생년월일', value: formatDate(row.birth_date) },
+          { label: '학교·학년', value: displayText(row.school) },
+          { label: '지원자 연락처', value: displayText(row.applicant_phone) },
+          { label: '보호자 연락처', value: displayText(row.guardian_phone) },
+          { label: '지원 파트', value: getDesiredPartsLabel(row) },
+          { label: '지원 동기', value: displayText(row.motivation), multiline: true },
+        ]}
+      />
+      <DetailSection
+        title="접수 정보"
+        items={[
+          { label: '개인정보 동의', value: row.privacy_agreed ? '동의' : '미동의' },
+          { label: '접수일', value: formatDateTime(row.created_at) },
+        ]}
+      />
+      {row.photo_file_path || row.recommendation_file_path ? <JoinApplicationAttachments row={row} /> : null}
+      <JoinApplicationReview row={row} />
     </div>
   )
 }
@@ -449,6 +502,7 @@ export function AdminJoinApplicationsPage() {
       info="지원서 원문은 관리자 화면에서만 확인합니다. public 화면에는 노출하지 않습니다."
       order={{ column: 'created_at', ascending: false }}
       preparePayload={preparePayload}
+      validatePayload={validatePayload}
       renderBeforeForm={(row) => <JoinApplicationDetails row={row} />}
       searchColumn="applicant_name"
       searchPlaceholder="지원자 이름 검색"

@@ -1,0 +1,447 @@
+@font-face {
+  font-family: 'Responsive Concert Gothic';
+  src: url('/fonts/GothicA1-Regular.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Responsive Concert Gothic';
+  src: url('/fonts/GothicA1-Bold.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Responsive Concert Cormorant';
+  src: url('/fonts/CormorantGaramond-Variable.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+}
+
+/* This presentation is mounted only below the unchanged desktop breakpoint. */
+@media (max-width: 1023px) {
+  .home-flow-root .home-flow-body #home-responsive-concerts.home-section--responsive-concerts {
+    --responsive-concert-paper: #fbf8f2;
+    --responsive-concert-ink: #3b1733;
+    --responsive-concert-muted: #6e554b;
+    --responsive-concert-line: #f0d5c8;
+    margin: 0 !important;
+    padding: 48px 24px !important;
+    background: var(--responsive-concert-paper) !important;
+    color: var(--responsive-concert-ink);
+    font-family: 'Responsive Concert Gothic', var(--font-sans-kr);
+  }
+
+  .home-flow-root .home-flow-body #home-responsive-concerts::before,
+  .home-flow-root .home-flow-body #home-responsive-concerts::after {
+    display: none !important;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__content {
+    display: grid;
+    gap: 24px;
+    width: 100%;
+    min-width: 0;
+    margin-inline: auto;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__heading {
+    display: grid;
+    gap: 24px;
+  }
+
+  .home-section--responsive-concerts :is(h2, h3, p, ul) {
+    margin: 0;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__eyebrow,
+  .home-section--responsive-concerts .responsive-concerts__notice-eyebrow {
+    color: var(--responsive-concert-muted);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.6;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__heading h2 {
+    color: var(--responsive-concert-ink);
+    font-family: Hahmlet, var(--font-heading-kr);
+    font-size: 30px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__description {
+    color: var(--responsive-concert-muted);
+    font-size: 13px;
+    line-height: 1.8;
+    white-space: pre-line;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__ticket {
+    display: grid;
+    gap: 24px;
+    min-width: 0;
+    padding: 28px 24px 24px;
+    border: 0;
+    box-shadow: inset 0 0 0 1px var(--responsive-concert-line);
+    background: #fff;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__date-panel,
+  .home-section--responsive-concerts .responsive-concerts__details {
+    display: grid;
+    gap: 24px;
+    min-width: 0;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__card-eyebrow {
+    color: var(--responsive-concert-ink);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    line-height: 1.5;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__date {
+    display: grid;
+    grid-template-columns: minmax(130px, 175px) minmax(0, 90px);
+    align-items: center;
+    gap: 20px;
+    min-width: 0;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__month-day {
+    color: var(--responsive-concert-ink);
+    font-family: 'Responsive Concert Cormorant', var(--font-display-en);
+    font-size: 61px;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__date-detail {
+    display: grid;
+    gap: 0;
+    color: var(--responsive-concert-muted);
+    font-size: 12px;
+    line-height: 1.9;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__date-separator,
+  .home-section--responsive-concerts .responsive-concerts__notice-date--spaced {
+    display: none;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__details h3 {
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--responsive-concert-ink);
+    color: var(--responsive-concert-ink);
+    font-family: Hahmlet, var(--font-heading-kr);
+    font-size: 27px;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 40px;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__venue {
+    display: grid;
+    gap: 4px;
+    color: var(--responsive-concert-muted);
+    font-size: 14px;
+    line-height: 1.8;
+  }
+
+  .home-flow-root .home-section--responsive-concerts .responsive-concerts__action {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    min-width: 0;
+    min-height: 52px;
+    height: auto;
+    padding: 13px 20px;
+    border: 1px solid var(--responsive-concert-line);
+    border-radius: 26px;
+    background: transparent;
+    color: var(--responsive-concert-ink);
+    box-shadow: none;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.6;
+    text-align: left;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .home-flow-root .home-section--responsive-concerts .responsive-concerts__action--detail {
+    border-color: #ff601a;
+    background: #ff601a;
+  }
+
+  .home-flow-root .home-section--responsive-concerts .responsive-concerts__action .btn-arrow {
+    flex-shrink: 0;
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__notice-arrow--tablet {
+    display: none;
+  }
+
+  .home-flow-root .home-section--responsive-concerts .responsive-concerts__action:hover {
+    border-color: var(--responsive-concert-ink);
+    background: #fff1e8;
+    color: var(--responsive-concert-ink);
+  }
+
+  .home-flow-root .home-section--responsive-concerts .responsive-concerts__action--detail:hover {
+    border-color: #ff7435;
+    background: #ff7435;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__notices {
+    display: grid;
+    gap: 10px;
+    min-width: 0;
+    padding-top: 8px;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__notice-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 92px;
+    align-items: start;
+    gap: 16px;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__notice-heading h3 {
+    color: var(--responsive-concert-ink);
+    font-family: Hahmlet, var(--font-heading-kr);
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 1.6;
+  }
+
+  .home-flow-root .home-section--responsive-concerts .responsive-concerts__all-notices {
+    min-width: 0;
+    min-height: 44px;
+    height: auto;
+    justify-content: flex-start;
+    padding: 0;
+    margin-block: -8.4px;
+    border: 0;
+    background: transparent;
+    color: var(--responsive-concert-muted);
+    box-shadow: none;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 26.4px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__notice-list {
+    padding: 0;
+    list-style: none;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__notice-row {
+    display: grid;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 0 10px;
+    border-bottom: 1px solid var(--responsive-concert-line);
+    color: var(--responsive-concert-ink);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__notice-row strong {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 25px;
+    word-break: keep-all;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__notice-date {
+    color: var(--responsive-concert-muted);
+    font-size: 10px;
+    line-height: 1.8;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__notice-row:hover strong {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .home-flow-root .home-section--responsive-concerts a:focus-visible {
+    outline: 2px solid var(--responsive-concert-ink);
+    outline-offset: 4px;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__empty .empty-state {
+    border-color: var(--responsive-concert-line);
+    background: #fff;
+    box-shadow: none;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .home-section--responsive-concerts .responsive-concerts__notice-arrow--mobile {
+    display: none;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__notice-arrow--tablet {
+    display: inline;
+  }
+
+  .home-flow-root .home-flow-body #home-responsive-concerts.home-section--responsive-concerts {
+    padding: 60px 48px 56px !important;
+    border-block: 0;
+    box-shadow: inset 0 1px 0 var(--responsive-concert-line), inset 0 -1px 0 var(--responsive-concert-line);
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__eyebrow {
+    color: #ff601a;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__heading h2 {
+    font-size: 36px;
+    font-weight: 400;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__description {
+    font-size: 15px;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__ticket {
+    grid-template-columns: minmax(150px, 180px) minmax(0, 1fr);
+    align-items: center;
+    gap: 32px;
+    padding: 32px 28px;
+    background:
+      linear-gradient(rgb(251 248 242 / 0.84), rgb(251 248 242 / 0.84)),
+      url('/images/home/responsive-concert-paper.png') center / cover,
+      var(--responsive-concert-paper);
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__date-panel {
+    gap: 16px;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__date {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__month-day {
+    font-size: 64px;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__date-detail {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__date-separator,
+  .home-section--responsive-concerts .responsive-concerts__notice-date--spaced {
+    display: inline;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__notice-date--compact,
+  .home-section--responsive-concerts .responsive-concerts__notice-important {
+    display: none;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__card-eyebrow {
+    color: #ff601a;
+    font-size: 12px;
+    letter-spacing: 0;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__details {
+    gap: 20px;
+    padding-left: 28px;
+    border-left: 0;
+    box-shadow: inset 1px 0 0 var(--responsive-concert-line);
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__details h3 {
+    padding-bottom: 0;
+    border-bottom: 0;
+    font-size: 30px;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.35;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__venue {
+    font-size: 16px;
+  }
+
+  .home-flow-root .home-section--responsive-concerts .responsive-concerts__action--detail {
+    max-width: 260px;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__notices {
+    gap: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--responsive-concert-line);
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__notice-eyebrow {
+    display: none;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__notice-heading h3 {
+    font-size: 21px;
+    line-height: 1.5;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__notice-heading {
+    grid-template-columns: minmax(0, 1fr) 154px;
+    gap: 28px;
+  }
+
+  .home-flow-root .home-section--responsive-concerts .responsive-concerts__all-notices {
+    font-size: 13px;
+    line-height: 1.8;
+    margin-block: -6.25px;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__notice-row {
+    grid-template-columns: minmax(0, 1fr) 192px;
+    align-items: baseline;
+    gap: 28px;
+    padding: 12px 0 16px;
+    border-bottom: 0;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__notice-row strong {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  .home-section--responsive-concerts .responsive-concerts__notice-date {
+    font-size: 13px;
+  }
+
+  .home-flow-root .home-section--responsive-concerts .responsive-concerts__all-concerts {
+    display: none;
+  }
+}
