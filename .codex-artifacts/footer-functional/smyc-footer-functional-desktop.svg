@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="520" viewBox="0 0 1536 520">
+  <title>서울모테트청소년합창단 기능 중심 푸터 — 데스크톱 1536</title>
+  <desc>브랜드, 연락처, 빠른 메뉴, 참여, 소셜, 법적 정보와 관리자 및 상단 이동 기능만 남긴 데스크톱 푸터 샘플</desc>
+  <defs>
+    <style>
+      .sans { font-family: "Gothic A1", "Noto Sans KR", sans-serif; }
+      .serif { font-family: "Hahmlet", "Noto Serif KR", serif; }
+      .ivory { fill: #f6f1e8; }
+      .muted { fill: #a8a59f; }
+      .orange { fill: #f04b23; }
+      .label { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; }
+      .link { font-size: 15px; font-weight: 500; }
+      .small { font-size: 12px; font-weight: 400; }
+    </style>
+    <symbol id="smyc-symbol" viewBox="0 0 111 122">
+      <path d="M44 19.893C44 35.603 44.282 39.894 45.341 40.3C47.585 41.162 48.783 39.738 52.272 32.065L55.622 24.699 59.059 32.338C62.603 40.213 64.255 41.863 66.627 39.895C67.705 39 68 34.587 68 19.378V0H62.066L61.783 11.25C61.479 23.316 61.663 23.221 57.434 13.5L55.694 9.5 50.098 21.5 50 0H44V19.893M0 43.949V46.938L12.25 47.219C25.339 47.519 25.233 47.382 15.566 51.503L11.631 53.181 24.5 58.944 0 59V65.04L21.25 64.77C41.743 64.51 42.5 64.429 42.5 62.5C42.5 61.001 40.686 59.638 35.25 57.057C31.263 55.163 28.006 53.363 28.014 53.057C28.021 52.751 31.284 51.132 35.264 49.461C41.462 46.858 42.5 46.069 42.5 43.961V41.5L0 40.96V43.949M69.105 42.373C67.62 44.163 68.658 46.757 71.178 47.557C72.275 47.905 75.66 49.328 78.7 50.72L84.229 53.251 77.365 56.233C69.43 59.679 67.488 61.225 68.332 63.422C68.857 64.79 71.737 65 89.969 65H111V59L87.5 58.828 99.484 53.224 86.5 47.172 111 47V41H90.622C74.565 41 70.003 41.291 69.105 42.373M44.479 66.919C43.874 67.524 43.608 78.238 43.781 94.949L44.063 122H50L50.153 85.5 55.744 96.986 61.5 84.5 62.044 122H68.032L67.5 66.5 65.226 66.177C63.264 65.899 62.461 66.926 59.361 73.677L55.77 81.5 52.135 74C48.632 66.772 46.553 64.849 44.479 66.919M76.72 72.588C75.192 73.417 74.126 74.411 74.353 74.797C74.58 75.184 76.618 81.384 78.883 88.575C82.457 99.924 83 102.861 83 110.825V120H91V110.208C91 101.28 91.391 99.252 95.433 87.199L99.866 73.982 94.258 71.082 86.971 91 79.685 71.04C79.583 71.062 78.249 71.758 76.72 72.588M17.111 74.56C13.369 77.708 12.305 82.412 14.276 87.088C15.067 88.965 17.765 93.486 20.272 97.136C22.78 100.786 25.577 105.215 26.488 106.977C28.039 109.977 28.035 110.304 26.418 112.091C24.323 114.405 21.214 114.538 18.22 112.442C16.114 110.966 15.942 111.023 14.997 113.507C14.449 114.95 14 116.461 14 116.864C14 118.138 20.47 120 24.898 120C28.269 120 29.762 119.392 32.077 117.077C34.426 114.728 35 113.286 35 109.733C35 105.956 33.981 103.738 28 94.5C24.15 88.553 21 82.948 21 82.044C21 78.486 26.336 76.662 29.988 78.972C31.083 79.664 31.801 79.329 32.703 77.706C34.451 74.562 34.353 74.319 30.851 73.098C25.433 71.209 20.465 71.738 17.111 74.56"/>
+    </symbol>
+  </defs>
+
+  <g id="Footer/Desktop/Functional">
+    <rect width="1536" height="520" fill="#17191d"/>
+    <rect width="1536" height="4" fill="#f04b23"/>
+
+    <g id="Header/Utility">
+      <use href="#smyc-symbol" x="72" y="30" width="42" height="47" fill="#f04b23"/>
+      <text x="130" y="51" class="serif ivory" font-size="18" font-weight="700">서울모테트청소년합창단</text>
+      <text x="130" y="71" class="sans orange" font-size="10" font-weight="700" letter-spacing="1.5">SEOUL MOTET YOUTH CHOIR</text>
+
+      <g id="Utility/Phone">
+        <text x="1080" y="45" class="sans label orange">PHONE</text>
+        <text x="1080" y="67" class="sans small ivory">02-579-7295</text>
+      </g>
+
+      <g id="Action/Join" role="button">
+        <rect x="1216" y="28" width="116" height="48" rx="24" fill="#f04b23"/>
+        <text x="1274" y="58" class="sans" font-size="14" font-weight="700" text-anchor="middle" fill="#17191d">입단 안내 ↗</text>
+      </g>
+      <g id="Action/Support" role="button">
+        <rect x="1344" y="28" width="120" height="48" rx="24" fill="none" stroke="#56575a"/>
+        <text x="1404" y="58" class="sans ivory" font-size="14" font-weight="700" text-anchor="middle">후원·문의 ↗</text>
+      </g>
+    </g>
+
+    <line x1="72" y1="112" x2="1464" y2="112" stroke="#34363a"/>
+
+    <g id="Information/Contact">
+      <text x="72" y="153" class="sans label orange">합창단 안내</text>
+      <text x="72" y="188" class="serif ivory" font-size="22" font-weight="700">필요한 정보를 빠르게 찾으세요.</text>
+      <text x="72" y="222" class="sans muted" font-size="13">서울모테트음악재단 청소년아카데미 부설 합창단입니다.</text>
+      <text x="72" y="244" class="sans muted" font-size="13">합창 교육과 공연 활동으로 청소년의 음악적 성장을 돕습니다.</text>
+
+      <text x="72" y="286" class="sans label orange">ADDRESS</text>
+      <text x="148" y="286" class="sans small ivory">서울특별시 서초구 사임당로 8길 17 서주빌딩 B1</text>
+      <text x="72" y="318" class="sans label orange">CONTACT</text>
+      <text x="148" y="318" class="sans small ivory">02-579-7295</text>
+    </g>
+
+    <g id="Navigation/Explore">
+      <text x="640" y="153" class="sans label orange">바로가기</text>
+      <g id="Link/About"><text x="640" y="193" class="sans link ivory">합창단 소개</text><text x="814" y="193" class="sans muted" font-size="13">↗</text></g>
+      <g id="Link/Spirit"><text x="640" y="235" class="sans link ivory">합창단 정신</text><text x="814" y="235" class="sans muted" font-size="13">↗</text></g>
+      <g id="Link/Concerts"><text x="640" y="277" class="sans link ivory">공연·소식</text><text x="814" y="277" class="sans muted" font-size="13">↗</text></g>
+      <g id="Link/Gallery"><text x="640" y="319" class="sans link ivory">갤러리</text><text x="814" y="319" class="sans muted" font-size="13">↗</text></g>
+    </g>
+
+    <g id="Navigation/Participate">
+      <text x="890" y="153" class="sans label orange">참여</text>
+      <g id="Link/Join"><text x="890" y="193" class="sans link ivory">입단 안내</text><text x="1064" y="193" class="sans muted" font-size="13">↗</text></g>
+      <g id="Link/Support"><text x="890" y="235" class="sans link ivory">후원·문의</text><text x="1064" y="235" class="sans muted" font-size="13">↗</text></g>
+      <g id="Link/Directions"><text x="890" y="277" class="sans link ivory">오시는 길</text><text x="1064" y="277" class="sans muted" font-size="13">↗</text></g>
+    </g>
+
+    <g id="Navigation/Connect">
+      <text x="1140" y="153" class="sans label orange">연결</text>
+      <g id="Link/Youtube"><text x="1140" y="193" class="sans link ivory">YouTube</text><text x="1346" y="193" class="sans muted" font-size="13">↗</text></g>
+      <g id="Link/Instagram"><text x="1140" y="235" class="sans link ivory">Instagram</text><text x="1346" y="235" class="sans muted" font-size="13">↗</text></g>
+    </g>
+
+    <line x1="72" y1="426" x2="1464" y2="426" stroke="#34363a"/>
+    <g id="Legal/Utility">
+      <text x="72" y="475" class="sans muted" font-size="10" letter-spacing="1">© 2026 SEOUL MOTET YOUTH CHOIR. ALL RIGHTS RESERVED.</text>
+      <text x="660" y="475" class="sans muted" font-size="11">서울모테트음악재단 청소년아카데미 부설</text>
+      <text x="1190" y="475" class="sans muted" font-size="11">관리자 로그인</text>
+      <g id="Control/Top" role="button">
+        <rect x="1360" y="451" width="104" height="44" rx="22" fill="#202226" stroke="#4a4b4e"/>
+        <text x="1412" y="478" class="sans ivory" font-size="11" font-weight="700" text-anchor="middle" letter-spacing="1.3">TOP ↑</text>
+      </g>
+    </g>
+  </g>
+</svg>

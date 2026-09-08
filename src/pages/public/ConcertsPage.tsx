@@ -1,34 +1,32 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 
-import { AnimatedSectionTabs } from '../../components/common/AnimatedSectionTabs'
-import { Badge } from '../../components/common/Badge'
-import { Button } from '../../components/common/Button'
-import { Card } from '../../components/common/Card'
-import { Container } from '../../components/common/Container'
+import { ConcertFilterDrawer } from '../../components/concerts/ConcertFilterDrawer'
+import {
+  buildConcertSchedule,
+  filterConcerts,
+  getConcertMetaLine,
+  getConcertPeriod,
+  getConcertStatusLabel,
+  getSafeHttpUrl,
+  getSeoulDateString,
+} from '../../components/concerts/concertScheduleModel'
 import { EmptyState } from '../../components/common/EmptyState'
 import { ErrorState } from '../../components/common/ErrorState'
+import { FilterSelect } from '../../components/common/FilterSelect'
 import { LoadingState } from '../../components/common/LoadingState'
-import { PageHero } from '../../components/common/PageHero'
-import { Reveal } from '../../components/common/Reveal'
 import { SeoHead } from '../../components/common/SeoHead'
-import { StaffLines } from '../../components/common/StaffLines'
 import { TransitionLink } from '../../components/common/TransitionLink'
-import { ImageTile } from '../../components/home/ImageTile'
 import { useConcertsData } from '../../hooks/usePublicData'
-import type { Concert, ConcertStatus } from '../../types/content'
-import { getCollectionLayoutMode } from '../../utils/collectionLayout'
-import { formatKoreanDate } from '../../utils/formatDate'
+import '../../styles/concerts-page.css'
+import type { Concert } from '../../types/content'
 
-const statusLabels: Record<ConcertStatus, string> = {
-  cancelled: '취소',
-  closed: '마감',
-  open: '접수/예매 가능',
-  scheduled: '예정',
-}
+type PeriodFilter = 'all' | 'past' | 'upcoming'
+
+const FEATURED_ARCHIVE_IMAGE = '/images/about/conductor/smyc-performance-2026.jpg'
 
 const categoryLabels: Record<string, string> = {
-  church: '교회/예배연주',
+  church: '교회·예배연주',
   invited: '초청연주',
   other: '기타',
   past: '지난 공연',
@@ -36,124 +34,313 @@ const categoryLabels: Record<string, string> = {
   special: '특별연주',
 }
 
-const periodTabs: Array<{
-  label: string
-  value: 'all' | 'past' | 'upcoming'
-}> = [
-  { label: '전체', value: 'all' },
-  { label: '예정 공연', value: 'upcoming' },
-  { label: '지난 공연', value: 'past' },
-]
-
 const concertsPageDescription =
   '서울모테트청소년합창단의 정기연주회, 초청연주, 특별연주 일정과 공연 정보를 확인합니다.'
 
-function isPastConcert(concert: Concert) {
-  if (concert.status === 'closed' || concert.status === 'cancelled') {
-    return true
-  }
+const monthLabels = [
+  'JAN',
+  'FEB',
+  'MAR',
+  'APR',
+  'MAY',
+  'JUN',
+  'JUL',
+  'AUG',
+  'SEP',
+  'OCT',
+  'NOV',
+  'DEC',
+]
 
-  if (!concert.date) {
-    return false
-  }
-
-  return new Date(`${concert.date}T23:59:59`).getTime() < Date.now()
+function getCategoryLabel(category: string) {
+  return categoryLabels[category] ?? (category.trim() || '기타')
 }
 
-function PosterFallback({ date, title }: { date?: string; title: string }) {
+function getDateParts(dateString: string) {
+  const match = dateString.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+
+  if (!match) {
+    return {
+      day: '—',
+      month: 'DATE',
+      monthDay: '—.—',
+      weekday: '',
+      year: '',
+    }
+  }
+
+  const [, year, month, day] = match
+  const utcDate = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)))
+  const weekday = new Intl.DateTimeFormat('ko-KR', {
+    timeZone: 'UTC',
+    weekday: 'short',
+  }).format(utcDate)
+
+  return {
+    day,
+    month: monthLabels[Number(month) - 1] ?? 'DATE',
+    monthDay: `${month}.${day}`,
+    weekday,
+    year,
+  }
+}
+
+function getPeriodFilter(value: string | null): PeriodFilter {
+  if (value === 'all' || value === 'past' || value === 'upcoming') {
+    return value
+  }
+
+  return value ? 'all' : 'upcoming'
+}
+
+function PosterPlate({ concert }: { concert: Concert }) {
+  const [failedPosterUrl, setFailedPosterUrl] = useState<string | null>(null)
+  const safePosterUrl = getSafeHttpUrl(concert.poster_url)
+  const canShowPoster = Boolean(safePosterUrl && safePosterUrl !== failedPosterUrl)
+
   return (
-    <div className="relative mx-auto flex aspect-[3/4] w-full max-w-[180px] flex-col justify-between overflow-hidden rounded-formal bg-linear-to-br from-navy-midnight via-navy-deep to-navy-midnight p-4 text-bg-warm-white sm:max-w-[190px] sm:p-5 lg:max-w-[200px]">
-      <StaffLines
-        className="absolute inset-x-5 top-16 opacity-75"
-        density="light"
-        variant="inverted"
-      />
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">
-          SMYC
-        </p>
-        <div className="mt-5 h-px w-16 bg-gold-warm" aria-hidden="true" />
-      </div>
-      <div className="relative">
-        {date ? (
-          <p className="mb-4 inline-flex rounded-pill border border-gold-warm/45 px-3 py-1 text-xs font-semibold text-gold-soft">
-            {formatKoreanDate(date)}
-          </p>
-        ) : null}
-        <p className="break-keep text-lg font-semibold leading-7">{title}</p>
-      </div>
-      <p className="text-xs uppercase tracking-[0.18em] text-bg-ivory/55">
-        Concert
-      </p>
+    <div
+      aria-label={
+        canShowPoster
+          ? `${concert.title} 포스터`
+          : `${concert.title} 포스터 준비 중`
+      }
+      className="concerts-page__poster-plate"
+      role="img"
+    >
+      {canShowPoster ? (
+        <img
+          alt=""
+          onError={() => setFailedPosterUrl(safePosterUrl)}
+          src={safePosterUrl ?? undefined}
+        />
+      ) : (
+        <div className="concerts-page__poster-fallback">
+          <span>SEOUL MOTET YOUTH CHOIR</span>
+          <i aria-hidden="true" />
+          <strong>SMYC</strong>
+          <small>CONCERT PROGRAM</small>
+        </div>
+      )}
     </div>
+  )
+}
+
+function FeaturedStage({ concert, today }: { concert: Concert | null; today: string }) {
+  if (!concert) {
+    return (
+      <div className="concerts-page__stage concerts-page__stage--empty">
+        <img alt="" aria-hidden="true" src={FEATURED_ARCHIVE_IMAGE} />
+        <div className="concerts-page__stage-wash" />
+        <div className="concerts-page__stage-empty-copy">
+          <span>CONCERT PROGRAM</span>
+          <strong>새로운 공연 소식을 준비하고 있습니다.</strong>
+        </div>
+      </div>
+    )
+  }
+
+  const dateParts = getDateParts(concert.date)
+  const period = getConcertPeriod(concert, today)
+
+  return (
+    <div className="concerts-page__stage">
+      <img alt="" aria-hidden="true" src={FEATURED_ARCHIVE_IMAGE} />
+      <div className="concerts-page__stage-wash" />
+      <div aria-hidden="true" className="concerts-page__stage-orbit" />
+      <div className="concerts-page__stage-copy">
+        <p>{period === 'upcoming' ? 'NEXT PERFORMANCE' : 'LATEST RECORD'}</p>
+        <strong className="concerts-page__stage-date">{dateParts.monthDay}</strong>
+        <h2>{concert.title}</h2>
+        <span>
+          {[dateParts.weekday, concert.time.trim() || '시간 미정']
+            .filter(Boolean)
+            .join(' · ')}
+          <br />
+          {concert.location.trim() || '장소 추후 안내'}
+        </span>
+        <TransitionLink
+          aria-label={`${concert.title} 공연 상세 보기`}
+          className="concerts-page__stage-link"
+          to={`/concerts/${concert.id}`}
+        >
+          공연 상세 <span aria-hidden="true">→</span>
+        </TransitionLink>
+      </div>
+      <div className="concerts-page__stage-poster">
+        <PosterPlate concert={concert} />
+      </div>
+    </div>
+  )
+}
+
+function ConcertRow({ concert, today }: { concert: Concert; today: string }) {
+  const dateParts = getDateParts(concert.date)
+  const period = getConcertPeriod(concert, today)
+  const hasPoster = Boolean(getSafeHttpUrl(concert.poster_url))
+
+  return (
+    <article className="concerts-page__event" data-has-poster={hasPoster}>
+      <TransitionLink
+        aria-label={`${concert.title} ${period === 'past' ? '공연 기록' : '공연 상세'} 보기`}
+        className="concerts-page__event-link"
+        to={`/concerts/${concert.id}`}
+      >
+        <time className="concerts-page__event-date" dateTime={concert.date || undefined}>
+          <strong>{dateParts.day}</strong>
+          <span>
+            {dateParts.month}
+            {dateParts.year ? ` · ${dateParts.year}` : ''}
+          </span>
+        </time>
+
+        {hasPoster ? (
+          <span className="concerts-page__event-poster">
+            <PosterPlate concert={concert} />
+          </span>
+        ) : null}
+
+        <div className="concerts-page__event-copy">
+          <p>
+            {getCategoryLabel(concert.category)} ·{' '}
+            {getConcertStatusLabel(concert.status, period)}
+          </p>
+          <h3>{concert.title}</h3>
+          <span>{getConcertMetaLine(concert)}</span>
+        </div>
+
+        <span className="concerts-page__event-action">
+          <span className="concerts-page__event-action-label">
+            {period === 'past' ? '기록 보기' : '공연 상세'}
+          </span>
+          <span aria-hidden="true">→</span>
+        </span>
+      </TransitionLink>
+    </article>
   )
 }
 
 export function ConcertsPage() {
   const concertsData = useConcertsData()
   const [searchParams, setSearchParams] = useSearchParams()
-  const requestedPeriodFilter = searchParams.get('filter')
-  const [manualPeriodFilter, setManualPeriodFilter] = useState<'all' | 'past' | 'upcoming'>('all')
-  const periodFilter =
-    requestedPeriodFilter === 'past' || requestedPeriodFilter === 'upcoming'
-      ? requestedPeriodFilter
-      : manualPeriodFilter
   const [categoryFilter, setCategoryFilter] = useState('all')
-  const [statusFilter, setStatusFilter] = useState<'all' | ConcertStatus>('all')
+  const [yearFilter, setYearFilter] = useState('all')
   const [searchValue, setSearchValue] = useState('')
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [selectedArchiveYear, setSelectedArchiveYear] = useState('')
+  const today = useMemo(() => getSeoulDateString(), [])
+  const periodFilter = getPeriodFilter(searchParams.get('filter'))
 
-  const categories = useMemo(() => {
-    return Array.from(new Set(concertsData.data.map((concert) => concert.category)))
-  }, [concertsData.data])
+  const categories = useMemo(
+    () =>
+      Array.from(
+        new Set(concertsData.data.map((concert) => concert.category).filter(Boolean)),
+      ).sort((left, right) => left.localeCompare(right, 'ko-KR')),
+    [concertsData.data],
+  )
 
-  const updatePeriodFilter = (value: 'all' | 'past' | 'upcoming') => {
-    const nextParams = new URLSearchParams(searchParams)
+  const years = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          concertsData.data
+            .map((concert) => getDateParts(concert.date).year)
+            .filter(Boolean),
+        ),
+      ).sort((left, right) => right.localeCompare(left)),
+    [concertsData.data],
+  )
 
-    setManualPeriodFilter(value)
+  const rawSchedule = useMemo(
+    () => buildConcertSchedule(concertsData.data, today),
+    [concertsData.data, today],
+  )
 
-    if (value === 'all') {
-      nextParams.delete('filter')
-    } else {
-      nextParams.set('filter', value)
-    }
+  const filteredConcerts = useMemo(
+    () =>
+      filterConcerts(concertsData.data, {
+        category: categoryFilter,
+        query: searchValue,
+        year: yearFilter,
+      }),
+    [categoryFilter, concertsData.data, searchValue, yearFilter],
+  )
 
-    setSearchParams(nextParams, { replace: true })
-  }
+  const filteredSchedule = useMemo(
+    () => buildConcertSchedule(filteredConcerts, today),
+    [filteredConcerts, today],
+  )
 
-  const filteredConcerts = useMemo(() => {
-    const normalizedSearch = searchValue.trim().toLowerCase()
+  const archiveYears = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          filteredSchedule.past
+            .map((concert) => getDateParts(concert.date).year)
+            .filter(Boolean),
+        ),
+      ),
+    [filteredSchedule.past],
+  )
 
-    return concertsData.data.filter((concert) => {
-      const isPast = isPastConcert(concert)
-      const matchesPeriod =
-        periodFilter === 'all' ||
-        (periodFilter === 'past' ? isPast : !isPast)
-      const matchesCategory =
-        categoryFilter === 'all' || concert.category === categoryFilter
-      const matchesStatus =
-        statusFilter === 'all' || concert.status === statusFilter
-      const matchesSearch =
-        !normalizedSearch ||
-        concert.title.toLowerCase().includes(normalizedSearch) ||
-        concert.location.toLowerCase().includes(normalizedSearch)
+  const activeArchiveYear = archiveYears.includes(selectedArchiveYear)
+    ? selectedArchiveYear
+    : (archiveYears[0] ?? '')
+  const archiveRowsForYear = filteredSchedule.past.filter(
+    (concert) => !activeArchiveYear || getDateParts(concert.date).year === activeArchiveYear,
+  )
+  const displayedArchiveRows =
+    periodFilter === 'upcoming' ? archiveRowsForYear.slice(0, 1) : archiveRowsForYear
+  const showUpcoming = periodFilter !== 'past'
+  const showArchive = periodFilter !== 'upcoming' || displayedArchiveRows.length > 0
+  const activeFilterCount = Number(categoryFilter !== 'all') + Number(yearFilter !== 'all')
+  const resultCount = filteredSchedule.upcoming.length + filteredSchedule.past.length
 
-      return matchesPeriod && matchesCategory && matchesStatus && matchesSearch
-    })
-  }, [categoryFilter, concertsData.data, periodFilter, searchValue, statusFilter])
-  const concertLayoutMode = getCollectionLayoutMode(filteredConcerts.length)
+  const categoryOptions = useMemo(
+    () => [
+      { label: '전체 유형', value: 'all' },
+      ...categories.map((category) => ({
+        label: getCategoryLabel(category),
+        value: category,
+      })),
+    ],
+    [categories],
+  )
+  const yearOptions = useMemo(
+    () => [
+      { label: '날짜 전체', value: 'all' },
+      ...years.map((year) => ({ label: `${year}년`, value: year })),
+    ],
+    [years],
+  )
+
   const concertListStructuredData = useMemo(
     () => ({
       '@context': 'https://schema.org',
       '@type': 'ItemList',
-      itemListElement: concertsData.data.slice(0, 20).map((concert, index) => ({
-        '@type': 'ListItem',
-        position: index + 1,
-        name: concert.title,
-        url: new URL(`/concerts/${concert.id}`, window.location.origin).toString(),
-      })),
+      itemListElement: [...rawSchedule.upcoming, ...rawSchedule.past]
+        .slice(0, 20)
+        .map((concert, index) => ({
+          '@type': 'ListItem',
+          name: concert.title,
+          position: index + 1,
+          url: new URL(`/concerts/${concert.id}`, window.location.origin).toString(),
+        })),
     }),
-    [concertsData.data],
+    [rawSchedule.past, rawSchedule.upcoming],
   )
+
+  const updatePeriodFilter = (value: PeriodFilter) => {
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.set('filter', value)
+    setSearchParams(nextParams, { replace: true })
+  }
+
+  const resetFilters = () => {
+    setCategoryFilter('all')
+    setYearFilter('all')
+    setSearchValue('')
+  }
 
   return (
     <>
@@ -163,170 +350,243 @@ export function ConcertsPage() {
         path="/concerts"
         title="공연·소식"
       />
-      <PageHero
-        description="정기연주회, 초청연주, 특별연주 일정을 확인합니다."
-        eyebrow="CONCERTS"
-        title="공연·소식"
-      />
-      <Container className="page-main">
-        {concertsData.error ? (
-          <div className="mb-6">
-            <ErrorState
-              description="Supabase 공개 데이터를 불러오지 못해 기본 공연 정보를 표시합니다."
-              title="기본 공연 정보로 표시 중입니다"
-            />
-          </div>
-        ) : null}
 
-        <Reveal>
-          <div className="relative grid gap-3 overflow-hidden rounded-formal border border-line-default/85 bg-bg-warm-white/95 p-4 shadow-card md:grid-cols-2 lg:grid-cols-[minmax(180px,1.25fr)_minmax(220px,1.35fr)_minmax(150px,1fr)_minmax(150px,1fr)]">
-            <StaffLines
-              className="absolute inset-x-5 top-4 hidden opacity-35 md:grid"
-              density="light"
-              variant="gold"
-            />
-            <label className="md:col-span-1">
-              <span className="text-xs font-semibold text-text-muted">검색</span>
-              <input
-                className="mt-2 min-h-11 w-full rounded-button border border-line-default bg-bg-ivory/65 px-4 text-sm outline-none focus:border-gold-warm focus:ring-2 focus:ring-gold-soft/60"
-                onChange={(event) => setSearchValue(event.target.value)}
-                placeholder="공연명 또는 장소"
-                value={searchValue}
-              />
-            </label>
-            <label>
-              <span className="text-xs font-semibold text-text-muted">기간</span>
-              <AnimatedSectionTabs
-                activeValue={periodFilter}
-                ariaLabel="공연 기간 필터"
-                className="mt-2 rounded-button border border-line-default bg-bg-ivory/65 p-1"
-                onChange={updatePeriodFilter}
-                tabs={periodTabs}
-              />
-            </label>
-            <label>
-              <span className="text-xs font-semibold text-text-muted">카테고리</span>
-              <select
-                className="mt-2 min-h-11 w-full rounded-button border border-line-default bg-bg-ivory/65 px-4 text-sm outline-none focus:border-gold-warm focus:ring-2 focus:ring-gold-soft/60"
-                onChange={(event) => setCategoryFilter(event.target.value)}
-                value={categoryFilter}
-              >
-                <option value="all">전체</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {categoryLabels[category] ?? category}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              <span className="text-xs font-semibold text-text-muted">상태</span>
-              <select
-                className="mt-2 min-h-11 w-full rounded-button border border-line-default bg-bg-ivory/65 px-4 text-sm outline-none focus:border-gold-warm focus:ring-2 focus:ring-gold-soft/60"
-                onChange={(event) =>
-                  setStatusFilter(event.target.value as 'all' | ConcertStatus)
-                }
-                value={statusFilter}
-              >
-                <option value="all">전체</option>
-                {Object.entries(statusLabels).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </label>
+      <div className="concerts-page">
+        <section className="concerts-page__hero" aria-labelledby="concerts-page-title">
+          <div className="concerts-page__hero-inner">
+            <div className="concerts-page__hero-copy">
+              <p>
+                CONCERT PROGRAM ·{' '}
+                {getDateParts(rawSchedule.featured?.date ?? '').year || today.slice(0, 4)}{' '}
+                SEASON
+              </p>
+              <i aria-hidden="true" />
+              <h1 id="concerts-page-title">
+                공연 일정과 지난 기록을
+                <br />
+                한눈에 확인합니다.
+              </h1>
+              <span>공연 날짜, 시간, 장소와 신청·예매 여부를 확인하세요.</span>
+              <nav aria-label="공연·소식 바로가기" className="concerts-page__local-nav">
+                <a aria-current="page" href="#concert-discovery">
+                  공연 일정
+                </a>
+                <TransitionLink to="/notices">공지사항</TransitionLink>
+              </nav>
+            </div>
+            <FeaturedStage concert={rawSchedule.featured} today={today} />
           </div>
-        </Reveal>
+        </section>
+
+        <section className="concerts-page__discovery" id="concert-discovery">
+          <div className="concerts-page__discovery-inner">
+            <div className="concerts-page__discovery-heading">
+              <h2>공연 찾기</h2>
+              <p aria-live="polite">전체 {resultCount}개 · 날짜순</p>
+            </div>
+
+            <div className="concerts-page__filter-bar">
+              <div aria-label="공연 기간" className="concerts-page__period-tabs" role="group">
+                {(
+                  [
+                    ['all', `전체 ${resultCount}`],
+                    ['upcoming', `예정 공연 ${filteredSchedule.upcoming.length}`],
+                    ['past', `지난 공연 ${filteredSchedule.past.length}`],
+                  ] as const
+                ).map(([value, label]) => (
+                  <button
+                    aria-label={label}
+                    aria-pressed={periodFilter === value}
+                    className={periodFilter === value ? 'is-active' : ''}
+                    key={value}
+                    onClick={() => updatePeriodFilter(value)}
+                    type="button"
+                  >
+                    <span className="concerts-page__period-long">{label}</span>
+                    <span className="concerts-page__period-short">
+                      {value === 'all'
+                        ? '전체'
+                        : value === 'upcoming'
+                          ? `예정 ${filteredSchedule.upcoming.length}`
+                          : `지난 ${filteredSchedule.past.length}`}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="concerts-page__controls">
+                <label className="concerts-page__search">
+                  <span className="sr-only">공연명 또는 장소 검색</span>
+                  <input
+                    onChange={(event) => setSearchValue(event.target.value)}
+                    placeholder="공연명·장소 검색"
+                    type="search"
+                    value={searchValue}
+                  />
+                </label>
+
+                <div className="concerts-page__desktop-filters">
+                  <FilterSelect
+                    label="날짜 선택"
+                    onChange={setYearFilter}
+                    options={yearOptions}
+                    value={yearFilter}
+                  />
+                  <FilterSelect
+                    label="공연 유형"
+                    onChange={setCategoryFilter}
+                    options={categoryOptions}
+                    value={categoryFilter}
+                  />
+                  <button className="concerts-page__reset" onClick={resetFilters} type="button">
+                    초기화
+                  </button>
+                </div>
+
+                <button
+                  aria-expanded={isFilterOpen}
+                  aria-haspopup="dialog"
+                  className="concerts-page__filter-trigger"
+                  onClick={() => setIsFilterOpen(true)}
+                  type="button"
+                >
+                  <span>필터 {activeFilterCount}</span>
+                  <span aria-hidden="true">＋</span>
+                </button>
+              </div>
+            </div>
+
+            <p className="concerts-page__filter-summary">
+              {periodFilter === 'all'
+                ? '전체 공연'
+                : periodFilter === 'past'
+                  ? '지난 공연'
+                  : '예정 공연'}{' '}
+              · {categoryFilter === 'all' ? '전체 유형' : getCategoryLabel(categoryFilter)} ·{' '}
+              {yearFilter === 'all' ? '날짜 제한 없음' : `${yearFilter}년`}
+            </p>
+          </div>
+        </section>
 
         {concertsData.isLoading ? (
-          <div className="mt-8">
+          <section className="concerts-page__state" aria-label="공연 목록 로딩">
             <LoadingState label="공연 목록을 불러오는 중입니다" />
-          </div>
+          </section>
         ) : null}
 
-        {!concertsData.isLoading && filteredConcerts.length === 0 ? (
-          <div className="mt-8">
-            <EmptyState compact title="조건에 맞는 공연이 없습니다" />
-          </div>
-        ) : null}
-
-        <div
-          className="collection-grid concert-collection-grid mt-8"
-          data-mode={concertLayoutMode}
-        >
-          {filteredConcerts.map((concert) => (
-            <Reveal key={concert.id}>
-              <Card className="concert-collection-card group overflow-hidden" hoverable radius="formal">
-                <TransitionLink
-                  className="concert-collection-link h-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-ink"
-                  to={`/concerts/${concert.id}`}
+        {!concertsData.isLoading && concertsData.error ? (
+          <section className="concerts-page__state">
+            <ErrorState
+              action={
+                <button
+                  className="concerts-page__state-action"
+                  onClick={() => void concertsData.refetch()}
+                  type="button"
                 >
-                  <div className="concert-collection-media relative bg-linear-to-br from-bg-ivory via-bg-warm-white to-gold-soft/20 p-3 sm:p-4">
-                    {concert.poster_url ? (
-                      <ImageTile
-                        alt={`${concert.title} 포스터`}
-                        className="mx-auto aspect-[3/4] w-full max-w-[180px] rounded-formal bg-bg-warm-white bg-none shadow-[0_14px_30px_rgb(16_35_63/0.12)] sm:max-w-[190px] lg:max-w-[200px]"
-                        fallbackVariant="poster"
-                        imgClassName="transition duration-300 group-hover:scale-[1.015] motion-reduce:group-hover:scale-100"
-                        objectFit="contain"
-                        sizes="(min-width: 1024px) 200px, (min-width: 640px) 190px, 180px"
-                        src={concert.poster_url}
-                      />
-                    ) : (
-                      <PosterFallback date={concert.date} title={concert.title} />
-                    )}
-                    <div className="absolute left-5 top-5 rounded-button border border-bg-warm-white/75 bg-bg-warm-white/92 px-3 py-2 text-xs font-semibold leading-5 text-navy-deep shadow-sm backdrop-blur-sm sm:left-6 sm:top-6">
-                      {formatKoreanDate(concert.date)}
-                    </div>
-                  </div>
-                  <div className="concert-collection-content relative p-5">
-                    <div className="absolute inset-x-5 top-0 h-px bg-linear-to-r from-gold-warm/55 to-transparent" />
-                    <div className="flex flex-wrap gap-2">
-                      <Badge variant="gold">
-                        {categoryLabels[concert.category] ?? concert.category}
-                      </Badge>
-                      <Badge variant={concert.status === 'open' ? 'navy' : 'gold'}>
-                        {statusLabels[concert.status]}
-                      </Badge>
-                    </div>
-                    <h2 className="mt-3 break-keep text-lg font-semibold leading-7 text-navy-deep">
-                      {concert.title}
-                    </h2>
-                    <dl className="mt-3 grid gap-2 text-sm leading-6 text-text-muted">
-                      <div>
-                        <dt className="sr-only">날짜</dt>
-                        <dd>{formatKoreanDate(concert.date)}</dd>
-                      </div>
-                      {concert.time ? (
-                        <div>
-                          <dt className="sr-only">시간</dt>
-                          <dd>{concert.time}</dd>
-                        </div>
-                      ) : null}
-                      {concert.location.trim() ? (
-                        <div>
-                          <dt className="sr-only">장소</dt>
-                          <dd className="break-keep">{concert.location}</dd>
-                        </div>
-                      ) : null}
-                    </dl>
-                    <span className="mt-4 inline-block text-sm font-semibold text-gold-ink">
-                      자세히 보기
-                    </span>
-                  </div>
-                </TransitionLink>
-              </Card>
-            </Reveal>
-          ))}
-        </div>
+                  다시 불러오기
+                </button>
+              }
+              description="공연 정보를 불러오지 못했습니다. 연결을 확인한 뒤 다시 시도해 주세요."
+              title="공연 목록을 불러오지 못했습니다"
+            />
+          </section>
+        ) : null}
 
-        <div className="mt-10">
-          <Button href="/notices" variant="secondary">
-            공지사항 보기
-          </Button>
-        </div>
-      </Container>
+        {!concertsData.isLoading && !concertsData.error ? (
+          <>
+            {showUpcoming ? (
+              <section
+                aria-labelledby="upcoming-concerts-title"
+                className="concerts-page__upcoming"
+                id="upcoming-concerts"
+              >
+                <div className="concerts-page__section-inner">
+                  <div className="concerts-page__section-heading">
+                    <h2 id="upcoming-concerts-title">다가오는 공연</h2>
+                    <p>가까운 날짜순 · {filteredSchedule.upcoming.length}개</p>
+                  </div>
+                  <div aria-hidden="true" className="concerts-page__section-rule" />
+
+                  {filteredSchedule.upcoming.length > 0 ? (
+                    <div className="concerts-page__event-list">
+                      {filteredSchedule.upcoming.map((concert) => (
+                        <ConcertRow concert={concert} key={concert.id} today={today} />
+                      ))}
+                    </div>
+                  ) : (
+                    <EmptyState
+                      compact
+                      description="검색어나 날짜·유형 필터를 조정해 보세요."
+                      title="조건에 맞는 예정 공연이 없습니다"
+                    />
+                  )}
+                </div>
+              </section>
+            ) : null}
+
+            {showArchive ? (
+              <section
+                aria-labelledby="past-concerts-title"
+                className="concerts-page__archive"
+                id="past-concerts"
+              >
+                <div className="concerts-page__section-inner">
+                  <div className="concerts-page__section-heading">
+                    <h2 id="past-concerts-title">지난 공연 기록</h2>
+                    <p>
+                      {activeArchiveYear ? `${activeArchiveYear}년` : '기록'} ·{' '}
+                      {displayedArchiveRows.length}개
+                    </p>
+                  </div>
+
+                  {archiveYears.length > 0 ? (
+                    <div aria-label="지난 공연 연도" className="concerts-page__archive-years">
+                      {archiveYears.map((year) => (
+                        <button
+                          aria-pressed={activeArchiveYear === year}
+                          className={activeArchiveYear === year ? 'is-active' : ''}
+                          key={year}
+                          onClick={() => setSelectedArchiveYear(year)}
+                          type="button"
+                        >
+                          {year}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  {displayedArchiveRows.length > 0 ? (
+                    <div className="concerts-page__event-list concerts-page__event-list--archive">
+                      {displayedArchiveRows.map((concert) => (
+                        <ConcertRow concert={concert} key={concert.id} today={today} />
+                      ))}
+                    </div>
+                  ) : (
+                    <EmptyState
+                      compact
+                      description="공개된 지난 공연이 등록되면 이곳에 표시됩니다."
+                      title="지난 공연 기록이 없습니다"
+                    />
+                  )}
+                </div>
+              </section>
+            ) : null}
+          </>
+        ) : null}
+      </div>
+
+      <ConcertFilterDrawer
+        category={categoryFilter}
+        categoryOptions={categoryOptions}
+        isOpen={isFilterOpen}
+        onCategoryChange={setCategoryFilter}
+        onClose={() => setIsFilterOpen(false)}
+        onReset={resetFilters}
+        onYearChange={setYearFilter}
+        resultCount={resultCount}
+        year={yearFilter}
+        yearOptions={yearOptions}
+      />
     </>
   )
 }

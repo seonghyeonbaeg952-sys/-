@@ -1,0 +1,82 @@
+.filter-select {
+  position: relative;
+  min-width: 0;
+}
+
+.filter-select .filter-select__trigger {
+  display: flex;
+  width: 100%;
+  min-height: 53px;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #68665f;
+  font: inherit;
+  font-size: 14px;
+  line-height: 24px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.filter-select__options {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 8px);
+  right: 0;
+  width: max(100%, 196px);
+  max-height: min(50vh, 340px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px;
+  border: 1px solid #d8d2c7;
+  border-radius: 4px;
+  background: #fcfaf5;
+  box-shadow: 0 12px 24px rgb(23 23 26 / 10%);
+}
+
+.filter-select__options[data-above] {
+  top: auto;
+  bottom: calc(100% + 8px);
+}
+
+.filter-select__options button {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: #17171a;
+  font: inherit;
+  font-size: 14px;
+  line-height: 24px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.filter-select__options button[aria-pressed="true"],
+.filter-select__options button:hover {
+  background: #e8ecea;
+  color: #68233a;
+}
+
+.filter-select button:focus-visible {
+  outline: 2px solid #68233a;
+  outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+  .filter-select .filter-select__trigger {
+    min-height: 44px;
+    padding: 10px 0;
+    font-size: 14px;
+  }
+}

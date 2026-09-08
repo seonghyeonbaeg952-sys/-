@@ -1,14 +1,14 @@
 import { NavLink } from 'react-router'
 
 import { mockSiteSettings } from '../../constants/mockData'
-import { footerSpiritMotto } from '../../constants/spiritContent'
 import { useContactData } from '../../hooks/usePublicData'
-import { createSiteTextMap, getSiteText } from '../../utils/siteText'
 import { BrandLogo } from '../common/BrandLogo'
-import { Container } from '../common/Container'
-import { StaffDivider } from '../common/StaffDivider'
-import { StaffLines } from '../common/StaffLines'
-import { SponsorLogoCard } from '../sponsors/SponsorLogoCard'
+import '../../styles/footer-utility.css'
+
+type FooterLink = {
+  href: string
+  label: string
+}
 
 type SocialLink = {
   href: string
@@ -16,6 +16,19 @@ type SocialLink = {
 }
 
 const FALLBACK_ADDRESS = '서울특별시 서초구 사임당로 8길 17 서주빌딩 B1'
+
+const EXPLORE_LINKS = [
+  { href: '/spirit', label: '합창단 정신' },
+  { href: '/about?section=overview', label: '합창단 소개' },
+  { href: '/concerts', label: '공연·소식' },
+  { href: '/gallery', label: '갤러리' },
+] satisfies FooterLink[]
+
+const PARTICIPATION_LINKS = [
+  { href: '/join', label: '입단 안내' },
+  { href: '/contact?section=support', label: '후원·문의' },
+  { href: '/contact?section=location', label: '오시는 길' },
+] satisfies FooterLink[]
 
 function getSafeExternalUrl(value: string | null | undefined) {
   const trimmedValue = value?.trim()
@@ -45,153 +58,197 @@ function getSocialLinks(settings: {
   ].filter((item): item is SocialLink => Boolean(item.href))
 }
 
+function getTelephoneHref(value: string) {
+  return `tel:${value.replace(/[^\d+]/g, '')}`
+}
+
+function scrollToPageTop() {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)',
+  ).matches
+
+  window.scrollTo({
+    behavior: prefersReducedMotion ? 'auto' : 'smooth',
+    top: 0,
+  })
+}
+
+function FooterLinkGroup({
+  className,
+  links,
+  title,
+}: {
+  className?: string
+  links: FooterLink[]
+  title: string
+}) {
+  return (
+    <nav
+      aria-label={`${title} 푸터 메뉴`}
+      className={['footer-utility__link-group', className]
+        .filter(Boolean)
+        .join(' ')}
+    >
+      <p className="footer-utility__group-title">{title}</p>
+      <div className="footer-utility__link-list">
+        {links.map((link) => (
+          <NavLink className="footer-utility__link" key={link.href} to={link.href}>
+            <span>{link.label}</span>
+            <span aria-hidden="true" className="footer-utility__link-arrow">
+              ↗
+            </span>
+          </NavLink>
+        ))}
+      </div>
+    </nav>
+  )
+}
+
 export function Footer() {
   const currentYear = new Date().getFullYear()
   const contactData = useContactData()
   const settings = contactData.data.siteSettings
-  const siteTexts = createSiteTextMap(contactData.data.siteTexts, {
-    includeDefaults: contactData.data.siteTexts.length === 0,
-  })
-  const t = (key: string, fallback?: string) => getSiteText(siteTexts, key, fallback)
-  const emailLabel = settings.email?.trim()
-  const address = settings.address || FALLBACK_ADDRESS
-  const footerDescription =
-    settings.about_summary ||
-    '서울모테트음악재단 청소년아카데미 부설 합창단으로, 청소년의 맑은 목소리와 클래식 합창의 깊이를 함께 전합니다.'
-  const footerMotto = `${t('footer.tagline.line1')}\n${t('footer.tagline.line2')}`
-  const footerLinks = [
-    { href: '/join', label: t('footer.quick.join') },
-    { href: '/concerts', label: t('footer.quick.concert') },
-    { href: '/contact?section=support', label: t('footer.quick.support') },
-    { href: '/gallery', label: t('footer.quick.gallery') },
-    { href: '/about', label: t('footer.quick.about') },
-  ]
+  const address = settings.address?.trim() || FALLBACK_ADDRESS
+  const phone = settings.phone?.trim() || mockSiteSettings.phone
+  const email = settings.email?.trim()
   const socialLinks = getSocialLinks(settings)
-  const footerSponsors = contactData.data.sponsors
-    .filter((sponsor) => sponsor.show_on_footer)
-    .slice(0, 6)
 
   return (
     <footer
-      className="flow-section site-footer relative overflow-hidden bg-navy-midnight text-bg-ivory"
+      className="flow-section site-footer site-footer--utility"
       data-flow-section="footer"
     >
-      <div aria-hidden="true" className="score-ribbon pre-footer-score-band absolute inset-x-0 top-0" />
-      <div aria-hidden="true" className="spotlight-glow footer-spotlight-glow" />
-      <StaffDivider
-        className="footer-staff-divider absolute inset-x-0 top-0 max-w-none py-0 opacity-85"
-        variant="inverted"
-      />
-      <div
-        aria-hidden="true"
-        className="footer-orbit-decoration absolute -right-8 top-20 hidden size-36 rounded-full border border-bg-warm-white/10 bg-bg-warm-white/[0.03] lg:block"
-      />
-      <Container className="relative grid gap-8 py-10 lg:grid-cols-[1.2fr_0.8fr_0.8fr] lg:py-12">
-        <section>
-          <BrandLogo loading="lazy" size="lg" theme="dark" withSurface />
-          <StaffLines className="mt-5 max-w-sm opacity-65" density="light" variant="inverted" />
-          <p className="mt-4 max-w-xl text-sm leading-7 text-bg-ivory/72">
-            {footerDescription}
-          </p>
-          <p className="mt-4 max-w-xl rounded-button border border-gold-soft/25 bg-bg-warm-white/[0.04] px-4 py-3 break-keep text-sm font-semibold leading-7 text-gold-soft">
-            {footerMotto || footerSpiritMotto}
-          </p>
-          <dl className="mt-6 grid gap-2 text-sm text-bg-ivory/72">
-            <div className="flex gap-3 rounded-button border border-bg-warm-white/10 bg-bg-warm-white/[0.035] px-4 py-3">
-              <dt className="w-12 shrink-0 text-gold-soft">주소</dt>
-              <dd>{address}</dd>
-            </div>
-            <div className="flex gap-3 rounded-button border border-bg-warm-white/10 bg-bg-warm-white/[0.035] px-4 py-3">
-              <dt className="w-12 shrink-0 text-gold-soft">전화</dt>
-              <dd>{settings.phone || mockSiteSettings.phone}</dd>
-            </div>
-            <div className="flex gap-3 rounded-button border border-bg-warm-white/10 bg-bg-warm-white/[0.035] px-4 py-3">
-              <dt className="w-12 shrink-0 text-gold-soft">FAX</dt>
-              <dd>{settings.fax || mockSiteSettings.fax}</dd>
-            </div>
-            {emailLabel ? (
-              <div className="flex gap-3 rounded-button border border-bg-warm-white/10 bg-bg-warm-white/[0.035] px-4 py-3">
-                <dt className="w-12 shrink-0 text-gold-soft">이메일</dt>
-                <dd>{emailLabel}</dd>
-              </div>
-            ) : null}
-          </dl>
-        </section>
-
-        <nav aria-label="푸터 메뉴">
-          <p className="text-sm font-semibold text-gold-soft">메뉴</p>
-          <StaffLines className="mt-3 max-w-36 opacity-55" density="light" variant="inverted" />
-          <div className="mt-4 grid gap-2 text-sm text-bg-ivory/72">
-            {footerLinks.map((item) => (
-              <NavLink
-                className="flex min-h-11 items-center transition hover:text-gold-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
-                key={item.href}
-                to={item.href}
-              >
-                {item.label}
-              </NavLink>
-            ))}
-          </div>
-        </nav>
-
-        <section>
-          <p className="text-sm font-semibold text-gold-soft">소셜</p>
-          <StaffLines className="mt-3 max-w-36 opacity-55" density="light" variant="inverted" />
-          {socialLinks.length > 0 ? (
-            <div className="mt-4 flex flex-wrap gap-2 text-sm">
-              {socialLinks.map((link) => (
-                <a
-                  aria-label={`${link.label} 새 창으로 열기`}
-                  className="inline-flex min-h-[44px] items-center rounded-pill border border-bg-warm-white/25 px-3 py-2 text-bg-ivory/78 transition hover:border-gold-soft hover:text-gold-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
-                  href={link.href}
-                  key={link.label}
-                  rel="noreferrer noopener"
-                  target="_blank"
-                >
-                  {link.label}
-                </a>
-              ))}
-            </div>
-          ) : (
-            <p className="mt-4 text-sm text-bg-ivory/58">
-              등록된 소셜 링크가 없습니다.
-            </p>
-          )}
+      <div className="footer-utility__frame">
+        <div className="footer-utility__header">
           <NavLink
-            className="mt-7 inline-flex min-h-11 items-center text-xs text-bg-ivory/35 transition hover:text-gold-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-warm"
-            to="/admin/login"
+            aria-label="서울모테트청소년합창단 홈으로 이동"
+            className="footer-utility__brand"
+            to="/"
           >
+            <BrandLogo
+              className="footer-utility__brand-symbol"
+              loading="lazy"
+              size="lg"
+              theme="dark"
+              variant="symbol"
+            />
+            <span className="footer-utility__brand-copy">
+              <strong>서울모테트청소년합창단</strong>
+              <span>SEOUL MOTET YOUTH CHOIR</span>
+            </span>
+          </NavLink>
+
+          <nav aria-label="주요 바로가기" className="footer-utility__actions">
+            <NavLink
+              className="footer-utility__action footer-utility__action--primary"
+              to="/join"
+            >
+              <span>입단 안내</span>
+              <span aria-hidden="true">↗</span>
+            </NavLink>
+            <NavLink
+              className="footer-utility__action footer-utility__action--secondary"
+              to="/contact?section=support"
+            >
+              <span>후원·문의</span>
+              <span aria-hidden="true">↗</span>
+            </NavLink>
+          </nav>
+        </div>
+
+        <div aria-hidden="true" className="footer-utility__divider" />
+
+        <div className="footer-utility__body">
+          <section className="footer-utility__contact" aria-labelledby="footer-contact-title">
+            <p className="footer-utility__group-title" id="footer-contact-title">
+              CONTACT
+            </p>
+            <address className="footer-utility__contact-list">
+              <div>
+                <p className="footer-utility__contact-label">주소</p>
+                <p className="footer-utility__contact-value">{address}</p>
+              </div>
+              <div>
+                <p className="footer-utility__contact-label">전화</p>
+                <a
+                  className="footer-utility__contact-value footer-utility__contact-link"
+                  href={getTelephoneHref(phone)}
+                >
+                  {phone}
+                </a>
+              </div>
+              {email ? (
+                <div>
+                  <p className="footer-utility__contact-label">이메일</p>
+                  <p className="footer-utility__contact-value footer-utility__contact-email">
+                    {email}
+                  </p>
+                </div>
+              ) : null}
+            </address>
+          </section>
+
+          <FooterLinkGroup
+            className="footer-utility__explore"
+            links={EXPLORE_LINKS}
+            title="EXPLORE"
+          />
+          <FooterLinkGroup
+            className="footer-utility__participate"
+            links={PARTICIPATION_LINKS}
+            title="TAKE PART"
+          />
+
+          <nav
+            aria-label="공식 소셜 채널"
+            className="footer-utility__link-group footer-utility__social"
+          >
+            <p className="footer-utility__group-title">CONNECT</p>
+            {socialLinks.length > 0 ? (
+              <div className="footer-utility__link-list">
+                {socialLinks.map((link) => (
+                  <a
+                    aria-label={`${link.label} 새 창으로 열기`}
+                    className="footer-utility__link"
+                    href={link.href}
+                    key={link.label}
+                    rel="noreferrer noopener"
+                    target="_blank"
+                  >
+                    <span>{link.label}</span>
+                    <span aria-hidden="true" className="footer-utility__link-arrow">
+                      ↗
+                    </span>
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <p className="footer-utility__empty">공식 채널 준비 중</p>
+            )}
+          </nav>
+        </div>
+
+        <div aria-hidden="true" className="footer-utility__divider footer-utility__divider--legal" />
+
+        <div className="footer-utility__legal">
+          <p>© {currentYear} Seoul Motet Youth Choir. All rights reserved.</p>
+          <NavLink className="footer-utility__admin-link" to="/admin/login">
             관리자 로그인
           </NavLink>
-          <div className="mt-8 border-t border-bg-warm-white/10 pt-6">
-            <p className="mb-3 text-xs font-semibold text-bg-ivory/58">
-              서울모테트음악재단 청소년아카데미 부설
-            </p>
-            <StaffLines className="mb-4 max-w-44 opacity-45" density="light" variant="inverted" />
-            <BrandLogo brand="smf" loading="lazy" size="md" theme="dark" withSurface />
-          </div>
-        </section>
-      </Container>
-      {footerSponsors.length > 0 ? (
-        <div className="hidden border-t border-bg-warm-white/10 py-6 md:block">
-          <Container>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">
-              Partners
-            </p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
-              {footerSponsors.map((sponsor) => (
-                <SponsorLogoCard compact key={sponsor.id} sponsor={sponsor} />
-              ))}
-            </div>
-          </Container>
+          <button
+            aria-label="페이지 맨 위로 이동"
+            className="footer-utility__top-button"
+            onClick={scrollToPageTop}
+            type="button"
+          >
+            <span>TOP</span>
+            <span aria-hidden="true">↑</span>
+          </button>
         </div>
-      ) : null}
-      <div className="border-t border-bg-warm-white/10 py-5">
-        <Container>
-          <p className="text-xs text-bg-ivory/45">
-            © {currentYear} Seoul Motet Youth Choir. All rights reserved.
-          </p>
-        </Container>
       </div>
     </footer>
   )

@@ -1,5 +1,26 @@
 import type { MemberRow, PublicMemberRow } from '../types/cms'
 
+export type MemberArchiveStatusFilter = 'all' | 'active' | 'alumni'
+export type MemberArchivePartFilter =
+  | 'all'
+  | 'soprano'
+  | 'alto'
+  | 'tenor'
+  | 'bass'
+  | 'staff'
+
+export type MemberArchiveGroupKey =
+  | 'soprano'
+  | 'alto'
+  | 'tenor'
+  | 'bass-staff'
+
+export interface MemberArchiveGroup {
+  key: MemberArchiveGroupKey
+  label: string
+  members: PublicMemberRow[]
+}
+
 const partLabels: Record<MemberRow['part'], string> = {
   soprano: '소프라노',
   alto: '알토',
@@ -63,4 +84,91 @@ export function getPublicMemberName(
   member: Pick<PublicMemberRow, 'display_name' | 'part'>,
 ) {
   return member.display_name?.trim() || `${getMemberPartLabel(member.part)} 단원`
+}
+
+const memberNameCollator = new Intl.Collator('ko-KR', {
+  numeric: true,
+  sensitivity: 'base',
+})
+
+function comparePublicMembers(left: PublicMemberRow, right: PublicMemberRow) {
+  const byName = memberNameCollator.compare(
+    getPublicMemberName(left),
+    getPublicMemberName(right),
+  )
+
+  if (byName !== 0) {
+    return byName
+  }
+
+  const byOrder = left.display_order - right.display_order
+
+  return byOrder !== 0 ? byOrder : left.id.localeCompare(right.id)
+}
+
+export function filterPublicMembersForArchive(
+  members: PublicMemberRow[],
+  statusFilter: MemberArchiveStatusFilter,
+  partFilter: MemberArchivePartFilter,
+) {
+  return members
+    .filter((member) => {
+      if (
+        statusFilter !== 'all' &&
+        getMemberStatus(member) !== statusFilter
+      ) {
+        return false
+      }
+
+      if (partFilter === 'all') {
+        return true
+      }
+
+      if (partFilter === 'staff') {
+        return member.group_type === 'staff'
+      }
+
+      return member.group_type !== 'staff' && member.part === partFilter
+    })
+    .sort(comparePublicMembers)
+}
+
+export function groupPublicMembersForArchive(
+  members: PublicMemberRow[],
+): MemberArchiveGroup[] {
+  const sortedMembers = [...members].sort(comparePublicMembers)
+
+  return [
+    {
+      key: 'soprano',
+      label: 'SOPRANO',
+      members: sortedMembers.filter(
+        (member) => member.group_type !== 'staff' && member.part === 'soprano',
+      ),
+    },
+    {
+      key: 'alto',
+      label: 'ALTO',
+      members: sortedMembers.filter(
+        (member) => member.group_type !== 'staff' && member.part === 'alto',
+      ),
+    },
+    {
+      key: 'tenor',
+      label: 'TENOR',
+      members: sortedMembers.filter(
+        (member) => member.group_type !== 'staff' && member.part === 'tenor',
+      ),
+    },
+    {
+      key: 'bass-staff',
+      label: 'BASS · STAFF',
+      members: sortedMembers.filter(
+        (member) =>
+          member.group_type === 'staff' ||
+          member.part === 'bass' ||
+          member.part === 'other',
+      ),
+    },
+  ]
 }

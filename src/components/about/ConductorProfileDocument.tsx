@@ -1,362 +1,245 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router'
-
-import { conductorPhilosophyCopy } from '../../constants/spiritContent'
 import type { PersonProfileRow } from '../../types/cms'
-import { classNames } from '../../utils/classNames'
-import { StaffLines } from '../common/StaffLines'
-import { StaffSectionLabel } from '../common/StaffSectionLabel'
-import { ImageTile } from '../home/ImageTile'
+import '../../styles/conductor-profile.css'
+
+const defaultBiography = [
+  '2014년 서울모테트음악재단 설립과 함께 창단된 서울모테트청소년합창단을 지도하고 있는 지휘자 김형수는 지난 35년 동안 서울모테트합창단(프로단체) 단원 겸 수석 부지휘자로 활동해 왔으며  특별히 미래 사회와 음악계를 이끌어 갈 다음 세대를 위한 창조적인 대한으로 모테트 음악재단 산하에 설립된 청소년 아카데미와 청소년합창단을 교육하고 있다.',
+  '학부에서는 성악을, 대학원에서 지휘(합창)를 공부하였고 Midwest University 교회음악 박사과정을 취득했다. 또한 교회음악의 성경적 이해와 연구를 위해 신대원에서 신학(M.Div)을 졸업하고 해오름교회, 길교회 음악목사를 역임하였으며, 침신대학교, 남부대학교대학원, 동양대학교, 백석문화대학, 남부대학교 대학원에서 강사를 역임하였다.',
+] as const
+
+const defaultCurrentRoles = [
+  '서울모테트청소년합창단 지휘자',
+  '(재)서울모테트음악재단 상임이사',
+  '서울모테트합창단 수석부지휘자',
+  '주님의교회 샬롬찬양대 지휘자',
+  '백석예술대학원 음악학(지휘) 출강',
+] as const
+
+const defaultProfileImage = '/images/about/conductor/kim-hyung-su-profile.jpg'
+const defaultPerformanceImage = '/images/about/conductor/smyc-performance-2026.jpg'
 
 type ActivityImage = {
   alt: string
-  caption: string
+  caption: string | null
   src: string
 }
 
-const defaultTeachingPrinciples = [
-  {
-    title: '귀 기울임',
-    description: '서로의 소리를 먼저 듣고 하나의 울림 안에서 자기 역할을 찾습니다.',
-  },
-  {
-    title: '약속',
-    description: '연습과 무대의 시간을 소중히 여기며 공동체 안에서 서로를 살핍니다.',
-  },
-  {
-    title: '꾸준함',
-    description: '악보와 텍스트를 정확히 읽고 꾸준히 다듬는 태도를 기릅니다.',
-  },
-  {
-    title: '공동체',
-    description: '혼자 돋보이는 소리가 아니라 함께 완성되는 음악을 지향합니다.',
-  },
-  {
-    title: '말씀과 음악의 해석',
-    description: '정통 합창과 교회음악의 정신을 청소년의 언어로 이어갑니다.',
-  },
-  {
-    title: '삶으로 이어지는 노래',
-    description: '무대의 경험이 삶의 태도와 나눔으로 이어지도록 돕습니다.',
-  },
-]
+function splitParagraphs(
+  value?: string | null,
+  options: { splitSingleLines?: boolean } = {},
+) {
+  const source = value?.trim()
+  if (!source) return []
 
-function splitLines(value: string | null | undefined) {
-  return (value ?? '')
+  const separator = options.splitSingleLines ? /\r?\n+/ : /\r?\n\s*\r?\n/
+
+  return source
+    .split(separator)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean)
+}
+
+function normalizeListItem(value: string) {
+  return value
+    .trim()
+    .replace(/^(?:[-•·]\s*)+/, '')
+    .replace(/^현\)\s*/, '')
+    .trim()
+}
+
+function mergeConjoinedItems(items: string[]) {
+  const merged: string[] = []
+
+  for (let index = 0; index < items.length; index += 1) {
+    const item = items[index]
+    const nextItem = items[index + 1]
+
+    if (/겸$/.test(item) && nextItem) {
+      merged.push(`${item} ${nextItem}`)
+      index += 1
+    } else {
+      merged.push(item)
+    }
+  }
+
+  return merged
+}
+
+function parseStructuredItems(value?: string | null) {
+  const source = value?.trim()
+  if (!source) return []
+
+  if (source.startsWith('[')) {
+    try {
+      const parsed: unknown = JSON.parse(source)
+      if (Array.isArray(parsed)) {
+        return mergeConjoinedItems(parsed
+          .filter((item): item is string => typeof item === 'string')
+          .map(normalizeListItem)
+          .filter(Boolean))
+      }
+    } catch {
+      // 이전 CMS 줄바꿈 형식으로 계속 해석합니다.
+    }
+  }
+
+  return mergeConjoinedItems(source
+    .split(/\r?\n/)
+    .map(normalizeListItem)
+    .filter(Boolean))
+}
+
+function looksLikeRoleList(value?: string | null) {
+  const lines = (value ?? '')
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean)
-}
-
-function splitParagraphs(value: string | null | undefined) {
-  return (value ?? '')
-    .split(/\n{2,}/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-}
-
-function parsePrinciples(value: string | null | undefined) {
-  const lines = splitLines(value)
-
-  if (lines.length === 0) {
-    return defaultTeachingPrinciples
-  }
-
-  return lines.map((line) => {
-    const [title, ...descriptionParts] = line.split(':')
-
-    return {
-      title: title.trim(),
-      description: descriptionParts.join(':').trim() || '합창 안에서 함께 배우는 교육 원리입니다.',
-    }
-  })
-}
-
-function parseActivityImages(value: string | null | undefined): ActivityImage[] {
-  return splitLines(value)
-    .map((line) => {
-      const [src, alt = '', caption = ''] = line.split('|').map((item) => item.trim())
-
-      if (!src) {
-        return null
-      }
-
-      return {
-        alt: alt || caption || '지휘자 활동 사진',
-        caption,
-        src,
-      }
-    })
-    .filter((item): item is ActivityImage => Boolean(item))
-}
-
-function ProfileListSection({
-  items,
-  title,
-}: {
-  items: string[]
-  title: string
-}) {
-  if (items.length === 0) {
-    return null
-  }
 
   return (
-    <section className="border-t border-line-default pt-6">
-      <h3 className="text-lg font-semibold text-navy-deep">{title}</h3>
-      <ul className="mt-4 grid gap-2 text-sm leading-7 text-text-muted">
-        {items.map((item) => (
-          <li className="flex gap-3" key={item}>
-            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-gold-warm" aria-hidden="true" />
-            <span className="break-keep">{item}</span>
-          </li>
-        ))}
-      </ul>
-    </section>
+    lines.some((line) => /^현\)\s*/.test(line)) ||
+    (lines.length >= 2 && lines.every((line) => line.length <= 80))
   )
 }
 
-export function ConductorProfileDocument({ person }: { person: PersonProfileRow }) {
-  const [selectedImage, setSelectedImage] = useState<ActivityImage | null>(null)
-  const name = person.name || '지휘자'
-  const role = person.role || '지휘자'
-  const highlight = person.profile_highlight || person.description
-  const profileBody = splitParagraphs(person.profile_summary || person.bio)
-  const currentRoles = splitLines(person.current_roles)
-  const educationItems = splitLines(person.education_items)
-  const careerItems = splitLines(person.career_items)
-  const awardsItems = [...splitLines(person.awards_items), ...splitLines(person.activities_items)]
-  const principles = parsePrinciples(person.teaching_principles)
-  const messageBody = splitParagraphs(person.message_body || person.message)
-  const activityImages = parseActivityImages(person.activity_images)
-  const philosophyBody =
-    person.philosophy_body?.trim() ||
-    conductorPhilosophyCopy.body
-  const philosophyTitle = person.philosophy_title || conductorPhilosophyCopy.title
-  const philosophyQuote = person.philosophy_quote || conductorPhilosophyCopy.quote
+function normalizeImageSource(value: string) {
+  const source = value.trim()
+  if (source.startsWith('/') || /^https?:\/\//i.test(source)) return source
+  return null
+}
 
-  useEffect(() => {
-    if (!selectedImage) {
-      return undefined
-    }
+function parseFirstActivityImage(value?: string | null): ActivityImage | null {
+  const firstLine = value
+    ?.split(/\r?\n/)
+    .map((line) => line.trim())
+    .find(Boolean)
 
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setSelectedImage(null)
-      }
-    }
+  if (!firstLine) return null
 
-    document.addEventListener('keydown', handleKeyDown)
-    document.body.style.overflow = 'hidden'
+  const [rawSource, rawAlt, rawCaption] = firstLine
+    .split('|')
+    .map((part) => part.trim())
+  const src = normalizeImageSource(rawSource ?? '')
+  if (!src) return null
 
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown)
-      document.body.style.overflow = ''
-    }
-  }, [selectedImage])
+  return {
+    alt: rawAlt || '서울모테트청소년합창단 공연 사진',
+    caption: rawCaption || null,
+    src,
+  }
+}
+
+export function ConductorProfileDocument({ person }: { person?: PersonProfileRow | null }) {
+  const name = person?.name?.trim() || '김형수'
+  const role = person?.role?.trim() || '지휘자'
+  const profileSummary = splitParagraphs(person?.profile_summary)
+  const legacyDescription = splitParagraphs(person?.description, {
+    splitSingleLines: true,
+  })
+  const legacyBio = looksLikeRoleList(person?.bio)
+    ? []
+    : splitParagraphs(person?.bio)
+  const cmsBiography =
+    profileSummary.length > 0
+      ? profileSummary
+      : legacyDescription.length > 0
+        ? legacyDescription
+        : legacyBio
+  const biography = cmsBiography.length > 0 ? cmsBiography : [...defaultBiography]
+  const cmsCurrentRoles = parseStructuredItems(person?.current_roles)
+  const legacyCurrentRoles = looksLikeRoleList(person?.bio)
+    ? parseStructuredItems(person?.bio)
+    : []
+  const currentRoles =
+    cmsCurrentRoles.length > 0
+      ? cmsCurrentRoles
+      : legacyCurrentRoles.length > 0
+        ? legacyCurrentRoles
+        : [...defaultCurrentRoles]
+  const profileImage = normalizeImageSource(person?.photo_url ?? '') || defaultProfileImage
+  const performanceImage = parseFirstActivityImage(person?.activity_images) ?? {
+    alt: '서울모테트청소년합창단과 오케스트라가 함께하는 공연 사진',
+    caption: null,
+    src: defaultPerformanceImage,
+  }
+  const profileImageAlt =
+    person?.profile_image_alt?.trim() || `${name} ${role} 공식 프로필`
 
   return (
-    <>
-      <article className="mx-auto max-w-5xl overflow-hidden rounded-formal border border-line-default bg-bg-warm-white shadow-card">
-        <div className="h-1 bg-linear-to-r from-gold-warm via-gold-soft to-transparent" />
-        <div className="grid gap-8 p-5 sm:p-7 lg:grid-cols-[260px_minmax(0,1fr)] lg:p-9">
-          <aside className="lg:border-r lg:border-line-default lg:pr-8">
-            <ImageTile
-              alt={person.profile_image_alt || `${name} 사진`}
-              className="mx-auto aspect-[3/4] w-full max-w-[260px] rounded-formal bg-bg-ivory"
-              fallbackVariant="profile"
-              objectFit="contain"
-              sizes="(min-width: 1024px) 260px, min(280px, 80vw)"
-              src={person.photo_url ?? ''}
-            />
-            <div className="mt-6 text-center lg:text-left">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gold-ink">
-                CONDUCTOR
-              </p>
-              <h3 className="mt-2 break-keep text-2xl font-bold text-navy-deep">{name}</h3>
-              <p className="mt-2 text-sm font-semibold text-text-muted">{role}</p>
-              {person.hero_quote ? (
-                <blockquote className="mt-5 border-l-2 border-gold-warm bg-bg-ivory px-4 py-3 text-left text-sm font-semibold leading-7 text-navy-deep">
-                  {person.hero_quote}
-                </blockquote>
-              ) : null}
-              <dl className="mt-5 grid gap-2 text-sm leading-6">
-                <div className="rounded-button border border-line-default bg-bg-ivory px-4 py-3">
-                  <dt className="text-xs font-semibold text-gold-ink">현재 역할</dt>
-                  <dd className="mt-1 text-navy-deep">{role}</dd>
-                </div>
-                {currentRoles.slice(0, 2).map((item) => (
-                  <div className="rounded-button border border-line-default bg-bg-ivory px-4 py-3" key={item}>
-                    <dt className="text-xs font-semibold text-gold-ink">주요 직책</dt>
-                    <dd className="mt-1 break-keep text-navy-deep">{item}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-          </aside>
-
-          <div className="space-y-8">
-            <section>
-              <StaffSectionLabel className="max-w-sm">PROFILE</StaffSectionLabel>
-              {highlight ? (
-                <div className="mt-5 rounded-formal border border-gold-warm/30 bg-gold-soft/24 px-5 py-4">
-                  <p className="break-keep text-base font-semibold leading-8 text-navy-deep">
-                    {highlight}
-                  </p>
-                </div>
-              ) : null}
-              {profileBody.length > 0 ? (
-                <div className="mt-5 space-y-4 text-base leading-[1.85] text-text-muted">
-                  {profileBody.map((paragraph) => (
-                    <p className="whitespace-pre-line break-keep" key={paragraph}>
-                      {paragraph}
-                    </p>
-                  ))}
-                </div>
-              ) : (
-                <p className="mt-5 break-keep text-base leading-8 text-text-muted">
-                  지휘자 프로필 본문이 등록되면 이 영역에 표시됩니다.
-                </p>
-              )}
-            </section>
-
-            <div className="grid gap-7">
-              <ProfileListSection items={currentRoles} title="현재" />
-              <ProfileListSection items={educationItems} title="학력" />
-              <ProfileListSection items={careerItems} title="주요 경력" />
-              <ProfileListSection items={awardsItems} title="수상 및 주요 활동" />
-            </div>
+    <div className="conductor-profile">
+      <div className="conductor-profile__shell">
+        <header className="conductor-profile__heading">
+          <div>
+            <p className="conductor-profile__eyebrow">CONDUCTOR</p>
+            <span aria-hidden="true" className="conductor-profile__heading-rule" />
+            <h1 id="conductor-profile-title">지휘자 소개</h1>
           </div>
-        </div>
+          <p className="conductor-profile__organization">SEOUL MOTET YOUTH CHOIR</p>
+        </header>
 
-        <div className="border-t border-line-default bg-bg-ivory/62 p-5 sm:p-7 lg:p-9">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
-            <section>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gold-ink">
-                PHILOSOPHY
-              </p>
-              <h3 className="mt-3 break-keep text-2xl font-semibold text-navy-deep">
-                {philosophyTitle}
-              </h3>
-              <StaffLines className="mt-4 max-w-md opacity-65" density="light" variant="gold" />
-              {philosophyQuote ? (
-                <blockquote className="mt-5 rounded-button border border-line-default bg-bg-warm-white px-4 py-3 text-sm font-semibold leading-7 text-navy-deep">
-                  {philosophyQuote}
-                </blockquote>
-              ) : null}
-              <div className="mt-5 space-y-4 text-base leading-[1.85] text-text-muted">
-                {splitParagraphs(philosophyBody).map((paragraph) => (
-                  <p className="whitespace-pre-line break-keep" key={paragraph}>
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
-            </section>
-
-            <section>
-              <h3 className="text-lg font-semibold text-navy-deep">교육 원리</h3>
-              <div className="mt-4 grid gap-3">
-                {principles.slice(0, 6).map((principle) => (
-                  <div className="rounded-button border border-line-default bg-bg-warm-white px-4 py-3" key={principle.title}>
-                    <p className="text-sm font-semibold text-navy-deep">{principle.title}</p>
-                    <p className="mt-1 break-keep text-xs leading-5 text-text-muted">
-                      {principle.description}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </div>
-        </div>
-
-        {messageBody.length > 0 || activityImages.length > 0 ? (
-          <div className="border-t border-line-default p-5 sm:p-7 lg:p-9">
-            {messageBody.length > 0 ? (
-              <section>
-                <h3 className="text-2xl font-semibold text-navy-deep">
-                  {person.message_title || '지휘자 메시지'}
-                </h3>
-                <div className="mt-4 space-y-4 text-base leading-[1.85] text-text-muted">
-                  {messageBody.map((paragraph) => (
-                    <p className="whitespace-pre-line break-keep" key={paragraph}>
-                      {paragraph}
-                    </p>
-                  ))}
-                </div>
-              </section>
-            ) : null}
-
-            {activityImages.length > 0 ? (
-              <section className={classNames(messageBody.length > 0 && 'mt-9')}>
-                <h3 className="text-2xl font-semibold text-navy-deep">활동 사진</h3>
-                <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                  {activityImages.slice(0, 3).map((image) => (
-                    <button
-                      aria-label={`${image.alt} 크게 보기`}
-                      className="group overflow-hidden rounded-formal border border-line-default bg-bg-ivory text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink"
-                      key={image.src}
-                      onClick={() => setSelectedImage(image)}
-                      type="button"
-                    >
-                      <img
-                        alt={image.alt}
-                        className="aspect-[4/3] w-full object-cover transition duration-300 group-hover:scale-[1.03]"
-                        loading="lazy"
-                        src={image.src}
-                      />
-                      {image.caption ? (
-                        <p className="px-3 py-2 text-xs leading-5 text-text-muted">{image.caption}</p>
-                      ) : null}
-                    </button>
-                  ))}
-                </div>
-              </section>
-            ) : null}
-          </div>
-        ) : null}
-
-        <div className="border-t border-line-default bg-bg-warm-white p-5 sm:p-7 lg:p-9">
-          <nav aria-label="지휘자 소개 관련 링크" className="flex flex-wrap gap-2">
-            <Link className="rounded-pill border border-line-default px-4 py-3 text-sm font-semibold text-navy-deep transition hover:border-gold-warm hover:text-gold-ink" to="/concerts">
-              최근 공연 보기
-            </Link>
-            <Link className="rounded-pill border border-line-default px-4 py-3 text-sm font-semibold text-navy-deep transition hover:border-gold-warm hover:text-gold-ink" to="/about?section=spirit">
-              합창단 정신 보기
-            </Link>
-            <Link className="rounded-pill border border-line-default px-4 py-3 text-sm font-semibold text-navy-deep transition hover:border-gold-warm hover:text-gold-ink" to="/join">
-              입단 안내 보기
-            </Link>
-          </nav>
-        </div>
-      </article>
-
-      {selectedImage ? (
-        <div
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-navy-midnight/82 p-4"
-          role="dialog"
+        <section
+          aria-labelledby="conductor-profile-title"
+          className="conductor-profile__document"
         >
-          <div className="w-full max-w-5xl rounded-formal bg-bg-warm-white p-4 shadow-card">
-            <div className="mb-3 flex items-center justify-between gap-4">
-              <p className="break-keep text-sm font-semibold text-navy-deep">
-                {selectedImage.caption || selectedImage.alt}
-              </p>
-              <button
-                className="min-h-11 rounded-button border border-line-default px-4 text-sm font-semibold text-navy-deep transition hover:border-gold-warm"
-                onClick={() => setSelectedImage(null)}
-                type="button"
-              >
-                닫기
-              </button>
-            </div>
-            <img
-              alt={selectedImage.alt}
-              className="max-h-[78vh] w-full object-contain"
-              src={selectedImage.src}
-            />
+          <div className="conductor-profile__media">
+            <figure className="conductor-profile__portrait-matte">
+              <span aria-hidden="true" className="conductor-profile__media-rule" />
+              <div className="conductor-profile__portrait-frame">
+                <img
+                  alt={profileImageAlt}
+                  decoding="async"
+                  fetchPriority="high"
+                  src={profileImage}
+                />
+              </div>
+            </figure>
+
+            <figure className="conductor-profile__performance">
+              <span aria-hidden="true" className="conductor-profile__media-rule" />
+              <img
+                alt={performanceImage.alt}
+                decoding="async"
+                fetchPriority="high"
+                src={performanceImage.src}
+              />
+              {performanceImage.caption ? (
+                <figcaption className="conductor-profile__visually-hidden">
+                  {performanceImage.caption}
+                </figcaption>
+              ) : null}
+            </figure>
           </div>
-        </div>
-      ) : null}
-    </>
+
+          <div className="conductor-profile__details">
+            <div className="conductor-profile__identity">
+              <p>SEOUL MOTET YOUTH CHOIR</p>
+              <small>CONDUCTOR · 2014 — PRESENT</small>
+              <span aria-hidden="true" className="conductor-profile__identity-rule" />
+              <h2>{name}</h2>
+              <strong>KIM HYUNG-SU</strong>
+            </div>
+
+            <div className="conductor-profile__copy">
+              <div className="conductor-profile__biography">
+                {biography.map((paragraph, index) => (
+                  <p key={`${index}-${paragraph.slice(0, 24)}`}>{paragraph}</p>
+                ))}
+              </div>
+
+              <div className="conductor-profile__current">
+                <p>CURRENT</p>
+                <ul aria-label="현재 주요 역할">
+                  {currentRoles.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <footer className="conductor-profile__footer-note">
+            SMYC CONDUCTOR PROFILE · KIM HYUNG-SU
+          </footer>
+        </section>
+      </div>
+    </div>
   )
 }

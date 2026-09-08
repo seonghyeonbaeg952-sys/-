@@ -57,7 +57,7 @@ export function AdminAboutPage() {
       description="방문자 화면에 표시되는 합창단 소개, 정신과 교육철학, 홈 요약 문구를 관리합니다."
       emptyMessage="등록된 소개 섹션이 없습니다."
       fields={fields}
-      info="공개 화면에는 공개 여부가 켜진 섹션만 표시됩니다. spirit_* 섹션은 /spirit과 /about?section=spirit에, home_spirit은 홈 정신 섹션에 반영됩니다. cta_label, cta_url, secondary_cta_label, secondary_cta_url 같은 구조화 문구를 본문 상단에 넣을 수 있습니다."
+      info="공개 화면에는 공개 여부가 켜진 섹션만 표시됩니다. spirit_* 섹션은 /spirit과 /about?section=overview#spirit에, home_spirit은 홈 정신 섹션에 반영됩니다. cta_label, cta_url, secondary_cta_label, secondary_cta_url 같은 구조화 문구를 본문 상단에 넣을 수 있습니다."
       order={{ column: 'display_order', ascending: true }}
       searchColumn="title"
       searchPlaceholder="제목 검색"

@@ -15,7 +15,9 @@ import { TransitionLink } from './TransitionLink'
 export type AnimatedSectionTab<TValue extends string = string> = {
   disabled?: boolean
   href?: string
+  id?: string
   label: string
+  panelId?: string
   value: TValue
 }
 
@@ -210,9 +212,11 @@ export function AnimatedSectionTabs<TValue extends string = string>({
             tab.disabled && 'is-disabled',
           )
           const commonProps = {
+            'aria-controls': tab.panelId,
             'aria-disabled': tab.disabled || undefined,
             'aria-selected': isActive,
             className: tabClassName,
+            id: tab.id,
             ref: (node: HTMLElement | null) => {
               tabRefs.current[tab.value] = node
             },

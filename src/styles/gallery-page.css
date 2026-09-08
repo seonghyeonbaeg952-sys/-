@@ -1,0 +1,164 @@
+@font-face {
+  font-family: "Gallery Gothic A1";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/GothicA1-Regular.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Gallery Gothic A1";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/GothicA1-SemiBold.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Gallery Gothic A1";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/GothicA1-Bold.ttf") format("truetype");
+}
+
+.gallery-journal {
+  --gallery-paper: #fcfaf5;
+  --gallery-ink: #17171a;
+  --gallery-muted: #68665f;
+  --gallery-burgundy: #68233a;
+  --gallery-border: #d8d2c7;
+  min-width: 0;
+  padding-top: 72px;
+  background: var(--gallery-paper);
+  color: var(--gallery-ink);
+  font-family: "Gallery Gothic A1", var(--font-sans-kr);
+}
+.gallery-journal :is(button, a) { -webkit-tap-highlight-color: transparent; }
+.gallery-journal button { font-family: inherit; cursor: pointer; }
+.gallery-journal button:disabled { cursor: not-allowed; opacity: .65; }
+.gallery-journal :is(button, a, [tabindex]):focus-visible {
+  outline: 2px solid var(--gallery-burgundy);
+  outline-offset: 4px;
+}
+.gallery-journal__shell { width: min(1368px, calc(100% - 168px)); margin-inline: auto; }
+.gallery-journal__intro { padding-block: 56px 32px; }
+.gallery-journal__eyebrow { margin: 0 0 16px; color: var(--gallery-burgundy); font-size: 11px; font-weight: 700; line-height: 17px; }
+.gallery-journal__intro-row { display: grid; grid-template-columns: minmax(0,760fr) minmax(0,576fr); align-items: center; gap: 32px; }
+.gallery-journal__intro h1 { margin: 0; font: 700 77px Hahmlet, var(--font-heading-kr); font-size: 64px; letter-spacing: -.025em; }
+.gallery-journal__description { margin: 0; color: var(--gallery-muted); font-size: 16px; line-height: 26px; overflow-wrap: anywhere; word-break: keep-all; white-space: pre-line; }
+.gallery-journal__controls { display: grid; gap: 16px; padding-bottom: 32px; }
+.gallery-journal__tabs .animated-section-tabs { display: flex; gap: 8px; overflow: visible; padding: 0; }
+.gallery-journal__tabs .section-tabs-indicator { display: none; }
+.gallery-journal__tabs .section-tab {
+  display: flex; flex: 0 1 104px; align-items: center; justify-content: center;
+  min-height: 44px; min-width: 0; width: 104px; padding: 10px 12px;
+  border: 0; border-radius: 4px; background: transparent; box-shadow: none;
+  color: var(--gallery-muted); font: 600 14px/20px "Gallery Gothic A1", var(--font-sans-kr);
+  transform: none; transition: background-color 120ms ease, color 120ms ease;
+}
+.gallery-journal__tabs .section-tab:hover { background: #e8ecea; color: var(--gallery-burgundy); }
+.gallery-journal__tabs .section-tab.is-active { background: var(--gallery-burgundy); color: var(--gallery-paper); }
+.gallery-journal__filter-row { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--gallery-border); }
+.gallery-journal__select { width: 224px; max-width: 60%; }
+.gallery-journal__select .filter-select__trigger { min-height: 44px; padding: 10px 0; color: var(--gallery-ink); line-height: 24px; }
+.gallery-journal__select .filter-select__options { right: auto; left: 0; width: 224px; max-width: calc(100vw - 48px); }
+.gallery-journal__collection-label { display: flex; min-height: 44px; align-items: center; font-size: 14px; font-weight: 600; }
+.gallery-journal__hint { margin: 0; color: var(--gallery-muted); font-size: 12px; line-height: 18px; text-align: right; word-break: keep-all; }
+.gallery-journal__collection { min-width: 0; padding-bottom: 96px; }
+.gallery-journal__photo-lead { display: grid; grid-template-columns: minmax(0,864fr) minmax(0,472fr); align-items: end; gap: 32px; }
+.gallery-journal__photo-lead[data-single] { grid-template-columns: minmax(0,864px); }
+.gallery-journal__photo-side { display: grid; min-width: 0; gap: 32px; }
+.gallery-journal__side-title { margin: 0; color: var(--gallery-burgundy); font: 400 32px/45px Hahmlet, var(--font-heading-kr); overflow-wrap: anywhere; word-break: keep-all; }
+.gallery-journal__photo-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); align-items: start; gap: 48px 32px; }
+.gallery-journal__photo-grid[data-separated] { margin-top: 48px; padding-top: 48px; border-top: 1px solid var(--gallery-border); }
+.gallery-journal__figure { min-width: 0; }
+.gallery-journal__media-button { display: flex; width: 100%; flex-direction: column; gap: 12px; padding: 0; border: 0; background: transparent; color: inherit; text-align: left; }
+.gallery-journal .gallery-journal__image { position: relative; width: 100%; min-width: 0; overflow: hidden; background: var(--gallery-paper); }
+.gallery-journal__image--wide { aspect-ratio: 16 / 9; }
+.gallery-journal__image--photo { aspect-ratio: 3 / 2; }
+.gallery-journal__image--poster { aspect-ratio: 432 / 610; }
+.gallery-journal__image > img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; }
+.gallery-journal__image > [aria-hidden], .gallery-viewer__image > [aria-hidden] { display: none; }
+.gallery-journal__image > div:last-child, .gallery-viewer__image > div:last-child { display: grid; place-items: center; padding: 24px; }
+.gallery-journal__image > div > span, .gallery-viewer__image > div > span { padding: 0; border: 0; border-radius: 0; background: none; backdrop-filter: none; color: inherit; font: 400 14px/24px "Gallery Gothic A1", var(--font-sans-kr); letter-spacing: 0; }
+.gallery-journal__category { display: block; margin: 0; color: var(--gallery-burgundy); font-size: 11px; font-weight: 700; line-height: 15px; overflow-wrap: anywhere; }
+.gallery-journal__media-title { width: 100%; margin: 0; color: var(--gallery-ink); font: 700 21px/29px Hahmlet, var(--font-heading-kr); overflow-wrap: anywhere; word-break: keep-all; }
+.gallery-journal__date, .gallery-journal__media-action { color: var(--gallery-muted); font-size: 13px; line-height: 20px; }
+.gallery-journal__media-action span { display: inline-block; margin-left: 4px; }
+.gallery-journal__media-button:hover .gallery-journal__media-action, .gallery-journal__media-button:focus-visible .gallery-journal__media-action { color: var(--gallery-burgundy); text-decoration: underline; text-underline-offset: 4px; }
+.gallery-journal__videos { display: grid; gap: 64px; }
+.gallery-journal__video { display: grid; grid-template-columns: minmax(0,864fr) minmax(0,456fr); align-items: center; gap: 48px; }
+.gallery-journal__video + .gallery-journal__video { padding-top: 48px; border-top: 1px solid var(--gallery-border); }
+.gallery-journal__video-thumbnail { width: 100%; min-width: 0; padding: 0; border: 0; background: transparent; }
+.gallery-journal__video-copy { display: grid; min-width: 0; justify-items: start; gap: 24px; }
+.gallery-journal__video-copy .gallery-journal__media-title { font-size: 36px; line-height: 50px; }
+.gallery-journal__command { display: inline-flex; min-height: 44px; width: min(260px,100%); align-items: center; justify-content: space-between; gap: 16px; padding: 16px; border: 0; border-radius: 4px; background: var(--gallery-burgundy); color: var(--gallery-paper); font-size: 16px; font-weight: 700; line-height: 24px; text-decoration: none; }
+.gallery-journal__command:hover { background: #542032; }
+.gallery-journal__posters { display: grid; grid-template-columns: minmax(0,864fr) minmax(0,456fr); align-items: start; gap: 48px; }
+.gallery-journal__poster-grid { display: grid; min-width: 0; grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start; gap: 48px; }
+.gallery-journal__poster-note { display: grid; min-width: 0; gap: 24px; padding-top: 32px; }
+.gallery-journal__poster-note h2 { margin: 0; color: var(--gallery-burgundy); font: 400 32px/48px Hahmlet, var(--font-heading-kr); word-break: keep-all; }
+.gallery-journal__poster-note p { margin: 0; color: var(--gallery-muted); font-size: 16px; line-height: 27px; word-break: keep-all; }
+.gallery-journal__notice { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 32px; padding: 16px 24px; border: 1px solid var(--gallery-border); background: #e8ecea; }
+.gallery-journal__notice p { margin: 0; font-size: 14px; line-height: 24px; word-break: keep-all; overflow-wrap: anywhere; }
+.gallery-journal__text-button { flex-shrink: 0; min-height: 44px; padding: 8px; border: 0; background: transparent; color: var(--gallery-burgundy); font-size: 14px; text-decoration: underline; text-underline-offset: 4px; }
+.gallery-journal .empty-state, .gallery-journal .loading-state { width: 100%; border: 0; border-radius: 0; background: var(--gallery-paper); box-shadow: none; }
+.gallery-journal .empty-state > div:first-child { display: none; }
+
+.gallery-viewer { position: fixed; inset: 0; width: min(1536px,calc(100% - 48px)); max-width: none; max-height: calc(100dvh - 48px); margin: auto; padding: 48px; overflow: auto; overscroll-behavior: contain; border: 0; border-radius: 0; background: #17191d; color: #f5f0e7; font-family: "Gallery Gothic A1", var(--font-sans-kr); }
+.gallery-viewer::backdrop { background: rgb(0 0 0 / 78%); }
+.gallery-viewer__layout { display: flex; min-width: 0; flex-direction: column; gap: 24px; }
+.gallery-viewer__header { position: sticky; z-index: 1; top: -1px; display: flex; align-items: start; justify-content: space-between; gap: 24px; background: #17191d; }
+.gallery-viewer__header::before { content: ""; position: absolute; z-index: -1; inset: -48px -48px 0; background: #17191d; pointer-events: none; }
+.gallery-viewer__header h2 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; min-width: 0; margin: 0; overflow: hidden; color: inherit; font: 600 20px/30px "Gallery Gothic A1", var(--font-sans-kr); word-break: keep-all; overflow-wrap: anywhere; }
+.gallery-viewer button, .gallery-viewer a { display: inline-flex; min-height: 44px; flex-shrink: 0; align-items: center; justify-content: center; gap: 8px; padding: 12px; border: 0; background: transparent; color: inherit; font: 600 16px/24px "Gallery Gothic A1", var(--font-sans-kr); cursor: pointer; }
+.gallery-viewer button:hover, .gallery-viewer a:hover { background: #292c32; }
+.gallery-viewer :is(button,a,iframe):focus-visible { outline: 2px solid #f5f0e7; outline-offset: 3px; }
+.gallery-viewer .gallery-viewer__image { position: relative; width: 100%; height: max(120px,min(730px,calc(100dvh - 340px))); flex-shrink: 0; background: #17191d; color: #f5f0e7; }
+.gallery-viewer__image > img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; }
+.gallery-viewer__video { width: min(100%,calc((100dvh - 280px) * 16 / 9)); min-width: min(240px,100%); aspect-ratio: 16 / 9; align-self: center; background: #000; }
+.gallery-viewer__video iframe { display: block; width: 100%; height: 100%; border: 0; }
+.gallery-viewer__details { color: #d9d4cc; font-size: 14px; line-height: 24px; }
+.gallery-viewer__details p { margin: 0; word-break: keep-all; overflow-wrap: anywhere; }
+.gallery-viewer__details .gallery-viewer__title { margin-bottom: 8px; color: #f5f0e7; font-weight: 600; }
+.gallery-viewer__details .gallery-viewer__description { margin-top: 8px; white-space: pre-line; }
+.gallery-viewer__details a { padding-inline: 0; font-size: 14px; text-decoration: underline; text-underline-offset: 4px; }
+.gallery-viewer__navigation { display: grid; grid-template-columns: 152px minmax(0,1fr) 152px; align-items: center; gap: 24px; }
+.gallery-viewer__navigation p { margin: 0; font-size: 14px; line-height: 24px; text-align: center; }
+
+@media (max-width: 1199px) {
+  .gallery-journal__shell { width: calc(100% - 64px); }
+  .gallery-journal__intro-row { grid-template-columns: minmax(0,292fr) minmax(0,380fr); }
+  .gallery-journal__intro h1 { font-size: 48px; line-height: 58px; }
+  .gallery-journal__collection { padding-bottom: 64px; }
+  .gallery-journal__collection[aria-labelledby="gallery-tab-photos"] { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start; gap: 32px 24px; }
+  .gallery-journal__photo-lead, .gallery-journal__photo-side, .gallery-journal__photo-grid { display: contents; }
+  .gallery-journal__side-title { display: none; }
+  .gallery-journal__figure--lead { grid-column: 1 / -1; }
+  .gallery-journal__collection[aria-labelledby="gallery-tab-photos"] > :not(.gallery-journal__photo-lead, .gallery-journal__photo-grid) { grid-column: 1 / -1; }
+  .gallery-journal__video { grid-template-columns: minmax(0,1fr); gap: 24px; }
+  .gallery-journal__video-copy { gap: 12px; }
+  .gallery-journal__video-copy .gallery-journal__media-title { font-size: 21px; line-height: 29px; }
+  .gallery-journal__posters { display: block; }
+  .gallery-journal__poster-grid { gap: 32px 24px; }
+  .gallery-journal__poster-note { display: none; }
+  .gallery-viewer { padding: 32px; }
+}
+@media (max-width: 639px) {
+  .gallery-journal__shell { width: calc(100% - 48px); }
+  .gallery-journal__intro { padding-top: 40px; }
+  .gallery-journal__intro-row { grid-template-columns: minmax(0,1fr); gap: 16px; }
+  .gallery-journal__intro h1 { font-size: 40px; line-height: 48px; }
+  .gallery-journal__description { font-size: 14px; line-height: 23px; }
+  .gallery-journal__hint { font-size: 11px; }
+  .gallery-journal__collection { padding-bottom: 48px; }
+  .gallery-journal__collection[aria-labelledby="gallery-tab-photos"], .gallery-journal__poster-grid { grid-template-columns: minmax(0,1fr); gap: 32px; }
+  .gallery-journal__notice { flex-wrap: wrap; gap: 8px; padding: 16px; }
+  .gallery-viewer { width: 100%; max-height: 100dvh; padding: max(24px,env(safe-area-inset-top)) 24px max(24px,env(safe-area-inset-bottom)); }
+  .gallery-viewer__header { gap: 12px; }
+  .gallery-viewer__header h2 { font-size: 16px; line-height: 24px; }
+  .gallery-viewer button { padding: 10px 8px; font-size: 14px; }
+  .gallery-viewer__navigation { grid-template-columns: 92px minmax(0,1fr) 92px; gap: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gallery-journal *, .gallery-viewer * { scroll-behavior: auto; transition: none; animation: none; }
+}
