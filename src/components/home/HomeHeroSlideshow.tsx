@@ -7,6 +7,7 @@ import { Container } from '../common/Container'
 import { OptimizedImage } from '../common/OptimizedImage'
 import { Reveal } from '../common/Reveal'
 import { getStorageImageUrl } from '../../utils/supabaseImage'
+import { useHomeResponsiveViewport } from './useHomeResponsiveViewport'
 
 type HomeHeroSlideshowProps = {
   description?: string
@@ -95,7 +96,7 @@ function addPreconnectLink(href: string) {
   document.head.append(link)
 }
 
-function warmHeroImage(imageUrl: string) {
+function warmHeroImage(imageUrl: string, useOriginalImage: boolean) {
   const normalizedUrl = imageUrl.trim()
 
   if (!normalizedUrl || typeof window === 'undefined') {
@@ -110,11 +111,13 @@ function warmHeroImage(imageUrl: string) {
     heroImageWidths.find((width) => width >= targetWidth) ??
     heroImageWidths.at(-1) ??
     3840
-  const warmedUrl = getStorageImageUrl(normalizedUrl, {
-    quality: 92,
-    resize: 'contain',
-    width: preloadWidth,
-  })
+  const warmedUrl = useOriginalImage
+    ? normalizedUrl
+    : getStorageImageUrl(normalizedUrl, {
+        quality: 92,
+        resize: 'contain',
+        width: preloadWidth,
+      })
 
   if (warmedHeroImageUrls.has(warmedUrl)) {
     return
@@ -259,6 +262,9 @@ export function HomeHeroSlideshow({
   const [failedImageIds, setFailedImageIds] = useState<Set<string>>(() => new Set())
   const isDocumentVisible = useDocumentVisibility()
   const prefersReducedMotion = usePrefersReducedMotion()
+  // A width-only srcset undersamples a landscape photo covering a tall hero.
+  // Keep the same CMS original on smaller screens and desktop selection intact.
+  const useOriginalImage = useHomeResponsiveViewport() !== 'desktop'
   const visibleSlides = useMemo(() => {
     return [...slides]
       .filter((slide) => slide.is_visible)
@@ -287,7 +293,7 @@ export function HomeHeroSlideshow({
       return
     }
 
-    return scheduleIdleTask(() => warmHeroImage(nextSlide.image_url))
+    return scheduleIdleTask(() => warmHeroImage(nextSlide.image_url, useOriginalImage))
   }, [
     failedImageIds,
     hasMultipleSlides,
@@ -295,6 +301,7 @@ export function HomeHeroSlideshow({
     prefersReducedMotion,
     renderedSlides,
     safeActiveIndex,
+    useOriginalImage,
   ])
 
   useEffect(() => {
@@ -367,7 +374,7 @@ export function HomeHeroSlideshow({
                 priority={isPrioritySlide}
                 sizes="100vw"
                 src={slide.image_url}
-                transform={{
+                transform={useOriginalImage ? undefined : {
                   quality: 92,
                   resize: 'contain',
                   width: 3840,

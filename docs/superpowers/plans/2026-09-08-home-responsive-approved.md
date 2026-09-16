@@ -22,7 +22,7 @@
 - [x] Build the approved dark five-row spirit list; use dedicated CMS fields and preserve desktop orbit.
 - [x] Adapt existing About, Join, Archive and Support layouts below 1024px; use public images and existing actions. Keep source hero/footer/menu and desktop markup unchanged.
 - [x] Run targeted tests, full existing tests, lint and production build. Test 390/768/834/1023/1024/1440 widths, long CMS copy, empty/hidden data, links and keyboard use.
-- [ ] Compare protected desktop and hero/menu/footer styles between current checkout and isolated implementation. Integrate only the verified home change list without touching concurrent edits.
+- [x] Compare protected desktop and hero/menu/footer styles between current checkout and isolated implementation. Integrate only the verified home change list without touching concurrent edits.
 
 ## CMS contract
 
@@ -62,8 +62,37 @@ User approved resolving the full audit and explicitly confirmed tablet quick lin
 - [x] Register 37 responsive-only fields in total: About 5, Join 4, concert 4, education 6, spirit 9, Support 9. About/Join use the new home.responsive namespace, preserving the historical home.current SQL seed and all stored desktop values.
 - [x] Retire the earlier unused home-responsive-approved.css overrides; deduplicate identical Figma paper exports by SHA256.
 - [x] Complete final per-section screenshot/geometry, interaction, image failure, long/empty CMS and protected desktop checks.
-- [ ] Integrate only files whose original contents still match the captured baseline, then rerun the original 5175 route smoke/build checks.
+- [x] Integrate only files whose original contents still match the captured baseline, then rerun the original 5175 route smoke/build checks.
 
 The source design's small orange overline text (#FF601A on ivory) has low contrast. It is retained for the user's explicit visual-fidelity requirement; this is not a claim of full WCAG AA compliance. Primary action text and enlarged touch areas remain readable and operable. No live CMS save or device Safari validation is claimed.
 
 Final isolated results: 61 existing tests + 59 home/CMS tests passed. Per-section/protected-browser comparisons passed 97/97, long/empty CMS checks 15/15, image failures 3/3, and the separate future-sponsor-data regression 6/6. About/Join source-content geometry differs only by browser text rounding (~1–2px). Archive uses the same local 3:2 performance asset for the geometry fixture; real CMS image ratios remain preserved. Browser fixtures never save to the database.
+
+Corrective integration: 43 source/target files matched, five protected files unchanged; original production build passed and 33 route/viewport checks passed on 5175 with no JavaScript errors or unintended writes.
+
+## Independent device Home CMS — added user request
+
+This replaces the earlier shared-copy editing behavior for the approved responsive home. Desktop storage keys remain unchanged. Mobile and tablet copy use separate `home.mobile.*` and `home.tablet.*` keys in the existing `site_texts` table; no schema migration is required.
+
+- [x] Explicitly whitelist 62 mobile and 64 tablet fields based on actual responsive consumers. Exclude hero, menu, footer, operational records, fixed routes, and desktop-only animation settings.
+- [x] Resolve raw device overrides before normalization and Quick visibility filtering. Missing values use approved defaults; existing responsive-only keys remain a read-only compatibility fallback.
+- [x] Keep desktop and other home presentations on their original normalization path. Browser fixture checks passed 20/20; same-page resizing passed four transitions. Desktop About/Quick/Spirit screenshots retained identical decoded pixels.
+- [x] Provide independently persistent drafts, changed-field-only device saves and restores, global unsaved-change protection, and saved-content previews at real 390/834/1440 CSS-pixel widths.
+- [x] Verify failed and delayed saves, changes during save, keyboard tab switching, preview widths, refresh, and restored defaults using intercepted test responses only.
+- [x] Integrate after stage-3 baseline checks; rerun build, lint, source/target equality, and original route smoke.
+
+The user separately authorized removing the hero's lower gold staff decoration on small screens. A scoped `::after` display override was integrated into 5175; 32 direct browser checks passed at 390/519/834/1440. The distinct orange autoplay progress bar, hero copy, actions, controls, and desktop decoration remain unchanged.
+
+Home CMS validation exposed and resolved three issues: public/CMS text-validation mismatch, preview navigation retaining a non-home route across device tabs, and same-origin preview authentication broadcasting SIGNED_IN and unmounting the parent editor. Public and CMS text checks now share one validator without changing public fallback rules. Device switches reload the preview home. Only an embedded `/` with `home-cms-preview=1` uses nonpersistent anonymous Supabase options; normal public/admin authentication is unchanged. The parallel task independently fixed general same-user authentication recheck state in `useAdminAuth`; that hook was not edited or integrated by this task.
+
+Verification after original integration: all 29 new device/editor/preview/hero tests passed, 61 existing tests and 59 home contracts passed, full original lint/build passed. Actual React CMS browser tests passed 31/31 at 5175 using intercepted authentication and storage responses (four simulated upserts, no real database writes). This includes opening an ordinary sibling tab and receiving SIGNED_IN without losing the editor draft. Original public route smoke passed 33/33.
+
+## Later hero image-quality correction
+
+The CMS originals are 6000×4000, but width-only `sizes="100vw"` chose small landscape derivatives that were enlarged to cover the tall mobile hero. Below 1024px the hero now uses the same CMS original; warmup uses the same original URL to avoid downloading both variants. Desktop transforms, source photographs, crops, text, actions and controls are unchanged. Four source photographs are approximately 2–4MB each, so improved detail has a mobile bandwidth cost. Save-data and reduced-motion settings still suppress next-image warmup.
+
+Image-selection tests passed 7/7 and independent browser checks passed 50/50. A final original-5175 check confirmed 390px/DPR2 loads 6000×4000 with no gold strip, while 1440px/DPR2 retains desktop transform selection. No media upload, artificial sharpening, generated faces, or CMS record update was performed.
+
+## Later desktop Spirit background clarification
+
+The existing video uses `object-fit: contain`, which exposes side bands when the section aspect ratio differs from the source's 16:9 ratio; it was not caused by responsive changes. A full-bleed variant was tested only in the isolated worktree. Direct inspection then confirmed Chrome page zoom is 90% (CDP zoom ~0.9), with a different effective viewport from the app's 1536px desktop view. The user explicitly instructed not to change it after this explanation. The isolated five-line cover override was reverted and was never integrated into the original project. Desktop video fitting, layout and browser zoom settings remain untouched.

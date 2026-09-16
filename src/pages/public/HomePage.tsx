@@ -29,6 +29,7 @@ import { useHomeResponsiveViewport } from '../../components/home/useHomeResponsi
 import { SupportLetterFold } from '../../components/home/SupportLetterFold'
 import { useHomeData } from '../../hooks/usePublicData'
 import { normalizeHomeContentV2 } from '../../lib/homeContent'
+import { resolveHomeContentForDevice } from '../../lib/homeDeviceContent'
 import type { Concert, GalleryImage } from '../../types/content'
 
 type HomePageMode = 'default' | 'section-flow-sample'
@@ -165,8 +166,10 @@ export function HomePage({
     videos,
   } = homeData.data
   const homeContent = useMemo(
-    () => normalizeHomeContentV2(siteTexts),
-    [siteTexts],
+    () => performancePresentation === 'figma-template-carousel'
+      ? resolveHomeContentForDevice(siteTexts, viewport)
+      : normalizeHomeContentV2(siteTexts),
+    [performancePresentation, siteTexts, viewport],
   )
   const visibleGalleryImages = getVisibleGalleryImages(gallery)
   const aboutVisualImage =

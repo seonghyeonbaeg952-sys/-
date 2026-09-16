@@ -68,9 +68,10 @@ export function useCrudItem<TTable extends CmsTableName>(table: TTable) {
     }
   }, [reloadToken, table])
 
-  const clearMutationError = useCallback(() => {
+  const clearMutationFeedback = useCallback(() => {
     setState((current) => ({
       ...current,
+      message: null,
       mutationError: null,
     }))
   }, [])
@@ -106,7 +107,7 @@ export function useCrudItem<TTable extends CmsTableName>(table: TTable) {
 
   return {
     ...state,
-    clearMutationError,
+    clearMutationFeedback,
     error: state.loadError ?? state.mutationError,
     reload,
     saveItem,

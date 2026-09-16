@@ -14,15 +14,18 @@ let { outputText } = ts.transpileModule(source, {
 })
 const imports = {
   react: pathToFileURL(require.resolve('react')).href,
+  'react-dom': pathToFileURL(require.resolve('react-dom')).href,
   'react/jsx-runtime': pathToFileURL(require.resolve('react/jsx-runtime')).href,
   '../../components/admin/AdminCrudListPage': dataModule('export function AdminCrudListPage(){ return null }'),
   '../../components/common/Button': dataModule('export function Button(){ return null }'),
   '../../lib/storage': dataModule('export function getSignedStorageUrl(){ throw new Error("SSR must not request storage") }'),
 }
+outputText = outputText.replace(/^import ['"][^'"]+\.css['"];?\s*$/gm, '')
 for (const [specifier, replacement] of Object.entries(imports)) {
   outputText = outputText.replaceAll(`'${specifier}'`, `'${replacement}'`).replaceAll(`"${specifier}"`, `"${replacement}"`)
 }
-const { AdminJoinApplicationsPage } = await import(dataModule(outputText))
+const module = await import(dataModule(outputText))
+const { AdminJoinApplicationsPage } = module
 const props = AdminJoinApplicationsPage().props
 const row = {
   id: 'fixture', form_version: 2, applicant_name: '지원자', birth_date: '2012-05-06',
@@ -104,4 +107,50 @@ test('v2 list distinguishes uncollected fields from missing legacy answers', () 
   }
   assert.equal(render('사진 여부', { ...empty, photo_file_path: 'private/photo.jpg' }), '있음')
   assert.equal(render('추천서 여부', { ...empty, recommendation_file_path: 'private/recommendation.pdf' }), '있음')
+})
+
+test('the CMS detail offers a named print action without changing the saved application', () => {
+  const before = structuredClone(row)
+  const html = renderToStaticMarkup(props.renderBeforeForm(row))
+  assert.match(html, /<button[^>]*>입단지원서 인쇄<\/button>/)
+  assert.match(html, /저장된 지원서/)
+  assert.deepEqual(row, before)
+})
+
+test('the print document preserves seven v2 answers, consent and receipt metadata without editable or internal controls', () => {
+  assert.equal(typeof module.JoinApplicationPrintDocument, 'function', 'an application-only print document is required')
+  const original = '  <script>unsafe()</script>\n첫 문단\n\n두 번째 문단  '
+  const html = renderToStaticMarkup(module.JoinApplicationPrintDocument({ row: {
+    ...row, motivation: original, submission_id: 'fixture-submission', join_info_id: 'fixture-guide', admin_notes: 'INTERNAL-NOT-FOR-PRINT',
+  } }))
+  const labels = [...html.matchAll(/<dt[^>]*>(.*?)<\/dt>/g)].map(match => match[1])
+  assert.deepEqual(labels.slice(0, 7), ['이름', '생년월일', '학교·학년', '지원자 연락처', '보호자 연락처', '지원 파트', '지원 동기'])
+  for (const text of ['지원자', '모테트중학교 2학년', '010-1000-2000', '010-3000-4000', '소프라노, 알토', '개인정보 동의', '접수일', 'fixture-submission', 'fixture-guide']) assert.ok(html.includes(text), text)
+  assert.ok(html.includes('  &lt;script&gt;unsafe()&lt;/script&gt;\n첫 문단\n\n두 번째 문단  '))
+  assert.doesNotMatch(html, /<script>|<button|<input|<select|<textarea|INTERNAL-NOT-FOR-PRINT|legacy guardian sentinel/)
+})
+
+test('the print document includes legacy answers and attachment references but never expiring signed URLs', () => {
+  assert.equal(typeof module.JoinApplicationPrintDocument, 'function', 'an application-only print document is required')
+  const legacy = { ...row, form_version: 1, email: 'fixture@example.invalid', region: '서울',
+    choir_experience: 'yes', lesson_experience: 'no', contact_time: '오후', music_experience: '음악 경력 원문', awards: '수상 원문',
+    recommender_name: '추천인', recommender_affiliation: '소속', recommender_reason: '추천 원문', vision: '비전 원문',
+    photo_file_path: 'fixture/%EC%82%AC%EC%A7%84.jpg',
+    recommendation_file_path: 'https://example.invalid/path/recommendation.pdf?token=DO-NOT-PRINT#fragment',
+  }
+  const html = renderToStaticMarkup(module.JoinApplicationPrintDocument({ row: legacy }))
+  for (const text of ['legacy guardian sentinel', 'legacy grade sentinel', 'fixture@example.invalid', '서울', '음악 경력 원문', '수상 원문', '추천 원문', '비전 원문', '사진.jpg', 'recommendation.pdf']) assert.ok(html.includes(text), text)
+  assert.doesNotMatch(html, /token=|DO-NOT-PRINT|https:\/\/example.invalid|첨부파일 링크를 준비/)
+})
+
+test('legacy attachment aliases remain referenced and very long motivation is not shortened when printed', () => {
+  assert.equal(typeof module.JoinApplicationPrintDocument, 'function', 'an application-only print document is required')
+  const motivation = ('긴 지원 동기\n\n').repeat(300) + '마지막 문장 확인'
+  const html = renderToStaticMarkup(module.JoinApplicationPrintDocument({ row: {
+    ...row, motivation, photo_url: 'https://example.invalid/photo-original.png?token=hidden', recommendation_path: 'fixture/reference-original.pdf',
+  } }))
+  assert.ok(html.includes(motivation))
+  assert.ok(html.includes('photo-original.png'))
+  assert.ok(html.includes('reference-original.pdf'))
+  assert.doesNotMatch(html, /token=hidden/)
 })

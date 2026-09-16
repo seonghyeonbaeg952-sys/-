@@ -28,6 +28,11 @@ const invalidPublicLiterals = [
   /on\w+\s*=/i,
 ]
 
+export function isValidHomePublicText(value: string) {
+  const trimmed = value.trim()
+  return Boolean(trimmed) && !invalidPublicLiterals.some((pattern) => pattern.test(trimmed))
+}
+
 const legacyToV2KeyMap: Record<string, string[]> = {
   'home.heroSupplement.fallbackDescription': [
     'home.hero.subtitle',
@@ -175,7 +180,7 @@ function normalizeString(value: unknown, fallback: string) {
 
   const trimmed = value.trim()
 
-  if (!trimmed || invalidPublicLiterals.some((pattern) => pattern.test(trimmed))) {
+  if (!isValidHomePublicText(trimmed)) {
     return fallback
   }
 

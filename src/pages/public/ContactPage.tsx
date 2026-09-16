@@ -1,636 +1,139 @@
-import { useEffect, useState } from 'react'
-import type { FormEvent } from 'react'
-import { Navigate, useSearchParams } from 'react-router'
-
+import { useEffect } from 'react'
+import { Link, Navigate, useLocation, useSearchParams } from 'react-router'
+import { ContactInquiryForm } from '../../components/contact/ContactInquiryForm'
 import { SupportPledgeForm } from '../../components/contact/SupportPledgeForm'
-import { AnimatedSectionTabs } from '../../components/common/AnimatedSectionTabs'
-import { Button } from '../../components/common/Button'
-import { Card } from '../../components/common/Card'
-import { Container } from '../../components/common/Container'
-import { ErrorState } from '../../components/common/ErrorState'
+import { formatSupportAmounts, getContactSection, getInitialInquiryType, inquiryTypes } from '../../components/contact/contactFormModel'
 import { LoadingState } from '../../components/common/LoadingState'
-import { MapPreview } from '../../components/common/MapPreview'
-import { PageHero } from '../../components/common/PageHero'
+import { OptimizedImage } from '../../components/common/OptimizedImage'
 import { SeoHead } from '../../components/common/SeoHead'
-import { Reveal } from '../../components/common/Reveal'
-import { SectionTitle } from '../../components/common/SectionTitle'
-import { ImageTile } from '../../components/home/ImageTile'
 import { SponsorsSection } from '../../components/sponsors/SponsorsSection'
 import { useContactData } from '../../hooks/usePublicData'
-import { createContactMessage, type ContactMessageInput } from '../../lib/publicData'
+import { getMapActions } from '../../utils/mapLinks'
+import '../../styles/contact-page.css'
 
-const inquiryTypes: Array<{ label: string; value: ContactMessageInput['type'] }> = [
-  { label: '일반 문의', value: 'general' },
-  { label: '입단 관련 문의', value: 'join' },
-  { label: '후원 관련 문의', value: 'support' },
-  { label: '공연 관련 문의', value: 'concert_request' },
-  { label: '기타', value: 'other' },
-]
-
-type ContactSectionKey =
-  | 'all'
-  | 'join'
-  | 'location'
-  | 'performance'
-  | 'sponsors'
-  | 'support'
-
-const contactSections: Array<{
-  inquiryType?: ContactMessageInput['type']
-  label: string
-  value: Exclude<ContactSectionKey, 'all'>
-}> = [
-  {
-    inquiryType: 'support',
-    label: '후원 안내',
-    value: 'support',
-  },
-  {
-    label: '후원사',
-    value: 'sponsors',
-  },
-  {
-    inquiryType: 'concert_request',
-    label: '공연 의뢰',
-    value: 'performance',
-  },
-  {
-    inquiryType: 'join',
-    label: '입단지원서 작성',
-    value: 'join',
-  },
-  {
-    label: '오시는 길·지도',
-    value: 'location',
-  },
-]
-
-const contactSectionTabs: Array<{
-  href: string
-  label: string
-  value: ContactSectionKey
-}> = [
-  { href: '/contact', label: '전체', value: 'all' },
-  ...contactSections.map((section) => ({
-    href: `/contact?section=${section.value}`,
-    label: section.label,
-    value: section.value,
-  })),
-]
-
-type ContactFormValues = {
-  email: string
-  message: string
-  name: string
-  phone: string
-  privacy_agreed: boolean
-  title: string
-  type: ContactMessageInput['type']
-  website: string
-}
-
-type ContactFormState = ContactFormValues & {
-  section: ContactSectionKey
-}
-
-const initialFormValues: ContactFormValues = {
-  email: '',
-  message: '',
-  name: '',
-  phone: '',
-  privacy_agreed: false,
-  title: '',
-  type: 'general',
-  website: '',
-}
-
-function getContactSection(value: string | null): ContactSectionKey {
-  if (
-    value === 'support' ||
-    value === 'sponsors' ||
-    value === 'performance' ||
-    value === 'join' ||
-    value === 'location'
-  ) {
-    return value
-  }
-
-  return 'all'
-}
-
-function getInitialInquiryType(section: ContactSectionKey): ContactMessageInput['type'] {
-  if (section === 'support') {
-    return 'support'
-  }
-
-  if (section === 'performance') {
-    return 'concert_request'
-  }
-
-  if (section === 'join') {
-    return 'join'
-  }
-
-  return 'general'
-}
-
-function isValidEmail(value: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-}
-
-function getContactSuccessMessage(type: ContactMessageInput['type']) {
-  if (type === 'support') {
-    return '후원 문의가 접수되었습니다.\n담당자가 확인 후 입력하신 이메일로 안내드리겠습니다.'
-  }
-
-  return '문의가 접수되었습니다.\n담당자가 확인 후 입력하신 이메일로 답변을 보내드립니다.'
-}
+const navigation = [
+  { label: '후원 안내', href: '/contact#support', section: 'support' },
+  { label: '후원사', href: '/contact?section=sponsors#sponsors', section: 'sponsors' },
+  { label: '공연 의뢰', href: '/contact?section=performance#form', section: 'performance' },
+  { label: '문의하기', href: '/contact?section=inquiry#form', section: 'inquiry' },
+  { label: '오시는 길', href: '/contact?section=location#location', section: 'location' },
+] as const
 
 export function ContactPage() {
   const [searchParams] = useSearchParams()
+  const route = useLocation()
   if (searchParams.get('section') === 'join') {
     return <Navigate replace to="/join?section=contact#application" />
+  }
+  if (searchParams.get('section') === 'support' && route.hash === '#form') {
+    return <Navigate replace to="/contact?section=inquiry&type=support#form" />
   }
   return <ContactContent />
 }
 
 function ContactContent() {
   const contactData = useContactData()
-  const [searchParams] = useSearchParams()
-  const activeSection = getContactSection(searchParams.get('section'))
-  const [storedValues, setStoredValues] = useState<ContactFormState>(() => ({
-    ...initialFormValues,
-    section: activeSection,
-    type: getInitialInquiryType(activeSection),
-  }))
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [successMessage, setSuccessMessage] = useState<string | null>(null)
-  const settings = contactData.data.siteSettings
-  const supportSettings = contactData.data.supportSettings
-  const location = contactData.data.location
-  const sponsors = contactData.data.sponsors
+  const [params] = useSearchParams()
+  const route = useLocation()
+  const activeSection = getContactSection(params.get('section'))
+  const { siteSettings, supportSettings, location, sponsors } = contactData.data
   const showAll = activeSection === 'all'
-  const showSupport = showAll || activeSection === 'support'
-  const showSponsorPreview = activeSection === 'support'
-  const showSponsors = showAll || activeSection === 'sponsors'
-  const showForm =
-    showAll ||
-    activeSection === 'performance' ||
-    activeSection === 'support'
-  const showLocation = showAll || activeSection === 'location'
-  const values =
-    storedValues.section === activeSection
-      ? storedValues
-      : {
-          ...storedValues,
-          section: activeSection,
-          type: getInitialInquiryType(activeSection),
-        }
+  const showInquiry = showAll || activeSection === 'inquiry' || activeSection === 'performance' || (activeSection === 'support' && !supportSettings)
+  const initialType = inquiryTypes.find(item => item.value === params.get('type'))?.value ?? getInitialInquiryType(activeSection)
+  const address = location?.address || siteSettings.address
+  const maps = getMapActions({ address, embedUrl: location?.map_embed_url, kakaoMapUrl: location?.kakao_map_url, naverMapUrl: location?.naver_map_url })
+  const ready = !contactData.isLoading && !contactData.error
+  const title = activeSection === 'support' ? (supportSettings?.title || '후원 약정서') : '후원·문의'
 
   useEffect(() => {
-    if (contactData.isLoading || window.location.hash !== '#form') {
-      return undefined
-    }
-
-    const frameId = window.requestAnimationFrame(() => {
-      document.getElementById('form')?.scrollIntoView({
-        behavior: 'auto',
-        block: 'start',
-      })
+    if (!ready || !route.hash) return
+    const frame = requestAnimationFrame(() => {
+      document.getElementById(route.hash.slice(1))?.scrollIntoView({ behavior: 'auto', block: 'start' })
     })
-
-    return () => window.cancelAnimationFrame(frameId)
-  }, [activeSection, contactData.isLoading])
-
-  const setValue = <TKey extends keyof ContactFormValues>(
-    key: TKey,
-    value: ContactFormValues[TKey],
-  ) => {
-    setStoredValues((current) => ({
-      ...(current.section === activeSection
-        ? current
-        : {
-            ...current,
-            section: activeSection,
-            type: getInitialInquiryType(activeSection),
-          }),
-      [key]: value,
-    }))
-    setError(null)
-    setSuccessMessage(null)
-  }
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-
-    const name = values.name.trim()
-    const email = values.email.trim()
-    const message = values.message.trim()
-
-    if (!name || !email || !message) {
-      setError('이름, 이메일, 문의 내용을 입력해 주세요.')
-      return
-    }
-
-    if (!isValidEmail(email)) {
-      setError('이메일 형식을 확인해 주세요.')
-      return
-    }
-
-    if (!values.privacy_agreed) {
-      setError('개인정보 수집 및 이용에 동의해 주세요.')
-      return
-    }
-
-    setIsSubmitting(true)
-    setError(null)
-    setSuccessMessage(null)
-
-    const result = await createContactMessage({
-      email,
-      message,
-      name,
-      phone: values.phone.trim() || null,
-      privacy_agreed: values.privacy_agreed,
-      title: values.title.trim() || null,
-      type: values.type,
-      website: values.website,
-    })
-
-    setIsSubmitting(false)
-
-    if (!result.data) {
-      setError(result.error)
-      return
-    }
-
-    setStoredValues({
-      ...initialFormValues,
-      section: activeSection,
-      type: getInitialInquiryType(activeSection),
-    })
-    setSuccessMessage(getContactSuccessMessage(values.type))
-  }
-
-  const address = location?.address || settings.address
-  const contactDetails = [
-    { label: '전화', value: settings.phone?.trim() },
-    { label: 'FAX', value: settings.fax?.trim() },
-    { label: '이메일', value: settings.email?.trim() },
-    { label: '주소', value: address?.trim() },
-  ].filter((detail): detail is { label: string; value: string } => Boolean(detail.value))
-  const formTitle =
-    activeSection === 'support'
-      ? '후원 관련 문의 보내기'
-      : activeSection === 'performance'
-        ? '문의 보내기'
-        : activeSection === 'join'
-          ? '입단지원서 작성'
-          : '문의 보내기'
-  const supportSection = showSupport ? (
-    <Reveal rootMargin="0px 0px -2% 0px" threshold={0.01}>
-      <div className="space-y-8">
-        {showSponsorPreview ? (
-          <SponsorsSection compact showEmpty={false} sponsors={sponsors} />
-        ) : null}
-        {supportSettings ? (
-          <SupportPledgeForm
-            settings={supportSettings}
-            siteSettings={settings}
-          />
-        ) : activeSection === 'support' ? (
-          <ErrorState
-            action={(
-              <Button href="/contact?section=support#form" variant="secondary">
-                후원 문의 보내기
-              </Button>
-            )}
-            description="운영 설정이 확인되기 전에는 온라인 약정서를 표시하지 않습니다. 문의 폼으로 연락해 주세요."
-            title="후원 약정 접수를 준비하고 있습니다"
-          />
-        ) : null}
-      </div>
-    </Reveal>
-  ) : null
+    return () => cancelAnimationFrame(frame)
+  }, [ready, route.hash, activeSection])
 
   return (
-    <>
-      <SeoHead
-        description="서울모테트청소년합창단 후원, 공연, 입단과 일반 문의를 공식 채널로 접수합니다."
-        path="/contact"
-        title="후원·문의"
-      />
-      <PageHero
-        description="후원, 공연 의뢰, 일반 문의를 공식 채널로 보내 주세요. 입단지원서는 별도 양식으로 접수합니다."
-        eyebrow="HELP DESK"
-        title="후원·문의"
-      />
-      <Container className="page-main">
-        {contactData.isLoading ? (
-          <div className="mb-6">
-            <LoadingState label="문의 정보를 불러오는 중입니다" />
-          </div>
-        ) : null}
-
-        {contactData.error ? (
-          <div className="mb-6">
-            <ErrorState
-              action={(
-                <Button onClick={contactData.refetch} variant="secondary">
-                  다시 시도
-                </Button>
-              )}
-              description={contactData.error}
-            />
-          </div>
-        ) : null}
-
-        <Reveal>
-          <AnimatedSectionTabs
-            activeValue={activeSection}
-            ariaLabel="후원·문의 섹션 선택"
-            className="mb-8 rounded-formal border border-line-default bg-bg-warm-white p-2 shadow-card"
-            onChange={(value) => {
-              const nextSection = contactSections.find((section) => section.value === value)
-
-              if (nextSection?.inquiryType) {
-                setValue('type', nextSection.inquiryType)
-              }
-            }}
-            tabs={contactSectionTabs}
-          />
-        </Reveal>
-
-        <div className="space-y-10 lg:space-y-14">
-          {activeSection === 'support' ? supportSection : null}
-
-          {showForm ? (
-            <Reveal rootMargin="0px 0px -2% 0px" threshold={0.01}>
-              <div className="inquiry-layout">
-                <Card
-                  className="relative scroll-mt-24 overflow-hidden p-6 sm:p-7"
-                  id={activeSection === 'performance' ? 'performance' : 'form'}
-                  radius="formal"
-                >
-              <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-gold-warm via-gold-soft to-transparent" />
-              <h2 className="text-2xl font-semibold text-navy-deep">
-                {formTitle}
-              </h2>
-              <p className="mt-2 break-keep text-sm leading-6 text-text-muted">
-                궁금한 내용을 남겨주시면 담당자가 확인 후 입력하신 이메일로 답변을 보내드립니다.
-                <br className="hidden sm:block" />
-                정확한 답변을 위해 이메일 주소를 올바르게 입력해 주세요.
-              </p>
-              <form className="mt-6 grid gap-5" onSubmit={handleSubmit}>
-                <div aria-hidden="true" className="hidden">
-                  <label htmlFor="contact-website">웹사이트</label>
-                  <input
-                    autoComplete="off"
-                    id="contact-website"
-                    name="website"
-                    onChange={(event) => setValue('website', event.target.value)}
-                    tabIndex={-1}
-                    value={values.website}
-                  />
-                </div>
-
-                <label>
-                  <span className="text-sm font-semibold text-navy-deep">문의 유형</span>
-                  <select
-                    className="mt-2 min-h-12 w-full rounded-button border border-line-default bg-bg-warm-white px-4 text-sm outline-none focus:border-gold-warm focus:ring-2 focus:ring-gold-soft/60"
-                    onChange={(event) =>
-                      setValue('type', event.target.value as ContactMessageInput['type'])
-                    }
-                    value={values.type}
-                  >
-                    {inquiryTypes.map((type) => (
-                      <option key={type.value} value={type.value}>
-                        {type.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <div className="grid gap-5 md:grid-cols-2">
-                  <label>
-                    <span className="text-sm font-semibold text-navy-deep">이름</span>
-                    <input
-                      autoComplete="name"
-                      className="mt-2 min-h-12 w-full rounded-button border border-line-default bg-bg-warm-white px-4 text-sm outline-none focus:border-gold-warm focus:ring-2 focus:ring-gold-soft/60"
-                      onChange={(event) => setValue('name', event.target.value)}
-                      required
-                      value={values.name}
-                    />
-                  </label>
-                  <label>
-                    <span className="text-sm font-semibold text-navy-deep">이메일</span>
-                    <input
-                      autoComplete="email"
-                      className="mt-2 min-h-12 w-full rounded-button border border-line-default bg-bg-warm-white px-4 text-sm outline-none focus:border-gold-warm focus:ring-2 focus:ring-gold-soft/60"
-                      inputMode="email"
-                      onChange={(event) => setValue('email', event.target.value)}
-                      required
-                      type="email"
-                      value={values.email}
-                    />
-                    <p className="mt-2 text-xs leading-5 text-text-muted">
-                      답변을 받을 이메일 주소를 정확히 입력해 주세요.
-                    </p>
-                  </label>
-                </div>
-
-                <label>
-                  <span className="text-sm font-semibold text-navy-deep">전화번호</span>
-                  <input
-                    autoComplete="tel"
-                    className="mt-2 min-h-12 w-full rounded-button border border-line-default bg-bg-warm-white px-4 text-sm outline-none focus:border-gold-warm focus:ring-2 focus:ring-gold-soft/60"
-                    inputMode="tel"
-                    onChange={(event) => setValue('phone', event.target.value)}
-                    value={values.phone}
-                  />
-                </label>
-
-                <label>
-                  <span className="text-sm font-semibold text-navy-deep">제목</span>
-                  <input
-                    className="mt-2 min-h-12 w-full rounded-button border border-line-default bg-bg-warm-white px-4 text-sm outline-none focus:border-gold-warm focus:ring-2 focus:ring-gold-soft/60"
-                    onChange={(event) => setValue('title', event.target.value)}
-                    value={values.title}
-                  />
-                </label>
-
-                <label>
-                  <span className="text-sm font-semibold text-navy-deep">문의 내용</span>
-                  <textarea
-                    className="mt-2 min-h-40 w-full rounded-button border border-line-default bg-bg-warm-white px-4 py-3 text-sm outline-none focus:border-gold-warm focus:ring-2 focus:ring-gold-soft/60"
-                    onChange={(event) => setValue('message', event.target.value)}
-                    required
-                    value={values.message}
-                  />
-                </label>
-
-                <label className="flex items-start gap-3 rounded-button border border-line-default bg-bg-ivory p-4 text-sm leading-6 text-text-muted">
-                  <input
-                    checked={values.privacy_agreed}
-                    className="mt-1 size-5 shrink-0 accent-gold-warm"
-                    onChange={(event) =>
-                      setValue('privacy_agreed', event.target.checked)
-                    }
-                    type="checkbox"
-                  />
-                  <span>
-                    문의 접수를 위한 개인정보 수집 및 이용에 동의합니다. 입력한 정보는
-                    문의 확인 목적으로만 사용합니다.
-                  </span>
-                </label>
-
-                {error ? (
-                  <p className="rounded-button bg-state-error/10 px-4 py-3 text-sm leading-6 text-state-error" role="alert">
-                    {error}
-                  </p>
-                ) : null}
-                {successMessage ? (
-                  <p className="whitespace-pre-line rounded-button bg-state-success/10 px-4 py-3 text-sm leading-6 text-state-success" role="status">
-                    {successMessage}
-                  </p>
-                ) : null}
-
-                <Button
-                  aria-busy={isSubmitting}
-                  className="w-full sm:w-auto"
-                  disabled={isSubmitting}
-                  size="lg"
-                  type="submit"
-                  variant="primary"
-                >
-                  {isSubmitting ? '전송 중' : '문의 보내기'}
-                </Button>
-              </form>
-                </Card>
-                <Card className="inquiry-guide-card p-6" radius="formal">
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-gold-ink">
-                PRIVATE INQUIRY
-              </p>
-              <h2 className="mt-3 break-keep text-xl font-semibold leading-7 text-navy-deep">
-                문의 내용은 공개 화면에 표시되지 않습니다.
-              </h2>
-              <p className="mt-4 break-keep text-sm leading-7 text-text-muted">
-                보내주신 문의는 운영진에게만 전달되며, 문의 유형에 맞춰 확인 후 연락드립니다.
-              </p>
-              <ul className="mt-5 grid gap-3 text-sm leading-6 text-text-muted">
-                <li className="rounded-button border border-line-default bg-bg-ivory px-4 py-3">
-                  공연 관련 문의는 일정, 장소, 요청 내용을 함께 적어 주세요.
-                </li>
-                <li className="rounded-button border border-line-default bg-bg-ivory px-4 py-3">
-                  입단지원서는 별도 전용 양식에서 접수합니다.
-                </li>
-              </ul>
-                </Card>
-              </div>
-            </Reveal>
-          ) : null}
-
-          {activeSection !== 'support' ? supportSection : null}
-
-          {showSponsors ? (
-            <Reveal rootMargin="0px 0px -2% 0px" threshold={0.01}>
-              <SponsorsSection sponsors={sponsors} />
-            </Reveal>
-          ) : null}
-
-          {showLocation ? (
-            <Reveal rootMargin="0px 0px -2% 0px" threshold={0.01}>
-              <section id="location">
-                <SectionTitle
-                  description="주소, 교통 안내와 지도 앱 바로가기를 확인합니다."
-                  eyebrow="LOCATION"
-                  title="오시는 길"
-                />
-                <div className="location-grid mt-8">
-                  <div className="space-y-5">
-                    <Card className="relative overflow-hidden p-6" radius="formal">
-                      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-gold-warm via-gold-soft to-transparent" />
-                      <p className="text-sm font-semibold text-gold-ink">CONTACT</p>
-                      <h2 className="mt-3 text-2xl font-semibold text-navy-deep">
-                        공식 문의 채널
-                      </h2>
-                      {contactDetails.length > 0 ? (
-                        <dl className="mt-5 grid gap-3 text-sm leading-6 text-text-muted sm:grid-cols-2">
-                          {contactDetails.map((detail) => (
-                            <div
-                              className="rounded-button border border-line-default bg-bg-ivory px-4 py-3"
-                              key={detail.label}
-                            >
-                              <dt className="font-semibold text-navy-deep">
-                                {detail.label}
-                              </dt>
-                              <dd className="break-words">{detail.value}</dd>
-                            </div>
-                          ))}
-                        </dl>
-                      ) : (
-                        <p className="mt-5 rounded-button border border-line-default bg-bg-ivory px-4 py-3 text-sm leading-6 text-text-muted">
-                          공식 문의 정보는 문의 양식을 통해 안내해 드립니다.
-                        </p>
-                      )}
-                    </Card>
-                    {location?.transit_info || location?.parking_info ? (
-                      <Card className="p-6" radius="formal">
-                        <h3 className="text-xl font-semibold text-navy-deep">
-                          교통 안내
-                        </h3>
-                        {location.transit_info ? (
-                          <p className="mt-4 whitespace-pre-line break-keep text-sm leading-7 text-text-muted">
-                            {location.transit_info}
-                          </p>
-                        ) : null}
-                        {location.parking_info ? (
-                          <p className="mt-4 whitespace-pre-line break-keep text-sm leading-7 text-text-muted">
-                            {location.parking_info}
-                          </p>
-                        ) : null}
-                      </Card>
-                    ) : null}
-                  </div>
-                  <div className="space-y-5">
-                    {location?.image_url ? (
-                      <Card className="overflow-hidden" radius="balanced">
-                        <ImageTile
-                          alt={location.image_alt || `${location.place_name || '오시는 길'} 사진`}
-                          className="aspect-[16/10]"
-                          objectFit="cover"
-                          sizes="(min-width: 1024px) 50vw, calc(100vw - 40px)"
-                          src={location.image_url}
-                          transform={{
-                            quality: 88,
-                            resize: 'cover',
-                            width: 1800,
-                            widths: [960, 1400, 1800],
-                          }}
-                        />
-                        {location.image_caption ? (
-                          <p className="border-t border-line-default bg-bg-warm-white p-4 text-sm leading-6 text-text-muted">
-                            {location.image_caption}
-                          </p>
-                        ) : null}
-                      </Card>
-                    ) : null}
-                    <MapPreview
-                      address={address}
-                      embedUrl={location?.map_embed_url}
-                      kakaoMapUrl={location?.kakao_map_url}
-                      naverMapUrl={location?.naver_map_url}
-                      placeName={location?.place_name || '서울모테트음악재단'}
-                    />
-                  </div>
-                </div>
-              </section>
-            </Reveal>
-          ) : null}
+    <div className="contact-atelier">
+      <SeoHead title={title} path="/contact" description="서울모테트청소년합창단 후원, 공연, 입단과 일반 문의를 공식 채널로 접수합니다." />
+      <header className="contact-atelier__intro contact-atelier__shell">
+        {activeSection !== 'all' ? <Link className="contact-atelier__back" to="/contact">← 후원·문의 전체 보기</Link> : null}
+        <p className="contact-atelier__eyebrow">SEOUL MOTET YOUTH CHOIR</p>
+        <div className="contact-atelier__title-row">
+          <h1>{title}</h1>
+          <p>{activeSection === 'support' ? (supportSettings?.subtitle || '후원 방식과 약정 내용을 확인해 주세요.') : <>후원과 공연 의뢰,<br />합창단에 전하고 싶은 이야기를 기다립니다.</>}</p>
         </div>
-      </Container>
-    </>
+      </header>
+      <nav className="contact-atelier__navigation contact-atelier__shell" aria-label="후원·문의 섹션 선택">
+        {navigation.map(item => <Link key={item.section} to={item.href} aria-current={activeSection === item.section ? 'page' : undefined}>{item.label}</Link>)}
+      </nav>
+
+      {contactData.isLoading ? <div className="contact-atelier__state contact-atelier__shell"><LoadingState label="문의 정보를 불러오는 중입니다" /></div> : null}
+      {contactData.error ? <section className="contact-atelier__state contact-atelier__shell" role="alert"><h2>문의 정보를 불러오지 못했습니다.</h2><p>연결 상태를 확인하고 다시 시도해 주세요. 운영 정보가 확인되기 전에는 약정서를 표시하지 않습니다.</p><button type="button" className="contact-atelier__action" onClick={contactData.refetch}>다시 시도</button></section> : null}
+
+      {ready && showAll ? (
+        <section className="contact-atelier__section contact-atelier__support" id="support" aria-labelledby="contact-support-title">
+          <div className="contact-atelier__shell contact-atelier__columns">
+            <div className="contact-atelier__aside">
+              <p className="contact-atelier__eyebrow">후원 안내</p>
+              <h2 id="contact-support-title">후원으로 <br />함께해 주세요.</h2>
+              <p>{supportSettings?.description || siteSettings.support_text || '후원 관련 안내는 문의를 통해 도와드리겠습니다.'}</p>
+              <Link className="contact-atelier__action contact-atelier__action--primary" to={supportSettings ? '/contact?section=support#support' : '/contact?section=inquiry&type=support#form'}>{supportSettings ? '후원 약정서 작성' : '후원 문의하기'} <span aria-hidden="true">→</span></Link>
+            </div>
+            <div>
+              <h3>정기 후원</h3>
+              {supportSettings ? <>
+                <dl className="contact-atelier__amounts">
+                  {supportSettings.individual_amounts.length ? <div><dt>개인</dt><dd>월 {formatSupportAmounts(supportSettings.individual_amounts)}</dd></div> : null}
+                  {supportSettings.corporate_amounts.length ? <div><dt>기업</dt><dd>월 {formatSupportAmounts(supportSettings.corporate_amounts)}</dd></div> : null}
+                </dl>
+                {supportSettings.allow_custom_amount ? <p className="contact-atelier__support-note">다른 금액도 직접 입력하실 수 있습니다.</p> : null}
+                <p className="contact-atelier__support-note">약정서를 보내도 결제되거나 자동 출금되지 않습니다.</p>
+                <p>후원 관련 자세한 안내는 문의를 통해 도와드리겠습니다.</p>
+              </> : <p className="contact-atelier__support-note">현재 후원 약정 접수를 준비하고 있습니다. 후원 방식과 금액은 문의를 통해 확인해 주세요.</p>}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {ready && activeSection === 'support' ? (
+        supportSettings ? <div className="contact-atelier__shell"><SupportPledgeForm settings={supportSettings} siteSettings={siteSettings} /><p className="contact-atelier__support-note"><Link className="contact-atelier__action" to="/contact?section=inquiry&type=support#form">후원에 대해 문의하기 <span aria-hidden="true">→</span></Link></p></div>
+          : <section className="contact-atelier__state contact-atelier__shell"><h2>후원 약정 접수를 준비하고 있습니다.</h2><p>운영 설정이 확인되기 전에는 온라인 약정서를 표시하지 않습니다. 아래 문의 양식으로 연락해 주세요.</p></section>
+      ) : null}
+
+      <ContactInquiryForm initialType={initialType} hidden={!ready || !showInquiry} />
+
+      {ready && (showAll || activeSection === 'sponsors') ? (
+        <section id="contact-sponsors" className="contact-atelier__sponsors contact-atelier__shell">
+          {sponsors.length > 0 ? <SponsorsSection sponsors={sponsors} /> : <div className="contact-atelier__sponsor-empty" id="sponsors"><h2>함께하는 후원사</h2><p>현재 공개된 후원사 정보가 없습니다.<br />후원사 정보는 공개 동의된 내용만 소개합니다.</p></div>}
+        </section>
+      ) : null}
+
+      {ready && (showAll || activeSection === 'location') ? (
+        <section className="contact-atelier__section contact-atelier__location" id="location" aria-labelledby="contact-location-title">
+          <div className="contact-atelier__shell">
+            <div className="contact-atelier__columns">
+              <div>
+                <p className="contact-atelier__eyebrow">오시는 길</p>
+                <h2 id="contact-location-title">{address || '장소 정보를 준비하고 있습니다.'}</h2>
+                {location?.transit_info ? <p>{location.transit_info}</p> : null}
+                {location?.parking_info ? <p>{location.parking_info}</p> : null}
+                <div className="contact-atelier__map-actions">{maps.buttons.map(action => <a key={action.provider} className="contact-atelier__action" href={action.href} target="_blank" rel="noopener noreferrer">{action.label} <span aria-hidden="true">↗</span></a>)}</div>
+              </div>
+              <dl className="contact-atelier__contacts">
+                {siteSettings.phone?.trim() ? <div><dt>전화</dt><dd><a href={'tel:' + siteSettings.phone.replace(/[^0-9+]/g, '')}>{siteSettings.phone}</a></dd></div> : null}
+                {siteSettings.email?.trim() ? <div><dt>이메일</dt><dd>{siteSettings.email}</dd></div> : null}
+                {siteSettings.fax?.trim() ? <div><dt>FAX</dt><dd>{siteSettings.fax}</dd></div> : null}
+              </dl>
+            </div>
+            {maps.embedSrc || location?.image_url ? <details className="contact-atelier__location-media"><summary>지도·장소 사진 자세히 보기</summary>
+              {maps.embedSrc ? <iframe src={maps.embedSrc} title={(location?.place_name || '서울모테트음악재단') + ' 지도'} loading="lazy" referrerPolicy="no-referrer-when-downgrade" /> : null}
+              {location?.image_url ? <figure><OptimizedImage className="contact-atelier__location-image" src={location.image_url} alt={location.image_alt || (location.place_name || '오시는 길') + ' 사진'} objectFit="contain" />{location.image_caption ? <figcaption>{location.image_caption}</figcaption> : null}</figure> : null}
+            </details> : null}
+          </div>
+        </section>
+      ) : null}
+    </div>
   )
 }
 

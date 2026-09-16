@@ -1,0 +1,162 @@
+.join-application-print-sheet {
+  display: none;
+}
+
+.join-application-print-toolbar {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+}
+
+.join-application-print-toolbar p {
+  margin: 0;
+  color: var(--color-text-muted, #57534e);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.join-application-print-toolbar [role='alert'] {
+  color: var(--color-state-error, #9f2525);
+}
+
+.join-application-print-button {
+  min-height: 44px;
+  padding: 10px 20px;
+  border: 1px solid var(--color-line-default, #d9d1c4);
+  border-radius: 999px;
+  background: var(--color-bg-warm-white, #fffdfa);
+  color: var(--color-navy-deep, #10233f);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.join-application-print-button:hover {
+  background: var(--color-bg-ivory, #f8f5ef);
+}
+
+.join-application-print-button:focus-visible {
+  outline: 2px solid var(--color-gold-ink, #806427);
+  outline-offset: 3px;
+}
+
+@media print {
+  @page join-application {
+    size: A4 portrait;
+    /* Keep the shared support-pledge @page margin from shrinking this document. */
+    margin: 16mm !important;
+  }
+
+  html:has(body > .join-application-print-sheet),
+  body:has(> .join-application-print-sheet) {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    background: white !important;
+  }
+
+  body:has(> .join-application-print-sheet) {
+    page: join-application;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body:has(> .join-application-print-sheet) > :not(.join-application-print-sheet) {
+    display: none !important;
+  }
+
+  body > .join-application-print-sheet {
+    display: block !important;
+    page: join-application;
+    width: auto;
+    height: auto;
+    margin: 0;
+    color: #111;
+    background: white;
+    font-family: Arial, 'Noto Sans KR', sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+  }
+
+  .join-application-print-sheet * {
+    animation: none !important;
+    transition: none !important;
+    box-shadow: none !important;
+    color: inherit !important;
+  }
+
+  .join-application-print-sheet header {
+    margin-bottom: 7mm;
+    padding-bottom: 5mm;
+    border-bottom: 1.5pt solid #111;
+    break-inside: avoid;
+  }
+
+  .join-application-print-sheet header p {
+    margin: 0;
+    font-size: 9pt;
+  }
+
+  .join-application-print-sheet h1 {
+    margin: 3mm 0;
+    font-size: 23pt;
+    font-weight: 700;
+  }
+
+  .join-application-print-sheet section {
+    padding: 0;
+    margin: 0 0 6mm;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .join-application-print-sheet h3 {
+    margin: 0 0 3mm;
+    padding-bottom: 2mm;
+    border-bottom: 0.5pt solid #888;
+    font-size: 12pt;
+    break-after: avoid;
+  }
+
+  .join-application-print-sheet dl {
+    display: block;
+    margin: 0;
+  }
+
+  .join-application-print-sheet dl > div {
+    margin: 0 0 3mm;
+    break-inside: avoid;
+  }
+
+  .join-application-print-sheet dl > .join-application-detail-long {
+    break-inside: auto;
+  }
+
+  .join-application-print-sheet dt {
+    margin: 0;
+    font-size: 9pt;
+    font-weight: 700;
+    break-after: avoid;
+  }
+
+  .join-application-print-sheet dd {
+    margin: 1mm 0 0;
+    font-size: 10.5pt;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    orphans: 3;
+    widows: 3;
+  }
+
+  .join-application-print-sheet footer {
+    margin-top: 6mm;
+    padding-top: 3mm;
+    border-top: 0.5pt solid #888;
+    font-size: 8pt;
+    break-inside: avoid;
+  }
+}

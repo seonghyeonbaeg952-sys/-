@@ -49,7 +49,7 @@ export function AdminSingleRecordSection<TTable extends CmsTableName>({
   })
 
   const handleSubmit = async (payload: CmsMutationPayload) => {
-    crud.clearMutationError()
+    crud.clearMutationFeedback()
     const preparedPayload = preparePayload ? preparePayload(payload, crud.item) : payload
     const validationError = validatePayload?.(preparedPayload, crud.item) ?? null
 

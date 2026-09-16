@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 import { AdminCrudListPage } from '../../components/admin/AdminCrudListPage'
 import { Button } from '../../components/common/Button'
@@ -6,6 +7,7 @@ import { getSignedStorageUrl } from '../../lib/storage'
 import type { AdminFieldConfig } from '../../components/admin/AdminRecordForm'
 import type { AdminTableColumn } from '../../components/admin/AdminTable'
 import type { CmsMutationPayload, JoinApplicationRow } from '../../types/cms'
+import '../../components/admin/join/join-application-print.css'
 
 const JOIN_APPLICATION_FILES_BUCKET = 'join-application-files'
 
@@ -47,9 +49,7 @@ const columns = [
 ] satisfies Array<AdminTableColumn<JoinApplicationRow>>
 
 function displayText(value: string | null | undefined) {
-  const normalized = value?.trim()
-
-  return normalized || '미입력'
+  return value?.trim() ? value : '미입력'
 }
 
 const partLabels: Record<string, string> = {
@@ -241,7 +241,17 @@ function JoinAttachmentAction({
   )
 }
 
-function JoinApplicationAttachments({ row }: { row: JoinApplicationRow }) {
+function attachmentFileName(path: string | null) {
+  if (!path) return '없음'
+  const fileName = path.split(/[?#]/, 1)[0].split(/[\\/]/).pop() || '첨부파일 있음'
+  try {
+    return decodeURIComponent(fileName)
+  } catch {
+    return fileName
+  }
+}
+
+function JoinApplicationAttachments({ row, forPrint = false }: { row: JoinApplicationRow; forPrint?: boolean }) {
   const photoPath = getFirstTextValue(row, [
     'photo_file_path',
     'photo_path',
@@ -252,6 +262,19 @@ function JoinApplicationAttachments({ row }: { row: JoinApplicationRow }) {
     'recommendation_path',
     'recommendation_file_url',
   ])
+
+  if (forPrint) {
+    return (
+      <DetailSection
+        title="첨부파일 참조"
+        items={[
+          { label: '사진 파일', value: attachmentFileName(photoPath) },
+          { label: '추천서 파일', value: attachmentFileName(recommendationPath) },
+          { label: '원본 확인', value: '첨부파일 원본은 CMS 상세 화면에서 별도로 확인합니다. 이 인쇄물에는 파일명만 표시됩니다.', multiline: true },
+        ]}
+      />
+    )
+  }
 
   return (
     <section className="rounded-formal border border-line-default bg-bg-warm-white p-5">
@@ -300,7 +323,7 @@ function DetailSection({
       <dl className="mt-4 grid gap-4 text-sm md:grid-cols-2">
         {items.map((item) => (
           <div
-            className={item.multiline ? 'md:col-span-2' : undefined}
+            className={item.multiline ? 'join-application-detail-long md:col-span-2' : undefined}
             key={item.label}
           >
             <dt className="text-xs font-semibold text-text-muted">
@@ -309,8 +332,8 @@ function DetailSection({
             <dd
               className={
                 item.multiline
-                  ? 'mt-1 whitespace-pre-line break-keep leading-6 text-navy-deep'
-                  : 'mt-1 break-keep text-navy-deep'
+                  ? 'mt-1 whitespace-pre-wrap wrap-anywhere leading-6 text-navy-deep'
+                  : 'mt-1 whitespace-pre-wrap wrap-anywhere text-navy-deep'
               }
             >
               {item.value}
@@ -336,7 +359,7 @@ function validatePayload(payload: CmsMutationPayload) {
     : '처리 상태를 다시 선택해 주세요.'
 }
 
-function LegacyJoinApplicationDetails({ row }: { row: JoinApplicationRow }) {
+function LegacyJoinApplicationDetails({ row, forPrint = false }: { row: JoinApplicationRow; forPrint?: boolean }) {
   return (
     <div className="space-y-5">
       <DetailSection
@@ -419,8 +442,9 @@ function LegacyJoinApplicationDetails({ row }: { row: JoinApplicationRow }) {
         ]}
         title="자기소개와 지원 동기"
       />
-      <JoinApplicationAttachments row={row} />
-      <JoinApplicationReview row={row} />
+      <JoinApplicationAttachments row={row} forPrint={forPrint} />
+      <JoinApplicationReceiptMetadata row={row} />
+      {!forPrint ? <JoinApplicationReview row={row} /> : null}
     </div>
   )
 }
@@ -445,8 +469,22 @@ function JoinApplicationReview({ row }: { row: JoinApplicationRow }) {
   )
 }
 
-function JoinApplicationDetails({ row }: { row: JoinApplicationRow }) {
-  if (row.form_version !== 2) return <LegacyJoinApplicationDetails row={row} />
+function JoinApplicationReceiptMetadata({ row }: { row: JoinApplicationRow }) {
+  return (
+    <DetailSection
+      title="접수 식별 정보"
+      items={[
+        { label: '접수 번호', value: row.id },
+        { label: '지원서 양식', value: row.form_version === 2 ? '온라인 입단지원서 (v2)' : '기존 입단지원서 (v1)' },
+        ...(row.submission_id ? [{ label: '제출 식별자', value: row.submission_id }] : []),
+        ...(row.join_info_id ? [{ label: '모집 안내 식별자', value: row.join_info_id }] : []),
+      ]}
+    />
+  )
+}
+
+function JoinApplicationContent({ row, forPrint = false }: { row: JoinApplicationRow; forPrint?: boolean }) {
+  if (row.form_version !== 2) return <LegacyJoinApplicationDetails row={row} forPrint={forPrint} />
   return (
     <div className="space-y-5">
       <DetailSection
@@ -468,8 +506,52 @@ function JoinApplicationDetails({ row }: { row: JoinApplicationRow }) {
           { label: '접수일', value: formatDateTime(row.created_at) },
         ]}
       />
-      {row.photo_file_path || row.recommendation_file_path ? <JoinApplicationAttachments row={row} /> : null}
-      <JoinApplicationReview row={row} />
+      {getFirstTextValue(row, ['photo_file_path', 'photo_path', 'photo_url', 'recommendation_file_path', 'recommendation_path', 'recommendation_file_url'])
+        ? <JoinApplicationAttachments row={row} forPrint={forPrint} /> : null}
+      <JoinApplicationReceiptMetadata row={row} />
+      {!forPrint ? <JoinApplicationReview row={row} /> : null}
+    </div>
+  )
+}
+
+export function JoinApplicationPrintDocument({ row }: { row: JoinApplicationRow }) {
+  return (
+    <article className="join-application-print-sheet">
+      <header>
+        <p>서울모테트청소년합창단</p>
+        <h1>입단지원서</h1>
+        <p>접수 원문 · 관리자 확인용</p>
+      </header>
+      <JoinApplicationContent row={row} forPrint />
+      <footer>개인정보가 포함된 문서입니다. 출력물과 PDF 파일을 안전하게 보관해 주세요.</footer>
+    </article>
+  )
+}
+
+function JoinApplicationDetails({ row }: { row: JoinApplicationRow }) {
+  const [printError, setPrintError] = useState<string | null>(null)
+  const printButtonRef = useRef<HTMLButtonElement>(null)
+
+  function handlePrint() {
+    setPrintError(null)
+    try {
+      window.print()
+    } catch {
+      setPrintError('인쇄 창을 열지 못했습니다. 브라우저의 인쇄 기능(Ctrl+P 또는 ⌘P)을 이용해 주세요.')
+    } finally {
+      printButtonRef.current?.focus({ preventScroll: true })
+    }
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className="join-application-print-toolbar">
+        <button className="join-application-print-button" onClick={handlePrint} ref={printButtonRef} type="button">입단지원서 인쇄</button>
+        <p>저장된 지원서 원문을 인쇄하거나 PDF로 저장합니다. 관리자 메모와 편집 중인 내용은 인쇄하지 않습니다.</p>
+        {printError ? <p role="alert">{printError}</p> : null}
+      </div>
+      <JoinApplicationContent row={row} />
+      {typeof document !== 'undefined' ? createPortal(<JoinApplicationPrintDocument row={row} />, document.body) : null}
     </div>
   )
 }

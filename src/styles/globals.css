@@ -5592,63 +5592,42 @@ section[role='tabpanel'] {
 @media print {
   body.is-printing-support-pledge {
     background: #ffffff !important;
-    height: 297mm !important;
+    height: auto !important;
     min-height: 0 !important;
-    overflow: hidden !important;
-    width: 210mm !important;
+    overflow: visible !important;
+    width: auto !important;
   }
 
-  body.is-printing-support-pledge * {
-    visibility: hidden;
-  }
-
-  body.is-printing-support-pledge #root {
+  body.is-printing-support-pledge > :not(#support-pledge-print-host) {
     display: none !important;
   }
 
   body.is-printing-support-pledge #support-pledge-print-host {
+    --pledge-paper: #ffffff;
+    --pledge-ink: #111111;
+    --pledge-muted: #444444;
+    --pledge-line: #aaaaaa;
+    --pledge-burgundy: #111111;
     display: block !important;
-    left: 0 !important;
+    position: static !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
     margin: 0 !important;
     padding: 0 !important;
-    position: fixed !important;
-    top: 0 !important;
-    visibility: visible !important;
     width: 100% !important;
+    page: support-pledge;
   }
 
   body.is-printing-support-pledge #support-pledge-print-host * {
-    visibility: visible !important;
-  }
-
-  body.is-printing-support-pledge #root,
-  body.is-printing-support-pledge main,
-  body.is-printing-support-pledge section,
-  body.is-printing-support-pledge .origin-left {
     animation: none !important;
     transform: none !important;
     transition: none !important;
-  }
-
-  body.is-printing-support-pledge main,
-  body.is-printing-support-pledge section {
-    margin: 0 !important;
-    padding: 0 !important;
-    position: static !important;
-  }
-
-  body.is-printing-support-pledge .support-pledge-print-area,
-  body.is-printing-support-pledge .support-pledge-print-area * {
-    visibility: visible;
+    box-shadow: none !important;
   }
 
   body.is-printing-support-pledge .support-print-hidden,
-  body.is-printing-support-pledge .support-print-hidden *,
-  body.is-printing-support-pledge .support-print-amount-controls,
-  body.is-printing-support-pledge .support-print-amount-controls *,
-  body.is-printing-support-pledge header,
-  body.is-printing-support-pledge nav,
-  body.is-printing-support-pledge footer {
+  body.is-printing-support-pledge .support-print-amount-controls {
     display: none !important;
   }
 
@@ -5657,113 +5636,100 @@ section[role='tabpanel'] {
   }
 
   body.is-printing-support-pledge .support-pledge-print-area {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: flex-start !important;
-    position: relative;
-    inset: auto auto auto auto;
+    display: block !important;
+    position: static !important;
     box-sizing: border-box !important;
-    height: 287mm !important;
-    left: 0 !important;
-    margin: 0 !important;
+    height: auto !important;
+    max-height: none !important;
     min-height: 0 !important;
-    top: 0 !important;
-    width: 100%;
-    max-width: none;
-    border: 1px solid #d9d1c4 !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    border: 0 !important;
     border-radius: 0 !important;
-    box-shadow: none !important;
     color: #111111 !important;
-    font-size: 9.4px !important;
-    line-height: 1.24 !important;
-    padding: 4mm !important;
-    page-break-inside: avoid;
-    transform: none !important;
-    transform-origin: left top;
+    background: #ffffff !important;
+    font-size: 11pt !important;
+    line-height: 1.6 !important;
+    padding: 0 !important;
+    break-inside: auto;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
-  }
-
-  body.is-printing-support-pledge .support-pledge-print-area h3 {
-    font-size: 19px !important;
-    line-height: 1.12 !important;
-    margin-top: 3px !important;
-  }
-
-  body.is-printing-support-pledge .support-pledge-print-area h4 {
-    font-size: 11.4px !important;
-    line-height: 1.15 !important;
   }
 
   body.is-printing-support-pledge .support-pledge-print-area p,
   body.is-printing-support-pledge .support-pledge-print-area dt,
   body.is-printing-support-pledge .support-pledge-print-area dd,
-  body.is-printing-support-pledge .support-pledge-print-area span,
   body.is-printing-support-pledge .support-pledge-print-area label {
-    font-size: 9.4px !important;
-    line-height: 1.24 !important;
+    font-size: 10pt !important;
+    line-height: 1.65 !important;
+    orphans: 3;
+    widows: 3;
   }
 
-  body.is-printing-support-pledge .support-pledge-print-area input,
-  body.is-printing-support-pledge .support-pledge-print-area select,
-  body.is-printing-support-pledge .support-pledge-print-area textarea {
-    min-height: 17px !important;
-    padding: 1px 5px !important;
+  body.is-printing-support-pledge .support-pledge-print-area h3 {
+    font-size: 22pt !important;
+    margin: 8px 0 !important;
   }
 
-  body.is-printing-support-pledge .support-pledge-print-area textarea {
-    min-height: 25px !important;
+  body.is-printing-support-pledge .support-pledge-print-area h4,
+  body.is-printing-support-pledge .support-pledge-print-area legend {
+    font-size: 13pt !important;
+    break-after: avoid;
   }
 
-  body.is-printing-support-pledge .support-pledge-print-area .mt-8,
-  body.is-printing-support-pledge .support-pledge-print-area .mt-7,
-  body.is-printing-support-pledge .support-pledge-print-area .mt-6,
-  body.is-printing-support-pledge .support-pledge-print-area .mt-5,
-  body.is-printing-support-pledge .support-pledge-print-area .mt-4 {
-    margin-top: 5px !important;
+  body.is-printing-support-pledge .support-pledge__fieldset {
+    display: block !important;
+    margin-bottom: 18px !important;
+    break-inside: auto;
   }
 
-  body.is-printing-support-pledge .support-pledge-print-area .mb-4 {
-    margin-bottom: 4px !important;
+  body.is-printing-support-pledge .support-pledge__fieldset legend {
+    padding-top: 16px !important;
+    margin-bottom: 12px !important;
   }
 
-  body.is-printing-support-pledge .support-pledge-print-area .pb-6,
-  body.is-printing-support-pledge .support-pledge-print-area .pt-5 {
-    padding-bottom: 5px !important;
-    padding-top: 5px !important;
+  body.is-printing-support-pledge .support-pledge__fields {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 14px 22px !important;
   }
 
-  body.is-printing-support-pledge .support-pledge-print-area .p-5,
-  body.is-printing-support-pledge .support-pledge-print-area .p-4 {
-    padding: 5px !important;
-  }
-
-  body.is-printing-support-pledge .support-pledge-print-area .gap-5,
-  body.is-printing-support-pledge .support-pledge-print-area .gap-4,
-  body.is-printing-support-pledge .support-pledge-print-area .gap-3,
-  body.is-printing-support-pledge .support-pledge-print-area .gap-2 {
-    gap: 4px !important;
-  }
-
-  body.is-printing-support-pledge .support-print-donor-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  }
-
-  body.is-printing-support-pledge .support-print-bank-confirm-grid {
-    grid-template-columns: 1.05fr 0.95fr !important;
-  }
-
+  body.is-printing-support-pledge .support-pledge__fields > div,
+  body.is-printing-support-pledge .support-pledge__consent,
   body.is-printing-support-pledge .support-print-signature-box {
-    padding: 4px !important;
+    break-inside: avoid;
+  }
+
+  body.is-printing-support-pledge .support-pledge__printed-value {
+    display: block;
+    min-height: 24px;
+    padding: 6px 0;
+    border-bottom: 1px solid #aaaaaa;
+    font-size: 10pt;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  body.is-printing-support-pledge .support-pledge__print-summary dl {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
   }
 
   body.is-printing-support-pledge .support-signature-canvas {
-    height: 18mm !important;
+    display: block !important;
+    height: 32mm !important;
     min-height: 0 !important;
+    width: 100% !important;
+    object-fit: contain;
+    object-position: left center;
   }
 
-  @page {
-    margin: 4mm;
+  @page support-pledge {
+    margin: 14mm;
     size: A4 portrait;
   }
 }

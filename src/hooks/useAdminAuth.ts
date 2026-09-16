@@ -36,13 +36,18 @@ export function useAdminAuth(): AuthState {
     }
 
     let isMounted = true
+    let requestVersion = 0
+    let verifiedUserId: string | null = null
 
-    async function loadUserProfile(user: User | null) {
+    async function loadUserProfile(user: User | null, allowBackground = false) {
       if (!isMounted) {
         return
       }
 
+      const request = ++requestVersion
+
       if (!user) {
+        verifiedUserId = null
         setAuthState({
           user: null,
           profile: null,
@@ -55,10 +60,16 @@ export function useAdminAuth(): AuthState {
         return
       }
 
+      // Refocus and token refresh must not replace an already authorized form.
+      const isBackground = allowBackground && verifiedUserId === user.id
+      if (!isBackground) verifiedUserId = null
+
       setAuthState((currentState) => ({
         ...currentState,
         user,
-        isLoading: true,
+        profile: isBackground ? currentState.profile : null,
+        isLoading: !isBackground,
+        isAdmin: isBackground && currentState.isAdmin,
         isAuthenticated: true,
         isSupabaseConfigured: true,
         error: null,
@@ -66,10 +77,11 @@ export function useAdminAuth(): AuthState {
 
       const profileResult = await getProfile(user.id)
 
-      if (!isMounted) {
+      if (!isMounted || request !== requestVersion) {
         return
       }
 
+      verifiedUserId = profileResult.data && !profileResult.error ? user.id : null
       setAuthState({
         user,
         profile: profileResult.data,
@@ -82,9 +94,11 @@ export function useAdminAuth(): AuthState {
     }
 
     async function loadInitialAuthState() {
+      const request = ++requestVersion
       const userResult = await getCurrentUser()
 
-      if (!isMounted) {
+      // An auth event is newer evidence than this initial asynchronous lookup.
+      if (!isMounted || request !== requestVersion) {
         return
       }
 
@@ -106,12 +120,16 @@ export function useAdminAuth(): AuthState {
 
     void loadInitialAuthState()
 
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      void loadUserProfile(session?.user ?? null)
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      void loadUserProfile(
+        event === 'SIGNED_OUT' ? null : session?.user ?? null,
+        event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED',
+      )
     })
 
     return () => {
       isMounted = false
+      requestVersion += 1
       data.subscription.unsubscribe()
     }
   }, [])

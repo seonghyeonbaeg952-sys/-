@@ -1,17 +1,32 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 
 import { AdminErrorState } from '../../components/admin/AdminErrorState'
 import { AdminFormField } from '../../components/admin/AdminFormField'
 import { AdminLoadingState } from '../../components/admin/AdminLoadingState'
 import { AdminPageTitle } from '../../components/admin/AdminPageTitle'
 import { AdminTextarea } from '../../components/admin/AdminTextarea'
+import { homeFieldSections } from '../../components/admin/home/homeFieldDefinitions'
+import { HomeDevicePreview } from '../../components/admin/home/HomeDevicePreview'
 import {
-  homeFieldDefinitions,
-  homeFieldSections,
-} from '../../components/admin/home/homeFieldDefinitions'
+  acceptHomeDeviceSubmission,
+  captureHomeDeviceSubmission,
+  createHomeEditorDraft,
+  getHomeEditorDirtyKeys,
+  homeEditorDevices,
+  reconcileHomeEditorDraft,
+  restoreHomeEditorFields,
+  updateHomeEditorDraft,
+  validateHomeEditorField,
+} from '../../components/admin/home/homeDeviceEditorModel'
 import { Button } from '../../components/common/Button'
 import { getCurrentUser } from '../../lib/auth'
 import { upsertSiteTextRows } from '../../lib/cms'
+import {
+  createHomeEditorValues,
+  getHomeEditorFields,
+  homeAllEditorFields,
+  type HomeEditorDevice,
+} from '../../lib/homeDeviceContent'
 import { useCrudList } from '../../hooks/useCrudList'
 import {
   invalidatePublicDataCache,
@@ -24,12 +39,7 @@ import type {
 
 type HomeFieldValues = Record<string, string>
 
-const defaultValues: HomeFieldValues = Object.fromEntries(
-  homeFieldDefinitions.map((definition) => [
-    definition.key,
-    definition.defaultValue,
-  ]),
-)
+const defaultValues = createHomeEditorValues({})
 
 function getInputId(key: string) {
   return `home-field-${key.replace(/[^a-z0-9]+/gi, '-')}`
@@ -42,77 +52,10 @@ function normalizeAdminValue(value: string | null | undefined) {
 function createValuesFromRows(
   rows: Array<{ is_active: boolean; key: string; value: string | null }>,
 ) {
-  const values = { ...defaultValues }
-
-  for (const row of rows) {
-    if (
-      !row.is_active ||
-      !(row.key in values)
-    ) {
-      continue
-    }
-
-    const value = normalizeAdminValue(row.value)
-    if (value) {
-      values[row.key] = value
-    }
-  }
-
-  return values
-}
-
-function hasUnsafeText(value: string) {
-  return [
-    /<\s*\/?\s*[a-z][^>]*>/i,
-    /javascript:/i,
-    /on\w+\s*=/i,
-    /\bTODO\b/i,
-    /placeholder/i,
-    /undefined/i,
-    /\bnull\b/i,
-    /href\s*=\s*["']?#["']?/i,
-  ].some((pattern) => pattern.test(value))
-}
-
-function validateField(
-  definition: HomeContentSiteTextDefinition,
-  value: string,
-) {
-  if (!value.trim()) {
-    return '빈 값은 저장할 수 없습니다. 기본값 복원을 사용해 주세요.'
-  }
-
-  if (hasUnsafeText(value)) {
-    return 'HTML, script, TODO, placeholder 같은 임시·위험 문구는 저장할 수 없습니다.'
-  }
-
-  if (
-    definition.maxLength &&
-    value.trim().length > definition.maxLength
-  ) {
-    return `${definition.maxLength}자 이내로 입력해 주세요.`
-  }
-
-  if (
-    definition.inputType === 'boolean' &&
-    !['true', 'false'].includes(value)
-  ) {
-    return '공개 여부 값이 올바르지 않습니다.'
-  }
-
-  if (definition.inputType === 'number') {
-    const numberValue = Number.parseInt(value, 10)
-
-    if (
-      !Number.isFinite(numberValue) ||
-      (definition.min !== undefined && numberValue < definition.min) ||
-      (definition.max !== undefined && numberValue > definition.max)
-    ) {
-      return `${definition.min ?? 0}~${definition.max ?? '최대값'} 사이의 숫자를 입력해 주세요.`
-    }
-  }
-
-  return null
+  const activeRawFlat: HomeFieldValues = Object.fromEntries(rows
+    .filter((row) => row.is_active)
+    .map((row) => [row.key, normalizeAdminValue(row.value)]))
+  return createHomeEditorValues(activeRawFlat)
 }
 
 function ManagedElsewhereLinks({
@@ -179,6 +122,7 @@ function HomeField({
 
   if (definition.inputType === 'boolean') {
     const descriptionId = `${id}-description`
+    const errorId = error ? `${id}-error` : undefined
     return (
       <div>
         <span className="text-sm font-semibold text-navy-deep">
@@ -192,9 +136,12 @@ function HomeField({
         </p>
         <label className="mt-3 flex min-h-11 cursor-pointer items-center gap-3 rounded-button border border-line-default bg-bg-warm-white px-4">
           <input
-            aria-describedby={descriptionId}
+            aria-describedby={[descriptionId, errorId].filter(Boolean).join(' ')}
+            aria-invalid={Boolean(error) || undefined}
+            aria-label={definition.label}
             checked={value === 'true'}
             className="size-5 accent-gold-warm"
+            id={id}
             onChange={(event) =>
               onChange(event.target.checked ? 'true' : 'false')
             }
@@ -205,7 +152,7 @@ function HomeField({
           </span>
         </label>
         {error ? (
-          <p className="mt-2 text-sm text-state-error" role="alert">
+          <p className="mt-2 text-sm text-state-error" id={errorId} role="alert">
             {error}
           </p>
         ) : null}
@@ -233,22 +180,40 @@ export function AdminSiteTextsPage() {
     order: { column: 'sort_order', ascending: true },
     table: 'site_texts',
   })
-  const [values, setValues] = useState<HomeFieldValues>(defaultValues)
-  const [initialValues, setInitialValues] =
-    useState<HomeFieldValues>(defaultValues)
+  const [editor, setEditor] = useState(() => createHomeEditorDraft(defaultValues))
+  const [device, setDevice] = useState<HomeEditorDevice>('mobile')
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [isSaving, setIsSaving] = useState(false)
-  const [message, setMessage] = useState<string | null>(null)
-  const [saveError, setSaveError] = useState<string | null>(null)
+  const [savingDevice, setSavingDevice] = useState<HomeEditorDevice | null>(null)
+  const [messages, setMessages] = useState<Record<HomeEditorDevice, string | null>>({ desktop: null, tablet: null, mobile: null })
+  const [saveErrors, setSaveErrors] = useState<Record<HomeEditorDevice, string | null>>({ desktop: null, tablet: null, mobile: null })
+  const [previewVersion, setPreviewVersion] = useState(0)
+  const [isInitialized, setIsInitialized] = useState(false)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
-  const [openSections, setOpenSections] = useState<
-    Set<HomeContentSectionId>
-  >(() => new Set([homeFieldSections[0].id]))
+  const [openSections, setOpenSections] = useState<Record<HomeEditorDevice, Set<HomeContentSectionId>>>(() => Object.fromEntries(
+    homeEditorDevices.map((item) => {
+      const fields = getHomeEditorFields(item.id)
+      const first = homeFieldSections.find((section) => fields.some((field) => field.sectionId === section.id))
+      return [item.id, new Set(first ? [first.id] : [])]
+    }),
+  ) as Record<HomeEditorDevice, Set<HomeContentSectionId>>)
   const initializedRef = useRef(false)
-  const isDirty = useMemo(
-    () => JSON.stringify(values) !== JSON.stringify(initialValues),
-    [initialValues, values],
-  )
+  const loadedRowsRef = useRef<typeof crud.rows | null>(null)
+  const savingRef = useRef(false)
+  const fields = useMemo(() => getHomeEditorFields(device), [device])
+  const dirtyKeys = useMemo(() => getHomeEditorDirtyKeys(editor, homeAllEditorFields), [editor])
+  const dirtyByDevice = useMemo(() => ({
+    desktop: getHomeEditorDirtyKeys(editor, getHomeEditorFields('desktop')),
+    tablet: getHomeEditorDirtyKeys(editor, getHomeEditorFields('tablet')),
+    mobile: getHomeEditorDirtyKeys(editor, getHomeEditorFields('mobile')),
+  }), [editor])
+  const activeDirtyKeys = dirtyByDevice[device]
+  const isDirty = dirtyKeys.length > 0
+  const activeDirty = activeDirtyKeys.length > 0
+  const isSaving = savingDevice !== null
+  const deviceLabel = homeEditorDevices.find((item) => item.id === device)?.label ?? '모바일'
+  const message = messages[device]
+  const saveError = saveErrors[device]
+  const saveLabel = savingDevice === device ? `${deviceLabel} 저장 중…` : `${deviceLabel} 변경사항 저장`
 
   useUnsavedChangesGuard({ enabled: isDirty })
 
@@ -267,18 +232,22 @@ export function AdminSiteTextsPage() {
   }, [])
 
   useEffect(() => {
-    if (crud.isLoading || (initializedRef.current && isDirty)) {
+    if (crud.isLoading || crud.error || loadedRowsRef.current === crud.rows) {
       return
     }
 
     const nextValues = createValuesFromRows(crud.rows)
-    setValues(nextValues)
-    setInitialValues(nextValues)
+    loadedRowsRef.current = crud.rows
+    const wasInitialized = initializedRef.current
+    setEditor((current) => wasInitialized
+      ? reconcileHomeEditorDraft(current, nextValues)
+      : createHomeEditorDraft(nextValues))
     initializedRef.current = true
-  }, [crud.isLoading, crud.rows, isDirty])
+    setIsInitialized(true)
+  }, [crud.error, crud.isLoading, crud.rows])
 
   const updateValue = (key: string, value: string) => {
-    setValues((current) => ({ ...current, [key]: value }))
+    setEditor((current) => updateHomeEditorDraft(current, key, value))
     setErrors((current) => {
       if (!current[key]) {
         return current
@@ -288,8 +257,22 @@ export function AdminSiteTextsPage() {
       delete next[key]
       return next
     })
-    setMessage(null)
-    setSaveError(null)
+    setMessages((current) => ({ ...current, [device]: null }))
+    setSaveErrors((current) => ({ ...current, [device]: null }))
+  }
+
+  const handleDeviceKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const index = homeEditorDevices.findIndex((item) => item.id === device)
+    let nextIndex: number
+    if (event.key === 'ArrowRight') nextIndex = (index + 1) % homeEditorDevices.length
+    else if (event.key === 'ArrowLeft') nextIndex = (index + homeEditorDevices.length - 1) % homeEditorDevices.length
+    else if (event.key === 'Home') nextIndex = 0
+    else if (event.key === 'End') nextIndex = homeEditorDevices.length - 1
+    else return
+    event.preventDefault()
+    const nextDevice = homeEditorDevices[nextIndex].id
+    setDevice(nextDevice)
+    document.getElementById(`home-cms-tab-${nextDevice}`)?.focus()
   }
 
   const updateSectionOpenState = (
@@ -297,7 +280,8 @@ export function AdminSiteTextsPage() {
     isOpen: boolean,
   ) => {
     setOpenSections((current) => {
-      const next = new Set(current)
+      if (current[device].has(sectionId) === isOpen) return current
+      const next = new Set(current[device])
 
       if (isOpen) {
         next.add(sectionId)
@@ -305,7 +289,7 @@ export function AdminSiteTextsPage() {
         next.delete(sectionId)
       }
 
-      return next
+      return { ...current, [device]: next }
     })
   }
 
@@ -314,98 +298,98 @@ export function AdminSiteTextsPage() {
 
     if (
       !window.confirm(
-        `${section?.title ?? '이 섹션'} 문구를 코드 기본값으로 되돌릴까요? 저장 전에는 public 화면에 반영되지 않습니다.`,
+        `${deviceLabel} 홈의 ${section?.title ?? '이 섹션'} 문구를 기본값으로 되돌릴까요? 저장 전에는 공개 홈에 반영되지 않습니다.`,
       )
     ) {
       return
     }
 
-    setValues((current) => {
-      const next = { ...current }
-      for (const definition of homeFieldDefinitions) {
-        if (definition.sectionId === sectionId) {
-          next[definition.key] = definition.defaultValue
-        }
-      }
-      return next
-    })
-    setMessage(null)
-    setSaveError(null)
+    const sectionFields = fields.filter((field) => field.sectionId === sectionId)
+    setEditor((current) => restoreHomeEditorFields(current, sectionFields))
+    setErrors((current) => Object.fromEntries(Object.entries(current).filter(([key]) => !sectionFields.some((field) => field.key === key))))
+    setMessages((current) => ({ ...current, [device]: null }))
+    setSaveErrors((current) => ({ ...current, [device]: null }))
   }
 
   const restoreCurrentHomeCopy = () => {
     if (
       !window.confirm(
-        '현재 공개 홈 기준 문구로 모든 홈 문구를 복원할까요? 공연·공지·입단·미디어 같은 실제 데이터는 변경하지 않습니다.',
+        `${deviceLabel} 홈 문구만 기본값으로 복원할까요? 다른 기기의 문구와 공연·공지·입단·미디어 데이터는 변경하지 않습니다.`,
       )
     ) {
       return
     }
 
-    setValues({ ...defaultValues })
-    setErrors({})
-    setMessage(null)
-    setSaveError(null)
+    setEditor((current) => restoreHomeEditorFields(current, fields))
+    setErrors((current) => Object.fromEntries(Object.entries(current).filter(([key]) => !fields.some((field) => field.key === key))))
+    setMessages((current) => ({ ...current, [device]: null }))
+    setSaveErrors((current) => ({ ...current, [device]: null }))
   }
 
   const save = async () => {
-    const nextErrors: Record<string, string> = {}
-
-    for (const definition of homeFieldDefinitions) {
-      const error = validateField(
-        definition,
-        values[definition.key] ?? definition.defaultValue,
-      )
-
-      if (error) {
-        nextErrors[definition.key] = error
+    if (savingRef.current || !activeDirty || !initializedRef.current) return
+    const submittedDevice = device
+    const submittedLabel = deviceLabel
+    try {
+      const submission = captureHomeDeviceSubmission(editor, submittedDevice, fields)
+      const changedFields = fields.filter((field) => Object.hasOwn(submission.persistedValues, field.key))
+      if (changedFields.length === 0) return
+      const nextErrors: Record<string, string> = {}
+      for (const definition of changedFields) {
+        const error = validateHomeEditorField(definition, submission.persistedValues[definition.key])
+        if (error) nextErrors[definition.key] = error
       }
+      setErrors((current) => ({
+        ...Object.fromEntries(Object.entries(current).filter(([key]) => !fields.some((field) => field.key === key))),
+        ...nextErrors,
+      }))
+      if (Object.keys(nextErrors).length > 0) {
+        setSaveErrors((current) => ({ ...current, [submittedDevice]: `${submittedLabel} 입력값을 확인해 주세요.` }))
+        setOpenSections((current) => ({ ...current, [submittedDevice]: new Set([
+          ...current[submittedDevice],
+          ...changedFields.filter((field) => nextErrors[field.key]).map((field) => field.sectionId),
+        ]) }))
+        window.requestAnimationFrame(() => document.getElementById(getInputId(Object.keys(nextErrors)[0]))?.focus())
+        return
+      }
+      savingRef.current = true
+      setSavingDevice(submittedDevice)
+      setMessages((current) => ({ ...current, [submittedDevice]: null }))
+      setSaveErrors((current) => ({ ...current, [submittedDevice]: null }))
+      const payloads = changedFields.map((definition) => {
+        const group = submittedDevice === 'desktop' ? `home.${definition.sectionId}` : `home.${submittedDevice}.${definition.sectionId}`
+        return {
+          default_value: definition.defaultValue,
+          description: definition.description,
+          group_name: group,
+          input_type: definition.inputType === 'textarea' ? 'textarea' : 'text',
+          is_active: true,
+          key: definition.key,
+          label: definition.label,
+          page: 'home',
+          section: group,
+          sort_order: definition.sortOrder,
+          updated_by: currentUserId ?? undefined,
+          value: submission.persistedValues[definition.key],
+          value_type: definition.inputType === 'textarea' ? 'textarea' : 'text',
+        }
+      })
+      const result = await upsertSiteTextRows(payloads)
+      if (result.error) {
+        setSaveErrors((current) => ({ ...current, [submittedDevice]: result.error }))
+        return
+      }
+      setEditor((current) => acceptHomeDeviceSubmission(current, submission))
+      setMessages((current) => ({ ...current, [submittedDevice]: `${submittedLabel} 홈 문구 ${changedFields.length}개를 저장했습니다.` }))
+      invalidatePublicDataCache()
+      setPreviewVersion((current) => current + 1)
+      crud.reload()
+    } catch (error) {
+      setSaveErrors((current) => ({ ...current, [submittedDevice]: error instanceof Error ? error.message : '저장하지 못했습니다. 입력한 문구는 유지됩니다. 다시 시도해 주세요.' }))
+    } finally {
+      savingRef.current = false
+      setSavingDevice(null)
     }
-
-    setErrors(nextErrors)
-
-    if (Object.keys(nextErrors).length > 0) {
-      setSaveError('입력값을 확인해 주세요. 오류가 있는 필드로 이동해 수정할 수 있습니다.')
-      const firstKey = Object.keys(nextErrors)[0]
-      document.getElementById(getInputId(firstKey))?.focus()
-      return
-    }
-
-    setIsSaving(true)
-    setMessage(null)
-    setSaveError(null)
-
-    const payloads = homeFieldDefinitions.map((definition) => ({
-      default_value: definition.defaultValue,
-      description: definition.description,
-      group_name: `home.${definition.sectionId}`,
-      input_type:
-        definition.inputType === 'textarea' ? 'textarea' : 'text',
-      is_active: true,
-      key: definition.key,
-      label: definition.label,
-      page: 'home',
-      section: `home.${definition.sectionId}`,
-      sort_order: definition.sortOrder,
-      updated_by: currentUserId ?? undefined,
-      value: values[definition.key].trim(),
-      value_type:
-        definition.inputType === 'textarea' ? 'textarea' : 'text',
-    }))
-    const result = await upsertSiteTextRows(payloads)
-
-    setIsSaving(false)
-
-    if (result.error) {
-      setSaveError(result.error)
-      return
-    }
-
-    const savedValues = { ...values }
-    setInitialValues(savedValues)
-    setMessage('홈 문구를 저장했습니다. 공개 홈 새로고침 후 반영 내용을 확인할 수 있습니다.')
-    invalidatePublicDataCache()
-    crud.reload()
   }
 
   return (
@@ -414,50 +398,75 @@ export function AdminSiteTextsPage() {
         action={
           <div className="flex flex-wrap gap-2">
             <Button href="/" target="_blank" variant="secondary">
-              공개 홈 미리보기
+              공개 홈 새 탭으로 보기
             </Button>
             <Button
-              disabled={isSaving}
+              disabled={isSaving || !isInitialized}
               onClick={restoreCurrentHomeCopy}
               variant="secondary"
             >
-              현재 홈 기준 복원
+              {deviceLabel} 기본값 복원
             </Button>
             <Button
-              disabled={!isDirty || isSaving}
+              disabled={!activeDirty || isSaving || !isInitialized}
               onClick={() => void save()}
               variant="primary"
             >
-              {isSaving ? '저장 중…' : '변경사항 저장'}
+              {saveLabel}
             </Button>
           </div>
         }
-        description="화이트·오렌지 공개 홈에 실제 표시되는 문구를 섹션 순서대로 관리합니다. 공연·입단·정신·미디어의 실제 데이터는 각 전용 메뉴가 소유합니다."
-        title="현재 홈 문구 관리"
+        description="기기를 선택해 해당 화면의 홈 문구를 관리합니다. 기기별로 초안과 저장이 분리되며, 공연·입단·미디어의 실제 데이터는 각 전용 메뉴에서 공통으로 관리합니다."
+        title="홈 CMS · 화면별 문구"
       />
+
+      <div aria-label="홈 편집 화면" className="grid grid-cols-3 gap-2" onKeyDown={handleDeviceKeyDown} role="tablist">
+        {homeEditorDevices.map((item) => (
+          <button
+            aria-controls="home-cms-editor-panel"
+            aria-selected={device === item.id}
+            className={`min-h-16 rounded-button border px-3 py-3 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink ${device === item.id ? 'border-navy-deep bg-navy-deep text-bg-warm-white' : 'border-line-default bg-bg-warm-white text-navy-deep'}`}
+            id={`home-cms-tab-${item.id}`}
+            key={item.id}
+            onClick={() => setDevice(item.id)}
+            role="tab"
+            tabIndex={device === item.id ? 0 : -1}
+            type="button"
+          >
+            <span className="block text-sm font-semibold">{item.label}</span>
+            <span className="mt-1 block text-xs">
+              {item.width}px{dirtyByDevice[item.id].length ? ` · 미저장 ${dirtyByDevice[item.id].length}개` : ' · 저장됨'}
+              {saveErrors[item.id] ? ' · 저장 확인 필요' : ''}
+            </span>
+          </button>
+        ))}
+      </div>
 
       <div className="rounded-formal border border-line-default bg-bg-warm-white p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-sm font-semibold text-navy-deep">
-              저장 상태
+              {deviceLabel} 저장 상태
             </p>
             <p className="mt-1 text-sm text-text-muted" role="status">
-              {isDirty
-                ? '저장하지 않은 변경사항이 있습니다.'
-                : '저장된 내용과 일치합니다.'}
+              {activeDirty
+                ? `저장하지 않은 ${deviceLabel} 문구가 ${activeDirtyKeys.length}개 있습니다.`
+                : `${deviceLabel} 문구는 저장된 내용과 일치합니다.`}
             </p>
           </div>
           <span
             className={`rounded-pill px-3 py-2 text-xs font-semibold ${
-              isDirty
+              activeDirty
                 ? 'bg-gold-soft/50 text-gold-ink'
                 : 'bg-state-success/10 text-state-success'
             }`}
           >
-            {isDirty ? '미저장' : '저장됨'}
+            {activeDirty ? '미저장' : '저장됨'}
           </span>
         </div>
+        {dirtyKeys.length > activeDirtyKeys.length ? (
+          <p className="mt-3 text-xs leading-6 text-text-muted">다른 기기의 미저장 초안도 유지되고 있습니다. 해당 탭에서 따로 저장해 주세요.</p>
+        ) : null}
         {message ? (
           <p className="mt-4 text-sm text-state-success" role="status">
             {message}
@@ -470,7 +479,9 @@ export function AdminSiteTextsPage() {
         ) : null}
       </div>
 
-      {crud.isLoading ? <AdminLoadingState label="홈 문구를 불러오는 중입니다" /> : null}
+      <HomeDevicePreview device={device} refreshVersion={previewVersion} />
+
+      {crud.isLoading && !isInitialized ? <AdminLoadingState label="홈 문구를 불러오는 중입니다" /> : null}
       {crud.error && !crud.isLoading ? (
         <AdminErrorState
           action={
@@ -482,20 +493,21 @@ export function AdminSiteTextsPage() {
         />
       ) : null}
 
-      {!crud.isLoading && !crud.error
-        ? homeFieldSections.map((section) => {
-            const sectionFields = homeFieldDefinitions.filter(
+      <div aria-labelledby={`home-cms-tab-${device}`} className="space-y-6" id="home-cms-editor-panel" role="tabpanel" tabIndex={0}>
+      {isInitialized
+        ? homeFieldSections.filter((section) => fields.some((field) => field.sectionId === section.id)).map((section) => {
+            const sectionFields = fields.filter(
               (definition) => definition.sectionId === section.id,
             )
 
             return (
               <details
                 className="group rounded-formal border border-line-default bg-bg-warm-white shadow-sm"
-                key={section.id}
+                key={`${device}-${section.id}`}
                 onToggle={(event) =>
                   updateSectionOpenState(section.id, event.currentTarget.open)
                 }
-                open={openSections.has(section.id)}
+                open={openSections[device].has(section.id)}
               >
                 <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink">
                   <span>
@@ -526,13 +538,14 @@ export function AdminSiteTextsPage() {
                           updateValue(definition.key, value)
                         }
                         value={
-                          values[definition.key] ?? definition.defaultValue
+                          editor.values[definition.key] ?? definition.defaultValue
                         }
                       />
                     ))}
                   </div>
                   <div className="flex justify-end border-t border-line-default pt-5">
                     <Button
+                      disabled={isSaving}
                       onClick={() => resetSection(section.id)}
                       size="sm"
                       variant="ghost"
@@ -545,21 +558,22 @@ export function AdminSiteTextsPage() {
             )
           })
         : null}
+      </div>
 
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line-default bg-bg-warm-white/95 p-3 shadow-[0_-8px_28px_rgb(16_35_63/0.12)] backdrop-blur md:left-[var(--admin-sidebar-width,0px)]">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
           <p className="hidden text-sm text-text-muted sm:block">
-            {isDirty
-              ? '변경사항을 저장해야 공개 홈에 반영됩니다.'
-              : '모든 변경사항이 저장되었습니다.'}
+            {activeDirty
+              ? `${deviceLabel} 문구만 저장합니다. 다른 기기의 초안은 유지됩니다.`
+              : `${deviceLabel}의 저장할 변경사항이 없습니다.`}
           </p>
           <Button
             className="ml-auto w-full sm:w-auto"
-            disabled={!isDirty || isSaving}
+            disabled={!activeDirty || isSaving || !isInitialized}
             onClick={() => void save()}
             variant="primary"
           >
-            {isSaving ? '저장 중…' : '변경사항 저장'}
+            {saveLabel}
           </Button>
         </div>
       </div>
