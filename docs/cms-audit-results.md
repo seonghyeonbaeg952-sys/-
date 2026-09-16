@@ -50,7 +50,7 @@ SQL Editor로 적용했으므로 **CLI migration history 동기화는 완료되�
 - `pnpm check:supabase-live`: GET-only 37개 점검 성공. 원본 단원 정보, 후원사 비공개 필드, 접수 테이블 권한 거부 확인. private row 내용은 읽지 않음.
 - `node scripts/check-site-editor-live.mjs`: 게시본 읽기·초안/이력 비공개 3개 성공.
 - `node scripts/check-storage-listing-live.mjs`: 목록만 확인하는 읽기 전용 POST 1회. public URL 조회와 구분해 결과 표시. 현재 익명 반환 항목 0개.
-- `pnpm test`: 336/336, `pnpm lint`, `pnpm build` 통과. 실행 범위 밖의 옛 시안 테스트나 실기기·운영 다중 세션 검증을 이 수에 포함하지 않음.
+- `pnpm test`: 최종 등록 목록 **340/340**, `pnpm lint`, `pnpm build` 통과. 기본 목록에서 빠졌던 공개 Provider DOM 보존 검사 4개를 추가했다. 초기 중복 coverage 검사는 문서화된 예외를 포함한 확장 AST 계약 검사로 통합했으며, 이때 실제 확인한 이전 검사 실패와 통합 이유는 `cms-cleanup-results.md`에 기록했다. 실행 범위 밖의 옛 시안 테스트나 실기기·운영 다중 세션 검증을 이 수에 포함하지 않음.
 - 공개 초기 번들에서 CMS catalog/UI 분리. 같은 작업본의 index JS gzip 43.77→40.46kB. 실제 통신 전체나 체감 로딩 시간 감소로 과장하지 않음.
 - 두 홈 hold effect: 80개 연속 scroll 이벤트가 다음 프레임의 한 계산으로 합쳐지는 테스트, 마지막 위치·모바일·모션 감소·pageshow·cleanup 5개 통과. CSS/기준 위치/애니메이션 시간은 변경하지 않음.
 - 미사용 10개 소스 삭제는 `cms-cleanup-results.md`의 참조 검사와 복구 근거를 따른다. 원본 사진은 삭제하지 않음.
@@ -77,6 +77,10 @@ SQL Editor로 적용했으므로 **CLI migration history 동기화는 완료되�
 20,000개 자료를 실제 검토했다거나 보안상 완벽하다고 주장하지 않는다. Advisor의 공개 SECURITY DEFINER 함수 경고는 최소 공개 projection/검증 RPC의 의도된 인터페이스도 포함하므로 무조건 execute 권한을 제거하지 않는다. 다중 permissive policy도 기능과 성능을 구분해 검토해야 한다.
 
 삭제가 거부된 대상은 `C:/Users/seong/AppData/Local/Temp/motet-site-editor-qa-4ba53e3c97474614b8dc2043d3ff7435` 한 곳이다. 다른 도구로 우회 삭제하지 않았다. 기존 `motet-contact-qa` 등 과거 자료는 이번 삭제 시도에 포함하지 않았다. 현재 홈페이지 서버 5175와 사용자 브라우저 탭은 종료하지 않았다.
+
+## Git 검증 체크포인트
+
+`7849450`에 CMS·보안·문서 변경을 커밋하고 기존 `origin/codex/recover-homepage-work` 브랜치로 푸시했다. 비밀값 패턴 검사에서 209개 변경 경로의 일치 0, 추적된 `.env` 0, 새 binary 0을 확인했다. 이는 패턴 검사 결과이지 비밀값이 절대 없다는 수학적 보증은 아니다. 이후 누락된 Provider 테스트 등록과 초기 중복 coverage 정리를 후속 커밋으로 기록한다. 전체 계획을 완료했거나 운영 웹 배포까지 끝냈다는 의미는 아니다.
 
 ## 확인한 공식 근거
 

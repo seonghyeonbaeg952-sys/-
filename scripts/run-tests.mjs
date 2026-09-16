@@ -66,6 +66,7 @@ const tests = [
   'src/components/admin/site-editor/editorSessionModel.test.mjs',
   'src/components/admin/site-editor/EditorCopyPanel.test.mjs',
   'src/components/admin/site-editor/editorPreviewModel.test.mjs',
+  'src/components/site-editor/SiteEditorProvider.test.mjs',
 ]
 
 const result = spawnSync(process.execPath, ['--test', '--test-concurrency=4', ...tests], {

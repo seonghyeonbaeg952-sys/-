@@ -48,3 +48,4 @@ CMS lazy 경계와 홈 편집 어댑터 분리 직전/직후 build output을 비
 - 실제 200% 브라우저 확대는 키 입력을 시도했지만 측정 viewport가 기대대로 변하지 않아 검증 완료로 집계하지 않는다. 임시 확대 키 설정은 Control+0으로 원복했다.
 - 사용 설명서와 현재 결과를 각각 `cms-operator-guide.md`, `cms-audit-results.md`에 추가했다. 위 ‘남은 확인’의 의존성·가이드 항목은 이 기록으로 갱신하되, 전체 재귀 검증 완료로 간주하지 않는다.
 - 5177 검증 서버 종료, 검증용 탭 4/5 닫기, viewport/print/device emulation 원복. 검증용 임시 폴더 삭제는 실행 정책에 거부되어 수행되지 않았다. 초기 담당자 증거는 `cms-initial-qa-evidence.md`에 당시 보고서임을 표시해 보존했다.
+- 누락된 공개 Provider DOM 보존 검사 4개까지 runner에 등록한 후 최신 `pnpm test` 340/340, lint, build 통과. Git 체크포인트와 전체 미완료 경계는 `cms-audit-results.md` 참조.

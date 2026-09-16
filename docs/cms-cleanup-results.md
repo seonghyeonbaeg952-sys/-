@@ -81,6 +81,8 @@ RAF는 수정하지 않았다. `HomeV4SamplePage.tsx`의 첫 hold effect와 `Hom
 
 ## 검증·잔여 범위
 
+후속 통합 검사에서 초기 `siteCopyCoverage.test.mjs`의 예외 없는 0건 가정이 법적 동의·honeypot·그래픽 로고/독립 시안 32개와 충돌함을 실제로 확인했다. 이를 성공으로 숨기지 않고, 현재 문서화한 예외 외에는 미연결을 모두 실패시키는 `scripts/public-copy-contract.test.mjs`의 동등·확장 검사로 통합하여 중복 초기 파일을 제거했다. DOM 결과/기존 공백/래퍼 비추가/관리자 분리를 검사하는 `SiteEditorProvider.test.mjs` 4개는 별도 실행 통과 후 기본 runner에도 등록했다. 전체 문구 전수 편집의 잔여 범위는 계속 coverage 문서에 남긴다.
+
 - `pnpm test`: 284/284 통과(47개 명시 파일).
 - `node --test scripts/check-supabase-live.test.mjs`: RED 4/4 확인 후 GREEN 4/4.
 - `pnpm exec eslint scripts/check-supabase-live.mjs scripts/check-supabase-live.test.mjs scripts/run-tests.mjs`: 통과.
