@@ -1,3 +1,5 @@
+import { isSiteEditorPreview } from './siteEditorPreview'
+
 type HomePreviewContext = {
   pathname: string
   search: string
@@ -5,7 +7,7 @@ type HomePreviewContext = {
 }
 
 export function getHomePreviewAuthOptions(context?: HomePreviewContext) {
-  const isPublicHomePreview = Boolean(
+  const isPublicHomePreview = isSiteEditorPreview(context) || Boolean(
     context?.isEmbedded &&
     context.pathname === '/' &&
     new URLSearchParams(context.search).get('home-cms-preview') === '1',

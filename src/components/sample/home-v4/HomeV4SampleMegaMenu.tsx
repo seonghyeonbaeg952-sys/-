@@ -1,6 +1,8 @@
 import type { MouseEventHandler } from 'react'
 
 import type { PublicNavigationItem } from '../../../constants/navigation'
+import { useSiteEditor } from '../../site-editor/useSiteEditor'
+import { navigationCopyKey } from '../../../content/siteCopyCommonCatalog'
 
 type HomeV4SampleMegaMenuProps = {
   id: string
@@ -102,6 +104,7 @@ export function HomeV4SampleMegaMenu({
   onNavigate,
   routePrefix = '/sample',
 }: HomeV4SampleMegaMenuProps) {
+  const { copy } = useSiteEditor()
   const hasMatchingChild = item.children?.some(
     (child) => child.href === item.href,
   )
@@ -187,7 +190,7 @@ export function HomeV4SampleMegaMenu({
                     href={toRouteHref(link.href, routePrefix)}
                     onClick={onNavigate}
                   >
-                    <span>{link.label}</span>
+                    <span>{copy('common', navigationCopyKey(link.href), link.label)}</span>
                     <span aria-hidden="true" className="home-v4-mega-menu__arrow">
                       →
                     </span>

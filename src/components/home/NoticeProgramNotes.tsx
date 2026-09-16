@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import type { Notice } from '../../types/content'
 import { getColorSampleHref } from '../../utils/colorSamplePath'
 import { formatShortDate } from '../../utils/formatDate'
@@ -30,6 +31,7 @@ export function NoticeProgramNotes({
   panelButtonLabel = '전체 보기',
   panelTitle = '프로그램 노트',
 }: NoticeProgramNotesProps) {
+  const { copy: copyText } = useSiteEditor()
   if (notices.length === 0) {
     return (
       <aside className="notice-program-notes">
@@ -47,10 +49,10 @@ export function NoticeProgramNotes({
   }
 
   return (
-    <aside aria-label="중요 공지" className="notice-program-notes">
+    <aside aria-label={copyText("home", "home.fixed.NoticeProgramNotes.39b62d01a5", "중요 공지")} className="notice-program-notes">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="type-eyebrow text-gold-ink">NOTICE</p>
+          <p className="type-eyebrow text-gold-ink">{copyText("home", "home.fixed.NoticeProgramNotes.dfb14fbb9e", "NOTICE")}</p>
           <h3 className="type-card-title mt-3 text-navy-deep">{panelTitle}</h3>
         </div>
         <Button href="/notices" size="sm" variant="secondary">

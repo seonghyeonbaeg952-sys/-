@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { legacyChoirIntro } from '../../constants/legacyContent'
 import { formatKoreanDate } from '../../utils/formatDate'
 import { BrandLogo } from '../common/BrandLogo'
@@ -49,17 +50,18 @@ export function GlobalIdentityPlate({
   tagline = 'Voice, learning and the stage',
   youtubeUrl,
 }: GlobalIdentityPlateProps) {
+  const { copy: copyText } = useSiteEditor()
   const socialLinks = [
     { href: getSafeExternalUrl(youtubeUrl), label: 'YOUTUBE' },
     { href: getSafeExternalUrl(instagramUrl), label: 'INSTAGRAM' },
   ].filter((item): item is { href: string; label: string } => Boolean(item.href))
 
   return (
-    <aside className="home-global-identity-plate" aria-label="합창단 영문 소개">
+    <aside className="home-global-identity-plate" aria-label={copyText("home", "home.fixed.GlobalIdentityPlate.961f0f9fad", "합창단 영문 소개")}>
       <div className="home-global-identity-heading">
         <BrandLogo brand="smyc" size="md" theme="dark" variant="symbol" />
         <div>
-          <p>SEOUL MOTET YOUTH CHOIR</p>
+          <p>{copyText("home", "home.fixed.GlobalIdentityPlate.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</p>
           <strong>{tagline}</strong>
         </div>
       </div>
@@ -75,7 +77,7 @@ export function GlobalIdentityPlate({
 
       {nextStage ? (
         <TransitionLink className="home-global-identity-next" to="/concerts">
-          <span>NEXT STAGE</span>
+          <span>{copyText("home", "home.fixed.GlobalIdentityPlate.ba0848a964", "NEXT STAGE")}</span>
           <strong>{nextStage.title}</strong>
           <span className="home-global-identity-next__meta">
             <time dateTime={nextStage.date}>{formatKoreanDate(nextStage.date)}</time>
@@ -90,7 +92,7 @@ export function GlobalIdentityPlate({
       <div className="home-global-identity-footer">
         <p>{description}</p>
         {socialLinks.length > 0 ? (
-          <nav aria-label="합창단 공식 소셜 채널">
+          <nav aria-label={copyText("home", "home.fixed.GlobalIdentityPlate.ae9f4cbcec", "합창단 공식 소셜 채널")}>
             {socialLinks.map((link) => (
               <a
                 href={link.href}

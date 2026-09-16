@@ -134,6 +134,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
         ? { column: searchColumn, value: debouncedSearchValue }
         : undefined,
     table,
+    pageSize: 25,
   })
 
   useUnsavedChangesGuard({
@@ -345,6 +346,15 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
         onClose={closeDeleteDialog}
         onConfirm={handleDelete}
       />
+
+      <nav className="flex flex-wrap items-center justify-between gap-3" aria-label="목록 페이지">
+        <p className="text-sm text-text-muted" role="status">{crud.isLoading ? '목록을 불러오는 중입니다.' : crud.error ? '목록을 확인할 수 없습니다.' : `${crud.pageIndex + 1}페이지 · ${rows.length}개 표시 · 한 번에 최대 25개`}</p>
+        <div className="flex gap-2">
+          <Button variant="secondary" onClick={crud.reload} disabled={crud.isLoading || crud.isMutating}>목록 새로고침</Button>
+          <Button variant="secondary" onClick={crud.previousPage} disabled={crud.isLoading || crud.isMutating || crud.pageIndex === 0}>이전</Button>
+          <Button variant="secondary" onClick={crud.nextPage} disabled={crud.isLoading || crud.isMutating || !crud.hasNextPage}>다음</Button>
+        </div>
+      </nav>
     </div>
   )
 }

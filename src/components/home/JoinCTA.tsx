@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
@@ -36,6 +37,7 @@ export function JoinCTA({
   text,
   title,
 }: JoinCTAProps) {
+  const { copy: copyText } = useSiteEditor()
   const rehearsalSummary = [
     joinInfo?.rehearsal_time?.trim(),
     joinInfo?.rehearsal_location?.trim(),
@@ -64,7 +66,7 @@ export function JoinCTA({
     >
       <HomeSectionStaffCue
         className="home-section-staff-cue--join"
-        label="입단"
+        label={copyText("home", "home.fixed.JoinCTA.4e9d6b0799", "입단")}
         noteOffset={30}
         symbol="♬"
       />

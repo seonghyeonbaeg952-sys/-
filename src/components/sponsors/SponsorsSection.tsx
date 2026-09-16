@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { Link } from 'react-router'
 
 import {
@@ -152,6 +153,7 @@ export function SponsorsSection({
   showEmpty = true,
   sponsors,
 }: SponsorsSectionProps) {
+  const { copy: copyText } = useSiteEditor()
   const visibleSponsors = sponsors.filter((sponsor) =>
     compact ? sponsor.show_on_support : true,
   )
@@ -201,9 +203,7 @@ export function SponsorsSection({
         <Link
           className="type-button mt-5 inline-flex min-h-11 items-center rounded-pill border border-line-default px-4 text-navy-deep transition hover:border-gold-warm hover:bg-bg-ivory focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink"
           to="/contact?section=sponsors"
-        >
-          후원사 전체 보기
-        </Link>
+        >{copyText("contact", "contact.fixed.SponsorsSection.1e9015fbab", "후원사 전체 보기")}</Link>
       </section>
     )
   }

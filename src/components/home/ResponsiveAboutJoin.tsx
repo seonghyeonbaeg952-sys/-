@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import type { JoinInfoRow } from '../../types/cms'
 import type { HomeContentV2 } from '../../types/homeContent'
 import { Button } from '../common/Button'
@@ -38,6 +39,7 @@ type ResponsiveCollectivePortraitProps = {
 export function ResponsiveCollectivePortrait({
   buttonLabel, content, facts, image, kicker, summary, title, viewport,
 }: ResponsiveCollectivePortraitProps) {
+  const { copy: copyText } = useSiteEditor()
   const tablet = viewport === 'tablet'
   const description = (tablet ? content?.responsiveTabletDescription : content?.responsiveMobileDescription) || summary
   const founded = content?.responsiveFounded || ['SINCE', facts[0]?.value].filter(Boolean).join('\n')
@@ -84,11 +86,11 @@ export function ResponsiveCollectivePortrait({
         width={1080}
       />
       {tablet ? (
-        <ul aria-label="합창단 핵심 정보" className="responsive-about__tablet-facts">
+        <ul aria-label={copyText("home", "home.fixed.ResponsiveAboutJoin.1f761dd796", "합창단 핵심 정보")} className="responsive-about__tablet-facts">
           {tabletFacts.map((fact, index) => <li key={`${index}-${fact}`}>{fact}</li>)}
         </ul>
       ) : (
-        <div aria-label="합창단 핵심 정보" className="responsive-about__mobile-facts">
+        <div aria-label={copyText("home", "home.fixed.ResponsiveAboutJoin.1f761dd796", "합창단 핵심 정보")} className="responsive-about__mobile-facts">
           <p className="responsive-about__founded">{founded}</p>
           <p className="responsive-about__context">{context}</p>
         </div>
@@ -111,6 +113,7 @@ type ResponsiveJoinInvitationProps = {
 export function ResponsiveJoinInvitation({
   buttonLabel, content, fallbackGuardianNotes, fallbackSteps, joinInfo, tabletDescription, viewport,
 }: ResponsiveJoinInvitationProps) {
+  const { copy: copyText } = useSiteEditor()
   const tablet = viewport === 'tablet'
   const publicInfo = joinInfo?.is_visible ? joinInfo : null
   const target = contentLines(publicInfo?.target).join(' · ')
@@ -129,8 +132,8 @@ export function ResponsiveJoinInvitation({
   const targetInfo = target ? <p className="responsive-join__target">{target}</p> : null
   const procedure = (
     <div className="responsive-join__procedure">
-      {!tablet ? <p className="responsive-join__process-label">THE JOINING SCORE / {String(steps.length).padStart(2, '0')} STEPS</p> : null}
-      <ol aria-label="입단 절차" className="responsive-join__steps">
+      {!tablet ? <p className="responsive-join__process-label">{copyText("home", "home.fixed.ResponsiveAboutJoin.d0d0616c80", "THE JOINING SCORE / ")}{String(steps.length).padStart(2, '0')}{copyText("home", "home.fixed.ResponsiveAboutJoin.a5eb1af1c7", " STEPS")}</p> : null}
+      <ol aria-label={copyText("home", "home.fixed.ResponsiveAboutJoin.5f2b04128c", "입단 절차")} className="responsive-join__steps">
         {steps.map((step, index) => (
           <li key={`${index}-${step}`}>
             <span aria-hidden="true" className="responsive-join__step-number">{String(index + 1).padStart(2, '0')}</span>
@@ -141,8 +144,8 @@ export function ResponsiveJoinInvitation({
     </div>
   )
   const guardianInfo = (
-    <aside aria-label="보호자 안내" className="responsive-join__guardian">
-      {!tablet ? <p>FOR PARENTS &amp; GUARDIANS</p> : null}
+    <aside aria-label={copyText("home", "home.fixed.ResponsiveAboutJoin.886055c890", "보호자 안내")} className="responsive-join__guardian">
+      {!tablet ? <p>{copyText("home", "home.fixed.ResponsiveAboutJoin.924d5f8adf", "FOR PARENTS & GUARDIANS")}</p> : null}
       <ul>{guardianNotes.map((note, index) => <li key={`${index}-${note}`}>{note}</li>)}</ul>
     </aside>
   )

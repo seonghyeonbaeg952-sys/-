@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 import { useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router'
 
@@ -7,9 +8,12 @@ import { SeoHead } from '../../components/common/SeoHead'
 import { OptimizedImage } from '../../components/common/OptimizedImage'
 import { formatNoticeDate, getNoticeCategoryLabel } from '../../components/notices/noticeViewModel'
 import { useNoticeDetailData } from '../../hooks/usePublicData'
+import { usePageCopy } from '../../components/site-editor/usePageCopy'
 import '../../styles/notices-page.css'
 
 export function NoticeDetailPage() {
+  const { copy: copyText } = useSiteEditor()
+  const t = usePageCopy('notice-detail')
   const { noticeId } = useParams()
   const [searchParams] = useSearchParams()
   const noticeData = useNoticeDetailData(noticeId)
@@ -29,24 +33,24 @@ export function NoticeDetailPage() {
         type="article"
       />
       <div className="notices-page__detail notices-page__shell">
-        <nav aria-label="현재 위치" className="notices-page__breadcrumb">
-          <Link to={listLocation}>공지사항</Link><span aria-hidden="true">/</span><span aria-current="page">공지 상세</span>
+        <nav aria-label={copyText("notice-detail", "notice-detail.fixed.NoticeDetailPage.e282a8fa21", "현재 위치")} className="notices-page__breadcrumb">
+          <Link to={listLocation}>{t('list')}</Link><span aria-hidden="true">/</span><span aria-current="page">{t('title')}</span>
         </nav>
         {noticeData.isLoading ? (
-          <div className="notices-page__state"><LoadingState label="공지 상세를 불러오는 중입니다" /></div>
+          <div className="notices-page__state"><LoadingState label={t('loading')} /></div>
         ) : noticeData.error ? (
           <div className="notices-page__state" role="alert">
-            <h1 className="sr-only">공지 상세</h1>
+            <h1 className="sr-only">{t('title')}</h1>
             <ErrorState
-              title="공지를 불러오지 못했습니다"
-              description="연결 상태를 확인한 뒤 다시 시도해 주세요."
-              action={<button className="notices-page__action" onClick={noticeData.refetch} type="button">다시 시도</button>}
+              title={t('error')}
+              description={t('connection')}
+              action={<button className="notices-page__action" onClick={noticeData.refetch} type="button">{t('retry')}</button>}
             />
           </div>
         ) : !notice ? (
           <div className="notices-page__state" role="status">
-            <h1>공지사항을 찾을 수 없습니다</h1>
-            <p>공개된 공지 목록에서 다른 소식을 확인해 주세요.</p>
+            <h1>{t('missing')}</h1>
+            <p>{t('missingHelp')}</p>
           </div>
         ) : (
           <article className="notices-page__article">
@@ -59,8 +63,8 @@ export function NoticeDetailPage() {
             {notice.cover_image_url ? (
               failedImage === notice.cover_image_url ? (
                 <div className="notices-page__image-error" role="status">
-                  <p>이미지를 불러오지 못했습니다.</p>
-                  <button className="notices-page__action" onClick={() => setFailedImage('')} type="button">이미지 다시 보기</button>
+                  <p>{t('imageError')}</p>
+                  <button className="notices-page__action" onClick={() => setFailedImage('')} type="button">{t('imageRetry')}</button>
                 </div>
               ) : <OptimizedImage
                 alt={`${notice.title} 대표 이미지`}
@@ -73,11 +77,11 @@ export function NoticeDetailPage() {
                 transform={{ quality: 85, resize: 'contain', width: 1280, widths: [640, 960, 1280] }}
               />
             ) : null}
-            <div className="notices-page__body">{notice.content || '등록된 본문이 없습니다.'}</div>
+            <div className="notices-page__body">{notice.content || t('bodyEmpty')}</div>
           </article>
         )}
         <div className="notices-page__back">
-          <Link className="notices-page__action" to={listLocation}>목록으로 돌아가기</Link>
+          <Link className="notices-page__action" to={listLocation}>{t('back')}</Link>
         </div>
       </div>
     </div>

@@ -1,3 +1,5 @@
+import { SiteCopy } from '../site-editor/SiteCopy'
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useMemo, useState } from 'react'
 
 import { legacyHistorySeed } from '../../constants/legacyContent'
@@ -28,6 +30,7 @@ export function HistoryCueSheetExperience({
   history,
   shouldUseLegacyFallback,
 }: HistoryCueSheetExperienceProps) {
+  const { copy: editorCopy } = useSiteEditor()
   const sourceRows = useMemo<readonly HistoryCueSource[]>(() => {
     if (history.length > 0) {
       return history
@@ -71,7 +74,7 @@ export function HistoryCueSheetExperience({
   const heroImageAlt =
     model.heroImageAlt ??
     (heroImageUrl
-      ? '서울모테트청소년합창단 2025 제11회 정기연주회 무대 사진'
+      ? editorCopy('history', 'history.hero.alt', '서울모테트청소년합창단 2025 제11회 정기연주회 무대 사진')
       : '')
   const Heading = compact ? 'h2' : 'h1'
 
@@ -79,7 +82,7 @@ export function HistoryCueSheetExperience({
     return (
       <section className="history-cue history-cue--empty" id="history">
         <div className="history-cue__empty-inner">
-          <EmptyState title="등록된 연혁이 없습니다" />
+          <EmptyState title={editorCopy("history", "history.historyCueSheetExperience.title1", "등록된 연혁이 없습니다")} />
         </div>
       </section>
     )
@@ -92,9 +95,9 @@ export function HistoryCueSheetExperience({
     >
       {compact ? (
         <header className="history-cue__compact-intro">
-          <p className="history-cue__eyebrow">HISTORY / CUE SHEET</p>
-          <Heading>함께한 무대의 기록</Heading>
-          <p>연도를 고르고, 필요한 장면을 펼쳐보세요.</p>
+          <p className="history-cue__eyebrow"><SiteCopy page="history" id="history.historyCueSheetExperience.english1" fallback={"HISTORY / CUE SHEET"} /></p>
+          <Heading><SiteCopy page="history" id="history.historyCueSheetExperience.text2" fallback={"함께한 무대의 기록"} /></Heading>
+          <p><SiteCopy page="history" id="history.historyCueSheetExperience.text3" fallback={"연도를 고르고, 필요한 장면을 펼쳐보세요."} /></p>
         </header>
       ) : (
         <header className="history-cue__hero">
@@ -102,17 +105,10 @@ export function HistoryCueSheetExperience({
             className={`history-cue__hero-inner${heroImageUrl ? '' : ' is-text-only'}`}
           >
             <div className="history-cue__hero-copy">
-              <p className="history-cue__eyebrow">HISTORY / CUE SHEET</p>
+              <p className="history-cue__eyebrow"><SiteCopy page="history" id="history.historyCueSheetExperience.english2" fallback={"HISTORY / CUE SHEET"} /></p>
               <span aria-hidden="true" className="history-cue__accent-rule" />
-              <Heading>
-                한 줄의 기록이
-                <br />
-                한 장면으로 펼쳐집니다.
-              </Heading>
-              <p className="history-cue__hero-description">
-                창단 이후의 무대와 배움, 그리고 함께한 목소리를
-                공연 기록지처럼 차례로 펼쳐봅니다.
-              </p>
+              <Heading><SiteCopy page="history" id="history.historyCueSheetExperience.text4" fallback={"한 줄의 기록이"} /><br /><SiteCopy page="history" id="history.historyCueSheetExperience.text5" fallback={"한 장면으로 펼쳐집니다."} /></Heading>
+              <p className="history-cue__hero-description"><SiteCopy page="history" id="history.historyCueSheetExperience.text6" fallback={"창단 이후의 무대와 배움, 그리고 함께한 목소리를 공연 기록지처럼 차례로 펼쳐봅니다."} /></p>
               <p className="history-cue__range">
                 <em>{model.rangeLabel}</em>
                 <span aria-hidden="true">·</span>
@@ -142,7 +138,7 @@ export function HistoryCueSheetExperience({
                   <span aria-hidden="true" />
                   <strong>
                     {cmsHeroImage
-                      ? '첫 번째 공개 사진 기록'
+                      ? editorCopy('history', 'history.photo.caption', '첫 번째 공개 사진 기록')
                       : 'FOLIO 18 · 2025 11TH REGULAR CONCERT'}
                   </strong>
                 </figcaption>
@@ -155,7 +151,7 @@ export function HistoryCueSheetExperience({
       <div className="history-cue__records-section">
         <div className="history-cue__records-shell">
           <div className="history-cue__controls">
-            <p>PERFORMANCE INDEX</p>
+            <p><SiteCopy page="history" id="history.historyCueSheetExperience.english3" fallback={"PERFORMANCE INDEX"} /></p>
             <button
               aria-pressed={allOpen}
               onClick={() =>
@@ -165,14 +161,14 @@ export function HistoryCueSheetExperience({
               }
               type="button"
             >
-              <span>{allOpen ? '모두 접기' : '모두 펼치기'}</span>
+              <span>{allOpen ? editorCopy('history', 'history.action.collapse', '모두 접기') : editorCopy('history', 'history.action.expand', '모두 펼치기')}</span>
               <span aria-hidden="true">{allOpen ? '−' : '+'}</span>
             </button>
           </div>
 
           <div className="history-cue__index-layout">
-            <nav aria-label="연도별 연혁 바로가기" className="history-cue__year-index">
-              <p>YEAR / INDEX</p>
+            <nav aria-label={editorCopy("history", "history.historyCueSheetExperience.ariaLabel7", "연도별 연혁 바로가기")} className="history-cue__year-index">
+              <p><SiteCopy page="history" id="history.historyCueSheetExperience.english4" fallback={"YEAR / INDEX"} /></p>
               <div className="history-cue__year-links">
                 {model.years.map((year) => (
                   <a
@@ -192,7 +188,7 @@ export function HistoryCueSheetExperience({
               </div>
             </nav>
 
-            <ol aria-label="합창단 연혁" className="history-cue__record-list">
+            <ol aria-label={editorCopy("history", "history.historyCueSheetExperience.ariaLabel8", "합창단 연혁")} className="history-cue__record-list">
               {model.records.map((record, index) => {
                 const isOpen = openIds.has(record.id)
                 const panelId = `history-cue-panel-${index}`
@@ -213,7 +209,7 @@ export function HistoryCueSheetExperience({
                   >
                     <div aria-hidden="true" className="history-cue__record-mark">
                       <span />
-                      <strong>PERFORMANCE RECORD</strong>
+                      <strong><SiteCopy page="history" id="history.historyCueSheetExperience.english5" fallback={"PERFORMANCE RECORD"} /></strong>
                     </div>
                     <h3>
                       <button
@@ -247,14 +243,14 @@ export function HistoryCueSheetExperience({
                         id={panelId}
                       >
                         <div className="history-cue__stage-note">
-                          <p>STAGE NOTE</p>
+                          <p><SiteCopy page="history" id="history.historyCueSheetExperience.english6" fallback={"STAGE NOTE"} /></p>
                           <div>
-                            {record.content || '상세 기록은 준비 중입니다.'}
+                            {record.content || editorCopy('history', 'history.detail.empty', '상세 기록은 준비 중입니다.')}
                           </div>
                         </div>
                         {record.imageUrl ? (
                           <OptimizedImage
-                            alt={record.imageAlt ?? '서울모테트청소년합창단 연혁 이미지'}
+                            alt={record.imageAlt ?? editorCopy('history', 'history.photo.alt', '서울모테트청소년합창단 연혁 이미지')}
                             className="history-cue__record-image"
                             fallbackVariant="gallery"
                             objectFit="contain"
@@ -282,8 +278,8 @@ export function HistoryCueSheetExperience({
         <footer className="history-cue__closing">
           <div>
             <span aria-hidden="true" />
-            <p>LIVING ARCHIVE / {model.countLabel}</p>
-            <h2>기록은 끝나지 않고, 다음 목소리로 이어집니다.</h2>
+            <p><SiteCopy page="history" id="history.historyCueSheetExperience.english7" fallback={"LIVING ARCHIVE / "} />{model.countLabel}</p>
+            <h2><SiteCopy page="history" id="history.historyCueSheetExperience.text9" fallback={"기록은 끝나지 않고, 다음 목소리로 이어집니다."} /></h2>
           </div>
         </footer>
       )}

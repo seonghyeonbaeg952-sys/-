@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 
@@ -93,6 +94,7 @@ function HomeSpiritChorusOrbitDesktop({
   sections,
   wrapper,
 }: HomeSpiritChorusOrbitProps) {
+  const { copy: copyText } = useSiteEditor()
   const sectionRef = useRef<HTMLElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const hoverCloseTimerRef = useRef<number | null>(null)
@@ -235,14 +237,14 @@ function HomeSpiritChorusOrbitDesktop({
 
       <HomeSectionStaffCue
         className="home-section-staff-cue--spirit"
-        label="정신"
+        label={copyText("home", "home.fixed.HomeSpiritChorusOrbit.2c3d6b050d", "정신")}
         noteOffset={21}
         symbol="♫"
       />
 
       <Container className="home-spirit-chorus-orbit__container">
         <div className="home-spirit-chorus-orbit__datum">
-          <span>SPIRIT STUDY 07 · CHORUS ORBIT</span>
+          <span>{copyText("home", "home.fixed.HomeSpiritChorusOrbit.efc3b66373", "SPIRIT STUDY 07 · CHORUS ORBIT")}</span>
           <i aria-hidden="true" />
         </div>
 
@@ -266,9 +268,7 @@ function HomeSpiritChorusOrbitDesktop({
             <span
               aria-hidden="true"
               className="home-spirit-chorus-orbit__watermark"
-            >
-              SPIRIT
-            </span>
+            >{copyText("home", "home.fixed.HomeSpiritChorusOrbit.10cab5911a", "SPIRIT")}</span>
             <div
               aria-hidden={activePage ? 'true' : undefined}
               className="home-spirit-chorus-orbit__center-default"
@@ -314,7 +314,7 @@ function HomeSpiritChorusOrbitDesktop({
           </div>
 
           <ol
-            aria-label="서울모테트청소년합창단의 다섯 가지 정신"
+            aria-label={copyText("home", "home.fixed.HomeSpiritChorusOrbit.b1ffe43d35", "서울모테트청소년합창단의 다섯 가지 정신")}
             className="home-spirit-chorus-orbit__values"
           >
             {pages.map((page, index) => (

@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useSiteEditor } from '../../site-editor/useSiteEditor'
+import { navigationCopyKey } from '../../../content/siteCopyCommonCatalog'
 
 type HomeV4SampleMobileMenuProps = {
   id: string
@@ -94,7 +96,9 @@ export function HomeV4SampleMobileMenu({
   onNavigate,
   routePrefix = '/sample',
 }: HomeV4SampleMobileMenuProps) {
+  const { copy: copyText } = useSiteEditor()
   const [expandedSectionId, setExpandedSectionId] = useState<string>('about')
+  const { copy } = useSiteEditor()
 
   const toggleSection = (sectionId: string) => {
     setExpandedSectionId((currentId) =>
@@ -104,13 +108,13 @@ export function HomeV4SampleMobileMenu({
 
   return (
     <div className="home-v4-mobile-menu" id={id}>
-      <nav aria-label="모바일 주요 메뉴">
+      <nav aria-label={copyText("common", "common.fixed.HomeV4SampleMobileMenu.447d6ce0fb", "모바일 주요 메뉴")}>
         <a
           className="home-v4-mobile-menu__row is-active"
           href={routePrefix ? `${routePrefix}/home-v4` : '/'}
           onClick={onNavigate}
         >
-          <span>홈</span>
+          <span>{copy('common', navigationCopyKey('/'), '홈')}</span>
           <span aria-hidden="true">→</span>
         </a>
 
@@ -127,7 +131,7 @@ export function HomeV4SampleMobileMenu({
                 onClick={() => toggleSection(section.id)}
                 type="button"
               >
-                <span>{section.label}</span>
+                <span>{copy('common', navigationCopyKey(`/${section.id}`), section.label)}</span>
                 <span
                   aria-hidden="true"
                   className="home-v4-mobile-menu__indicator"
@@ -146,7 +150,7 @@ export function HomeV4SampleMobileMenu({
                     key={link.href}
                     onClick={onNavigate}
                   >
-                    {link.label}
+                    {copy('common', navigationCopyKey(link.href), link.label)}
                   </a>
                 ))}
               </div>

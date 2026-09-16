@@ -47,3 +47,11 @@ test('non-home routes and server evaluation preserve default auth behavior', () 
     autoRefreshToken: true, detectSessionInUrl: true, persistSession: true,
   })
 })
+
+test('all allowed editor preview routes disable session persistence without changing admin auth', () => {
+  const search = '?site-editor-preview=ec50cd93-7e23-4428-a4d6-9688109cd605'
+  for (const pathname of ['/', '/join', '/contact', '/about', '/gallery', '/concerts/id']) {
+    assert.deepEqual(options({ pathname, search, isEmbedded: true }), { autoRefreshToken: false, detectSessionInUrl: false, persistSession: false })
+  }
+  assert.deepEqual(options({ pathname: '/admin', search, isEmbedded: true }), { autoRefreshToken: true, detectSessionInUrl: true, persistSession: true })
+})

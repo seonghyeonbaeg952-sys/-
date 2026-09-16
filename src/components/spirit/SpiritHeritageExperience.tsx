@@ -1,3 +1,5 @@
+import { SiteCopy } from '../site-editor/SiteCopy'
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import {
   AnimatePresence,
   MotionConfig,
@@ -232,6 +234,7 @@ function LineageMilestone({
   total,
   year,
 }: LineageMilestoneProps) {
+  const { copy: editorCopy } = useSiteEditor()
   const reducedMotion = usePrefersReducedMotion()
   const reveal = useTransform(progress, (value) =>
     getMilestoneRevealProgress(value, index, total),
@@ -249,7 +252,8 @@ function LineageMilestone({
     [0, 0.42, 0.68, 1],
     [0.34, 1.26, 1, 1],
   )
-  const renderedYear = year === '현재' ? 'NOW' : year === '미래' ? 'NEXT' : year
+  const renderedYear = year === '현재' ? editorCopy('spirit', 'spirit.lineage.now', 'NOW')
+    : year === '미래' ? editorCopy('spirit', 'spirit.lineage.next', 'NEXT') : year
 
   return (
     <motion.article
@@ -308,6 +312,8 @@ function moveTabFocus(
 }
 
 function SpiritHero({ copy }: { copy: SpiritCopy }) {
+  const { copy: copyText } = useSiteEditor()
+  const { copy: editorCopy } = useSiteEditor()
   const reducedMotion = usePrefersReducedMotion()
   const heroImage = HERO_FALLBACK_IMAGE
 
@@ -326,7 +332,7 @@ function SpiritHero({ copy }: { copy: SpiritCopy }) {
         transition={{ delay: 0.18, duration: 1.08, ease: EASE_OUT }}
       >
         <OptimizedImage
-          alt="지휘자와 함께 연습하는 서울모테트청소년합창단"
+          alt={editorCopy("spirit", "spirit.spiritHero.alt1", "지휘자와 함께 연습하는 서울모테트청소년합창단")}
           fallbackSrcs={[HERO_FALLBACK_IMAGE]}
           fallbackVariant="hero"
           imageClassName="spirit-heritage__hero-photo-image"
@@ -338,9 +344,7 @@ function SpiritHero({ copy }: { copy: SpiritCopy }) {
       <div aria-hidden="true" className="spirit-heritage__hero-veil" />
 
       <div className="spirit-heritage__hero-inner">
-        <div className="spirit-heritage__eyebrow spirit-heritage__eyebrow--hero">
-          SEOUL MOTET YOUTH CHOIR · SPIRIT
-        </div>
+        <div className="spirit-heritage__eyebrow spirit-heritage__eyebrow--hero">{copyText("spirit", "spirit.fixed.SpiritHeritageExperience.12198036a1", "SEOUL MOTET YOUTH CHOIR · ")}<SiteCopy page="spirit" id="spirit.spiritHero.english1" fallback={"SPIRIT"} /></div>
         <motion.h1
           className="spirit-heritage__display-title"
           data-node-id="45:2"
@@ -348,9 +352,7 @@ function SpiritHero({ copy }: { copy: SpiritCopy }) {
           initial={reducedMotion ? false : { opacity: 0, scale: 0.955, x: -150 }}
           animate={reducedMotion ? undefined : { opacity: 1, scale: 1, x: 0 }}
           transition={{ duration: 0.92, ease: EASE_OUT }}
-        >
-          SPIRIT
-        </motion.h1>
+        ><SiteCopy page="spirit" id="spirit.spiritHero.english2" fallback={"SPIRIT"} /></motion.h1>
 
         <div className="spirit-heritage__hero-heading spirit-heritage__hero-heading--desktop">
           <motion.p
@@ -358,9 +360,7 @@ function SpiritHero({ copy }: { copy: SpiritCopy }) {
             initial={reducedMotion ? false : { opacity: 0, y: 42 }}
             animate={reducedMotion ? undefined : { opacity: 1, y: 0 }}
             transition={{ delay: 0.44, duration: 0.74, ease: EASE_OUT }}
-          >
-            정신은 선언이 아니라
-          </motion.p>
+          ><SiteCopy page="spirit" id="spirit.spiritHero.text2" fallback={"정신은 선언이 아니라"} /></motion.p>
           <motion.p
             className="spirit-heritage__hero-promise"
             data-node-id="6:3"
@@ -368,10 +368,9 @@ function SpiritHero({ copy }: { copy: SpiritCopy }) {
             animate={reducedMotion ? undefined : { opacity: 1, y: 0 }}
             transition={{ delay: 0.62, duration: 0.8, ease: EASE_OUT }}
           >
-            <strong>이어 온</strong>
+            <strong><SiteCopy page="spirit" id="spirit.spiritHero.text3" fallback={"이어 온"} /></strong>
             <span>
-              <em>선택</em>입니다.
-            </span>
+              <em><SiteCopy page="spirit" id="spirit.spiritHero.text4" fallback={"선택"} /></em><SiteCopy page="spirit" id="spirit.spiritHero.text5" fallback={"입니다."} /></span>
           </motion.p>
         </div>
 
@@ -380,23 +379,15 @@ function SpiritHero({ copy }: { copy: SpiritCopy }) {
             initial={reducedMotion ? false : { opacity: 0, y: 24 }}
             animate={reducedMotion ? undefined : { opacity: 1, y: 0 }}
             transition={{ delay: 0.38, duration: 0.68, ease: EASE_OUT }}
-          >
-            마음을 담은
-            <br />
-            음악으로
-          </motion.p>
+          ><SiteCopy page="spirit" id="spirit.spiritHero.text6" fallback={"마음을 담은"} /><br /><SiteCopy page="spirit" id="spirit.spiritHero.text7" fallback={"음악으로"} /></motion.p>
           <motion.p
             className="spirit-heritage__hero-promise"
             initial={reducedMotion ? false : { opacity: 0, y: 32 }}
             animate={reducedMotion ? undefined : { opacity: 1, y: 0 }}
             transition={{ delay: 0.54, duration: 0.72, ease: EASE_OUT }}
           >
-            <span className="spirit-heritage__hero-promise-line">
-              다음 <em>세대</em>를
-            </span>
-            <span className="spirit-heritage__hero-promise-line spirit-heritage__hero-promise-line--indented">
-              세웁니다.
-            </span>
+            <span className="spirit-heritage__hero-promise-line"><SiteCopy page="spirit" id="spirit.spiritHero.text8" fallback={"다음 "} /><em><SiteCopy page="spirit" id="spirit.spiritHero.text9" fallback={"세대"} /></em><SiteCopy page="spirit" id="spirit.spiritHero.text10" fallback={"를"} /></span>
+            <span className="spirit-heritage__hero-promise-line spirit-heritage__hero-promise-line--indented"><SiteCopy page="spirit" id="spirit.spiritHero.text11" fallback={"세웁니다."} /></span>
           </motion.p>
         </div>
 
@@ -428,11 +419,7 @@ function SpiritHero({ copy }: { copy: SpiritCopy }) {
           transition={{ delay: 1.06, duration: 0.58, ease: EASE_OUT }}
         >
           <strong>1989</strong>
-          <p>
-            정직한 음악에서 시작해
-            <br />
-            다음 세대의 성장으로 이어집니다.
-          </p>
+          <p><SiteCopy page="spirit" id="spirit.spiritHero.text12" fallback={"정직한 음악에서 시작해"} /><br /><SiteCopy page="spirit" id="spirit.spiritHero.text13" fallback={"다음 세대의 성장으로 이어집니다."} /></p>
         </motion.div>
       </div>
     </section>
@@ -440,6 +427,7 @@ function SpiritHero({ copy }: { copy: SpiritCopy }) {
 }
 
 function HeritageTimeline() {
+  const { copy: editorCopy } = useSiteEditor()
   const sectionRef = useRef<HTMLElement>(null)
   const reducedMotion = usePrefersReducedMotion()
   const { scrollYProgress } = useScroll({
@@ -464,12 +452,10 @@ function HeritageTimeline() {
     >
       <div className="spirit-heritage__section-shell spirit-heritage__lineage-grid">
         <div className="spirit-heritage__lineage-intro">
-          <p className="spirit-heritage__eyebrow">OUR LINEAGE</p>
+          <p className="spirit-heritage__eyebrow"><SiteCopy page="spirit" id="spirit.heritageTimeline.english1" fallback={"OUR LINEAGE"} /></p>
           <Reveal className="spirit-heritage__lineage-title" y={34}>
-            <p>시간은 흘렀지만</p>
-            <h2>
-              정신은
-              <span>이어졌습니다.</span>
+            <p><SiteCopy page="spirit" id="spirit.heritageTimeline.text1" fallback={"시간은 흘렀지만"} /></p>
+            <h2><SiteCopy page="spirit" id="spirit.heritageTimeline.text2" fallback={"정신은"} /><span><SiteCopy page="spirit" id="spirit.heritageTimeline.text3" fallback={"이어졌습니다."} /></span>
             </h2>
           </Reveal>
           <div aria-hidden="true" className="spirit-heritage__lineage-rule">
@@ -481,19 +467,16 @@ function HeritageTimeline() {
               transition={{ duration: 0.54, ease: EASE_OUT }}
             />
           </div>
-          <p className="spirit-heritage__lineage-lead">
-            한 세대의 음악적 헌신이 재단과 청소년 교육으로 이어지고,
-            오늘의 공동체가 되었습니다.
-          </p>
+          <p className="spirit-heritage__lineage-lead"><SiteCopy page="spirit" id="spirit.heritageTimeline.text4" fallback={"한 세대의 음악적 헌신이 재단과 청소년 교육으로 이어지고, 오늘의 공동체가 되었습니다."} /></p>
           <Reveal className="spirit-heritage__heritage-photo" scale={1.035} x={-46} y={0}>
             <OptimizedImage
-              alt="서울모테트청소년합창단 연습 장면"
+              alt={editorCopy("spirit", "spirit.heritageTimeline.alt5", "서울모테트청소년합창단 연습 장면")}
               fallbackVariant="gallery"
               imageClassName="spirit-heritage__media-image"
               sizes="(max-width: 899px) calc(100vw - 48px), 36vw"
               src={HERITAGE_IMAGE}
             >
-              <span className="spirit-heritage__image-label">연습에서 삶으로 이어지는 합창교육</span>
+              <span className="spirit-heritage__image-label"><SiteCopy page="spirit" id="spirit.heritageTimeline.text6" fallback={"연습에서 삶으로 이어지는 합창교육"} /></span>
             </OptimizedImage>
           </Reveal>
         </div>
@@ -525,11 +508,11 @@ function HeritageTimeline() {
           <div className="spirit-heritage__milestones">
             {legacyFlowSteps.map((item, index) => (
               <LineageMilestone
-                body={item.body}
+                body={editorCopy('spirit', `spirit.lineage.${index}.body`, item.body)}
                 index={index}
                 key={item.year}
                 progress={pathProgress}
-                title={item.title}
+                title={editorCopy('spirit', `spirit.lineage.${index}.title`, item.title)}
                 total={legacyFlowSteps.length}
                 year={item.year}
               />
@@ -542,6 +525,7 @@ function HeritageTimeline() {
 }
 
 function MotetMeaning({ copy }: { copy: SpiritCopy }) {
+  const { copy: editorCopy } = useSiteEditor()
   return (
     <section className="spirit-heritage__motet" id="spirit-motet" tabIndex={-1}>
       <motion.p
@@ -552,26 +536,18 @@ function MotetMeaning({ copy }: { copy: SpiritCopy }) {
         transition={{ duration: 1.04, ease: EASE_OUT }}
         viewport={{ amount: 0.3, once: true }}
         whileInView={{ opacity: 0.14, x: 0 }}
-      >
-        MOTET
-      </motion.p>
+      ><SiteCopy page="spirit" id="spirit.motetMeaning.english1" fallback={"MOTET"} /></motion.p>
       <div className="spirit-heritage__section-shell spirit-heritage__motet-grid">
         <div className="spirit-heritage__motet-title-block">
-          <p className="spirit-heritage__eyebrow">THE NAME · THE ROOT · THE STANDARD</p>
+          <p className="spirit-heritage__eyebrow"><SiteCopy page="spirit" id="spirit.motetMeaning.english2" fallback={"THE NAME · THE ROOT · THE STANDARD"} /></p>
           <Reveal y={28}>
-            <p className="spirit-heritage__motet-prelude">모테트는</p>
+            <p className="spirit-heritage__motet-prelude"><SiteCopy page="spirit" id="spirit.motetMeaning.text1" fallback={"모테트는"} /></p>
           </Reveal>
           <Reveal className="spirit-heritage__motet-title" delay={0.08} y={42}>
             <h2>
-              <span className="spirit-heritage__motet-line">
-                여러 <em>목소리</em>로,
-              </span>
-              <span className="spirit-heritage__motet-line spirit-heritage__motet-line--middle">
-                하나의 원칙을
-              </span>
-              <span className="spirit-heritage__motet-line spirit-heritage__motet-line--last">
-                만듭니다.
-              </span>
+              <span className="spirit-heritage__motet-line"><SiteCopy page="spirit" id="spirit.motetMeaning.text2" fallback={"여러 "} /><em><SiteCopy page="spirit" id="spirit.motetMeaning.text3" fallback={"목소리"} /></em><SiteCopy page="spirit" id="spirit.motetMeaning.text4" fallback={"로,"} /></span>
+              <span className="spirit-heritage__motet-line spirit-heritage__motet-line--middle"><SiteCopy page="spirit" id="spirit.motetMeaning.text5" fallback={"하나의 원칙을"} /></span>
+              <span className="spirit-heritage__motet-line spirit-heritage__motet-line--last"><SiteCopy page="spirit" id="spirit.motetMeaning.text6" fallback={"만듭니다."} /></span>
             </h2>
           </Reveal>
           <motion.span
@@ -593,17 +569,13 @@ function MotetMeaning({ copy }: { copy: SpiritCopy }) {
             initial={{ opacity: 0, x: 36 }}
             viewport={{ amount: 0.6, once: true }}
             whileInView={{ opacity: 0.06, x: 0 }}
-          >
-            M
-          </motion.span>
-          <Reveal className="spirit-heritage__calligraphic-note" x={42} y={0}>
-            many voices — one intention
-          </Reveal>
+          ><SiteCopy page="spirit" id="spirit.motetMeaning.english3" fallback={"M"} /></motion.span>
+          <Reveal className="spirit-heritage__calligraphic-note" x={42} y={0}><SiteCopy page="spirit" id="spirit.motetMeaning.english4" fallback={"many voices — one intention"} /></Reveal>
           <p className="spirit-heritage__motet-body">{copy.body}</p>
           <Reveal className="spirit-heritage__quote-card spirit-heritage__open-frame" scale={0.985} y={24}>
             <blockquote>
               {copy.quote ||
-                '하나가 되기 위해 같아지는 것이 아니라, 다름을 들으며 정확히 맞춰 갑니다.'}
+                editorCopy('spirit', 'spirit.motet.quoteFallback', '하나가 되기 위해 같아지는 것이 아니라, 다름을 들으며 정확히 맞춰 갑니다.')}
             </blockquote>
           </Reveal>
         </Reveal>
@@ -613,6 +585,7 @@ function MotetMeaning({ copy }: { copy: SpiritCopy }) {
 }
 
 function SpiritManifesto({ text }: { text: string }) {
+  const { copy: editorCopy } = useSiteEditor()
   const paragraphs = useMemo(() => {
     const resolved = getParagraphs(text)
     return resolved.length >= 4 ? resolved.slice(0, 4) : spiritManifestoCopy.paragraphs
@@ -623,15 +596,9 @@ function SpiritManifesto({ text }: { text: string }) {
       <div className="spirit-heritage__section-shell">
         <Reveal className="spirit-heritage__manifesto-heading" y={52}>
           <h2>
-            <span className="spirit-heritage__manifesto-line">
-              합창은 더 크게 부르는 법보다,
-            </span>
-            <span className="spirit-heritage__manifesto-line spirit-heritage__manifesto-line--listen">
-              함께 듣는 <strong>태도</strong>를
-            </span>
-            <span className="spirit-heritage__manifesto-line spirit-heritage__manifesto-line--final">
-              배우는 일입니다.
-            </span>
+            <span className="spirit-heritage__manifesto-line"><SiteCopy page="spirit" id="spirit.spiritManifesto.text1" fallback={"합창은 더 크게 부르는 법보다,"} /></span>
+            <span className="spirit-heritage__manifesto-line spirit-heritage__manifesto-line--listen"><SiteCopy page="spirit" id="spirit.spiritManifesto.text2" fallback={"함께 듣는 "} /><strong><SiteCopy page="spirit" id="spirit.spiritManifesto.text3" fallback={"태도"} /></strong><SiteCopy page="spirit" id="spirit.spiritManifesto.text4" fallback={"를"} /></span>
+            <span className="spirit-heritage__manifesto-line spirit-heritage__manifesto-line--final"><SiteCopy page="spirit" id="spirit.spiritManifesto.text5" fallback={"배우는 일입니다."} /></span>
           </h2>
         </Reveal>
         <div aria-hidden="true" className="spirit-heritage__manifesto-rule">
@@ -654,7 +621,7 @@ function SpiritManifesto({ text }: { text: string }) {
               <p className="spirit-heritage__manifesto-number">
                 {String(index + 1).padStart(2, '0')}
               </p>
-              <h3>{manifestoStatementTitles[index]}</h3>
+              <h3>{editorCopy('spirit', `spirit.manifesto.label${index}`, manifestoStatementTitles[index])}</h3>
               <p>{paragraph}</p>
             </Reveal>
           ))}
@@ -665,27 +632,24 @@ function SpiritManifesto({ text }: { text: string }) {
 }
 
 function FaithSection() {
+  const { copy: editorCopy } = useSiteEditor()
   return (
     <section className="spirit-heritage__faith" id="spirit-faith" tabIndex={-1}>
-      <Reveal className="spirit-heritage__faith-watermark" x={74} y={0}>
-        HONEST
-      </Reveal>
+      <Reveal className="spirit-heritage__faith-watermark" x={74} y={0}><SiteCopy page="spirit" id="spirit.faithSection.english1" fallback={"HONEST"} /></Reveal>
       <div className="spirit-heritage__section-shell spirit-heritage__faith-grid">
         <div className="spirit-heritage__faith-copy">
           <Reveal className="spirit-heritage__faith-title" y={26}>
             <h2>
               <span className="spirit-heritage__faith-line">
-                <strong>정직한</strong> 음악은
-              </span>
-              <span className="spirit-heritage__faith-line spirit-heritage__faith-line--generation">다음 세대의</span>
+                <strong><SiteCopy page="spirit" id="spirit.faithSection.text1" fallback={"정직한"} /></strong><SiteCopy page="spirit" id="spirit.faithSection.text2" fallback={" 음악은"} /></span>
+              <span className="spirit-heritage__faith-line spirit-heritage__faith-line--generation"><SiteCopy page="spirit" id="spirit.faithSection.text3" fallback={"다음 세대의"} /></span>
               <span className="spirit-heritage__faith-line spirit-heritage__faith-line--last">
-                <em>기준</em>이 됩니다.
-              </span>
+                <em><SiteCopy page="spirit" id="spirit.faithSection.text4" fallback={"기준"} /></em><SiteCopy page="spirit" id="spirit.faithSection.text5" fallback={"이 됩니다."} /></span>
             </h2>
           </Reveal>
-          <p className="spirit-heritage__faith-lead">{songOfMemoryCopy.lead}</p>
-          {songOfMemoryCopy.paragraphs.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
+          <p className="spirit-heritage__faith-lead">{editorCopy('spirit', 'spirit.faith.lead', songOfMemoryCopy.lead)}</p>
+          {songOfMemoryCopy.paragraphs.map((paragraph, index) => (
+            <p key={paragraph}>{editorCopy('spirit', `spirit.faith.paragraph${index}`, paragraph)}</p>
           ))}
         </div>
 
@@ -699,9 +663,9 @@ function FaithSection() {
               x={index === 0 ? 58 : -58}
               y={0}
             >
-              <p>{card.label}</p>
-              <blockquote>{card.text}</blockquote>
-              <small>{card.note}</small>
+              <p>{editorCopy('spirit', `spirit.scripture.${index}.label`, card.label)}</p>
+              <blockquote>{editorCopy('spirit', `spirit.scripture.${index}.text`, card.text)}</blockquote>
+              <small>{editorCopy('spirit', `spirit.scripture.${index}.note`, card.note)}</small>
             </Reveal>
           ))}
         </div>
@@ -711,6 +675,7 @@ function FaithSection() {
 }
 
 function ValuesSection({ values }: { values: SpiritValue[] }) {
+  const { copy: editorCopy } = useSiteEditor()
   const [activeIndex, setActiveIndex] = useState(Math.min(2, values.length - 1))
   const buttonRefs = useRef<Array<HTMLButtonElement | null>>([])
   const activeValue = values[activeIndex]
@@ -725,21 +690,13 @@ function ValuesSection({ values }: { values: SpiritValue[] }) {
         <div className="spirit-heritage__values-navigation">
           <Reveal className="spirit-heritage__values-heading" y={38}>
             <h2>
-              <span className="spirit-heritage__values-line">
-                우리가 <strong>한 음</strong>을
-              </span>
-              <span className="spirit-heritage__values-line spirit-heritage__values-line--middle">
-                대하는 네 가지
-              </span>
-              <span className="spirit-heritage__values-line spirit-heritage__values-line--last">
-                태도
-              </span>
+              <span className="spirit-heritage__values-line"><SiteCopy page="spirit" id="spirit.valuesSection.text1" fallback={"우리가 "} /><strong><SiteCopy page="spirit" id="spirit.valuesSection.text2" fallback={"한 음"} /></strong><SiteCopy page="spirit" id="spirit.valuesSection.text3" fallback={"을"} /></span>
+              <span className="spirit-heritage__values-line spirit-heritage__values-line--middle"><SiteCopy page="spirit" id="spirit.valuesSection.text4" fallback={"대하는 네 가지"} /></span>
+              <span className="spirit-heritage__values-line spirit-heritage__values-line--last"><SiteCopy page="spirit" id="spirit.valuesSection.text5" fallback={"태도"} /></span>
             </h2>
           </Reveal>
-          <p className="spirit-heritage__values-lead">
-            네 가지 원칙은 연습과 공연, 공동체 안에서 함께 작동하는 하나의 기준입니다.
-          </p>
-          <div aria-label="합창단 핵심 가치" className="spirit-heritage__tab-list" role="tablist">
+          <p className="spirit-heritage__values-lead"><SiteCopy page="spirit" id="spirit.valuesSection.text6" fallback={"네 가지 원칙은 연습과 공연, 공동체 안에서 함께 작동하는 하나의 기준입니다."} /></p>
+          <div aria-label={editorCopy("spirit", "spirit.valuesSection.ariaLabel7", "합창단 핵심 가치")} className="spirit-heritage__tab-list" role="tablist">
             {values.map((value, index) => (
               <button
                 aria-controls="spirit-value-panel"
@@ -796,50 +753,45 @@ function ValuesSection({ values }: { values: SpiritValue[] }) {
 }
 
 function CommunitySection() {
+  const { copy: editorCopy } = useSiteEditor()
   return (
     <section className="spirit-heritage__community" id="spirit-community" tabIndex={-1}>
-      <Reveal className="spirit-heritage__community-watermark" x={64} y={0}>
-        LISTEN
-      </Reveal>
+      <Reveal className="spirit-heritage__community-watermark" x={64} y={0}><SiteCopy page="spirit" id="spirit.communitySection.english1" fallback={"LISTEN"} /></Reveal>
       <div className="spirit-heritage__section-shell">
         <div className="spirit-heritage__community-heading">
           <Reveal y={24}>
             <h2>
-              <span className="spirit-heritage__community-line">
-                서로 <em>다른</em> 목소리가
-              </span>
+              <span className="spirit-heritage__community-line"><SiteCopy page="spirit" id="spirit.communitySection.text1" fallback={"서로 "} /><em><SiteCopy page="spirit" id="spirit.communitySection.text2" fallback={"다른"} /></em><SiteCopy page="spirit" id="spirit.communitySection.text3" fallback={" 목소리가"} /></span>
               <span className="spirit-heritage__community-line spirit-heritage__community-line--middle">
-                <strong>하나의</strong>
+                <strong><SiteCopy page="spirit" id="spirit.communitySection.text4" fallback={"하나의"} /></strong>
               </span>
-              <span className="spirit-heritage__community-line spirit-heritage__community-line--last">
-                공동체가 됩니다.
-              </span>
+              <span className="spirit-heritage__community-line spirit-heritage__community-line--last"><SiteCopy page="spirit" id="spirit.communitySection.text5" fallback={"공동체가 됩니다."} /></span>
             </h2>
           </Reveal>
-          <p>{voiceConstellationCopy.lead}</p>
+          <p>{editorCopy('spirit', 'spirit.community.lead', voiceConstellationCopy.lead)}</p>
         </div>
         <Reveal className="spirit-heritage__community-photo" scale={1.032} x={-54} y={0}>
           <OptimizedImage
-            alt="함께 악보를 들고 연습하는 서울모테트청소년합창단"
+            alt={editorCopy("spirit", "spirit.communitySection.alt6", "함께 악보를 들고 연습하는 서울모테트청소년합창단")}
             fallbackVariant="gallery"
             imageClassName="spirit-heritage__media-image"
             sizes="(max-width: 899px) calc(100vw - 48px), 90vw"
             src={COMMUNITY_IMAGE}
           >
-            <span className="spirit-heritage__image-label">{voiceConstellationCopy.centerLabel}</span>
+            <span className="spirit-heritage__image-label">{editorCopy('spirit', 'spirit.community.centerLabel', voiceConstellationCopy.centerLabel)}</span>
           </OptimizedImage>
         </Reveal>
         <div className="spirit-heritage__voices">
           {voiceConstellationCopy.voices.map((voice, index) => (
             <Reveal className="spirit-heritage__voice" delay={index * 0.05} key={voice.part} y={18}>
               <small>{String(index + 1).padStart(2, '0')}</small>
-              <h3>{voice.part}</h3>
-              <p>{voice.meaning}</p>
+              <h3>{editorCopy('spirit', `spirit.voices.${index}.part`, voice.part)}</h3>
+              <p>{editorCopy('spirit', `spirit.voices.${index}.meaning`, voice.meaning)}</p>
             </Reveal>
           ))}
         </div>
         <Reveal className="spirit-heritage__community-closing" y={24}>
-          {voiceConstellationCopy.closing.replace(' 서로를', '\n서로를')}
+          {editorCopy('spirit', 'spirit.community.closing', voiceConstellationCopy.closing.replace(' 서로를', '\n서로를'))}
         </Reveal>
       </div>
     </section>
@@ -847,6 +799,7 @@ function CommunitySection() {
 }
 
 function EducationSection() {
+  const { copy: editorCopy } = useSiteEditor()
   const [activeIndex, setActiveIndex] = useState(2)
   const buttonRefs = useRef<Array<HTMLButtonElement | null>>([])
   const activeStep = educationJourneySteps[activeIndex]
@@ -855,26 +808,20 @@ function EducationSection() {
     <section className="spirit-heritage__education" id="spirit-education" tabIndex={-1}>
       <div className="spirit-heritage__section-shell spirit-heritage__education-grid">
         <div className="spirit-heritage__education-copy">
-          <Reveal className="spirit-heritage__education-label" x={-88} y={0}>
-            HOW WE GROW
-          </Reveal>
+          <Reveal className="spirit-heritage__education-label" x={-88} y={0}><SiteCopy page="spirit" id="spirit.educationSection.english1" fallback={"HOW WE GROW"} /></Reveal>
           <Reveal className="spirit-heritage__education-title" y={34}>
-            <p>음악을 배우는</p>
+            <p><SiteCopy page="spirit" id="spirit.educationSection.text1" fallback={"음악을 배우는"} /></p>
             <h2>
-              <span className="spirit-heritage__education-line">다섯 가지</span>
+              <span className="spirit-heritage__education-line"><SiteCopy page="spirit" id="spirit.educationSection.text2" fallback={"다섯 가지"} /></span>
               <span className="spirit-heritage__education-line spirit-heritage__education-line--growth">
-                <strong>성장</strong>의 장면
-              </span>
+                <strong><SiteCopy page="spirit" id="spirit.educationSection.text3" fallback={"성장"} /></strong><SiteCopy page="spirit" id="spirit.educationSection.text4" fallback={"의 장면"} /></span>
             </h2>
           </Reveal>
-          <p className="spirit-heritage__education-lead">
-            좋은 합창은 무대에서 갑자기 완성되지 않습니다. 듣고, 이해하고, 조율하고,
-            약속을 지키는 일상의 반복이 사람을 세웁니다.
-          </p>
+          <p className="spirit-heritage__education-lead"><SiteCopy page="spirit" id="spirit.educationSection.text5" fallback={"좋은 합창은 무대에서 갑자기 완성되지 않습니다. 듣고, 이해하고, 조율하고, 약속을 지키는 일상의 반복이 사람을 세웁니다."} /></p>
         </div>
 
         <div className="spirit-heritage__education-interactive">
-          <div aria-label="성장의 다섯 단계" className="spirit-heritage__education-tabs" role="tablist">
+          <div aria-label={editorCopy("spirit", "spirit.educationSection.ariaLabel6", "성장의 다섯 단계")} className="spirit-heritage__education-tabs" role="tablist">
             {educationJourneySteps.map((step, index) => (
               <motion.button
                 aria-controls="spirit-education-panel"
@@ -902,7 +849,7 @@ function EducationSection() {
                 whileInView={{ opacity: 1 }}
               >
                 <small>{String(index + 1).padStart(2, '0')}</small>
-                <span>{step.step}</span>
+                <span>{editorCopy('spirit', `spirit.learning.${index}.step`, step.step)}</span>
               </motion.button>
             ))}
           </div>
@@ -917,9 +864,9 @@ function EducationSection() {
               role="tabpanel"
               transition={{ duration: 0.58, ease: EASE_OUT }}
             >
-              <p>{activeStep.step}</p>
-              <h3>{activeStep.title}</h3>
-              <span>{activeStep.body}</span>
+              <p>{editorCopy('spirit', `spirit.learning.${activeIndex}.step`, activeStep.step)}</p>
+              <h3>{editorCopy('spirit', `spirit.learning.${activeIndex}.title`, activeStep.title)}</h3>
+              <span>{editorCopy('spirit', `spirit.learning.${activeIndex}.body`, activeStep.body)}</span>
               <strong>{String(activeIndex + 1).padStart(2, '0')}</strong>
             </motion.article>
           </AnimatePresence>
@@ -930,6 +877,7 @@ function EducationSection() {
 }
 
 function ClosingCta({ copy }: { copy: SpiritCopy }) {
+  const { copy: editorCopy } = useSiteEditor()
   const reducedMotion = usePrefersReducedMotion()
 
   return (
@@ -950,29 +898,27 @@ function ClosingCta({ copy }: { copy: SpiritCopy }) {
           src="/images/brand/smyc-symbol-vector.svg"
         />
         <div className="spirit-heritage__closing-copy">
-          <p className="spirit-heritage__eyebrow">{copy.eyebrow || 'JOIN THE HARMONY'}</p>
-          <h2 aria-label={copy.title}>
-            함께 부르는
-            <span>다음 세대의</span>
-            <span>울림에</span>
-            <strong>동참하세요.</strong>
+          <p className="spirit-heritage__eyebrow">{copy.eyebrow || editorCopy('spirit', 'spirit.action.eyebrowFallback', 'JOIN THE HARMONY')}</p>
+          <h2 aria-label={copy.title}><SiteCopy page="spirit" id="spirit.closingCta.text1" fallback={"함께 부르는"} /><span><SiteCopy page="spirit" id="spirit.closingCta.text2" fallback={"다음 세대의"} /></span>
+            <span><SiteCopy page="spirit" id="spirit.closingCta.text3" fallback={"울림에"} /></span>
+            <strong><SiteCopy page="spirit" id="spirit.closingCta.text4" fallback={"동참하세요."} /></strong>
           </h2>
           <p>{copy.body}</p>
           <div className="spirit-heritage__closing-actions">
             <Link className="spirit-heritage__button spirit-heritage__button--primary" to={copy.ctaUrl || '/join'}>
-              {copy.ctaLabel || '입단 안내'}
+              {copy.ctaLabel || editorCopy('spirit', 'spirit.action.joinFallback', '입단 안내')}
             </Link>
             <Link
               className="spirit-heritage__button spirit-heritage__button--secondary"
               to={copy.secondaryCtaUrl || '/contact?section=support'}
             >
-              {copy.secondaryCtaLabel || '후원 참여'}
+              {copy.secondaryCtaLabel || editorCopy('spirit', 'spirit.action.supportFallback', '후원 참여')}
             </Link>
           </div>
         </div>
         <Reveal className="spirit-heritage__one-voice" scale={0.94} x={84} y={0}>
-          <span>ONE</span>
-          <span>VOICE</span>
+          <span><SiteCopy page="spirit" id="spirit.closingCta.english1" fallback={"ONE"} /></span>
+          <span><SiteCopy page="spirit" id="spirit.closingCta.english2" fallback={"VOICE"} /></span>
         </Reveal>
       </Reveal>
     </section>

@@ -23,7 +23,7 @@
   min-height: 44px;
   padding: 10px 20px;
   border: 1px solid var(--color-line-default, #d9d1c4);
-  border-radius: 999px;
+  border-radius: 4px;
   background: var(--color-bg-warm-white, #fffdfa);
   color: var(--color-navy-deep, #10233f);
   font-size: 14px;
@@ -158,5 +158,18 @@
     border-top: 0.5pt solid #888;
     font-size: 8pt;
     break-inside: avoid;
+  }
+
+  .join-application-print-sheet .admin-receipt-signature {
+    break-inside: avoid;
+  }
+
+  .join-application-print-sheet .admin-receipt-signature img {
+    display: block;
+    width: 90mm;
+    max-width: 100%;
+    height: auto;
+    max-height: 30mm;
+    object-fit: contain;
   }
 }

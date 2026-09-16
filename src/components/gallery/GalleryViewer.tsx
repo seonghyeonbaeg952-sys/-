@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useEffect, useId, useRef } from 'react'
 import { Link } from 'react-router'
 
@@ -5,6 +6,7 @@ import { OptimizedImage } from '../common/OptimizedImage'
 import type { GalleryImage, Poster, VideoItem } from '../../types/content'
 import { formatKoreanDate } from '../../utils/formatDate'
 import { getGalleryCategoryLabel, getGalleryVideoLinks } from './galleryViewModel'
+import { usePageCopy } from '../site-editor/usePageCopy'
 
 type GalleryViewerProps = {
   item: GalleryImage | Poster | VideoItem
@@ -15,6 +17,8 @@ type GalleryViewerProps = {
 }
 
 export function GalleryViewer({ item, index, count, onClose, onMove }: GalleryViewerProps) {
+  const { copy: copyText } = useSiteEditor()
+  const t = usePageCopy('gallery')
   const dialogRef = useRef<HTMLDialogElement>(null)
   const backdropPress = useRef(false)
   const titleId = useId()
@@ -75,7 +79,7 @@ export function GalleryViewer({ item, index, count, onClose, onMove }: GalleryVi
       <div className="gallery-viewer__layout">
         <header className="gallery-viewer__header">
           <h2 id={titleId}>{item.title}</h2>
-          <button aria-label="확대보기 닫기" data-gallery-close onClick={onClose} type="button">닫기 <span aria-hidden="true">×</span></button>
+          <button aria-label={t('closeViewer')} data-gallery-close onClick={onClose} type="button">{t('close')} <span aria-hidden="true">×</span></button>
         </header>
         {video ? (
           <div className="gallery-viewer__video">
@@ -92,7 +96,7 @@ export function GalleryViewer({ item, index, count, onClose, onMove }: GalleryVi
           <OptimizedImage
             alt={'image_alt' in item ? item.image_alt : `${item.title} 포스터`}
             className="gallery-viewer__image"
-            fallbackLabel="이미지를 불러올 수 없습니다"
+            fallbackLabel={copyText("gallery", "gallery.fixed.GalleryViewer.7f6db8b4d5", "이미지를 불러올 수 없습니다")}
             fallbackVariant="gallery"
             objectFit="contain"
             priority
@@ -105,13 +109,13 @@ export function GalleryViewer({ item, index, count, onClose, onMove }: GalleryVi
           <p className="gallery-viewer__title">{item.title}</p>
           <p>{category}{date ? ` · ${formatKoreanDate(date)}` : ''}</p>
           {description ? <p className="gallery-viewer__description">{description}</p> : null}
-          {'concert_id' in item && item.concert_id ? <Link to={`/concerts/${encodeURIComponent(item.concert_id)}`}>관련 공연 보기 <span aria-hidden="true">↗</span></Link> : null}
-          {video ? <a href={video.external} rel="noreferrer noopener" target="_blank">YouTube에서 보기 <span aria-hidden="true">↗</span></a> : null}
+          {'concert_id' in item && item.concert_id ? <Link to={`/concerts/${encodeURIComponent(item.concert_id)}`}>{t('relatedConcert')} <span aria-hidden="true">↗</span></Link> : null}
+          {video ? <a href={video.external} rel="noreferrer noopener" target="_blank">{t('youtube')} <span aria-hidden="true">↗</span></a> : null}
         </div>
-        {!video ? <nav aria-label="확대 자료 탐색" className="gallery-viewer__navigation">
-          {count > 1 ? <button aria-label="이전 자료" onClick={() => onMove('previous')} type="button"><span aria-hidden="true">←</span> 이전</button> : <span />}
+        {!video ? <nav aria-label={copyText("gallery", "gallery.fixed.GalleryViewer.654cac2e51", "확대 자료 탐색")} className="gallery-viewer__navigation">
+          {count > 1 ? <button aria-label={copyText("gallery", "gallery.fixed.GalleryViewer.07a39517cc", "이전 자료")} onClick={() => onMove('previous')} type="button"><span aria-hidden="true">←</span> {t('previous')}</button> : <span />}
           <p aria-live="polite" aria-atomic="true">{index + 1} / {count}</p>
-          {count > 1 ? <button aria-label="다음 자료" onClick={() => onMove('next')} type="button">다음 <span aria-hidden="true">→</span></button> : <span />}
+          {count > 1 ? <button aria-label={copyText("gallery", "gallery.fixed.GalleryViewer.3fd798379d", "다음 자료")} onClick={() => onMove('next')} type="button">{t('next')} <span aria-hidden="true">→</span></button> : <span />}
         </nav> : null}
       </div>
     </dialog>

@@ -1,4 +1,6 @@
 import type { RefObject } from 'react'
+import { useLocation } from 'react-router'
+import { adminNavigationGroups } from '../../constants/navigation'
 
 import { Button } from '../common/Button'
 
@@ -21,9 +23,11 @@ export function AdminHeader({
   signOutError,
   userEmail,
 }: AdminHeaderProps) {
+  const { pathname } = useLocation()
+  const currentPage = adminNavigationGroups.flatMap(group => group.items).find(item => item.href === pathname)
   return (
-    <header className="border-b border-line-default bg-bg-warm-white px-5 py-4 shadow-header lg:px-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <header className="admin-header">
+      <div className="admin-header__row flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-3">
           <button
             aria-controls="admin-sidebar"
@@ -36,13 +40,13 @@ export function AdminHeader({
           >
             ☰
           </button>
-          <div>
-            <p className="text-sm font-semibold text-navy-deep">관리자 페이지</p>
+          <div className="admin-header__identity">
+            <p className="text-sm font-semibold text-navy-deep">{currentPage?.label ?? '홈페이지 관리'}</p>
             <p className="mt-1 text-xs text-text-muted">{userEmail}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="admin-header__actions flex items-center gap-3">
           {signOutError ? (
             <p className="text-sm text-state-error" role="alert">
               {signOutError}

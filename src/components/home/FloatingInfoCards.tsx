@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useEffect, useState } from 'react'
 import type { HomeQuickActionItem } from '../../types/homeContent'
 import { getColorSampleHref } from '../../utils/colorSamplePath'
@@ -26,11 +27,12 @@ function useDesktopQuickLayout() {
 }
 
 function ResponsiveQuickActions({ cards }: { cards: HomeQuickActionItem[] }) {
+  const { copy: copyText } = useSiteEditor()
   if (!cards.length) return null
 
   return (
     <section
-      aria-label="합창단 주요 정보"
+      aria-label={copyText("home", "home.fixed.FloatingInfoCards.9d08dc45a0", "합창단 주요 정보")}
       className="flow-section home-quick-actions home-responsive-quick"
       id="home-responsive-quick"
       data-flow-section="quick"
@@ -57,19 +59,20 @@ export function FloatingInfoCards({
 }: {
   cards: HomeQuickActionItem[]
 }) {
+  const { copy: copyText } = useSiteEditor()
   const isDesktop = useDesktopQuickLayout()
 
   if (!isDesktop) return <ResponsiveQuickActions cards={cards} />
 
   return (
     <section
-      aria-label="합창단 주요 정보"
+      aria-label={copyText("home", "home.fixed.FloatingInfoCards.9d08dc45a0", "합창단 주요 정보")}
       className="flow-section home-quick-actions relative z-50"
       data-flow-section="quick"
     >
       <HomeSectionStaffCue
         className="home-section-staff-cue--quick"
-        label="안내"
+        label={copyText("home", "home.fixed.FloatingInfoCards.eb81d7d96b", "안내")}
         noteOffset={18}
         symbol="♪"
       />

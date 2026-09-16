@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import { Card } from '../common/Card'
+import { Button } from '../common/Button'
 import { useCrudItem } from '../../hooks/useCrudItem'
 import { useUnsavedChangesGuard } from '../../hooks/useUnsavedChangesGuard'
 import type {
@@ -61,10 +62,6 @@ export function AdminSingleRecordSection<TTable extends CmsTableName>({
     setFormError(null)
     const result = await crud.saveItem(preparedPayload)
 
-    if (!result.error) {
-      setIsFormDirty(false)
-    }
-
     return !result.error
   }
 
@@ -95,7 +92,7 @@ export function AdminSingleRecordSection<TTable extends CmsTableName>({
 
       {crud.isLoading ? <AdminLoadingState /> : null}
       {!crud.isLoading && crud.loadError ? (
-        <AdminErrorState description={crud.loadError} />
+        <AdminErrorState description={crud.loadError} action={<Button onClick={crud.reload} type="button">다시 불러오기</Button>} />
       ) : null}
       {!crud.isLoading && !crud.loadError ? (
         <AdminRecordForm

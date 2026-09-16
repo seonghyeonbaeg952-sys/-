@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent } from 'react'
 
@@ -526,6 +527,7 @@ export function ArchivePageStack({
   posters = [],
   videos = [],
 }: ArchivePageStackProps) {
+  const { copy: copyText } = useSiteEditor()
   const initialReducedMotion = prefersReducedArchiveMotion()
   const desktopTitleLines = desktopTitle
     .split(/\r?\n/)
@@ -932,8 +934,8 @@ export function ArchivePageStack({
       ref={sectionRef}
     >
       <div aria-hidden="true" className="archive__topline">
-        <span>Archive material study · {primaryYear}</span>
-        <span>Photo / Poster / Video</span>
+        <span>{copyText("home", "home.fixed.ArchivePageStack.de55a9a4f8", "Archive material study · ")}{primaryYear}</span>
+        <span>{copyText("home", "home.fixed.ArchivePageStack.55500b6bec", "Photo / Poster / Video")}</span>
       </div>
 
       <div className="archive__layout">
@@ -963,16 +965,16 @@ export function ArchivePageStack({
           </p>
           <dl className="archive__meta">
             <div>
-              <dt>Collection</dt>
-              <dd>Seoul Motet Youth Choir</dd>
+              <dt>{copyText("home", "home.fixed.ArchivePageStack.7b790708ff", "Collection")}</dt>
+              <dd>{copyText("home", "home.fixed.ArchivePageStack.35b92cc99d", "Seoul Motet Youth Choir")}</dd>
             </div>
             <div>
-              <dt>Material</dt>
-              <dd>Photo · Poster · Video / original ratio</dd>
+              <dt>{copyText("home", "home.fixed.ArchivePageStack.616cb218a6", "Material")}</dt>
+              <dd>{copyText("home", "home.fixed.ArchivePageStack.83eb77c318", "Photo · Poster · Video / original ratio")}</dd>
             </div>
             <div>
-              <dt>Archive no.</dt>
-              <dd>SMY—{primaryYear} / 001–003</dd>
+              <dt>{copyText("home", "home.fixed.ArchivePageStack.53eee2fa4f", "Archive no.")}</dt>
+              <dd>{copyText("home", "home.fixed.ArchivePageStack.119b06500b", "SMY—")}{primaryYear} / 001–003</dd>
             </div>
           </dl>
           <p aria-live="polite" className="archive__focus-copy">
@@ -998,12 +1000,12 @@ export function ArchivePageStack({
             ref={apparatusRef}
           >
             <div aria-hidden="true" className="apparatus__head">
-              <span>SMY / Archive material system</span>
+              <span>{copyText("home", "home.fixed.ArchivePageStack.b7f8f45d23", "SMY / Archive material system")}</span>
               <span>03 — 03</span>
             </div>
             <div aria-hidden="true" className="apparatus__surface" />
             <div aria-hidden="true" className="exposure-field" />
-            <div aria-label="사진, 포스터, 영상 기록" className="records">
+            <div aria-label={copyText("home", "home.fixed.ArchivePageStack.84f041fcae", "사진, 포스터, 영상 기록")} className="records">
               {records.map(({ item, placement }, index) => (
                 <div
                   className={`record-wrap record-wrap--${placement}`}
@@ -1072,11 +1074,9 @@ export function ArchivePageStack({
                 </div>
               ))}
             </div>
-            <span aria-hidden="true" className="archive-mark">
-              one stage · three durations
-            </span>
+            <span aria-hidden="true" className="archive-mark">{copyText("home", "home.fixed.ArchivePageStack.cb8f115427", "one stage · three durations")}</span>
             <button
-              aria-label="기록 확대 닫기"
+              aria-label={copyText("home", "home.fixed.ArchivePageStack.52a00f4577", "기록 확대 닫기")}
               className="archive__close"
               onClick={() => setSelectedRecord(null)}
               type="button"
@@ -1084,8 +1084,8 @@ export function ArchivePageStack({
               ×
             </button>
             <div aria-hidden="true" className="apparatus__foot">
-              <span>Material registration / continuous exposure</span>
-              <span>SMY — {primaryYear}</span>
+              <span>{copyText("home", "home.fixed.ArchivePageStack.cc9d414804", "Material registration / continuous exposure")}</span>
+              <span>{copyText("home", "home.fixed.ArchivePageStack.7db8d8308b", "SMY — ")}{primaryYear}</span>
             </div>
           </div>
         </div>

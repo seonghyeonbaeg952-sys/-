@@ -1,12 +1,14 @@
 import { AdminPageTitle } from '../../components/admin/AdminPageTitle'
 import type { AdminFieldConfig } from '../../components/admin/AdminRecordForm'
 import { AdminSingleRecordSection } from '../../components/admin/AdminSingleRecordSection'
-import type { CmsMutationPayload, LocationRow, SiteSettingsRow } from '../../types/cms'
+import { AdminIntakeLimits } from '../../components/admin/AdminIntakeLimits'
+import { Button } from '../../components/common/Button'
+import type { CmsMutationPayload, SiteSettingsRow } from '../../types/cms'
 
 const siteBasicFields = [
   { name: 'site_title', label: '사이트명', type: 'text', required: true },
   {
-    description: '푸터와 일부 fallback 화면에 사용하는 짧은 단체 소개입니다. 홈 섹션 문구는 “홈 문구 관리”에서 수정합니다.',
+    description: '푸터와 일부 기본 안내 화면의 짧은 단체 소개입니다. 홈 섹션 문구는 “홈페이지 편집 · 미리보기”에서 수정합니다.',
     label: '사이트 소개 한 줄',
     name: 'about_summary',
     type: 'textarea',
@@ -35,17 +37,6 @@ const contactFields = [
     placeholder: 'https://www.instagram.com/...',
   },
 ] satisfies Array<AdminFieldConfig<SiteSettingsRow>>
-
-const locationFields = [
-  { name: 'place_name', label: '장소명', type: 'text' },
-  { name: 'address', label: '주소', type: 'textarea', rows: 3 },
-  { name: 'naver_map_url', label: '네이버 지도 URL', type: 'url' },
-  { name: 'kakao_map_url', label: '카카오 지도 URL', type: 'url' },
-  { name: 'transit_info', label: '대중교통 안내', type: 'textarea', rows: 4 },
-  { name: 'parking_info', label: '주차 안내', type: 'textarea', rows: 4 },
-  { name: 'phone', label: '문의 전화', type: 'text' },
-  { name: 'is_visible', label: '공개 여부', type: 'switch' },
-] satisfies Array<AdminFieldConfig<LocationRow>>
 
 function isValidOptionalUrl(value: unknown) {
   if (typeof value !== 'string' || !value.trim()) {
@@ -78,7 +69,7 @@ export function AdminSettingsPage() {
   return (
     <div className="space-y-6">
       <AdminPageTitle
-        description="운영자가 자주 수정하는 사이트 기본 정보, 연락처, 오시는 길만 관리합니다. 홈 화면 문구는 홈 문구 관리에서 수정합니다."
+        description="대표 정보와 연락처를 관리합니다. 화면의 문구·글꼴·색은 ‘홈페이지 편집 · 미리보기’에서 임시저장 후 게시하세요."
         title="홈페이지 기본 설정"
       />
       <AdminSingleRecordSection
@@ -99,14 +90,8 @@ export function AdminSettingsPage() {
         title="연락처와 외부 링크"
         validatePayload={validateUrlPayload}
       />
-      <AdminSingleRecordSection
-        defaultValues={{ is_visible: true }}
-        description="오시는 길 기본 정보를 관리합니다. 지도는 URL 입력 방식만 사용합니다."
-        fields={locationFields}
-        table="locations"
-        title="오시는 길 기본 정보"
-        validatePayload={validateUrlPayload}
-      />
+      <section className="border-t border-line-default pt-5"><h2 className="mb-2 font-semibold">오시는 길</h2><p className="mb-4 text-sm text-text-muted">장소·주소·지도·교통 안내는 오시는 길 관리에서 한 번만 수정합니다.</p><Button href="/admin/location" variant="secondary">오시는 길 관리</Button></section>
+      <AdminIntakeLimits />
     </div>
   )
 }

@@ -1,3 +1,5 @@
+import { SiteCopy } from '../site-editor/SiteCopy'
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { Fragment } from 'react'
 import { EmptyState } from '../common/EmptyState'
 import { ImageTile } from '../home/ImageTile'
@@ -14,6 +16,8 @@ export function AccompanistProfiles({
   headingLevel = 'h1',
   people,
 }: AccompanistProfilesProps) {
+  const { copy: copyText } = useSiteEditor()
+  const { copy: editorCopy } = useSiteEditor()
   const Heading = headingLevel
 
   return (
@@ -26,18 +30,11 @@ export function AccompanistProfiles({
         <header className="accompanist-profile__intro">
           <div className="accompanist-profile__intro-copy">
             <span aria-hidden="true" className="accompanist-profile__rail" />
-            <p className="accompanist-profile__eyebrow">
-              ACCOMPANIST PROFILE <span aria-hidden="true">/</span> SEOUL
-            </p>
-            <Heading id="accompanist-profile-title">반주자 소개</Heading>
-            <p className="accompanist-profile__summary">
-              연습과 무대에서 합창단과 함께하는 두 반주자의 학력과 현재 활동을
-              소개합니다.
-            </p>
+            <p className="accompanist-profile__eyebrow"><SiteCopy page="accompanist" id="accompanist.accompanistProfiles.english1" fallback={"ACCOMPANIST PROFILE "} /><span aria-hidden="true">/</span>{copyText("accompanist", "accompanist.fixed.AccompanistProfiles.59455c0edf", " SEOUL")}</p>
+            <Heading id="accompanist-profile-title"><SiteCopy page="accompanist" id="accompanist.accompanistProfiles.text1" fallback={"반주자 소개"} /></Heading>
+            <p className="accompanist-profile__summary"><SiteCopy page="accompanist" id="accompanist.accompanistProfiles.text2" fallback={"연습과 무대에서 합창단과 함께하는 두 반주자의 학력과 현재 활동을 소개합니다."} /></p>
           </div>
-          <p aria-hidden="true" className="accompanist-profile__display">
-            Accompanists.
-          </p>
+          <p aria-hidden="true" className="accompanist-profile__display"><SiteCopy page="accompanist" id="accompanist.accompanistProfiles.english2" fallback={"Accompanists."} /></p>
         </header>
 
         <div aria-hidden="true" className="accompanist-profile__baseline" />
@@ -59,7 +56,7 @@ export function AccompanistProfiles({
                   >
                     <figure className="accompanist-profile__portrait">
                       <ImageTile
-                        alt={person.profile_image_alt?.trim() || `${name} 반주자 프로필 사진`}
+                        alt={person.profile_image_alt?.trim() || `${name} ${editorCopy('accompanist', 'accompanist.photoLabel', '반주자 프로필 사진')}`}
                         className="accompanist-profile__portrait-image"
                         fallbackVariant="profile"
                         height={800}
@@ -73,9 +70,9 @@ export function AccompanistProfiles({
                     </figure>
 
                     <div className="accompanist-profile__copy">
-                      <p className="accompanist-profile__role">ACCOMPANIST</p>
+                      <p className="accompanist-profile__role"><SiteCopy page="accompanist" id="accompanist.accompanistProfiles.english3" fallback={"ACCOMPANIST"} /></p>
                       <h2>{name}</h2>
-                      <p className="accompanist-profile__role-en">Piano Accompanist</p>
+                      <p className="accompanist-profile__role-en"><SiteCopy page="accompanist" id="accompanist.accompanistProfiles.english4" fallback={"Piano Accompanist"} /></p>
                       <div aria-hidden="true" className="accompanist-profile__copy-divider" />
 
                       {person.description ? (
@@ -83,7 +80,7 @@ export function AccompanistProfiles({
                       ) : null}
 
                       {model.education.length > 0 ? (
-                        <ul aria-label={`${name} 학력과 주요 이력`} className="accompanist-profile__facts">
+                        <ul aria-label={`${name} ${editorCopy('accompanist', 'accompanist.educationLabel', '학력과 주요 이력')}`} className="accompanist-profile__facts">
                           {model.education.map((item, itemIndex) => (
                             <li key={`${person.id}-education-${itemIndex}`}>{item}</li>
                           ))}
@@ -92,8 +89,8 @@ export function AccompanistProfiles({
 
                       {model.current.length > 0 ? (
                         <div className="accompanist-profile__current">
-                          <p>CURRENT</p>
-                          <ul aria-label={`${name} 현재 활동`}>
+                          <p><SiteCopy page="accompanist" id="accompanist.accompanistProfiles.english5" fallback={"CURRENT"} /></p>
+                          <ul aria-label={`${name} ${editorCopy('accompanist', 'accompanist.currentLabel', '현재 활동')}`}>
                             {model.current.map((item, itemIndex) => (
                               <li key={`${person.id}-current-${itemIndex}`}>{item}</li>
                             ))}
@@ -117,13 +114,11 @@ export function AccompanistProfiles({
           </div>
         ) : (
           <div className="accompanist-profile__empty">
-            <EmptyState title="등록된 반주자 소개가 없습니다" />
+            <EmptyState title={editorCopy("accompanist", "accompanist.accompanistProfiles.title3", "등록된 반주자 소개가 없습니다")} />
           </div>
         )}
 
-        <footer className="accompanist-profile__folio">
-          SEOUL MOTET YOUTH CHOIR · ACCOMPANIST PROFILE
-        </footer>
+        <footer className="accompanist-profile__folio">{copyText("accompanist", "accompanist.fixed.AccompanistProfiles.12198036a1", "SEOUL MOTET YOUTH CHOIR · ")}<SiteCopy page="accompanist" id="accompanist.accompanistProfiles.english6" fallback={"ACCOMPANIST PROFILE"} /></footer>
       </div>
     </section>
   )

@@ -1944,11 +1944,6 @@ section[role='tabpanel'] {
   transition-timing-function: var(--motion-ease-soft);
 }
 
-.admin-shell,
-.admin-shell * {
-  font-family: var(--font-sans-kr);
-}
-
 .public-shell :where(h1, h2, h3, h4) {
   font-family: var(--font-heading-kr);
 }

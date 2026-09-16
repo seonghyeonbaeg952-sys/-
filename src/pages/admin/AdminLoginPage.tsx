@@ -10,6 +10,7 @@ import { Card } from '../../components/common/Card'
 import { LoadingState } from '../../components/common/LoadingState'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { getProfile, signInWithEmail } from '../../lib/auth'
+import '../../styles/admin-workspace.css'
 
 type LoginLocationState = {
   from?: {

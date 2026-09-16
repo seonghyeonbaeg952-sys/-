@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 import { useCallback, useMemo, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 
@@ -13,6 +14,8 @@ import {
   readGalleryLocation, updateGallerySearch, type GalleryTab,
 } from '../../components/gallery/galleryViewModel'
 import { useGalleryData } from '../../hooks/usePublicData'
+import { usePageCopy } from '../../components/site-editor/usePageCopy'
+import { CopyLines } from '../../components/site-editor/SiteCopy'
 import type { GalleryImage, Poster, VideoItem } from '../../types/content'
 import { formatKoreanDate } from '../../utils/formatDate'
 import '../../styles/gallery-page.css'
@@ -31,6 +34,7 @@ function MediaFigure({ item, poster = false, lead = false, priority = false, onO
   priority?: boolean
   onOpen: OpenMedia
 }) {
+  const { copy: copyText } = useSiteEditor()
   const date = 'taken_at' in item ? item.taken_at : 'concert_date' in item ? item.concert_date : undefined
   return (
     <article className={['gallery-journal__figure', lead ? 'gallery-journal__figure--lead' : '', poster ? 'gallery-journal__figure--poster' : ''].join(' ')}>
@@ -43,7 +47,7 @@ function MediaFigure({ item, poster = false, lead = false, priority = false, onO
         <OptimizedImage
           alt={'image_alt' in item ? item.image_alt : item.title + ' 포스터'}
           className={'gallery-journal__image ' + (poster ? 'gallery-journal__image--poster' : lead ? 'gallery-journal__image--wide' : 'gallery-journal__image--photo')}
-          fallbackLabel="이미지를 불러올 수 없습니다"
+          fallbackLabel={copyText("gallery", "gallery.fixed.GalleryPage.7f6db8b4d5", "이미지를 불러올 수 없습니다")}
           fallbackVariant={poster ? 'poster' : 'gallery'}
           objectFit="contain"
           priority={priority}
@@ -54,13 +58,14 @@ function MediaFigure({ item, poster = false, lead = false, priority = false, onO
         <span className="gallery-journal__category">{'category' in item ? getGalleryCategoryLabel(item.category) : '포스터'}</span>
         <h2 className="gallery-journal__media-title">{item.title}</h2>
         {date ? <span className="gallery-journal__date">{formatKoreanDate(date)}</span> : null}
-        <span className="gallery-journal__media-action">{poster ? '포스터' : '사진'} 크게 보기 <span aria-hidden="true">↗</span></span>
+        <span className="gallery-journal__media-action">{poster ? '포스터' : '사진'}{copyText("gallery", "gallery.fixed.GalleryPage.f62132629c", " 크게 보기 ")}<span aria-hidden="true">↗</span></span>
       </button>
     </article>
   )
 }
 
 function VideoFigure({ video, onOpen }: { video: VideoItem; onOpen: OpenMedia }) {
+  const { copy: copyText } = useSiteEditor()
   const playable = Boolean(getGalleryVideoLinks(video.video_url))
   return (
     <article className="gallery-journal__video">
@@ -74,7 +79,7 @@ function VideoFigure({ video, onOpen }: { video: VideoItem; onOpen: OpenMedia })
         <OptimizedImage
           alt={video.title + ' 영상 썸네일'}
           className="gallery-journal__image gallery-journal__image--wide"
-          fallbackLabel="영상 썸네일을 불러올 수 없습니다"
+          fallbackLabel={copyText("gallery", "gallery.fixed.GalleryPage.9ca78e4ac4", "영상 썸네일을 불러올 수 없습니다")}
           fallbackSrcs={video.thumbnail_fallback_urls}
           objectFit="contain"
           sizes="(min-width: 1536px) 864px, (min-width: 1200px) 56vw, calc(100vw - 48px)"
@@ -82,18 +87,20 @@ function VideoFigure({ video, onOpen }: { video: VideoItem; onOpen: OpenMedia })
         />
       </button>
       <div className="gallery-journal__video-copy">
-        <p className="gallery-journal__category">공연 영상</p>
+        <p className="gallery-journal__category">{copyText("gallery", "gallery.fixed.GalleryPage.c3c2ad668c", "공연 영상")}</p>
         <h2 className="gallery-journal__media-title">{video.title}</h2>
         {video.description ? <p className="gallery-journal__description">{video.description}</p> : null}
         {playable ? (
-          <button className="gallery-journal__command" onClick={event => onOpen(video.id, event.currentTarget)} type="button">영상 보기 <span aria-hidden="true">↗</span></button>
-        ) : <p className="gallery-journal__description">영상 링크를 확인할 수 없습니다.</p>}
+          <button className="gallery-journal__command" onClick={event => onOpen(video.id, event.currentTarget)} type="button">{copyText("gallery", "gallery.fixed.GalleryPage.5a541f5512", "영상 보기 ")}<span aria-hidden="true">↗</span></button>
+        ) : <p className="gallery-journal__description">{copyText("gallery", "gallery.fixed.GalleryPage.5c774429e7", "영상 링크를 확인할 수 없습니다.")}</p>}
       </div>
     </article>
   )
 }
 
 export function GalleryPage() {
+  const { copy: copyText } = useSiteEditor()
+  const t = usePageCopy('gallery')
   const galleryData = useGalleryData()
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -145,37 +152,37 @@ export function GalleryPage() {
 
   return (
     <div className="gallery-journal">
-      <SeoHead description="서울모테트청소년합창단의 공연, 연습, 포스터와 영상 기록을 확인합니다." path="/gallery" title="갤러리" />
+      <SeoHead description={copyText("gallery", "gallery.fixed.GalleryPage.1f4da7fcb1", "서울모테트청소년합창단의 공연, 연습, 포스터와 영상 기록을 확인합니다.")} path="/gallery" title={copyText("gallery", "gallery.fixed.GalleryPage.5cd4cd7669", "갤러리")} />
       <div className="gallery-journal__shell">
         <header className="gallery-journal__intro">
-          <p className="gallery-journal__eyebrow">SEOUL MOTET YOUTH CHOIR</p>
+          <p className="gallery-journal__eyebrow">{copyText("gallery", "gallery.fixed.GalleryPage.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</p>
           <div className="gallery-journal__intro-row">
-            <h1>갤러리</h1>
-            <p className="gallery-journal__description">공연과 연습, 함께한 순간들을<br />사진과 영상으로 만나보세요.</p>
+            <h1>{t('title')}</h1>
+            <p className="gallery-journal__description"><CopyLines text={t('description')} /></p>
           </div>
         </header>
 
         <div className="gallery-journal__controls">
-          <AnimatedSectionTabs activeValue={tab} ariaLabel="갤러리 자료" className="gallery-journal__tabs" onChange={changeTab} tabs={tabs} />
+          <AnimatedSectionTabs activeValue={tab} ariaLabel={copyText("gallery", "gallery.fixed.GalleryPage.07cccb114c", "갤러리 자료")} className="gallery-journal__tabs" onChange={changeTab} tabs={tabs.map(item => ({ ...item, label: t(item.value) }))} />
           <div className="gallery-journal__filter-row">
             {tab === 'photos' ? (
-              <FilterSelect className="gallery-journal__select" label="사진 분류" onChange={changeCategory} options={categoryOptions} value={category} />
-            ) : <span className="gallery-journal__collection-label">전체 {tab === 'videos' ? '영상' : '포스터'}</span>}
-            <p className="gallery-journal__hint">{tab === 'videos' ? '영상을 눌러 재생' : tab === 'posters' ? '포스터를 눌러 확대' : '사진을 눌러 확대'}</p>
+              <FilterSelect className="gallery-journal__select" label={t('category')} onChange={changeCategory} options={categoryOptions} value={category} />
+            ) : <span className="gallery-journal__collection-label">{copyText("gallery", "gallery.fixed.GalleryPage.5e1c40e141", "전체 ")}{tab === 'videos' ? '영상' : '포스터'}</span>}
+            <p className="gallery-journal__hint">{tab === 'videos' ? t('videoHint') : tab === 'posters' ? t('posterHint') : t('photoHint')}</p>
           </div>
         </div>
 
         {galleryData.error ? (
           <div className="gallery-journal__notice" role="status">
-            <p>일부 자료를 불러오지 못했습니다. 불러온 자료는 계속 볼 수 있습니다.</p>
-            <button className="gallery-journal__text-button" disabled={galleryData.isLoading} onClick={galleryData.refetch} type="button">다시 시도</button>
+            <p>{t('partialError')}</p>
+            <button className="gallery-journal__text-button" disabled={galleryData.isLoading} onClick={galleryData.refetch} type="button">{t('retry')}</button>
           </div>
         ) : null}
 
         {mediaId && !galleryData.isLoading && !selectedIsPlayable ? (
           <div className="gallery-journal__notice" role="status">
-            <p>{selectedItem ? '영상 링크를 확인할 수 없습니다.' : '선택한 자료가 없거나 현재 공개되지 않았습니다.'}</p>
-            <button className="gallery-journal__text-button" onClick={closeDetail} type="button">목록으로 돌아가기</button>
+            <p>{selectedItem ? t('videoError') : t('missing')}</p>
+            <button className="gallery-journal__text-button" onClick={closeDetail} type="button">{t('back')}</button>
           </div>
         ) : null}
 
@@ -187,12 +194,12 @@ export function GalleryPage() {
           role="tabpanel"
           tabIndex={0}
         >
-          {galleryData.isLoading && items.length === 0 ? <LoadingState label="갤러리를 불러오는 중입니다" /> : null}
+          {galleryData.isLoading && items.length === 0 ? <LoadingState label={t('loading')} /> : null}
           {!galleryData.isLoading && items.length === 0 ? (
             <EmptyState
-              action={tab === 'photos' && category !== 'all' ? <button className="gallery-journal__command" onClick={() => changeCategory('all')} type="button">전체 사진 보기</button> : undefined}
-              description={tab === 'photos' && category !== 'all' ? '다른 분류를 선택하거나 전체 사진을 확인해 주세요.' : galleryData.error ? '자료를 다시 불러오려면 위의 다시 시도를 눌러 주세요.' : '새로운 자료가 등록되면 이곳에서 확인할 수 있습니다.'}
-              title={tab === 'photos' && category !== 'all' ? '선택한 분류의 사진이 없습니다' : '등록된 ' + (tab === 'photos' ? '사진이' : tab === 'videos' ? '영상이' : '포스터가') + ' 없습니다'}
+              action={tab === 'photos' && category !== 'all' ? <button className="gallery-journal__command" onClick={() => changeCategory('all')} type="button">{t('allPhotos')}</button> : undefined}
+              description={tab === 'photos' && category !== 'all' ? t('noCategoryHelp') : galleryData.error ? t('retryHelp') : t('emptyHelp')}
+              title={tab === 'photos' && category !== 'all' ? t('noCategory') : tab === 'photos' ? t('noPhotos') : tab === 'videos' ? t('noVideos') : t('noPosters')}
             />
           ) : null}
 
@@ -200,7 +207,7 @@ export function GalleryPage() {
             <div className="gallery-journal__photo-lead" data-single={featuredPhotos.length === 1 || undefined}>
               <MediaFigure item={featuredPhotos[0]} lead onOpen={openMedia} priority />
               {featuredPhotos[1] ? <div className="gallery-journal__photo-side">
-                <p className="gallery-journal__side-title">무대와 연습의 기록</p>
+                <p className="gallery-journal__side-title">{t('sideTitle')}</p>
                 <MediaFigure item={featuredPhotos[1]} onOpen={openMedia} priority />
               </div> : null}
             </div>
@@ -221,8 +228,8 @@ export function GalleryPage() {
                 {view.posters.map(item => <MediaFigure item={item} key={item.id} onOpen={openMedia} poster />)}
               </div>
               <aside className="gallery-journal__poster-note">
-                <h2>포스터에 담긴 소식</h2>
-                <p>포스터를 누르면 원본을 크게 볼 수 있습니다.<br />모집 및 공연 안내를 확인해 보세요.</p>
+                <h2>{t('posterTitle')}</h2>
+                <p><CopyLines text={t('posterDescription')} /></p>
               </aside>
             </div>
           ) : null}

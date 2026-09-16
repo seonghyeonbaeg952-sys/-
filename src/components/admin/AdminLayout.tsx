@@ -6,6 +6,8 @@ import { confirmUnsavedChanges } from '../../hooks/useUnsavedChangesGuard'
 import { signOut } from '../../lib/auth'
 import { AdminHeader } from './AdminHeader'
 import { AdminSidebar } from './AdminSidebar'
+import { UnsavedChangesDialog } from './UnsavedChangesDialog'
+import '../../styles/admin-workspace.css'
 
 export function AdminLayout() {
   const navigate = useNavigate()
@@ -47,7 +49,7 @@ export function AdminLayout() {
   }, [])
 
   return (
-    <div className="admin-shell min-h-screen bg-bg-ivory text-text-charcoal lg:grid lg:grid-cols-[280px_1fr]">
+    <div className="admin-shell admin-shell--workspace">
       <AdminSidebar
         isOpen={isSidebarOpen}
         onClose={closeSidebar}
@@ -64,10 +66,11 @@ export function AdminLayout() {
           signOutError={signOutError}
           userEmail={userEmail}
         />
-        <main className="p-5 lg:p-8">
+        <main className="admin-workspace">
           <Outlet />
         </main>
       </section>
+      <UnsavedChangesDialog />
     </div>
   )
 }

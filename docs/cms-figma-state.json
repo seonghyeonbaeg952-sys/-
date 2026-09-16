@@ -1,0 +1,45 @@
+{
+  "fileKey": "nz8fKU1RqfasYhsIQEIVF5",
+  "pageId": "609:1253",
+  "stage": "representative-design-reviewed-implementation-pending",
+  "frames": {
+    "editorDesktop": "609:1254",
+    "sidebar": "609:1255",
+    "main": "609:1256",
+    "header": "609:1257",
+    "body": "609:1258",
+    "actions": "609:1259",
+    "dashboardDesktop": "615:1298",
+    "contentListDesktop": "616:1842",
+    "contentListRows": "617:1332",
+    "appearanceDesktop": "620:1333",
+    "publishDialog": "621:1376",
+    "editorMobile": "622:1378",
+    "editorTablet": "623:1405",
+    "historyDesktop": "623:1457",
+    "conflictPanel": "624:1462",
+    "applicationDetail": "625:1997",
+    "settingsDesktop": "625:2058",
+    "feedbackStates": "626:1521",
+    "uploadAndExitStates": "627:1523",
+    "applicationPrint": "627:1538",
+    "contentEditDesktop": "628:1527",
+    "publishedState": "631:1566",
+    "focusAndValidation": "631:1817",
+    "previewMobile": "632:1617"
+  },
+  "reusedComponents": {
+    "primaryButton": "449:615",
+    "secondaryButton": "449:613",
+    "input": "533:1062",
+    "textarea": "533:1165"
+  },
+  "reviewPassesCompleted": ["D01", "D02", "D03", "D04", "D05", "D06", "D07", "D08", "D09", "D10"],
+  "partialReviewEvidence": [
+    "Desktop editor clipping review: preview viewport shortened from 500 to 464px and heading changed to HUG; fresh screenshot confirms the reference caption is visible.",
+    "Appearance screen reuses existing input/button instances. No override is shown as the default; public reference preview is explicitly labelled as a prior Figma sample, not a current live capture.",
+    "Publish confirmation has a separate explicit action, device scope, draft-only return action and history recovery explanation. Remaining state and responsive reviews are not complete."
+  ],
+  "reviewLog": "docs/cms-design-review.md",
+  "pending": ["CMS implementation", "rendered browser comparison", "all CMS routes functional regression", "full public visual invariance"]
+}

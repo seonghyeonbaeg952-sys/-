@@ -5,16 +5,7 @@ import { AdminPageTitle } from '../../components/admin/AdminPageTitle'
 import { Button } from '../../components/common/Button'
 import { Card } from '../../components/common/Card'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
-import { countRows } from '../../lib/cms'
-
-type DashboardSummary = {
-  contacts: number | null
-  importantNotices: number | null
-  joinApplications: number | null
-  pendingSponsors: number | null
-  supportPledges: number | null
-  upcomingConcerts: number | null
-}
+import { loadDashboardSummary, type DashboardSummary } from '../../lib/cmsDashboard'
 
 const emptySummary: DashboardSummary = {
   contacts: null,
@@ -32,9 +23,9 @@ const quickLinks = [
     href: '/admin/hero-slides',
   },
   {
-    title: '홈 문구',
-    description: '주요 제목과 안내 문구를 수정합니다.',
-    href: '/admin/home',
+    title: '홈페이지 편집',
+    description: '문구·디자인을 기기별로 미리 보고, 임시저장한 뒤 게시합니다.',
+    href: '/admin/editor',
   },
   {
     title: '공지사항',
@@ -75,65 +66,14 @@ export function AdminDashboardPage() {
     async function loadSummary() {
       setIsLoading(true)
 
-      const [
-        contactsResult,
-        joinApplicationsResult,
-        supportPledgesResult,
-        sponsorsResult,
-        concertsResult,
-        noticesResult,
-      ] = await Promise.all([
-        countRows({
-          inFilters: [{ column: 'status', values: ['new', 'reviewing', 'in_progress'] }],
-          table: 'contacts',
-        }),
-        countRows({
-          inFilters: [{ column: 'status', values: ['new', 'in_review'] }],
-          table: 'join_applications',
-        }),
-        countRows({
-          inFilters: [{ column: 'status', values: ['new', 'in_progress'] }],
-          table: 'support_pledges',
-        }),
-        countRows({
-          filters: [{ column: 'consent_public', value: false }],
-          table: 'sponsors',
-        }),
-        countRows({
-          inFilters: [{ column: 'status', values: ['upcoming', 'open', 'ticketing'] }],
-          table: 'concerts',
-        }),
-        countRows({
-          filters: [
-            { column: 'is_important', value: true },
-            { column: 'is_visible', value: true },
-          ],
-          table: 'notices',
-        }),
-      ])
+      const result = await loadDashboardSummary()
 
       if (!isMounted) {
         return
       }
 
-      const results = [
-        contactsResult,
-        joinApplicationsResult,
-        supportPledgesResult,
-        sponsorsResult,
-        concertsResult,
-        noticesResult,
-      ]
-
-      setSummary({
-        contacts: contactsResult.data,
-        importantNotices: noticesResult.data,
-        joinApplications: joinApplicationsResult.data,
-        pendingSponsors: sponsorsResult.data,
-        supportPledges: supportPledgesResult.data,
-        upcomingConcerts: concertsResult.data,
-      })
-      setFailedCount(results.filter((result) => Boolean(result.error)).length)
+      setSummary(result.summary)
+      setFailedCount(result.failedCount)
       setUpdatedAt(new Date())
       setIsLoading(false)
     }
@@ -154,7 +94,7 @@ export function AdminDashboardPage() {
     },
     {
       title: '검토할 입단지원',
-      description: '신규 또는 검토 중 지원서',
+      description: '보관하지 않은 처리 완료 전 지원서',
       href: '/admin/join-applications',
       value: summary.joinApplications,
     },
@@ -199,8 +139,20 @@ export function AdminDashboardPage() {
         }
         description={`${userLabel} 계정으로 로그인되어 있습니다. 처리할 업무와 공개 콘텐츠 상태를 한곳에서 확인합니다.`}
         eyebrow="운영 현황"
-        title="관리자 대시보드"
+        title="관리 홈"
       />
+
+      <section aria-label="처음 사용하는 관리자 안내" className="border-l-4 border-gold-warm bg-white px-5 py-4">
+        <h2 className="text-base font-semibold text-navy-deep">무엇을 바꾸고 싶으신가요?</h2>
+        <p className="mt-2 text-sm leading-7 text-text-muted">
+          제목·안내 문구·글꼴·색상은 <Link className="font-semibold underline underline-offset-4" to="/admin/editor">홈페이지 편집</Link>에서 바꿉니다.
+          공연·공지·사진과 신청서는 해당 콘텐츠 메뉴를 이용하세요.
+        </p>
+        <p className="mt-1 text-sm leading-7 text-text-muted">
+          홈페이지 편집은 <strong>임시저장 → 미리보기 확인 → 이 화면 게시</strong> 순서입니다.
+          그 밖의 콘텐츠 관리 화면은 저장하면 공개 설정에 따라 즉시 반영됩니다.
+        </p>
+      </section>
 
       {failedCount > 0 ? (
         <p

@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef } from 'react'
 
 import { HomeV4SampleHeader } from '../../components/sample/home-v4/HomeV4SampleHeader'
 import { Footer } from '../../components/layout/Footer'
+import { SiteCopy } from '../../components/site-editor/SiteCopy'
 import { HomeRoute } from '../public/HomeRoute'
 import '../../styles/color-sample-theme.css'
 import './HomeV4SamplePage.css'
@@ -92,8 +93,6 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
     }
 
     const update = () => {
-      frame = 0
-
       if (!desktopQuery.matches || reducedMotionQuery.matches) {
         reset()
         return
@@ -125,11 +124,16 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
 
     const queueUpdate = () => {
       if (!frame) {
-        frame = window.requestAnimationFrame(update)
+        frame = window.requestAnimationFrame(() => {
+          frame = 0
+          update()
+        })
       }
     }
 
     const syncRestoredScroll = () => {
+      window.cancelAnimationFrame(frame)
+      frame = 0
       window.cancelAnimationFrame(restoredScrollFrame)
       window.clearTimeout(restoredScrollTimer)
       update()
@@ -146,7 +150,7 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
     update()
     syncRestoredScroll()
 
-    window.addEventListener('scroll', update, { passive: true })
+    window.addEventListener('scroll', queueUpdate, { passive: true })
     window.addEventListener('resize', queueUpdate)
     window.addEventListener('pageshow', syncRestoredScroll)
     desktopQuery.addEventListener('change', queueUpdate)
@@ -157,7 +161,7 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
       window.cancelAnimationFrame(restoredScrollFrame)
       window.clearTimeout(restoredScrollTimer)
       resizeObserver.disconnect()
-      window.removeEventListener('scroll', update)
+      window.removeEventListener('scroll', queueUpdate)
       window.removeEventListener('resize', queueUpdate)
       window.removeEventListener('pageshow', syncRestoredScroll)
       desktopQuery.removeEventListener('change', queueUpdate)
@@ -528,7 +532,7 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
         className="home-v4-skip-link"
         href="#main-content"
       >
-        본문으로 바로가기
+        <SiteCopy page="common" id="common.skip" fallback="본문으로 바로가기" />
       </a>
       <HomeV4SampleHeader mode={mode} />
       <main id="main-content" tabIndex={-1}>

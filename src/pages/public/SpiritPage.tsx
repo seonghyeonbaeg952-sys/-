@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 import { SeoHead } from '../../components/common/SeoHead'
 import { SpiritHeritageExperience } from '../../components/spirit/SpiritHeritageExperience'
 import {
@@ -14,6 +15,7 @@ import { useSpiritPageData } from '../../hooks/usePublicData'
 const manifestoFallback = spiritManifestoCopy.paragraphs.join('\n\n')
 
 export function SpiritPage() {
+  const { copy: copyText } = useSiteEditor()
   const spiritData = useSpiritPageData()
   const { aboutSections, heroSlides } = spiritData.data
   const hero = getAboutSectionCopy(aboutSections, 'spirit_hero', {
@@ -38,10 +40,10 @@ export function SpiritPage() {
   return (
     <>
       <SeoHead
-        description="서울모테트청소년합창단의 음악교육 철학과 공동체의 가치를 소개합니다."
+        description={copyText("spirit", "spirit.fixed.SpiritPage.969257a843", "서울모테트청소년합창단의 음악교육 철학과 공동체의 가치를 소개합니다.")}
         image={heroImage || undefined}
         path="/spirit"
-        title="합창단 정신"
+        title={copyText("spirit", "spirit.fixed.SpiritPage.b23782b95d", "합창단 정신")}
       />
       <SpiritHeritageExperience
         cta={cta}

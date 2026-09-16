@@ -22,7 +22,9 @@ function createSection() {
   let row = { id: 'join-info', title: '입단 안내' }
   let nextError = null
   const writes = []
+  const guards = []
   const react = {
+    useRef(initial) { const index = cursor++; return slots[index] ??= { current: initial } },
     useState(initial) {
       const index = cursor++
       if (!(index in slots)) slots[index] = typeof initial === 'function' ? initial() : initial
@@ -51,10 +53,10 @@ function createSection() {
       },
     },
     './usePublicData': { invalidatePublicDataCache() {} },
-    '../../hooks/useUnsavedChangesGuard': { useUnsavedChangesGuard() {} },
+    '../../hooks/useUnsavedChangesGuard': { useUnsavedChangesGuard(value) { guards.push(value.enabled) } },
   }
-  for (const name of ['Card', 'AdminErrorState', 'AdminLoadingState', 'AdminRecordForm']) {
-    imports[name === 'Card' ? '../common/Card' : `./${name}`] = { [name]: name }
+  for (const name of ['Card', 'Button', 'AdminErrorState', 'AdminLoadingState', 'AdminRecordForm']) {
+    imports[name === 'Card' || name === 'Button' ? `../common/${name}` : `./${name}`] = { [name]: name }
   }
   function load(source) {
     const exports = {}
@@ -85,7 +87,8 @@ function createSection() {
       .flatMap(child => find(predicate, child))].filter(Boolean)
   }
   return {
-    render, writes,
+    render, writes, guards,
+    markDirty() { find(node => node.type === 'AdminRecordForm')[0].props.onDirtyChange(true) },
     failNextSave: error => { nextError = error },
     messages: role => find(node => node.props?.role === role).map(node => node.props.children),
     async submit(payload) {
@@ -122,4 +125,11 @@ test('a new invalid attempt clears old server errors and a valid retry clears va
   assert.equal(await section.submit({ title: '입단 안내' }), true)
   assert.deepEqual(section.messages('alert'), [])
   assert.deepEqual(section.messages('status'), ['저장되었습니다.'])
+})
+
+test('parent keeps navigation protection until the form confirms that its current snapshot is clean', async () => {
+  const section = createSection(); await section.render()
+  section.markDirty(); await section.render()
+  await section.submit({ title: '저장' })
+  assert.equal(section.guards.at(-1), true)
 })

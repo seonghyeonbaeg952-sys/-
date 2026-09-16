@@ -40,7 +40,11 @@ function renderCell<TRow extends CmsRecord>(
     return value ? '예' : '아니오'
   }
 
-  return value ?? '-'
+  if (value !== null && typeof value === 'object' && !Array.isArray(value)) return '상세에서 확인'
+
+  if (typeof value === 'string' || typeof value === 'number') return value
+  if (Array.isArray(value)) return value.join(', ')
+  return '-'
 }
 
 function VisibilityBadge({ value }: { value?: boolean }) {

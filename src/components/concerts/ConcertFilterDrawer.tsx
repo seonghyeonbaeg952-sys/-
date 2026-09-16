@@ -1,7 +1,9 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
 
 import { FilterSelect } from '../common/FilterSelect'
+import { usePageCopy } from '../site-editor/usePageCopy'
 
 type FilterOption = {
   label: string
@@ -42,6 +44,8 @@ export function ConcertFilterDrawer({
   year,
   yearOptions,
 }: ConcertFilterDrawerProps) {
+  const { copy: copyText } = useSiteEditor()
+  const t = usePageCopy('concerts')
   const dialogRef = useRef<HTMLDivElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const onCloseRef = useRef(onClose)
@@ -114,7 +118,7 @@ export function ConcertFilterDrawer({
   return createPortal(
     <div className="concert-filter-drawer" role="presentation">
       <button
-        aria-label="공연 필터 닫기"
+        aria-label={copyText("concerts", "concerts.fixed.ConcertFilterDrawer.62214504c1", "공연 필터 닫기")}
         className="concert-filter-drawer__backdrop"
         onClick={() => onCloseRef.current()}
         tabIndex={-1}
@@ -129,11 +133,11 @@ export function ConcertFilterDrawer({
       >
         <div className="concert-filter-drawer__header">
           <div>
-            <p className="concert-filter-drawer__eyebrow">CONCERT FILTER</p>
-            <h2 id={titleId}>공연 필터</h2>
+            <p className="concert-filter-drawer__eyebrow">{copyText("concerts", "concerts.fixed.ConcertFilterDrawer.085d6ee60c", "CONCERT FILTER")}</p>
+            <h2 id={titleId}>{t('filterTitle')}</h2>
           </div>
           <button
-            aria-label="닫기"
+            aria-label={t('close')}
             className="concert-filter-drawer__close"
             onClick={() => onCloseRef.current()}
             ref={closeButtonRef}
@@ -145,18 +149,18 @@ export function ConcertFilterDrawer({
 
         <div className="concert-filter-drawer__fields">
           <div>
-            <span>날짜</span>
+            <span>{t('filterDate')}</span>
             <FilterSelect
-              label="날짜 선택"
+              label={t('dateFilter')}
               onChange={onYearChange}
               options={yearOptions}
               value={year}
             />
           </div>
           <div>
-            <span>공연 유형</span>
+            <span>{t('categoryFilter')}</span>
             <FilterSelect
-              label="공연 유형"
+              label={t('categoryFilter')}
               onChange={onCategoryChange}
               options={categoryOptions}
               value={category}
@@ -166,14 +170,14 @@ export function ConcertFilterDrawer({
 
         <div className="concert-filter-drawer__footer">
           <button className="concert-filter-drawer__reset" onClick={onReset} type="button">
-            초기화
+            {t('reset')}
           </button>
           <button
             className="concert-filter-drawer__apply"
             onClick={() => onCloseRef.current()}
             type="button"
           >
-            {resultCount}개 공연 보기
+            {resultCount}{t('showResults')}
           </button>
         </div>
       </div>

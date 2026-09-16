@@ -7,7 +7,7 @@ export interface CmsRecord {
   created_at?: string
   updated_at?: string
   is_visible?: boolean
-  [key: string]: CmsValue | undefined
+  [key: string]: CmsValue | Record<string, CmsValue | undefined> | undefined
 }
 
 export type CmsTableName =
@@ -372,6 +372,7 @@ export interface JoinApplicationRow extends CmsRecord {
 }
 
 export interface SupportPledgeRow extends CmsRecord {
+  terms_snapshot?: Record<string, CmsValue | undefined> | null
   name: string
   gender: 'female' | 'male' | 'none' | null
   birth_date: string | null

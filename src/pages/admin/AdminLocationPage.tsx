@@ -1,16 +1,17 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 
 import { AdminErrorState } from '../../components/admin/AdminErrorState'
 import { AdminLoadingState } from '../../components/admin/AdminLoadingState'
 import { AdminPageTitle } from '../../components/admin/AdminPageTitle'
 import { AdminSwitch } from '../../components/admin/AdminSwitch'
-import { ImageUploader } from '../../components/admin/ImageUploader'
+import { ImageUploader, type ImageUploadState } from '../../components/admin/ImageUploader'
 import { Button } from '../../components/common/Button'
 import { Card } from '../../components/common/Card'
 import { MapPreview } from '../../components/common/MapPreview'
 import { useCrudItem } from '../../hooks/useCrudItem'
-import type { CmsMutationPayload, LocationRow } from '../../types/cms'
+import { useUnsavedChangesGuard } from '../../hooks/useUnsavedChangesGuard'
+import type { CmsMutationPayload, CmsResult, LocationRow } from '../../types/cms'
 import { getMapActions, isLikelyEmbeddableMapUrl } from '../../utils/mapLinks'
 
 type LocationFormValues = {
@@ -55,30 +56,6 @@ function nullable(value: string) {
   return trimmedValue || null
 }
 
-function isCmsErrorResult(value: unknown): value is { error: string | null } {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'error' in value &&
-    typeof (value as { error?: unknown }).error === 'string'
-  )
-}
-
-function isOptionalColumnError(error: string) {
-  const normalizedError = error.toLowerCase()
-
-  return (
-    normalizedError.includes('map_embed_url') ||
-    normalizedError.includes('email') ||
-    normalizedError.includes('fax') ||
-    normalizedError.includes('image_url') ||
-    normalizedError.includes('image_alt') ||
-    normalizedError.includes('image_caption') ||
-    normalizedError.includes('column') ||
-    normalizedError.includes('schema cache')
-  )
-}
-
 function inputClass() {
   return 'mt-2 min-h-12 w-full rounded-button border border-line-default bg-bg-warm-white px-4 text-sm outline-none focus:border-gold-warm focus:ring-2 focus:ring-gold-soft/60'
 }
@@ -118,11 +95,12 @@ export function AdminLocationPage() {
         ) : null}
 
         {crud.isLoading ? <AdminLoadingState /> : null}
-        {!crud.isLoading && crud.error ? (
-          <AdminErrorState description={crud.error} />
+        {crud.mutationError ? <p className="mb-5 rounded-button bg-state-error/10 px-4 py-3 text-sm text-state-error" role="alert">{crud.mutationError}</p> : null}
+        {!crud.isLoading && crud.loadError ? (
+          <AdminErrorState description={crud.loadError} action={<Button onClick={crud.reload} type="button">다시 불러오기</Button>} />
         ) : null}
 
-        {!crud.isLoading && !crud.error ? (
+        {!crud.isLoading && !crud.loadError ? (
           <LocationForm
             disabled={crud.isMutating}
             initialValues={toFormValues(crud.item)}
@@ -142,9 +120,18 @@ function LocationForm({
 }: {
   disabled: boolean
   initialValues: LocationFormValues
-  onSubmit: (payload: CmsMutationPayload) => Promise<unknown>
+  onSubmit: (payload: CmsMutationPayload) => Promise<CmsResult<LocationRow>>
 }) {
   const [values, setValues] = useState<LocationFormValues>(initialValues)
+  const [savedValues, setSavedValues] = useState(initialValues)
+  const [uploadState, setUploadState] = useState<ImageUploadState>('idle')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
+  const uploadStateRef = useRef<ImageUploadState>('idle')
+  const submitLock = useRef(false)
+  const pendingImage = ['selected', 'uploading', 'error'].includes(uploadState)
+  const busy = disabled || isSubmitting
+  useUnsavedChangesGuard({ enabled: busy || pendingImage || JSON.stringify(values) !== JSON.stringify(savedValues) })
 
   const mapActions = useMemo(() => {
     return getMapActions({
@@ -186,6 +173,15 @@ function LocationForm({
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (disabled || submitLock.current) return
+    if (['selected', 'uploading', 'error'].includes(uploadStateRef.current)) {
+      setFormError('이미지 업로드를 완료하거나 선택을 취소한 뒤 저장해 주세요.')
+      return
+    }
+    submitLock.current = true
+    setIsSubmitting(true)
+    setFormError(null)
+    const snapshot = { ...values }
 
     const payload: CmsMutationPayload = {
       address: nullable(values.address),
@@ -207,20 +203,20 @@ function LocationForm({
     optionalPayload.image_alt = nullable(values.image_alt)
     optionalPayload.image_caption = nullable(values.image_caption)
 
-    const result = await onSubmit({ ...payload, ...optionalPayload })
-
-    if (
-      Object.keys(optionalPayload).length > 0 &&
-      isCmsErrorResult(result) &&
-      result.error &&
-      isOptionalColumnError(result.error)
-    ) {
-      await onSubmit(payload)
+    try {
+      const result = await onSubmit({ ...payload, ...optionalPayload })
+      if (!result.error && result.data) setSavedValues(snapshot)
+    } catch {
+      setFormError('저장에 실패했습니다. 입력 내용은 유지됩니다. 연결을 확인하고 다시 시도해 주세요.')
+    } finally {
+      submitLock.current = false
+      setIsSubmitting(false)
     }
   }
 
   return (
-    <form className="space-y-6" onSubmit={handleSubmit}>
+    <form aria-busy={busy} className="space-y-6" onSubmit={handleSubmit}>
+      <fieldset className="space-y-6" disabled={busy}>
             <div className="grid gap-5 md:grid-cols-2">
               <label>
                 <span className={labelClass()}>장소명</span>
@@ -290,10 +286,11 @@ function LocationForm({
             <div className="rounded-formal border border-line-default bg-bg-ivory p-5">
               <ImageUploader
                 description="방문자 오시는 길 섹션에 표시할 건물, 연습실 입구 또는 안내 사진입니다."
-                disabled={disabled}
+                disabled={busy}
                 folder="locations"
                 label="오시는 길 대표 사진"
                 onChange={(url) => updateValue('image_url', url ?? '')}
+                onUploadStateChange={(state) => { uploadStateRef.current = state; setUploadState(state); setFormError(null) }}
                 value={values.image_url || null}
               />
               <div className="mt-5 grid gap-5 md:grid-cols-2">
@@ -394,10 +391,13 @@ function LocationForm({
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-              <Button disabled={disabled} type="submit" variant="primary">
-                {disabled ? '저장 중' : '저장'}
+              <Button disabled={busy || pendingImage} type="submit" variant="primary">
+                {busy ? '저장 중' : '저장'}
               </Button>
             </div>
+      </fieldset>
+      {pendingImage ? <p className="text-sm text-text-muted" role="status">이미지 업로드를 완료하거나 선택을 취소해야 저장할 수 있습니다.</p> : null}
+      {formError ? <p className="text-sm text-state-error" role="alert">{formError}</p> : null}
     </form>
   )
 }

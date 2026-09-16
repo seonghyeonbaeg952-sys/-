@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import type { GalleryImage } from '../../types/content'
 import type { SiteSettings } from '../../types/content'
 import type { HomeProgramItem } from '../../types/homeContent'
@@ -125,6 +126,7 @@ function CollectivePortrait({
   summary,
   title = '함께 빚어가는 화음,\n다음 세대의 노래',
 }: CollectivePortraitProps) {
+  const { copy: copyText } = useSiteEditor()
   const portraitImage = collectivePortraitImage ?? {
     alt: '서울모테트청소년합창단 공연 무대',
     caption: 'SEOUL MOTET YOUTH CHOIR · PERFORMANCE',
@@ -225,7 +227,7 @@ function CollectivePortrait({
             delay={120}
             variant="fade-up"
           >
-            <dl aria-label="합창단 핵심 정보">
+            <dl aria-label={copyText("home", "home.fixed.AboutPreview.1f761dd796", "합창단 핵심 정보")}>
               {collectivePortraitFacts.map((fact) => (
                 <div key={fact.label}>
                   <dt>{fact.label}</dt>
@@ -276,6 +278,7 @@ export function AboutPreview({
   summary,
   title = '서울모테트청소년합창단 소개',
 }: AboutPreviewProps) {
+  const { copy: copyText } = useSiteEditor()
   const viewport = useHomeResponsiveViewport()
   if (presentation === 'collective-portrait' && viewport !== 'desktop') {
     return (
@@ -313,7 +316,7 @@ export function AboutPreview({
     >
       <HomeSectionStaffCue
         className="home-section-staff-cue--about"
-        label="소개"
+        label={copyText("home", "home.fixed.AboutPreview.7367283c48", "소개")}
         noteOffset={7}
         symbol="♫"
       />
@@ -379,9 +382,7 @@ export function AboutPreview({
                       <div className="absolute inset-0 bg-linear-to-t from-navy-midnight/76 via-navy-midnight/10 to-transparent" />
                       <div className="absolute inset-0 flex items-end p-6">
                         <div>
-                          <p className="type-eyebrow text-gold-soft">
-                            CHOIR VISUAL
-                          </p>
+                          <p className="type-eyebrow text-gold-soft">{copyText("home", "home.fixed.AboutPreview.8a406886ce", "CHOIR VISUAL")}</p>
                           <h3 className="type-card-title mt-3 max-w-md text-bg-warm-white">
                             {image.title}
                           </h3>
@@ -398,9 +399,9 @@ export function AboutPreview({
               ) : (
                 <VisualArchivePanel
                   className="min-h-[260px]"
-                  description="정기 연습과 공연으로 이어지는 합창단 활동을 소개합니다."
-                  eyebrow="CHOIR OVERVIEW"
-                  title="합창단 활동 안내"
+                  description={copyText("home", "home.fixed.AboutPreview.2af9da48d9", "정기 연습과 공연으로 이어지는 합창단 활동을 소개합니다.")}
+                  eyebrow={copyText("home", "home.fixed.AboutPreview.4dafab0c7f", "CHOIR OVERVIEW")}
+                  title={copyText("home", "home.fixed.AboutPreview.80a4952afb", "합창단 활동 안내")}
                 />
               )}
             </Reveal>

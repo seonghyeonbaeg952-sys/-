@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router'
 
-import { publicNavigation } from '../../../constants/navigation'
+import { usePublicNavigation } from '../../site-editor/usePublicNavigation'
+import { useSiteEditor } from '../../site-editor/useSiteEditor'
 import { HomeV4SampleMegaMenu } from './HomeV4SampleMegaMenu'
 import { HomeV4SampleMobileMenu } from './HomeV4SampleMobileMenu'
 import { HomeV4SampleImage } from './HomeV4SampleImage'
@@ -19,7 +20,10 @@ export function HomeV4SampleHeader({
   mode = 'sample',
   transparentAtTop = true,
 }: HomeV4SampleHeaderProps) {
+  const { copy: copyText } = useSiteEditor()
   const location = useLocation()
+  const publicNavigation = usePublicNavigation()
+  const { copy } = useSiteEditor()
   const routePrefix = mode === 'sample' ? '/sample' : ''
   const homeHref = mode === 'sample' ? '/sample/home-v4' : '/'
   const joinApplicationHref = `${routePrefix}/join?section=contact#application`
@@ -229,26 +233,26 @@ export function HomeV4SampleHeader({
     >
       <div className="home-v4-sample-header__bar max-w-content">
         <a
-          aria-label="서울모테트청소년합창단 홈"
+          aria-label={copyText("common", "common.fixed.HomeV4SampleHeader.e7dd59dd7c", "서울모테트청소년합창단 홈")}
           className="home-v4-brand"
           href={homeHref}
         >
           <HomeV4SampleImage
-            alt="서울모테트청소년합창단"
+            alt={copyText("common", "common.fixed.HomeV4SampleHeader.9bb6e639c7", "서울모테트청소년합창단")}
             className="home-v4-brand__logo"
-            fallbackLabel="서울모테트청소년합창단"
+            fallbackLabel={copyText("common", "common.fixed.HomeV4SampleHeader.9bb6e639c7", "서울모테트청소년합창단")}
             src="/images/brand/smyc-logo-transparent.png"
           />
           <HomeV4SampleImage
             alt=""
             className="home-v4-brand__symbol"
-            fallbackLabel="SMYC"
+            fallbackLabel={copyText("common", "common.fixed.HomeV4SampleHeader.d9399485e9", "SMYC")}
             src="/images/brand/smyc-symbol-vector.svg"
           />
-          <span className="home-v4-brand__mobile-name">서울모테트청소년합창단</span>
+          <span className="home-v4-brand__mobile-name">{copyText("common", "common.fixed.HomeV4SampleHeader.9bb6e639c7", "서울모테트청소년합창단")}</span>
         </a>
 
-        <nav aria-label="주요 메뉴" className="home-v4-desktop-nav">
+        <nav aria-label={copyText("common", "common.fixed.HomeV4SampleHeader.f00fbf9861", "주요 메뉴")} className="home-v4-desktop-nav">
           <a
             aria-current={isHomeActive ? 'page' : undefined}
             className={[
@@ -256,9 +260,7 @@ export function HomeV4SampleHeader({
               isHomeActive ? 'is-active' : '',
             ].join(' ')}
             href={homeHref}
-          >
-            홈
-          </a>
+          >{copyText("common", "common.fixed.HomeV4SampleHeader.034999faab", "홈")}</a>
           {publicNavigation.slice(1).map((item) => {
             const isOpen = activeDesktopMenuHref === item.href
             const isActive =
@@ -308,13 +310,13 @@ export function HomeV4SampleHeader({
           href={joinApplicationHref}
           onClick={() => closeDesktopMenu(false)}
         >
-          입단신청
+          {copy('common', 'common.header.apply', '입단신청')}
         </a>
 
         <button
           aria-controls={MOBILE_MENU_ID}
           aria-expanded={mobileMenuOpen}
-          aria-label={mobileMenuOpen ? '메뉴 닫기' : '메뉴 열기'}
+          aria-label={mobileMenuOpen ? copy('common', 'common.header.close', '메뉴 닫기') : copy('common', 'common.header.open', '메뉴 열기')}
           className="home-v4-mobile-trigger"
           onClick={toggleMobileMenu}
           ref={mobileTriggerRef}

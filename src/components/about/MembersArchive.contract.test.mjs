@@ -1,8 +1,14 @@
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
-import test from 'node:test'
+import test, { after } from 'node:test'
+import React from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { createServer } from 'vite'
 
 const root = new URL('../../../', import.meta.url)
+const vite = await createServer({ configFile: false, appType: 'custom', cacheDir: 'node_modules/.vite-members-contract-test', logLevel: 'silent', server: { middlewareMode: true } })
+const { MembersArchiveExperience } = await vite.ssrLoadModule('/src/components/about/MembersArchiveExperience.tsx')
+after(() => vite.close())
 
 async function sourceOrEmpty(relativePath) {
   try {
@@ -25,10 +31,11 @@ test('단원 전용 화면은 통계 카드 없이 피그마 아카이브 컴포
   assert.doesNotMatch(page, /member-stat-card/)
 })
 
-test('아카이브는 현재·이전 상태와 파트를 각각 조작할 수 있다', async () => {
-  const component = await sourceOrEmpty(
-    'src/components/about/MembersArchiveExperience.tsx',
-  )
+test('아카이브는 현재·이전 상태와 파트를 각각 조작할 수 있다', () => {
+  const component = renderToStaticMarkup(React.createElement(MembersArchiveExperience, { members: [{
+    id: 'fixture', display_name: '김○', part: 'soprano', group_type: 'middle', member_status: 'active', display_order: 0,
+    name: 'PRIVATE FULL NAME', photo_url: 'https://private.invalid/child-photo.png',
+  }] }))
 
   for (const copy of [
     '함께한 모든 이름이',
@@ -43,8 +50,8 @@ test('아카이브는 현재·이전 상태와 파트를 각각 조작할 수 �
 
   assert.match(component, /aria-label="활동 상태 필터"/)
   assert.match(component, /aria-label="파트 필터"/)
-  assert.match(component, /aria-pressed=/)
-  assert.doesNotMatch(component, /<img\b|ImageTile|photo_url/)
+  assert.equal(component.match(/aria-pressed="true"/g)?.length, 2)
+  assert.doesNotMatch(component, /<img\b|PRIVATE FULL NAME|private\.invalid/)
 })
 
 test('평면형 디렉터리는 반응형·접근성·감속 모션 계약을 지킨다', async () => {

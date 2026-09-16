@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { lazy, Suspense, useEffect, useState } from 'react'
 
 import type { Concert, Notice } from '../../types/content'
@@ -99,6 +100,7 @@ export function PerformanceNewsPreview({
   staffLabel = '공연',
   title = '공연과 소식',
 }: PerformanceNewsPreviewProps) {
+  const { copy: copyText } = useSiteEditor()
   const isDesktopPerformanceLayout = useDesktopPerformanceLayout()
   const useFigmaDesktopLayout =
     presentation === 'figma-template-carousel' && isDesktopPerformanceLayout
@@ -132,7 +134,7 @@ export function PerformanceNewsPreview({
         <Suspense
           fallback={
             <div className="min-h-[55vh] bg-bg-ivory px-5 py-24">
-              <LoadingState label="공연 템플릿을 준비하고 있습니다." />
+              <LoadingState label={copyText("home", "home.fixed.PerformanceNewsPreview.f8cafb8727", "공연 템플릿을 준비하고 있습니다.")} />
             </div>
           }
         >

@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../../site-editor/useSiteEditor'
 import type { Notice } from '../../../types/content'
 import { getColorSampleHref } from '../../../utils/colorSamplePath'
 import { formatShortDate } from '../../../utils/formatDate'
@@ -29,6 +30,7 @@ export function HomeV4ProgramNoticeStrip({
   panelButtonLabel = '전체 보기',
   panelTitle = '프로그램 노트',
 }: HomeV4ProgramNoticeStripProps) {
+  const { copy: copyText } = useSiteEditor()
   const visibleNotices = notices.slice(0, 3)
   const noticeSlots = Array.from({ length: 3 }, (_, index) => visibleNotices[index])
 
@@ -46,15 +48,15 @@ export function HomeV4ProgramNoticeStrip({
             d="M0 20 H558 L600 54 L642 20 H1200 M0 20 V62 M1200 20 V62"
           />
         </svg>
-        <span>SEOUL MOTET YOUTH CHOIR</span>
+        <span>{copyText("home", "home.fixed.HomeV4ProgramNoticeStrip.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</span>
       </div>
       <aside
-        aria-label="프로그램 노트"
+        aria-label={copyText("home", "home.fixed.HomeV4ProgramNoticeStrip.0fc2f8b46a", "프로그램 노트")}
         className="home-v4-program-note"
         data-empty={visibleNotices.length === 0 ? 'true' : undefined}
       >
       <div className="home-v4-program-note__heading">
-        <p>NOTICE</p>
+        <p>{copyText("home", "home.fixed.HomeV4ProgramNoticeStrip.dfb14fbb9e", "NOTICE")}</p>
         <h3>{panelTitle}</h3>
       </div>
 

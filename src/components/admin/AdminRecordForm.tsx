@@ -1,11 +1,12 @@
-import { useEffect, useId, useMemo, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 
 import { cleanPayload } from '../../lib/cms'
+import { isSignaturePng } from '../../lib/intakeModel'
 import type { CmsMutationPayload, CmsRecord, CmsValue } from '../../types/cms'
 import { Button } from '../common/Button'
 import { AdminFormField } from './AdminFormField'
-import { ImageUploader } from './ImageUploader'
+import { ImageUploader, type ImageUploadState } from './ImageUploader'
 import { AdminSelect, type AdminSelectOption } from './AdminSelect'
 import { AdminSwitch } from './AdminSwitch'
 import { AdminTextarea } from './AdminTextarea'
@@ -64,6 +65,9 @@ function getInitialFieldValue<TRow extends CmsRecord>(
   const initialValue = initialData?.[field.name]
   const defaultValue = defaultValues?.[field.name]
   const value = initialValue ?? defaultValue
+
+  // Structured receipt snapshots are read-only details, not scalar form fields.
+  if (value !== null && typeof value === 'object' && !Array.isArray(value)) return ''
 
   if (field.formatValue) return field.formatValue(value)
 
@@ -129,12 +133,20 @@ export function AdminRecordForm<TRow extends CmsRecord>({
   const [values, setValues] = useState<FormValues>(initialValues)
   const [savedValues, setSavedValues] = useState<FormValues>(initialValues)
   const [errors, setErrors] = useState<FormErrors>({})
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [uploadStates, setUploadStates] = useState<Record<string, ImageUploadState>>({})
+  const uploadStatesRef = useRef<Record<string, ImageUploadState>>({})
+  const submitLock = useRef(false)
+  const valuesRef = useRef(values)
+  const busy = disabled || isSubmitting
+  const hasPendingImages = fields.some(field => ['selected', 'uploading', 'error'].includes(uploadStates[field.name]))
   const isDirty = useMemo(
     () =>
-      fields.some(
+      hasPendingImages || fields.some(
         (field) => values[field.name] !== savedValues[field.name],
       ),
-    [fields, savedValues, values],
+    [fields, hasPendingImages, savedValues, values],
   )
 
   useEffect(() => {
@@ -142,15 +154,27 @@ export function AdminRecordForm<TRow extends CmsRecord>({
   }, [isDirty, onDirtyChange])
 
   const setValue = (name: string, value: CmsValue) => {
-    setValues((current) => ({ ...current, [name]: value }))
+    valuesRef.current = { ...valuesRef.current, [name]: value }
+    onDirtyChange?.(fields.some(field => valuesRef.current[field.name] !== savedValues[field.name]
+      || ['selected', 'uploading', 'error'].includes(uploadStatesRef.current[field.name])))
+    setValues(valuesRef.current)
     setErrors((current) => ({ ...current, [name]: undefined }))
+    setSubmitError(null)
+  }
+
+  const updateUploadState = (name: string, state: ImageUploadState) => {
+    uploadStatesRef.current = { ...uploadStatesRef.current, [name]: state }
+    onDirtyChange?.(fields.some(field => valuesRef.current[field.name] !== savedValues[field.name]
+      || ['selected', 'uploading', 'error'].includes(uploadStatesRef.current[field.name])))
+    setUploadStates(uploadStatesRef.current)
+    setSubmitError(null)
   }
 
   const validate = () => {
     const nextErrors: FormErrors = {}
 
     for (const field of fields) {
-      const value = values[field.name]
+      const value = valuesRef.current[field.name]
 
       if (
         field.required &&
@@ -182,38 +206,52 @@ export function AdminRecordForm<TRow extends CmsRecord>({
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
+    if (disabled || submitLock.current) return
+    if (fields.some(field => ['selected', 'uploading', 'error'].includes(uploadStatesRef.current[field.name]))) {
+      setSubmitError('선택한 이미지의 업로드를 완료하거나 선택을 취소한 뒤 저장해 주세요.')
+      return
+    }
+
     if (!validate()) {
       return
     }
 
+    submitLock.current = true
+    setIsSubmitting(true)
+    setSubmitError(null)
+    const snapshot = { ...valuesRef.current }
     const payload = cleanPayload(
       Object.fromEntries(
         fields.map((field) => [
           field.name,
           normalizeInputValue(
             field as AdminFieldConfig<CmsRecord>,
-            values[field.name],
+            snapshot[field.name],
           ),
         ]),
       ) as CmsMutationPayload,
     )
 
-    const didSave = await onSubmit(payload)
-
-    if (didSave) {
-      setSavedValues(values)
+    try {
+      const didSave = await onSubmit(payload)
+      if (didSave) setSavedValues(snapshot)
+    } catch {
+      setSubmitError('저장에 실패했습니다. 입력 내용은 유지됩니다. 연결을 확인하고 다시 시도해 주세요.')
+    } finally {
+      submitLock.current = false
+      setIsSubmitting(false)
     }
   }
 
   return (
-    <form aria-busy={disabled} className="space-y-5" onSubmit={handleSubmit}>
+    <form aria-busy={busy} className="space-y-5" onSubmit={handleSubmit}>
       <div className="grid gap-5 md:grid-cols-2">
         {fields.map((field) => {
           const value = values[field.name]
           const fieldId = `${generatedId}-${field.name}`
           const commonProps = {
             description: field.description,
-            disabled: disabled || field.readOnly,
+            disabled: busy || field.readOnly,
             error: errors[field.name],
             id: fieldId,
             label: field.label,
@@ -243,12 +281,13 @@ export function AdminRecordForm<TRow extends CmsRecord>({
                   allowManualUrl={field.allowManualUrl}
                   allowSvg={field.allowSvg}
                   description={field.description}
-                  disabled={disabled || field.readOnly}
-                folder={field.folder ?? 'settings'}
-                id={fieldId}
+                  disabled={busy || field.readOnly}
+                  folder={field.folder ?? 'settings'}
+                  id={fieldId}
                   label={field.label}
                   maxSizeMb={field.maxSizeMb}
                   onChange={(nextValue) => setValue(field.name, nextValue)}
+                  onUploadStateChange={(state) => updateUploadState(field.name, state)}
                   required={field.required}
                   value={typeof value === 'string' ? value : null}
                 />
@@ -267,7 +306,9 @@ export function AdminRecordForm<TRow extends CmsRecord>({
                 {...commonProps}
                 key={field.name}
                 onChange={(event) => setValue(field.name, event.target.value)}
-                options={field.options ?? []}
+                options={typeof value === 'string' && value && !field.options?.some(option => option.value === value)
+                  ? [{ label: `기존 값: ${value}`, value }, ...(field.options ?? [])]
+                  : field.options ?? []}
                 value={typeof value === 'string' ? value : ''}
               />
             )
@@ -278,7 +319,7 @@ export function AdminRecordForm<TRow extends CmsRecord>({
               <AdminSwitch
                 checked={Boolean(value)}
                 description={field.description}
-                disabled={disabled || field.readOnly}
+                disabled={busy || field.readOnly}
                 id={fieldId}
                 key={field.name}
                 label={field.label}
@@ -304,7 +345,7 @@ export function AdminRecordForm<TRow extends CmsRecord>({
                   ) : null}
                 </div>
                 <div className="rounded-formal border border-line-default bg-bg-warm-white p-4">
-                  {signatureSrc ? (
+                  {signatureSrc && isSignaturePng(signatureSrc) ? (
                     <img
                       alt={`${field.label} 이미지`}
                       className="h-32 w-full rounded-button border border-line-default bg-bg-ivory object-contain"
@@ -312,7 +353,7 @@ export function AdminRecordForm<TRow extends CmsRecord>({
                     />
                   ) : (
                     <p className="rounded-button border border-dashed border-line-default bg-bg-ivory px-4 py-8 text-center text-sm text-text-muted">
-                      저장된 서명 이미지가 없습니다.
+                      {signatureSrc ? '서명 형식을 확인할 수 없습니다. 원본 접수 자료를 확인해 주세요.' : '저장된 서명 이미지가 없습니다.'}
                     </p>
                   )}
                 </div>
@@ -342,6 +383,9 @@ export function AdminRecordForm<TRow extends CmsRecord>({
         })}
       </div>
 
+      {hasPendingImages ? <p className="text-sm leading-6 text-text-muted" role="status">선택한 이미지의 업로드를 완료하거나 선택을 취소해야 저장할 수 있습니다.</p> : null}
+      {submitError ? <p className="rounded-button bg-state-error/10 px-4 py-3 text-sm text-state-error" role="alert">{submitError}</p> : null}
+
       <div
         className={
           stickyActions
@@ -350,12 +394,12 @@ export function AdminRecordForm<TRow extends CmsRecord>({
         }
       >
         {onCancel ? (
-          <Button disabled={disabled} onClick={onCancel} variant="secondary">
+          <Button disabled={busy} onClick={onCancel} variant="secondary">
             취소
           </Button>
         ) : null}
-        <Button disabled={disabled} type="submit" variant="primary">
-          {disabled ? '저장 중…' : submitLabel}
+        <Button disabled={busy || hasPendingImages} type="submit" variant="primary">
+          {busy ? '저장 중…' : submitLabel}
         </Button>
       </div>
     </form>

@@ -116,16 +116,11 @@ function toStorageError(error: unknown, fallback: string) {
     return 'Supabase Storage 연결에 실패했습니다. 네트워크와 환경변수를 확인해 주세요.'
   }
 
-  return message || fallback
+  return fallback
 }
 
 function getFileExtension(file: File) {
-  const mimeExtension = MIME_EXTENSION_MAP[file.type]
-
-  if (mimeExtension) {
-    return mimeExtension
-  }
-
+  if (!file.name.includes('.')) return MIME_EXTENSION_MAP[file.type] ?? ''
   const extension = file.name.split('.').pop()?.toLowerCase()
 
   if (extension === 'jpeg') {
@@ -165,10 +160,6 @@ function createStorageFileName(file: File) {
   return `${Date.now()}-${randomId}.${extension}`
 }
 
-function normalizeFolder(folder: string) {
-  return folder.trim().replace(/^\/+|\/+$/g, '')
-}
-
 export function validateImageFile(
   file: File,
   { allowSvg = false, maxSizeMb = allowSvg ? 2 : 5 }: ValidateImageFileOptions = {},
@@ -179,13 +170,17 @@ export function validateImageFile(
   const hasAllowedMimeType = file.type ? allowedMimeTypes.has(file.type) : false
   const hasAllowedExtension = extension ? allowedExtensions.has(extension) : false
 
-  if (!hasAllowedMimeType && !hasAllowedExtension) {
+  if (!hasAllowedExtension || (file.type && !hasAllowedMimeType)) {
     return {
       data: null,
       error: allowSvg
         ? 'jpg, png, webp, svg 형식의 이미지만 업로드할 수 있습니다.'
         : 'jpg, png, webp 형식의 이미지만 업로드할 수 있습니다.',
     }
+  }
+
+  if (file.type && MIME_EXTENSION_MAP[file.type] !== extension) {
+    return { data: null, error: '파일 확장자와 실제 이미지 형식이 다릅니다. 원본 이미지를 다시 선택해 주세요.' }
   }
 
   if (!allowSvg && (file.type === SVG_MIME_TYPE || extension === 'svg')) {
@@ -195,16 +190,33 @@ export function validateImageFile(
     }
   }
 
-  const maxBytes = maxSizeMb * 1024 * 1024
+  if (!Number.isFinite(maxSizeMb) || maxSizeMb <= 0) {
+    return { data: null, error: '업로드 용량 설정을 확인해 주세요.' }
+  }
+  if (!Number.isFinite(file.size) || file.size <= 0) {
+    return { data: null, error: '빈 이미지 파일은 업로드할 수 없습니다.' }
+  }
+  const maxBytes = Math.min(maxSizeMb, 10) * 1024 * 1024
 
   if (file.size > maxBytes) {
     return {
       data: null,
-      error: `이미지 파일은 ${maxSizeMb}MB 이하만 업로드할 수 있습니다.`,
+      error: `이미지 파일은 ${Math.min(maxSizeMb, 10)}MB 이하만 업로드할 수 있습니다.`,
     }
   }
 
   return { data: true, error: null }
+}
+
+async function hasRasterSignature(file: File, extension: string) {
+  // A bounded signature check catches accidental renamed files; it is not an
+  // antivirus or a replacement for server-side Storage authorization/validation.
+  if (extension === 'svg') return true
+  const bytes = new Uint8Array(await file.slice(0, 12).arrayBuffer())
+  if (extension === 'png') return [137, 80, 78, 71, 13, 10, 26, 10].every((byte, i) => bytes[i] === byte)
+  if (extension === 'jpg') return bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255
+  if (extension === 'webp') return new TextDecoder().decode(bytes.slice(0, 4)) === 'RIFF' && new TextDecoder().decode(bytes.slice(8, 12)) === 'WEBP'
+  return false
 }
 
 export function extractStoragePathFromPublicUrl(
@@ -300,17 +312,29 @@ export async function uploadImage({
     return { data: null, error: validationResult.error }
   }
 
+  const normalizedFolder = folder.trim().replace(/^\/+|\/+$/g, '')
+  if (normalizedFolder.length > 120 || !/^[a-z0-9_-]+(?:\/[a-z0-9_-]+)*$/i.test(normalizedFolder)) {
+    return { data: null, error: '이미지 저장 위치가 올바르지 않습니다. 관리 화면을 다시 열어 주세요.' }
+  }
+  const extension = getFileExtension(file)
+  try {
+    if (!await hasRasterSignature(file, extension)) {
+      return { data: null, error: '파일 내용이 이미지 형식과 일치하지 않습니다. 원본 이미지를 다시 선택해 주세요.' }
+    }
+  } catch {
+    return { data: null, error: '이미지 파일을 읽지 못했습니다. 파일을 다시 선택해 주세요.' }
+  }
+
   const clientResult = getSupabaseClientSafe()
 
   if (!clientResult.data) {
     return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
   }
 
-  const normalizedFolder = normalizeFolder(folder)
   const path = `${normalizedFolder}/${createStorageFileName(file)}`
   const { error } = await clientResult.data.storage.from(bucketName).upload(path, file, {
     cacheControl: '3600',
-    contentType: file.type || undefined,
+    contentType: Object.keys(MIME_EXTENSION_MAP).find((mime) => MIME_EXTENSION_MAP[mime] === extension),
     upsert: false,
   })
 

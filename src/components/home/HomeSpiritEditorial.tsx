@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useMemo, useRef, useState } from 'react'
 import type { CSSProperties, KeyboardEvent } from 'react'
 
@@ -66,6 +67,7 @@ export function HomeSpiritEditorial({
   sections,
   wrapper,
 }: HomeSpiritEditorialProps) {
+  const { copy: copyText } = useSiteEditor()
   const pages = useMemo(
     () => createPages(sections, wrapper.ctaLabel),
     [sections, wrapper.ctaLabel],
@@ -145,7 +147,7 @@ export function HomeSpiritEditorial({
       </h2>
       <HomeSectionStaffCue
         className="home-section-staff-cue--spirit"
-        label="정신"
+        label={copyText("home", "home.fixed.HomeSpiritEditorial.2c3d6b050d", "정신")}
         noteOffset={21}
         symbol="♫"
       />
@@ -167,7 +169,7 @@ export function HomeSpiritEditorial({
       <Container className="home-spirit-editorial__container">
         <div
           aria-label={wrapper.title}
-          aria-roledescription="carousel"
+          aria-roledescription={copyText("home", "home.fixed.HomeSpiritEditorial.7565e4480e", "carousel")}
           className="home-spirit-editorial__experience"
           role="region"
         >
@@ -280,7 +282,7 @@ export function HomeSpiritEditorial({
 
             <div className="home-spirit-editorial__index-row">
               <div
-                aria-label="합창단 정신 선택"
+                aria-label={copyText("home", "home.fixed.HomeSpiritEditorial.105aab8229", "합창단 정신 선택")}
                 className="home-spirit-editorial__tabs"
                 role="tablist"
               >
@@ -339,8 +341,7 @@ export function HomeSpiritEditorial({
             </div>
           </div>
 
-          <p aria-live="polite" className="sr-only">
-            현재 {activeIndex + 1} / {pages.length}: {activePage.movementLabel}
+          <p aria-live="polite" className="sr-only">{copyText("home", "home.fixed.HomeSpiritEditorial.9457b707e6", "현재 ")}{activeIndex + 1} / {pages.length}: {activePage.movementLabel}
           </p>
         </div>
       </Container>

@@ -21,9 +21,12 @@ type ImageUploaderProps = {
   label?: string
   maxSizeMb?: number
   onChange: (url: string | null) => void
+  onUploadStateChange?: (state: ImageUploadState) => void
   required?: boolean
   value: string | null
 }
+
+export type ImageUploadState = 'idle' | 'selected' | 'uploading' | 'error' | 'uploaded'
 
 type ImagePreviewProps = {
   alt: string
@@ -91,10 +94,11 @@ function ImageUploaderPreview({ alt, src }: ImagePreviewProps) {
       className="aspect-[16/10] rounded-balanced border border-line-default shadow-sm"
       fallbackVariant="gallery"
       sizes="(min-width: 1024px) 360px, calc(100vw - 40px)"
+      objectFit="contain"
       src={src}
       transform={{
         quality: 74,
-        resize: 'cover',
+        resize: 'contain',
         width: 640,
         widths: [360, 520, 720],
       }}
@@ -121,6 +125,7 @@ export function ImageUploader({
   label = '이미지',
   maxSizeMb,
   onChange,
+  onUploadStateChange,
   required = false,
   value,
 }: ImageUploaderProps) {
@@ -131,6 +136,9 @@ export function ImageUploader({
   const errorId = `${generatedId}-error`
   const inputRef = useRef<HTMLInputElement>(null)
   const previewObjectUrlRef = useRef<string | null>(null)
+  const selectedFileRef = useRef<File | null>(null)
+  const uploadLock = useRef(false)
+  const mounted = useRef(true)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
@@ -139,7 +147,9 @@ export function ImageUploader({
   const [message, setMessage] = useState<string | null>(null)
 
   useEffect(() => {
+    mounted.current = true
     return () => {
+      mounted.current = false
       if (previewObjectUrlRef.current) {
         URL.revokeObjectURL(previewObjectUrlRef.current)
       }
@@ -169,6 +179,7 @@ export function ImageUploader({
   }
 
   const handleFile = (file: File | undefined) => {
+    if (disabled || uploadLock.current) return
     setMessage(null)
 
     if (!file) {
@@ -181,18 +192,22 @@ export function ImageUploader({
     })
 
     if (!validationResult.data) {
+      selectedFileRef.current = null
       setSelectedFile(null)
       clearPreviewObjectUrl()
       setError(validationResult.error)
+      onUploadStateChange?.('error')
       return
     }
 
     clearPreviewObjectUrl()
     const objectUrl = URL.createObjectURL(file)
+    selectedFileRef.current = file
     previewObjectUrlRef.current = objectUrl
     setSelectedFile(file)
     setPreviewUrl(objectUrl)
     setError(null)
+    onUploadStateChange?.('selected')
   }
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -201,38 +216,55 @@ export function ImageUploader({
   }
 
   const handleUpload = async () => {
-    if (!selectedFile) {
+    const file = selectedFileRef.current
+    if (!file || disabled || uploadLock.current) {
       return
     }
-
+    uploadLock.current = true
     setIsUploading(true)
+    onUploadStateChange?.('uploading')
     setError(null)
     setMessage(null)
 
-    const result = await uploadImage({
-      allowSvg,
-      file: selectedFile,
-      folder,
-      maxSizeMb,
-    })
-
-    setIsUploading(false)
-
-    if (!result.data) {
-      setError(result.error)
-      return
+    try {
+      const result = await uploadImage({ allowSvg, file, folder, maxSizeMb })
+      if (!mounted.current) return
+      if (!result.data) {
+        setError(result.error || '이미지를 업로드하지 못했습니다. 다시 시도하거나 선택을 취소해 주세요.')
+        onUploadStateChange?.('error')
+        return
+      }
+      onChange(result.data.publicUrl)
+      selectedFileRef.current = null
+      setSelectedFile(null)
+      clearPreviewObjectUrl()
+      onUploadStateChange?.('uploaded')
+      setMessage('이미지가 업로드되었습니다. 저장 버튼을 눌러 공개 화면에 반영해 주세요.')
+    } catch {
+      if (mounted.current) {
+        setError('이미지 업로드에 실패했습니다. 연결을 확인한 뒤 다시 시도하거나 선택을 취소해 주세요.')
+        onUploadStateChange?.('error')
+      }
+    } finally {
+      uploadLock.current = false
+      if (mounted.current) setIsUploading(false)
     }
+  }
 
-    onChange(result.data.publicUrl)
+  const cancelSelection = () => {
+    if (disabled || uploadLock.current) return
+    selectedFileRef.current = null
     setSelectedFile(null)
     clearPreviewObjectUrl()
-    setMessage('이미지가 업로드되었습니다. 저장 버튼을 눌러 공개 화면에 반영해 주세요.')
+    setError(null)
+    setMessage('선택을 취소했습니다. 기존 이미지 URL이 유지됩니다.')
+    onUploadStateChange?.('idle')
   }
 
   const handleDrop = (event: DragEvent<HTMLButtonElement>) => {
     event.preventDefault()
 
-    if (disabled || isUploading) {
+    if (disabled || uploadLock.current) {
       return
     }
 
@@ -243,7 +275,7 @@ export function ImageUploader({
   const handleDragOver = (event: DragEvent<HTMLButtonElement>) => {
     event.preventDefault()
 
-    if (!disabled && !isUploading) {
+    if (!disabled && !uploadLock.current) {
       setIsDragging(true)
     }
   }
@@ -253,7 +285,7 @@ export function ImageUploader({
   }
 
   const handleDropZoneKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
-    if (event.key === 'Enter' || event.key === ' ') {
+    if (!disabled && !uploadLock.current && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault()
       inputRef.current?.click()
     }
@@ -345,12 +377,17 @@ export function ImageUploader({
         >
           {isUploading ? '업로드 중' : '선택한 이미지 업로드'}
         </Button>
+        {selectedFile || error ? <Button disabled={disabled || isUploading} onClick={cancelSelection} type="button" variant="secondary">선택 취소</Button> : null}
         <Button
           disabled={disabled || isUploading || !value}
           onClick={() => {
+            if (disabled || uploadLock.current) return
             onChange(null)
+            selectedFileRef.current = null
             setSelectedFile(null)
             clearPreviewObjectUrl()
+            setError(null)
+            onUploadStateChange?.('idle')
             setMessage('이미지 URL이 제거되었습니다. 저장 버튼을 눌러 반영해 주세요.')
           }}
           variant="secondary"
@@ -369,9 +406,13 @@ export function ImageUploader({
           </label>
           <input
             className="mt-2 min-h-11 w-full rounded-button border border-line-default bg-bg-warm-white px-4 text-sm outline-none transition focus:border-gold-warm focus:ring-2 focus:ring-gold-soft/60 disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={disabled || isUploading}
+            disabled={disabled || isUploading || Boolean(selectedFile) || Boolean(error)}
             id={manualInputId}
-            onChange={(event) => onChange(event.target.value.trim() || null)}
+            onChange={(event) => {
+              if (disabled || uploadLock.current || selectedFileRef.current || error) return
+              onChange(event.target.value.trim() || null)
+              onUploadStateChange?.('idle')
+            }}
             placeholder="https://..."
             type="url"
             value={value ?? ''}

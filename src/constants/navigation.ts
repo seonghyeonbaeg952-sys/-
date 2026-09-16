@@ -147,32 +147,31 @@ export const publicNavigation = [
 
 export const adminNavigationGroups: AdminNavigationGroup[] = [
   {
-    label: '업무 처리',
+    label: '시작하기',
     items: [
-      { label: '대시보드', href: '/admin', resource: 'site_settings' },
-      { label: '문의 관리', href: '/admin/contacts', resource: 'contacts' },
+      { label: '관리 홈', href: '/admin', resource: 'site_settings' },
+      { label: '홈페이지 편집 · 미리보기', href: '/admin/editor', resource: 'site_texts' },
+    ],
+  },
+  {
+    label: '접수함',
+    items: [
+      { label: '문의 확인', href: '/admin/contacts', resource: 'contacts' },
       {
-        label: '입단지원 관리',
+        label: '입단지원서',
         href: '/admin/join-applications',
         resource: 'join_applications',
       },
       {
-        label: '후원 신청 관리',
+        label: '접수된 후원약정',
         href: '/admin/support-pledges',
         resource: 'support_pledges',
       },
-      { label: '후원사 관리', href: '/admin/sponsors', resource: 'sponsors' },
     ],
   },
   {
-    label: '홈·브랜드',
+    label: '첫 화면 콘텐츠',
     items: [
-      {
-        label: '홈페이지 기본 설정',
-        href: '/admin/settings',
-        resource: 'site_settings',
-      },
-      { label: '홈 문구 관리', href: '/admin/home', resource: 'site_texts' },
       {
         label: '홈 슬라이드 관리',
         href: '/admin/hero-slides',
@@ -202,15 +201,17 @@ export const adminNavigationGroups: AdminNavigationGroup[] = [
     ],
   },
   {
-    label: '안내·후원',
+    label: '운영 안내·설정',
     items: [
+      { label: '기본 정보·연락처', href: '/admin/settings', resource: 'site_settings' },
       { label: '오시는 길 관리', href: '/admin/location', resource: 'locations' },
       { label: '입단 안내 관리', href: '/admin/join', resource: 'join_info' },
       {
-        label: '후원약정 관리',
+        label: '후원 안내·약정 원문',
         href: '/admin/support',
         resource: 'support_settings',
       },
+      { label: '후원사·협력기관', href: '/admin/sponsors', resource: 'sponsors' },
     ],
   },
   {

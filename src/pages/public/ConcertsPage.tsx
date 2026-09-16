@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 
@@ -18,6 +19,8 @@ import { LoadingState } from '../../components/common/LoadingState'
 import { SeoHead } from '../../components/common/SeoHead'
 import { TransitionLink } from '../../components/common/TransitionLink'
 import { useConcertsData } from '../../hooks/usePublicData'
+import { usePageCopy } from '../../components/site-editor/usePageCopy'
+import { CopyLines } from '../../components/site-editor/SiteCopy'
 import '../../styles/concerts-page.css'
 import type { Concert } from '../../types/content'
 
@@ -75,6 +78,7 @@ function getPeriodFilter(value: string | null): PeriodFilter {
 }
 
 function PosterPlate({ concert }: { concert: Concert }) {
+  const { copy: copyText } = useSiteEditor()
   const [failedPosterUrl, setFailedPosterUrl] = useState<string | null>(null)
   const safePosterUrl = getSafeHttpUrl(concert.poster_url)
   const canShowPoster = Boolean(safePosterUrl && safePosterUrl !== failedPosterUrl)
@@ -97,10 +101,10 @@ function PosterPlate({ concert }: { concert: Concert }) {
         />
       ) : (
         <div className="concerts-page__poster-fallback">
-          <span>SEOUL MOTET YOUTH CHOIR</span>
+          <span>{copyText("concerts", "concerts.fixed.ConcertsPage.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</span>
           <i aria-hidden="true" />
-          <strong>SMYC</strong>
-          <small>CONCERT PROGRAM</small>
+          <strong>{copyText("concerts", "concerts.fixed.ConcertsPage.d9399485e9", "SMYC")}</strong>
+          <small>{copyText("concerts", "concerts.fixed.ConcertsPage.01d1d0ac27", "CONCERT PROGRAM")}</small>
         </div>
       )}
     </div>
@@ -108,14 +112,16 @@ function PosterPlate({ concert }: { concert: Concert }) {
 }
 
 function FeaturedStage({ concert, today }: { concert: Concert | null; today: string }) {
+  const { copy: copyText } = useSiteEditor()
+  const t = usePageCopy('concerts')
   if (!concert) {
     return (
       <div className="concerts-page__stage concerts-page__stage--empty">
         <img alt="" aria-hidden="true" src={FEATURED_ARCHIVE_IMAGE} />
         <div className="concerts-page__stage-wash" />
         <div className="concerts-page__stage-empty-copy">
-          <span>CONCERT PROGRAM</span>
-          <strong>새로운 공연 소식을 준비하고 있습니다.</strong>
+          <span>{copyText("concerts", "concerts.fixed.ConcertsPage.01d1d0ac27", "CONCERT PROGRAM")}</span>
+          <strong>{t('emptyStage')}</strong>
         </div>
       </div>
     )
@@ -145,7 +151,7 @@ function FeaturedStage({ concert, today }: { concert: Concert | null; today: str
           className="concerts-page__stage-link"
           to={`/concerts/${concert.id}`}
         >
-          공연 상세 <span aria-hidden="true">→</span>
+          {t('detail')} <span aria-hidden="true">→</span>
         </TransitionLink>
       </div>
       <div className="concerts-page__stage-poster">
@@ -202,6 +208,8 @@ function ConcertRow({ concert, today }: { concert: Concert; today: string }) {
 }
 
 export function ConcertsPage() {
+  const { copy: copyText } = useSiteEditor()
+  const t = usePageCopy('concerts')
   const concertsData = useConcertsData()
   const [searchParams, setSearchParams] = useSearchParams()
   const [categoryFilter, setCategoryFilter] = useState('all')
@@ -329,30 +337,25 @@ export function ConcertsPage() {
         description={concertsPageDescription}
         jsonLd={concertListStructuredData}
         path="/concerts"
-        title="공연·소식"
+        title={copyText("concerts", "concerts.fixed.ConcertsPage.e926e08ea7", "공연·소식")}
       />
 
       <div className="concerts-page">
         <section className="concerts-page__hero" aria-labelledby="concerts-page-title">
           <div className="concerts-page__hero-inner">
             <div className="concerts-page__hero-copy">
-              <p>
-                CONCERT PROGRAM ·{' '}
-                {getDateParts(rawSchedule.featured?.date ?? '').year || today.slice(0, 4)}{' '}
-                SEASON
-              </p>
+              <p>{copyText("concerts", "concerts.fixed.ConcertsPage.b799293c64", "CONCERT PROGRAM ·")}{' '}
+                {getDateParts(rawSchedule.featured?.date ?? '').year || today.slice(0, 4)}{' '}{copyText("concerts", "concerts.fixed.ConcertsPage.563c7ab915", "SEASON")}</p>
               <i aria-hidden="true" />
               <h1 id="concerts-page-title">
-                공연 일정과 지난 기록을
-                <br />
-                한눈에 확인합니다.
+                <CopyLines text={t('title')} />
               </h1>
-              <span>공연 날짜, 시간, 장소와 신청·예매 여부를 확인하세요.</span>
-              <nav aria-label="공연·소식 바로가기" className="concerts-page__local-nav">
+              <span>{t('description')}</span>
+              <nav aria-label={copyText("concerts", "concerts.fixed.ConcertsPage.917033508b", "공연·소식 바로가기")} className="concerts-page__local-nav">
                 <a aria-current="page" href="#concert-discovery">
-                  공연 일정
+                  {t('schedule')}
                 </a>
-                <TransitionLink to="/notices">공지사항</TransitionLink>
+                <TransitionLink to="/notices">{t('notices')}</TransitionLink>
               </nav>
             </div>
             <FeaturedStage concert={rawSchedule.featured} today={today} />
@@ -362,12 +365,12 @@ export function ConcertsPage() {
         <section className="concerts-page__discovery" id="concert-discovery">
           <div className="concerts-page__discovery-inner">
             <div className="concerts-page__discovery-heading">
-              <h2>공연 찾기</h2>
-              <p aria-live="polite">전체 {resultCount}개 · 날짜순</p>
+              <h2>{t('find')}</h2>
+              <p aria-live="polite">{copyText("concerts", "concerts.fixed.ConcertsPage.5e1c40e141", "전체 ")}{resultCount}{copyText("concerts", "concerts.fixed.ConcertsPage.578c084317", "개 · 날짜순")}</p>
             </div>
 
             <div className="concerts-page__filter-bar">
-              <div aria-label="공연 기간" className="concerts-page__period-tabs" role="group">
+              <div aria-label={copyText("concerts", "concerts.fixed.ConcertsPage.8d666faa0e", "공연 기간")} className="concerts-page__period-tabs" role="group">
                 {(
                   [
                     ['all', `전체 ${resultCount}`],
@@ -397,10 +400,10 @@ export function ConcertsPage() {
 
               <div className="concerts-page__controls">
                 <label className="concerts-page__search">
-                  <span className="sr-only">공연명 또는 장소 검색</span>
+                  <span className="sr-only">{copyText("concerts", "concerts.fixed.ConcertsPage.bcadcd5a45", "공연명 또는 장소 검색")}</span>
                   <input
                     onChange={(event) => setSearchValue(event.target.value)}
-                    placeholder="공연명·장소 검색"
+                    placeholder={t('search')}
                     type="search"
                     value={searchValue}
                   />
@@ -408,19 +411,19 @@ export function ConcertsPage() {
 
                 <div className="concerts-page__desktop-filters">
                   <FilterSelect
-                    label="날짜 선택"
+                    label={t('dateFilter')}
                     onChange={setYearFilter}
                     options={yearOptions}
                     value={yearFilter}
                   />
                   <FilterSelect
-                    label="공연 유형"
+                    label={t('categoryFilter')}
                     onChange={setCategoryFilter}
                     options={categoryOptions}
                     value={categoryFilter}
                   />
                   <button className="concerts-page__reset" onClick={resetFilters} type="button">
-                    초기화
+                    {t('reset')}
                   </button>
                 </div>
 
@@ -431,7 +434,7 @@ export function ConcertsPage() {
                   onClick={() => setIsFilterOpen(true)}
                   type="button"
                 >
-                  <span>필터 {activeFilterCount}</span>
+                  <span>{copyText("concerts", "concerts.fixed.ConcertsPage.dc613f56f8", "필터 ")}{activeFilterCount}</span>
                   <span aria-hidden="true">＋</span>
                 </button>
               </div>
@@ -450,8 +453,8 @@ export function ConcertsPage() {
         </section>
 
         {concertsData.isLoading ? (
-          <section className="concerts-page__state" aria-label="공연 목록 로딩">
-            <LoadingState label="공연 목록을 불러오는 중입니다" />
+          <section className="concerts-page__state" aria-label={copyText("concerts", "concerts.fixed.ConcertsPage.b2ebc6c88b", "공연 목록 로딩")}>
+            <LoadingState label={t('loading')} />
           </section>
         ) : null}
 
@@ -464,11 +467,11 @@ export function ConcertsPage() {
                   onClick={() => void concertsData.refetch()}
                   type="button"
                 >
-                  다시 불러오기
+                  {t('retry')}
                 </button>
               }
-              description="공연 정보를 불러오지 못했습니다. 연결을 확인한 뒤 다시 시도해 주세요."
-              title="공연 목록을 불러오지 못했습니다"
+              description={t('errorHelp')}
+              title={t('error')}
             />
           </section>
         ) : null}
@@ -483,8 +486,8 @@ export function ConcertsPage() {
               >
                 <div className="concerts-page__section-inner">
                   <div className="concerts-page__section-heading">
-                    <h2 id="upcoming-concerts-title">다가오는 공연</h2>
-                    <p>가까운 날짜순 · {filteredSchedule.upcoming.length}개</p>
+                    <h2 id="upcoming-concerts-title">{t('upcoming')}</h2>
+                    <p>{copyText("concerts", "concerts.fixed.ConcertsPage.89545f172d", "가까운 날짜순 · ")}{filteredSchedule.upcoming.length}{copyText("concerts", "concerts.fixed.ConcertsPage.a57ab05712", "개")}</p>
                   </div>
                   <div aria-hidden="true" className="concerts-page__section-rule" />
 
@@ -497,8 +500,8 @@ export function ConcertsPage() {
                   ) : (
                     <EmptyState
                       compact
-                      description="검색어나 날짜·유형 필터를 조정해 보세요."
-                      title="조건에 맞는 예정 공연이 없습니다"
+                      description={t('noUpcomingHelp')}
+                      title={t('noUpcoming')}
                     />
                   )}
                 </div>
@@ -513,15 +516,14 @@ export function ConcertsPage() {
               >
                 <div className="concerts-page__section-inner">
                   <div className="concerts-page__section-heading">
-                    <h2 id="past-concerts-title">지난 공연 기록</h2>
+                    <h2 id="past-concerts-title">{t('archive')}</h2>
                     <p>
                       {activeArchiveYear ? `${activeArchiveYear}년` : '기록'} ·{' '}
-                      {displayedArchiveRows.length}개
-                    </p>
+                      {displayedArchiveRows.length}{copyText("concerts", "concerts.fixed.ConcertsPage.a57ab05712", "개")}</p>
                   </div>
 
                   {archiveYears.length > 0 ? (
-                    <div aria-label="지난 공연 연도" className="concerts-page__archive-years">
+                    <div aria-label={copyText("concerts", "concerts.fixed.ConcertsPage.3c979bd0c0", "지난 공연 연도")} className="concerts-page__archive-years">
                       {archiveYears.map((year) => (
                         <button
                           aria-pressed={activeArchiveYear === year}
@@ -545,8 +547,8 @@ export function ConcertsPage() {
                   ) : (
                     <EmptyState
                       compact
-                      description="공개된 지난 공연이 등록되면 이곳에 표시됩니다."
-                      title="지난 공연 기록이 없습니다"
+                      description={t('noArchiveHelp')}
+                      title={t('noArchive')}
                     />
                   )}
                 </div>

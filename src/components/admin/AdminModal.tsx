@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom'
 
 import { Button } from '../common/Button'
 import { Card } from '../common/Card'
+import { initialModalFocus, registerAdminModal } from './adminModalFocus'
 
 type AdminModalProps = {
   children: ReactNode
@@ -43,20 +44,21 @@ export function AdminModal({
     }
 
     const previousActiveElement = document.activeElement as HTMLElement | null
-    const previousBodyOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    const root = dialogRef.current
+    if (!root) return
+    const layer = registerAdminModal(root, document.body)
 
     const focusFrame = window.requestAnimationFrame(() => {
-      const preferredField = dialogRef.current?.querySelector<HTMLElement>(
-        'input:not([disabled]):not([readonly]), select:not([disabled]), textarea:not([disabled]):not([readonly])',
-      )
+      if (!layer.isTop()) return
       const closeButton = dialogRef.current?.querySelector<HTMLButtonElement>(
         '[data-admin-modal-close]',
       )
-      ;(preferredField ?? closeButton)?.focus()
+      const controls = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>(focusableSelector) ?? [])
+      initialModalFocus(controls, closeButton ?? null)?.focus()
     })
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (!layer.isTop() || event.defaultPrevented) return
       if (event.key === 'Escape') {
         event.preventDefault()
         onCloseRef.current()
@@ -69,7 +71,7 @@ export function AdminModal({
 
       const focusableElements = Array.from(
         dialogRef.current.querySelectorAll<HTMLElement>(focusableSelector),
-      ).filter((element) => element.getAttribute('aria-hidden') !== 'true')
+      ).filter((element) => element.getAttribute('aria-hidden') !== 'true' && element.getClientRects().length > 0)
 
       if (focusableElements.length === 0) {
         event.preventDefault()
@@ -96,8 +98,8 @@ export function AdminModal({
     return () => {
       window.cancelAnimationFrame(focusFrame)
       document.removeEventListener('keydown', handleKeyDown)
-      document.body.style.overflow = previousBodyOverflow
-      previousActiveElement?.focus()
+      const wasTop = layer.leave()
+      if (wasTop && previousActiveElement?.isConnected) previousActiveElement.focus()
     }
   }, [isOpen])
 
@@ -106,7 +108,7 @@ export function AdminModal({
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-50 overflow-hidden bg-navy-midnight/55 sm:p-6">
+    <div className="admin-modal fixed inset-0 z-50 overflow-hidden bg-navy-midnight/55 sm:p-6">
       <button
         aria-label="모달 닫기"
         className="absolute inset-0 cursor-default border-0 bg-transparent p-0"

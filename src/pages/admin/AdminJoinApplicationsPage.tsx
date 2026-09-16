@@ -560,6 +560,7 @@ export function AdminJoinApplicationsPage() {
   return (
     <AdminCrudListPage
       canCreate={false}
+      canDelete={false}
       columns={columns}
       description="입단지원서 제출 내용을 확인하고 처리 상태를 관리합니다."
       emptyMessage="접수된 입단지원서가 없습니다."
@@ -581,7 +582,7 @@ export function AdminJoinApplicationsPage() {
           ],
         },
       ]}
-      info="지원서 원문은 관리자 화면에서만 확인합니다. public 화면에는 노출하지 않습니다."
+      info="지원서 원문은 관리자만 확인합니다. 기록과 첨부파일 보호를 위해 여기서는 영구 삭제하지 않습니다. 상세의 ‘보관 처리’를 켜서 보관하고, 다시 끄면 복원됩니다."
       order={{ column: 'created_at', ascending: false }}
       preparePayload={preparePayload}
       validatePayload={validatePayload}

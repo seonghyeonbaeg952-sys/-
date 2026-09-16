@@ -1,3 +1,5 @@
+import { SiteCopy } from '../site-editor/SiteCopy'
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import type { PersonProfileRow } from '../../types/cms'
 import '../../styles/conductor-profile.css'
 
@@ -106,7 +108,7 @@ function normalizeImageSource(value: string) {
   return null
 }
 
-function parseFirstActivityImage(value?: string | null): ActivityImage | null {
+function parseFirstActivityImage(value: string | null | undefined, fallbackAlt: string): ActivityImage | null {
   const firstLine = value
     ?.split(/\r?\n/)
     .map((line) => line.trim())
@@ -121,13 +123,15 @@ function parseFirstActivityImage(value?: string | null): ActivityImage | null {
   if (!src) return null
 
   return {
-    alt: rawAlt || '서울모테트청소년합창단 공연 사진',
+    alt: rawAlt || fallbackAlt,
     caption: rawCaption || null,
     src,
   }
 }
 
 export function ConductorProfileDocument({ person }: { person?: PersonProfileRow | null }) {
+  const { copy: copyText } = useSiteEditor()
+  const { copy: editorCopy } = useSiteEditor()
   const name = person?.name?.trim() || '김형수'
   const role = person?.role?.trim() || '지휘자'
   const profileSummary = splitParagraphs(person?.profile_summary)
@@ -155,24 +159,24 @@ export function ConductorProfileDocument({ person }: { person?: PersonProfileRow
         ? legacyCurrentRoles
         : [...defaultCurrentRoles]
   const profileImage = normalizeImageSource(person?.photo_url ?? '') || defaultProfileImage
-  const performanceImage = parseFirstActivityImage(person?.activity_images) ?? {
-    alt: '서울모테트청소년합창단과 오케스트라가 함께하는 공연 사진',
+  const performanceImage = parseFirstActivityImage(person?.activity_images, editorCopy('conductor', 'conductor.activity.alt', '서울모테트청소년합창단 공연 사진')) ?? {
+    alt: editorCopy('conductor', 'conductor.performance.alt', '서울모테트청소년합창단과 오케스트라가 함께하는 공연 사진'),
     caption: null,
     src: defaultPerformanceImage,
   }
   const profileImageAlt =
-    person?.profile_image_alt?.trim() || `${name} ${role} 공식 프로필`
+    person?.profile_image_alt?.trim() || `${name} ${role} ${editorCopy('conductor', 'conductor.profile.altSuffix', '공식 프로필')}`
 
   return (
     <div className="conductor-profile">
       <div className="conductor-profile__shell">
         <header className="conductor-profile__heading">
           <div>
-            <p className="conductor-profile__eyebrow">CONDUCTOR</p>
+            <p className="conductor-profile__eyebrow"><SiteCopy page="conductor" id="conductor.conductorProfileDocument.english1" fallback={"CONDUCTOR"} /></p>
             <span aria-hidden="true" className="conductor-profile__heading-rule" />
-            <h1 id="conductor-profile-title">지휘자 소개</h1>
+            <h1 id="conductor-profile-title"><SiteCopy page="conductor" id="conductor.conductorProfileDocument.text1" fallback={"지휘자 소개"} /></h1>
           </div>
-          <p className="conductor-profile__organization">SEOUL MOTET YOUTH CHOIR</p>
+          <p className="conductor-profile__organization">{copyText("conductor", "conductor.fixed.ConductorProfileDocument.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</p>
         </header>
 
         <section
@@ -210,11 +214,11 @@ export function ConductorProfileDocument({ person }: { person?: PersonProfileRow
 
           <div className="conductor-profile__details">
             <div className="conductor-profile__identity">
-              <p>SEOUL MOTET YOUTH CHOIR</p>
-              <small>CONDUCTOR · 2014 — PRESENT</small>
+              <p>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</p>
+              <small><SiteCopy page="conductor" id="conductor.conductorProfileDocument.english2" fallback={"CONDUCTOR"} />{copyText("conductor", "conductor.fixed.ConductorProfileDocument.8a191edde4", " · 2014 — PRESENT")}</small>
               <span aria-hidden="true" className="conductor-profile__identity-rule" />
               <h2>{name}</h2>
-              <strong>KIM HYUNG-SU</strong>
+              <strong>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.ab3fd80626", "KIM HYUNG-SU")}</strong>
             </div>
 
             <div className="conductor-profile__copy">
@@ -225,8 +229,8 @@ export function ConductorProfileDocument({ person }: { person?: PersonProfileRow
               </div>
 
               <div className="conductor-profile__current">
-                <p>CURRENT</p>
-                <ul aria-label="현재 주요 역할">
+                <p><SiteCopy page="conductor" id="conductor.conductorProfileDocument.english3" fallback={"CURRENT"} /></p>
+                <ul aria-label={editorCopy("conductor", "conductor.conductorProfileDocument.ariaLabel2", "현재 주요 역할")}>
                   {currentRoles.map((item) => (
                     <li key={item}>{item}</li>
                   ))}
@@ -235,9 +239,7 @@ export function ConductorProfileDocument({ person }: { person?: PersonProfileRow
             </div>
           </div>
 
-          <footer className="conductor-profile__footer-note">
-            SMYC CONDUCTOR PROFILE · KIM HYUNG-SU
-          </footer>
+          <footer className="conductor-profile__footer-note"><SiteCopy page="conductor" id="conductor.conductorProfileDocument.english4" fallback={"SMYC CONDUCTOR PROFILE"} />{copyText("conductor", "conductor.fixed.ConductorProfileDocument.daecd7d7b9", " · KIM HYUNG-SU")}</footer>
         </section>
       </div>
     </div>

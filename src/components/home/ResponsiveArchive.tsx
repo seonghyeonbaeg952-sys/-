@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useId } from 'react'
 import type { GalleryImage, Poster, VideoItem } from '../../types/content'
 import { Button } from '../common/Button'
@@ -20,6 +21,7 @@ type ResponsiveArchiveProps = {
 }
 
 export function ResponsiveArchive({ buttonLabel, categoryLabel, emptyDescription = '현재 공개된 공연·연습 기록이 없습니다.', emptyTitle = '공개된 갤러리 자료가 없습니다', eyebrow, images, posters, title, videos }: ResponsiveArchiveProps) {
+  const { copy: copyText } = useSiteEditor()
   const headingId = useId()
   const tablet = useHomeResponsiveViewport() === 'tablet'
   const photo = [...images].filter(item => item.is_visible && item.image_url.trim()).sort((a, b) => a.display_order - b.display_order)[0]
@@ -38,7 +40,7 @@ export function ResponsiveArchive({ buttonLabel, categoryLabel, emptyDescription
               <OptimizedImage
                 alt={media.alt}
                 className="home-responsive-archive__image"
-                fallbackLabel="미리보기를 불러오지 못했습니다"
+                fallbackLabel={copyText("home", "home.fixed.ResponsiveArchive.8b51a79014", "미리보기를 불러오지 못했습니다")}
                 fallbackSrcs={media.fallbackSrcs}
                 fallbackVariant="gallery"
                 imageClassName="home-responsive-archive__photo"
@@ -53,8 +55,8 @@ export function ResponsiveArchive({ buttonLabel, categoryLabel, emptyDescription
           </figure>
         ) : <EmptyState title={emptyTitle} description={emptyDescription} />
   const tabs = <nav aria-label={categoryLabel} className="home-responsive-archive__tabs">
-    <TransitionLink to="/gallery?tab=photos"><span aria-hidden="true">01</span> 사진 {tablet ? <span aria-hidden="true">↗</span> : null}</TransitionLink>
-    <TransitionLink to="/gallery?tab=posters"><span aria-hidden="true">02</span> 포스터 {tablet ? <span aria-hidden="true">↗</span> : null}</TransitionLink>
+    <TransitionLink to="/gallery?tab=photos"><span aria-hidden="true">01</span>{copyText("home", "home.fixed.ResponsiveArchive.6005c285bf", " 사진 ")}{tablet ? <span aria-hidden="true">↗</span> : null}</TransitionLink>
+    <TransitionLink to="/gallery?tab=posters"><span aria-hidden="true">02</span>{copyText("home", "home.fixed.ResponsiveArchive.931ffe3cf3", " 포스터 ")}{tablet ? <span aria-hidden="true">↗</span> : null}</TransitionLink>
     <TransitionLink to="/gallery?tab=videos"><span aria-hidden="true">03</span> {tablet ? '동영상' : '영상'} {tablet ? <span aria-hidden="true">↗</span> : null}</TransitionLink>
   </nav>
   return (

@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router'
 
 import { HomeV4SampleHeader } from '../sample/home-v4/HomeV4SampleHeader'
 import { Footer } from './Footer'
+import { SiteCopy } from '../site-editor/SiteCopy'
 import '../../styles/color-sample-theme.css'
 
 export function PublicLayout() {
@@ -21,7 +22,7 @@ export function PublicLayout() {
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-button focus:bg-gold-warm focus:px-4 focus:py-3 focus:text-sm focus:font-semibold focus:text-navy-midnight"
         href="#main-content"
       >
-        본문으로 바로가기
+        <SiteCopy page="common" id="common.skip" fallback="본문으로 바로가기" />
       </a>
       <HomeV4SampleHeader mode="production" transparentAtTop={false} />
       <main id="main-content" tabIndex={-1}>

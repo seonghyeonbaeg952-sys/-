@@ -29,7 +29,8 @@ import { useHomeResponsiveViewport } from '../../components/home/useHomeResponsi
 import { SupportLetterFold } from '../../components/home/SupportLetterFold'
 import { useHomeData } from '../../hooks/usePublicData'
 import { normalizeHomeContentV2 } from '../../lib/homeContent'
-import { resolveHomeContentForDevice } from '../../lib/homeDeviceContent'
+import { applyHomeEditorOverrides, resolveHomeEditorContent } from '../../lib/homeEditorOverrides'
+import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 import type { Concert, GalleryImage } from '../../types/content'
 
 type HomePageMode = 'default' | 'section-flow-sample'
@@ -149,7 +150,9 @@ export function HomePage({
   performancePresentation = 'default',
   spiritPresentation = 'scorebook',
 }: HomePageProps) {
+  const { copy: copyText } = useSiteEditor()
   const viewport = useHomeResponsiveViewport()
+  const { documents } = useSiteEditor()
   const homeData = useHomeData()
   const {
     aboutSections,
@@ -167,9 +170,9 @@ export function HomePage({
   } = homeData.data
   const homeContent = useMemo(
     () => performancePresentation === 'figma-template-carousel'
-      ? resolveHomeContentForDevice(siteTexts, viewport)
-      : normalizeHomeContentV2(siteTexts),
-    [performancePresentation, siteTexts, viewport],
+      ? resolveHomeEditorContent(siteTexts, documents, viewport)
+      : normalizeHomeContentV2(applyHomeEditorOverrides(siteTexts, documents, 'desktop')),
+    [documents, performancePresentation, siteTexts, viewport],
   )
   const visibleGalleryImages = getVisibleGalleryImages(gallery)
   const aboutVisualImage =
@@ -230,12 +233,10 @@ export function HomePage({
           <Container className="relative z-30 py-6">
             <ErrorState
               action={
-                <Button onClick={homeData.refetch} variant="secondary">
-                  최신 소식 다시 불러오기
-                </Button>
+                <Button onClick={homeData.refetch} variant="secondary">{copyText("home", "home.fixed.HomePage.2b184615cb", "최신 소식 다시 불러오기")}</Button>
               }
-              description="공연·공지 등 최신 운영 정보를 불러오지 못했습니다. 예시 일정으로 대체하지 않았습니다."
-              title="일부 최신 소식을 표시할 수 없습니다"
+              description={copyText("home", "home.fixed.HomePage.3f591c5385", "공연·공지 등 최신 운영 정보를 불러오지 못했습니다. 예시 일정으로 대체하지 않았습니다.")}
+              title={copyText("home", "home.fixed.HomePage.cefe18142e", "일부 최신 소식을 표시할 수 없습니다")}
             />
           </Container>
         ) : null}
@@ -361,7 +362,7 @@ export function HomePage({
                 noticePanelTitle={
                   homeContent.concertProgram.noticePanelTitle
                 }
-                programNoteLabel="PROGRAM NOTE"
+                programNoteLabel={copyText("home", "home.fixed.HomePage.75a1e0c152", "PROGRAM NOTE")}
                 responsiveCardEyebrow={homeContent.concertProgram.responsiveCardEyebrow}
                 responsiveNoticeEyebrow={homeContent.concertProgram.responsiveNoticeEyebrow}
                 responsiveDescription={homeContent.concertProgram.responsiveDescription}

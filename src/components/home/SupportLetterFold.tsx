@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { legacyLocationSeed } from '../../constants/legacyContent'
 import type { SiteSettings } from '../../types/content'
 import type { HomeContentV2 } from '../../types/homeContent'
@@ -42,6 +43,7 @@ export function SupportLetterFold({
   settings,
   approvedResponsive = false,
 }: SupportLetterFoldProps) {
+  const { copy: copyText } = useSiteEditor()
   const viewport = useHomeResponsiveViewport()
   if (approvedResponsive && viewport !== 'desktop') {
     return <ResponsiveSupportLetter content={content} viewport={viewport} />
@@ -66,7 +68,7 @@ export function SupportLetterFold({
       />
       <Container className="support-pledge-container">
         <header className="support-pledge-folio" aria-hidden="true">
-          <p>SUPPORT LETTER · 다음 기록을 함께 만듭니다</p>
+          <p>{copyText("home", "home.fixed.SupportLetterFold.2ca09c78c6", "SUPPORT LETTER · 다음 기록을 함께 만듭니다")}</p>
         </header>
 
         <div className="support-letter-layout">
@@ -78,10 +80,8 @@ export function SupportLetterFold({
             <p className="support-pledge-description">
               {content.description || fallback.body}
             </p>
-            <p className="support-pledge-values">
-              정직한 음악 <span aria-hidden="true">·</span> 함께 부르는 공동체{' '}
-              <span aria-hidden="true">·</span> 다음 세대 교육
-            </p>
+            <p className="support-pledge-values">{copyText("home", "home.fixed.SupportLetterFold.97e1959dd9", "정직한 음악 ")}<span aria-hidden="true">·</span>{copyText("home", "home.fixed.SupportLetterFold.31e5f76d33", " 함께 부르는 공동체")}{' '}
+              <span aria-hidden="true">·</span>{copyText("home", "home.fixed.SupportLetterFold.6a95b54c19", " 다음 세대 교육")}</p>
             <div className="support-pledge-actions">
               <Button
                 className="support-pledge-action support-pledge-action--primary"
@@ -123,11 +123,11 @@ export function SupportLetterFold({
 
             <dl className="support-pledge-contact">
               <div>
-                <dt>전화</dt>
+                <dt>{copyText("home", "home.fixed.SupportLetterFold.6db518d738", "전화")}</dt>
                 <dd>{phone}</dd>
               </div>
               <div>
-                <dt>주소</dt>
+                <dt>{copyText("home", "home.fixed.SupportLetterFold.28e058c7ce", "주소")}</dt>
                 <dd>{address}</dd>
               </div>
             </dl>
@@ -136,9 +136,9 @@ export function SupportLetterFold({
 
         <div className="support-pledge-score" aria-hidden="true">
           <ol>
-            <li>교육</li>
-            <li>연습</li>
-            <li>공연</li>
+            <li>{copyText("home", "home.fixed.SupportLetterFold.4da9a75910", "교육")}</li>
+            <li>{copyText("home", "home.fixed.SupportLetterFold.3906aa577b", "연습")}</li>
+            <li>{copyText("home", "home.fixed.SupportLetterFold.1c3a0a24ef", "공연")}</li>
           </ol>
         </div>
       </Container>

@@ -67,6 +67,7 @@ test('admin status updates retain a strict mutation whitelist', () => {
     applicant_name: 'do not mutate', desired_parts: ['bass'] }),
   { status: 'contacted', admin_notes: '확인', is_archived: false })
   assert.equal(props.canCreate, false)
+  assert.equal(props.canDelete, false)
   assert.equal(props.showVisibility, false)
   assert.equal(props.table, 'join_applications')
 })

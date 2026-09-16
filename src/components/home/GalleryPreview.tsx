@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useEffect, useState } from 'react'
 
 import type { GalleryImage, Poster, VideoItem } from '../../types/content'
@@ -62,6 +63,7 @@ export function GalleryPreview({
   title = '활동 기록',
   videos = [],
 }: GalleryPreviewProps) {
+  const { copy: copyText } = useSiteEditor()
   const isDesktop = useDesktopArchiveLayout()
 
   if (approvedResponsive && !isDesktop) {
@@ -92,7 +94,7 @@ export function GalleryPreview({
     >
       <HomeSectionStaffCue
         className="home-section-staff-cue--archive"
-        label="기록"
+        label={copyText("home", "home.fixed.GalleryPreview.6e8b375a38", "기록")}
         noteOffset={39}
         symbol="♬"
       />

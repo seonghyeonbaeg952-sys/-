@@ -1,0 +1,114 @@
+import { useEffect, useRef, useState } from 'react'
+import { isEditorPageId, validateSiteEditorDocument } from '../../../lib/siteEditorModel'
+import { SITE_EDITOR_PROTOCOL_VERSION } from '../../../lib/siteEditorPreview'
+import { siteCopyDefinitions } from '../../../content/siteCopyCatalog'
+import type { EditorDevice, EditorPageId, SiteEditorDocuments } from '../../../types/siteEditor'
+import { Button } from '../../common/Button'
+import { readEditorPreviewReply } from './editorPreviewModel'
+import { editorViewports } from './editorUiOptions'
+import { validateEditorCopyFields } from './editorSessionModel'
+
+type Props = {
+  page: EditorPageId
+  label: string
+  path: string | null
+  device: EditorDevice
+  documents: SiteEditorDocuments
+  loadingPath?: boolean
+  onDeviceChange: (device: EditorDevice) => void
+}
+
+function PreviewFrame({ page, label, path, device, documents, fit }: Omit<Props, 'onDeviceChange'> & { path: string; fit: boolean }) {
+  const [nonce] = useState(() => crypto.randomUUID())
+  const frame = useRef<HTMLIFrameElement>(null)
+  const holder = useRef<HTMLDivElement>(null)
+  const [available, setAvailable] = useState(0)
+  const [readyCount, setReadyCount] = useState(0)
+  const [failure, setFailure] = useState<string | null>(null)
+  const [pending, setPending] = useState(0)
+  const [applied, setApplied] = useState(0)
+  const sequence = useRef(0)
+  const viewport = editorViewports.find((item) => item.id === device) ?? editorViewports[0]
+  const previewPage = page === 'common' ? 'home' : page
+  const scale = fit && available > 0 ? Math.min(1, available / viewport.width) : 1
+  const url = new URL(path, window.location.origin)
+  const allowedUrl = url.origin === window.location.origin && !url.pathname.startsWith('/admin')
+  url.searchParams.set('site-editor-preview', nonce)
+  const invalidDraft = Object.entries(documents).some(([key, document]) => !isEditorPageId(key) || validateSiteEditorDocument(document) || validateEditorCopyFields(document, siteCopyDefinitions.filter((field) => field.page === key)))
+
+  useEffect(() => {
+    const node = holder.current
+    if (!node) return
+    const measure = () => setAvailable(node.clientWidth)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const receive = (event: MessageEvent) => {
+      const source = frame.current?.contentWindow
+      if (!source) return
+      const reply = readEditorPreviewReply(event, { source, origin: window.location.origin, nonce, page: previewPage })
+      if (!reply) return
+      if (reply.type === 'smyc-editor:ready') {
+        setReadyCount((value) => value + 1)
+        setFailure(null)
+      } else if (reply.sequence === sequence.current) {
+        setApplied(reply.sequence)
+        setFailure(null)
+      }
+    }
+    window.addEventListener('message', receive)
+    return () => window.removeEventListener('message', receive)
+  }, [nonce, previewPage])
+
+  useEffect(() => {
+    if (readyCount) return
+    const timer = window.setTimeout(() => setFailure('미리보기 연결이 지연되고 있습니다. 새로고침하거나 네트워크를 확인해 주세요.'), 12000)
+    return () => window.clearTimeout(timer)
+  }, [readyCount])
+
+  useEffect(() => {
+    if (!readyCount || invalidDraft || !allowedUrl) return
+    const timer = window.setTimeout(() => {
+      const nextSequence = ++sequence.current
+      setPending(nextSequence)
+      frame.current?.contentWindow?.postMessage({ type: 'smyc-editor:draft', version: SITE_EDITOR_PROTOCOL_VERSION, nonce, page: previewPage, sequence: nextSequence, documents }, window.location.origin)
+    }, 120)
+    return () => window.clearTimeout(timer)
+  }, [readyCount, invalidDraft, allowedUrl, documents, nonce, previewPage])
+
+  useEffect(() => {
+    if (!pending || pending === applied) return
+    const timer = window.setTimeout(() => setFailure('초안 반영을 확인하지 못했습니다. 미리보기를 새로고침해 주세요.'), 10000)
+    return () => window.clearTimeout(timer)
+  }, [pending, applied])
+
+  return <>
+    <p className={failure || invalidDraft ? 'site-editor__error' : 'site-editor__help'} role={failure || invalidDraft ? 'alert' : 'status'}>
+      {invalidDraft ? '입력 범위를 벗어난 값이 있어 마지막 미리보기를 유지합니다. 입력을 확인해 주세요.' : failure ?? (!readyCount ? '공개 화면에 미리보기를 연결하는 중입니다.' : pending === applied && applied > 0 ? '현재 초안을 반영했습니다. 실제 접수는 차단됩니다.' : '초안을 반영하는 중입니다.')}
+    </p>
+    <div className="site-editor__preview-scroll" ref={holder}>
+      <div className="site-editor__preview-stage" style={{ width: viewport.width * scale, height: viewport.height * scale }}>
+        {allowedUrl ? <iframe ref={frame} className="site-editor__frame" title={`${label} 초안 · ${viewport.label} ${viewport.width}px 미리보기`} src={url.pathname + url.search + url.hash} onError={() => setFailure('미리보기를 불러오지 못했습니다. 새로고침해 주세요.')} style={{ width: viewport.width, height: viewport.height, transform: `scale(${scale})` }} /> : <p role="alert">허용된 홈페이지 경로만 미리볼 수 있습니다.</p>}
+      </div>
+    </div>
+  </>
+}
+
+export function EditorPreview({ page, label, path, device, documents, loadingPath = false, onDeviceChange }: Props) {
+  const [fit, setFit] = useState(true)
+  const [refresh, setRefresh] = useState(0)
+  const [open, setOpen] = useState(true)
+  return <section className="site-editor__preview" aria-label="실제 화면 미리보기">
+    <div className="site-editor__section-heading"><h2>초안 미리보기</h2><Button size="sm" variant="ghost" aria-expanded={open} onClick={() => setOpen((value) => !value)}>{open ? '접기' : '펼치기'}</Button></div>
+    <p className="site-editor__help">이 창은 관리자 초안입니다. 임시저장이나 미리보기는 공개 홈페이지를 바꾸지 않습니다.</p>
+    <div hidden={!open}>
+      <div className="site-editor__preview-tools" role="group" aria-label="미리보기 크기">{editorViewports.map((viewport) => <button key={viewport.id} type="button" aria-pressed={device === viewport.id} onClick={() => onDeviceChange(viewport.id)}>{viewport.label} {viewport.width}</button>)}</div>
+      <div className="site-editor__preview-tools" role="group" aria-label="미리보기 표시"><button type="button" aria-pressed={fit} onClick={() => setFit(true)}>화면에 맞춤</button><button type="button" aria-pressed={!fit} onClick={() => setFit(false)}>실제 크기</button><button type="button" onClick={() => setRefresh((value) => value + 1)}>새로고침</button></div>
+      {loadingPath ? <p role="status">미리볼 공개 항목을 찾는 중입니다.</p> : path ? <PreviewFrame key={`${page}-${path}-${refresh}`} page={page} label={label} path={path} device={device} documents={documents} fit={fit} /> : <p className="site-editor__empty">미리볼 공개 항목이 없습니다. 연결된 콘텐츠 관리에서 항목을 등록하고 공개한 뒤 다시 열어 주세요.</p>}
+    </div>
+  </section>
+}

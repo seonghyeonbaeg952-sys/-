@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useMemo, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 
@@ -73,6 +74,7 @@ function HomeSpiritScoreBookLegacy({
   sections,
   wrapper,
 }: Pick<HomeSpiritScoreBookProps, 'image' | 'sections' | 'wrapper'>) {
+  const { copy: copyText } = useSiteEditor()
   const pages = useMemo(() => createPages(sections), [sections])
   const [activeIndex, setActiveIndex] = useState(0)
   const activePage = pages[activeIndex]
@@ -112,7 +114,7 @@ function HomeSpiritScoreBookLegacy({
     >
       <HomeSectionStaffCue
         className="home-section-staff-cue--spirit"
-        label="정신"
+        label={copyText("home", "home.fixed.HomeSpiritScoreBook.2c3d6b050d", "정신")}
         noteOffset={21}
         symbol="♫"
       />
@@ -122,10 +124,7 @@ function HomeSpiritScoreBookLegacy({
             <Reveal>
               <KineticHeadline
                 body={
-                  <p>
-                    모테트의 이름과 서울모테트청소년합창단이 지향하는 교육
-                    가치를 소개합니다.
-                  </p>
+                  <p>{copyText("home", "home.fixed.HomeSpiritScoreBook.2f2f54085d", "모테트의 이름과 서울모테트청소년합창단이 지향하는 교육 가치를 소개합니다.")}</p>
                 }
                 className="max-w-4xl"
                 eyebrow={wrapper.eyebrowKo}
@@ -156,7 +155,7 @@ function HomeSpiritScoreBookLegacy({
                   >
                     <div aria-hidden="true" className="home-spirit-media-shade" />
                     <div className="home-spirit-media-caption">
-                      <span>FROM THE ARCHIVE</span>
+                      <span>{copyText("home", "home.fixed.HomeSpiritScoreBook.3668ed121a", "FROM THE ARCHIVE")}</span>
                       <strong title={image.title}>{image.title}</strong>
                     </div>
                   </ImageTile>
@@ -167,15 +166,13 @@ function HomeSpiritScoreBookLegacy({
 
           <Reveal delay={80} variant="card-rise">
             <article
-              aria-roledescription="scorebook"
+              aria-roledescription={copyText("home", "home.fixed.HomeSpiritScoreBook.77a508729e", "scorebook")}
               className="spirit-scorebook"
               onKeyDown={handleKeyDown}
               role="region"
               tabIndex={0}
             >
-            <div aria-hidden="true" className="spirit-scorebook-ghost">
-              MOTET
-            </div>
+            <div aria-hidden="true" className="spirit-scorebook-ghost">{copyText("home", "home.fixed.HomeSpiritScoreBook.2e4c1aaa81", "MOTET")}</div>
             <div className="spirit-scorebook-shell">
               <div className="spirit-scorebook-page spirit-scorebook-page-left">
                 <StaffLines
@@ -205,7 +202,7 @@ function HomeSpiritScoreBookLegacy({
               <div className="spirit-scorebook-page spirit-scorebook-page-right">
                 <div
                   aria-label={`${activeIndex + 1} / ${pages.length}, ${activePage.eyebrow}`}
-                  aria-roledescription="page"
+                  aria-roledescription={copyText("home", "home.fixed.HomeSpiritScoreBook.3660315a9a", "page")}
                   className="spirit-scorebook-active-page"
                   key={`${activePage.eyebrow}-${activeIndex}`}
                   role="group"
@@ -224,7 +221,7 @@ function HomeSpiritScoreBookLegacy({
 
             <div className="spirit-scorebook-controls">
               <button
-                aria-label="이전 합창단 정신 페이지"
+                aria-label={copyText("home", "home.fixed.HomeSpiritScoreBook.edde561614", "이전 합창단 정신 페이지")}
                 className="spirit-scorebook-arrow"
                 onClick={() => moveTo(activeIndex - 1)}
                 type="button"
@@ -247,7 +244,7 @@ function HomeSpiritScoreBookLegacy({
                 ))}
               </div>
               <button
-                aria-label="다음 합창단 정신 페이지"
+                aria-label={copyText("home", "home.fixed.HomeSpiritScoreBook.ece9e99316", "다음 합창단 정신 페이지")}
                 className="spirit-scorebook-arrow"
                 onClick={() => moveTo(activeIndex + 1)}
                 type="button"
@@ -255,8 +252,7 @@ function HomeSpiritScoreBookLegacy({
                 →
               </button>
             </div>
-            <p aria-live="polite" className="sr-only">
-              현재 {activeIndex + 1} / {pages.length}: {activePage.eyebrow}
+            <p aria-live="polite" className="sr-only">{copyText("home", "home.fixed.HomeSpiritScoreBook.9457b707e6", "현재 ")}{activeIndex + 1} / {pages.length}: {activePage.eyebrow}
             </p>
             </article>
           </Reveal>

@@ -1,10 +1,9 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Route, Routes } from 'react-router'
+import { createBrowserRouter, Navigate, Route, RouterProvider, Routes } from 'react-router'
 
-import { AdminLayout } from './components/admin/AdminLayout'
-import { ProtectedAdminRoute } from './components/admin/ProtectedAdminRoute'
 import { PublicLayout } from './components/layout/PublicLayout'
 import { RouteScrollManager } from './components/layout/RouteScrollManager'
+import { SiteEditorProvider } from './components/site-editor/SiteEditorProvider'
 import {
   COLOR_SAMPLE_BASENAME,
   isColorSamplePath,
@@ -75,6 +74,7 @@ const NotFoundPage = lazy(() =>
 const AdminLoginPage = lazy(() =>
   import('./pages/admin/AdminLoginPage').then((module) => ({ default: module.AdminLoginPage })),
 )
+const AdminRouteBoundary = lazy(() => import('./components/admin/AdminRouteBoundary').then(module => ({ default: module.AdminRouteBoundary })))
 const AdminDashboardPage = lazy(() =>
   import('./pages/admin/AdminDashboardPage').then((module) => ({
     default: module.AdminDashboardPage,
@@ -85,9 +85,9 @@ const AdminSettingsPage = lazy(() =>
     default: module.AdminSettingsPage,
   })),
 )
-const AdminSiteTextsPage = lazy(() =>
-  import('./pages/admin/AdminSiteTextsPage').then((module) => ({
-    default: module.AdminSiteTextsPage,
+const AdminSiteEditorPage = lazy(() =>
+  import('./pages/admin/AdminSiteEditorPage').then((module) => ({
+    default: module.AdminSiteEditorPage,
   })),
 )
 const AdminAboutPage = lazy(() =>
@@ -187,8 +187,12 @@ const AdminAccountPage = lazy(() =>
   })),
 )
 
-function RouteFallback() {
+export function RouteFallback() {
   const isPublicRoute = !window.location.pathname.startsWith('/admin')
+
+  if (!isPublicRoute) {
+    return <main className="admin-shell flex min-h-screen items-center justify-center px-5" aria-busy="true" aria-live="polite" role="status"><p>관리자 화면을 불러오고 있습니다</p></main>
+  }
 
   return (
     <main
@@ -211,11 +215,11 @@ function RouteFallback() {
   )
 }
 
-function App() {
+function AppRoutes() {
   const isColorSample = isColorSamplePath(window.location.pathname)
 
   return (
-    <BrowserRouter basename={isColorSample ? COLOR_SAMPLE_BASENAME : undefined}>
+      <SiteEditorProvider>
       <RouteScrollManager />
       <Suspense fallback={<RouteFallback />}>
         <Routes>
@@ -245,16 +249,13 @@ function App() {
           <Route path="admin/login" element={<AdminLoginPage />} />
           <Route
             path="admin"
-            element={
-              <ProtectedAdminRoute>
-                <AdminLayout />
-              </ProtectedAdminRoute>
-            }
+            element={<AdminRouteBoundary />}
           >
             <Route index element={<AdminDashboardPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
-            <Route path="home" element={<AdminSiteTextsPage />} />
-            <Route path="site-texts" element={<AdminSiteTextsPage />} />
+            <Route path="editor" element={<AdminSiteEditorPage />} />
+            <Route path="home" element={<Navigate replace to="/admin/editor?page=home" />} />
+            <Route path="site-texts" element={<Navigate replace to="/admin/editor?page=home" />} />
             <Route path="hero-slides" element={<AdminHeroSlidesPage />} />
             <Route path="popups" element={<AdminPopupNoticesPage />} />
             <Route path="about" element={<AdminAboutPage />} />
@@ -278,8 +279,20 @@ function App() {
           </Route>
         </Routes>
       </Suspense>
-    </BrowserRouter>
+      </SiteEditorProvider>
   )
 }
+
+// A single data router supplies navigation blocking to CMS. The existing route
+// tree, public layouts, URLs and scroll manager remain unchanged underneath it.
+const appRouter = typeof document === 'undefined' ? null : createBrowserRouter([{ path: '*', element: <AppRoutes /> }], {
+  basename: isColorSamplePath(window.location.pathname) ? COLOR_SAMPLE_BASENAME : undefined,
+})
+
+function App() {
+  return appRouter ? <RouterProvider router={appRouter} /> : null
+}
+
+if (import.meta.hot) import.meta.hot.dispose(() => appRouter?.dispose())
 
 export default App

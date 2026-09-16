@@ -1,4 +1,6 @@
 import { SUPABASE_SETUP_MESSAGE, getSupabaseClientSafe } from './auth'
+import { submitContactIntake, submitSupportIntake } from './intakeApi'
+import { isSiteEditorPreview, PREVIEW_SUBMISSION_MESSAGE } from './siteEditorPreview'
 import {
   mockSiteSettings,
   mockSupportSettings,
@@ -28,7 +30,6 @@ import type {
   HistoryRow,
   HeroSlideRow,
   JoinInfoRow,
-  JoinApplicationStatus,
   LocationRow,
   NoticeRow,
   PersonProfileRow,
@@ -158,8 +159,6 @@ type UpcomingConcertSelectionOptions = {
 const SITE_SETTINGS_SELECT = '*'
 const SUPPORT_SETTINGS_SELECT = '*'
 const SITE_TEXT_SELECT = '*'
-const JOIN_APPLICATION_FILES_BUCKET = 'join-application-files'
-const JOIN_APPLICATIONS_SCHEMA_MIGRATION = '2026_add_join_applications.sql'
 
 const SPONSOR_SELECT = [
   'id',
@@ -480,28 +479,6 @@ function isMissingSupportSettingsError(error: unknown) {
   )
 }
 
-function isMissingSupportPledgesError(error: unknown) {
-  const message = getErrorMessage(error).toLowerCase()
-
-  return (
-    message.includes('support_pledges') &&
-    (message.includes('schema cache') ||
-      message.includes('does not exist') ||
-      message.includes('could not find the table'))
-  )
-}
-
-function isMissingSponsorsError(error: unknown) {
-  const message = getErrorMessage(error).toLowerCase()
-
-  return (
-    message.includes('sponsors') &&
-    (message.includes('schema cache') ||
-      message.includes('does not exist') ||
-      message.includes('could not find the table'))
-  )
-}
-
 function isMissingSiteTextsError(error: unknown) {
   const message = getErrorMessage(error).toLowerCase()
 
@@ -522,158 +499,6 @@ function isMissingPublicMembersFunctionError(error: unknown) {
       message.includes('does not exist') ||
       message.includes('could not find the function'))
   )
-}
-
-function isMissingJoinApplicationsError(error: unknown) {
-  const message = getErrorMessage(error).toLowerCase()
-
-  return (
-    message.includes('join_applications') &&
-    (message.includes('schema cache') ||
-      message.includes('does not exist') ||
-      message.includes('could not find the table'))
-  )
-}
-
-function isMissingJoinApplicationFilesBucketError(error: unknown) {
-  const message = getErrorMessage(error).toLowerCase()
-  const status = getErrorStatus(error)
-
-  return (
-    status === '404' ||
-    message.includes('bucket') ||
-    message.includes('not found') ||
-    message.includes('does not exist')
-  )
-}
-
-function normalizeOptionalText(value: string | null | undefined) {
-  const trimmedValue = value?.trim()
-
-  return trimmedValue ? trimmedValue : null
-}
-
-function joinLabeledLines(items: Array<[string, string | null | undefined]>) {
-  return items
-    .map(([label, value]) => {
-      const normalizedValue = value?.trim()
-
-      return normalizedValue ? `${label}: ${normalizedValue}` : null
-    })
-    .filter(Boolean)
-    .join('\n')
-}
-
-function getFileExtension(file: File) {
-  const extension = file.name.split('.').pop()?.toLowerCase() ?? ''
-
-  if (extension === 'jpeg') {
-    return 'jpg'
-  }
-
-  return extension
-}
-
-function sanitizeStorageFileName(fileName: string) {
-  const extension = fileName.split('.').pop()?.toLowerCase()
-  const baseName = fileName
-    .replace(/\.[^.]+$/, '')
-    .normalize('NFKD')
-    .replace(/[^\w.-]+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-    .slice(0, 48)
-
-  return `${baseName || 'file'}${extension ? `.${extension}` : ''}`
-}
-
-function validateJoinApplicationFile(
-  file: File,
-  kind: 'photo' | 'recommendation',
-): PublicDataResult<true> {
-  const extension = getFileExtension(file)
-  const allowedPhotoExtensions = new Set(['jpg', 'png', 'webp'])
-  const allowedRecommendationExtensions = new Set([
-    'hwp',
-    'hwpx',
-    'jpg',
-    'pdf',
-    'png',
-    'webp',
-  ])
-  const maxSizeMb = kind === 'photo' ? 5 : 10
-  const maxBytes = maxSizeMb * 1024 * 1024
-  const isAllowed =
-    kind === 'photo'
-      ? allowedPhotoExtensions.has(extension)
-      : allowedRecommendationExtensions.has(extension)
-
-  if (!isAllowed) {
-    return {
-      data: null,
-      error:
-        kind === 'photo'
-          ? '사진은 jpg, png, webp 파일만 첨부할 수 있습니다.'
-          : '추천서는 pdf, hwp, hwpx 또는 이미지 파일만 첨부할 수 있습니다.',
-    }
-  }
-
-  if (file.size > maxBytes) {
-    return {
-      data: null,
-      error: `첨부 파일은 ${maxSizeMb}MB 이하만 업로드할 수 있습니다.`,
-    }
-  }
-
-  return { data: true, error: null }
-}
-
-async function uploadJoinApplicationFile(
-  client: SupabaseClient,
-  file: File | null,
-  kind: 'photo' | 'recommendation',
-): Promise<PublicDataResult<string | null>> {
-  if (!file) {
-    return { data: null, error: null } satisfies PublicDataResult<string | null>
-  }
-
-  const validationResult = validateJoinApplicationFile(file, kind)
-
-  if (!validationResult.data) {
-    return { data: null, error: validationResult.error }
-  }
-
-  const randomId =
-    globalThis.crypto?.randomUUID?.() ??
-    `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
-  const path = `submissions/${new Date().toISOString().slice(0, 10)}/${randomId}/${kind}-${sanitizeStorageFileName(file.name)}`
-  const { error } = await client.storage
-    .from(JOIN_APPLICATION_FILES_BUCKET)
-    .upload(path, file, {
-      cacheControl: '3600',
-      contentType: file.type || 'application/octet-stream',
-      upsert: false,
-    })
-
-  if (error) {
-    if (isMissingJoinApplicationFilesBucketError(error)) {
-      return {
-        data: null,
-        error:
-          `입단지원서 첨부 파일 bucket이 아직 없습니다. Supabase SQL Editor에서 ${JOIN_APPLICATIONS_SCHEMA_MIGRATION} migration을 먼저 실행해 주세요.`,
-      }
-    }
-
-    return {
-      data: null,
-      error: toPublicError(
-        error,
-        '첨부 파일 업로드에 실패했습니다. 파일을 확인한 뒤 다시 제출해 주세요.',
-      ),
-    }
-  }
-
-  return { data: path, error: null }
 }
 
 async function getPublicVisibleConductor(client: SupabaseClient) {
@@ -1230,10 +1055,9 @@ export async function getPublicSponsors(
   }
 
   let query = clientResult.data
-    .from('sponsors')
+    .rpc('get_public_sponsors', {}, { get: true })
     .select(SPONSOR_SELECT)
     .eq('is_visible', true)
-    .eq('consent_public', true)
     .order('display_order', { ascending: true })
     .order('created_at', { ascending: false })
 
@@ -1258,10 +1082,6 @@ export async function getPublicSponsors(
   const { data, error } = await query
 
   if (error) {
-    if (isMissingSponsorsError(error)) {
-      return { data: [], error: null }
-    }
-
     return { data: null, error: toPublicError(error, '후원사 정보를 불러오지 못했습니다.') }
   }
 
@@ -1734,240 +1554,27 @@ export async function getPublicContactData(): Promise<
 
 export async function createContactMessage(
   input: ContactMessageInput,
+  submissionId: string,
 ): Promise<PublicDataResult<true>> {
-  if (input.website?.trim()) {
-    return { data: true, error: null }
-  }
-
-  if (!input.privacy_agreed) {
-    return { data: null, error: '개인정보 수집 및 이용에 동의해 주세요.' }
-  }
-
-  const clientResult = getSupabaseClientSafe()
-
-  if (!clientResult.data) {
-    return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
-  }
-
-  const { error } = await clientResult.data.from('contacts').insert({
-    email: input.email,
-    message: input.message,
-    name: input.name,
-    phone: input.phone,
-    privacy_agreed: true,
-    status: 'new',
-    title: input.title,
-    type: input.type,
-  })
-
-  if (error) {
-    return {
-      data: null,
-      error: toPublicError(error, '문의 전송에 실패했습니다. 잠시 후 다시 시도해 주세요.'),
-    }
-  }
-
-  return { data: true, error: null }
+  return submitContactIntake(input, submissionId)
 }
 
+// Retained as a fail-closed compatibility entry for old imports. New admissions
+// use submitJoinApplication in joinApplications.ts; never upload through v1.
 export async function createJoinApplication(
   input: JoinApplicationInput,
 ): Promise<PublicDataResult<true>> {
-  if (input.website?.trim()) {
-    return { data: true, error: null }
-  }
-
-  if (!input.privacy_agreed) {
-    return { data: null, error: '개인정보 수집 및 이용에 동의해 주세요.' }
-  }
-
-  if (
-    !input.applicant_name.trim() ||
-    !input.applicant_name_hanja.trim() ||
-    !input.applicant_name_english.trim() ||
-    !input.birth_date ||
-    !input.age.trim() ||
-    input.gender === 'not_specified' ||
-    !input.religion.trim() ||
-    !input.address.trim() ||
-    !input.school.trim() ||
-    !input.grade.trim() ||
-    !input.education_status.trim() ||
-    !input.desired_part ||
-    !input.photo_file ||
-    !input.applicant_phone.trim() ||
-    !input.guardian_name.trim() ||
-    !input.guardian_phone.trim() ||
-    !input.email.trim() ||
-    !input.contact_time ||
-    !input.parent_occupation.trim() ||
-    !input.music_experience.trim() ||
-    !input.awards.trim() ||
-    !input.self_introduction.trim() ||
-    !input.motivation.trim() ||
-    !input.vision.trim()
-  ) {
-    return {
-      data: null,
-      error: '필수 항목을 모두 입력해 주세요.',
-    }
-  }
-
-  const clientResult = getSupabaseClientSafe()
-
-  if (!clientResult.data) {
-    return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
-  }
-
-  const photoUploadResult = await uploadJoinApplicationFile(
-    clientResult.data,
-    input.photo_file,
-    'photo',
-  )
-
-  if (photoUploadResult.error) {
-    return { data: null, error: photoUploadResult.error }
-  }
-
-  const recommendationUploadResult = await uploadJoinApplicationFile(
-    clientResult.data,
-    input.recommendation_file,
-    'recommendation',
-  )
-
-  if (recommendationUploadResult.error) {
-    return { data: null, error: recommendationUploadResult.error }
-  }
-
-  const initialStatus: JoinApplicationStatus = 'new'
-  const applicantProfileText = joinLabeledLines([
-    ['지원자 이름 한자', input.applicant_name_hanja],
-    ['지원자 이름 영문', input.applicant_name_english],
-    ['나이', input.age],
-    ['종교', input.religion],
-    ['주소', input.address],
-    ['최종학력 또는 현재 재학 정보', input.education_status],
-    ['부모님 직업', input.parent_occupation],
-  ])
-  const musicExperienceText = [
-    '지원자 추가 정보',
-    applicantProfileText,
-    '',
-    '음악활동 경험',
-    input.music_experience.trim(),
-  ].join('\n')
-  const motivationText = [
-    '자기소개 및 음악활동 경험',
-    input.self_introduction.trim(),
-    '',
-    '서울모테트청소년합창단을 지원하게 된 동기',
-    input.motivation.trim(),
-  ].join('\n')
-  const { error } = await clientResult.data.from('join_applications').insert({
-    admin_notes: null,
-    applicant_name: input.applicant_name.trim(),
-    applicant_phone: input.applicant_phone.trim(),
-    awards: input.awards.trim(),
-    birth_date: input.birth_date,
-    choir_experience: input.choir_experience,
-    contact_time: input.contact_time,
-    desired_part: input.desired_part,
-    email: input.email.trim(),
-    gender: input.gender,
-    grade: input.grade.trim(),
-    guardian_name: input.guardian_name.trim(),
-    guardian_phone: input.guardian_phone.trim(),
-    is_archived: false,
-    lesson_experience: input.lesson_experience,
-    motivation: motivationText,
-    music_experience: musicExperienceText,
-    photo_file_path: photoUploadResult.data,
-    privacy_agreed: true,
-    recommendation_file_path: recommendationUploadResult.data,
-    recommender_affiliation: normalizeOptionalText(input.recommender_affiliation),
-    recommender_name: normalizeOptionalText(input.recommender_name),
-    recommender_reason: normalizeOptionalText(input.recommender_reason),
-    region: input.address.trim(),
-    school: input.school.trim(),
-    status: initialStatus,
-    vision: input.vision.trim(),
-  })
-
-  if (error) {
-    if (isMissingJoinApplicationsError(error)) {
-      return {
-        data: null,
-        error:
-          `입단지원서 저장 테이블이 아직 없습니다. Supabase SQL Editor에서 ${JOIN_APPLICATIONS_SCHEMA_MIGRATION} migration을 먼저 실행해 주세요.`,
-      }
-    }
-
-    return {
-      data: null,
-      error: toPublicError(
-        error,
-        '입단지원서 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.',
-      ),
-    }
-  }
-
-  return { data: true, error: null }
+  if (isSiteEditorPreview()) return { data: null, error: PREVIEW_SUBMISSION_MESSAGE }
+  if (input.website?.trim()) return { data: true, error: null }
+  return { data: null, error: '현재 입단지원서는 입단 안내 페이지에서 작성해 주세요.' }
 }
 
 export async function createSupportPledge(
   input: SupportPledgeInput,
+  submissionId: string,
+  settingsId: string,
 ): Promise<PublicDataResult<true>> {
-  if (input.website?.trim()) {
-    return { data: true, error: null }
-  }
-
-  if (!input.privacy_agreed) {
-    return { data: null, error: '개인정보 수집 및 이용에 동의해 주세요.' }
-  }
-
-  const clientResult = getSupabaseClientSafe()
-
-  if (!clientResult.data) {
-    return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
-  }
-
-  const { error } = await clientResult.data.from('support_pledges').insert({
-    address: input.address,
-    amount: input.amount,
-    birth_date: input.birth_date,
-    custom_amount: input.custom_amount,
-    depositor: input.depositor,
-    email: input.email,
-    gender: input.gender,
-    member_type: input.member_type,
-    name: input.name,
-    phone: input.phone,
-    pledge_date: input.pledge_date,
-    privacy_agreed: true,
-    signature_image_url: input.signature_image_url,
-    signer_name: input.signer_name,
-    status: 'new',
-  })
-
-  if (error) {
-    if (isMissingSupportPledgesError(error)) {
-      return {
-        data: null,
-        error:
-          '후원약정 저장 테이블이 아직 없습니다. 관리자에게 Supabase migration 적용을 요청해 주세요.',
-      }
-    }
-
-    return {
-      data: null,
-      error: toPublicError(
-        error,
-        '후원약정 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.',
-      ),
-    }
-  }
-
-  return { data: true, error: null }
+  return submitSupportIntake(input, submissionId, settingsId)
 }
 
 export const publicFallbacks: {

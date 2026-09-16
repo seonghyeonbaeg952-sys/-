@@ -69,8 +69,6 @@ function HomeSectionFlowExperience({
     }
 
     const update = () => {
-      frame = 0
-
       if (!desktopQuery.matches || reducedMotionQuery.matches) {
         reset()
         return
@@ -164,7 +162,10 @@ function HomeSectionFlowExperience({
 
     const queueUpdate = () => {
       if (!frame) {
-        frame = window.requestAnimationFrame(update)
+        frame = window.requestAnimationFrame(() => {
+          frame = 0
+          update()
+        })
       }
     }
 
@@ -179,7 +180,7 @@ function HomeSectionFlowExperience({
       }
     })
     update()
-    window.addEventListener('scroll', update, { passive: true })
+    window.addEventListener('scroll', queueUpdate, { passive: true })
     window.addEventListener('resize', queueUpdate)
     desktopQuery.addEventListener('change', queueUpdate)
     reducedMotionQuery.addEventListener('change', queueUpdate)
@@ -187,7 +188,7 @@ function HomeSectionFlowExperience({
     return () => {
       window.cancelAnimationFrame(frame)
       resizeObserver.disconnect()
-      window.removeEventListener('scroll', update)
+      window.removeEventListener('scroll', queueUpdate)
       window.removeEventListener('resize', queueUpdate)
       desktopQuery.removeEventListener('change', queueUpdate)
       reducedMotionQuery.removeEventListener('change', queueUpdate)

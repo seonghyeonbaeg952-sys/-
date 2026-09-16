@@ -6,6 +6,8 @@ import vm from 'node:vm'
 import ts from 'typescript'
 
 const require = createRequire(import.meta.url)
+const intakeModule = ts.transpileModule(await readFile(new URL('../../lib/intakeModel.ts', import.meta.url), 'utf8'), { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText
+const intakeModel = await import(`data:text/javascript;base64,${Buffer.from(intakeModule).toString('base64')}`)
 const settings = {
   id: 'fixture', title: '원본 약정서 제목', subtitle: '원본 부제', description: '설명 원문\n둘째 줄',
   message: '약정 본문 원문\n빠짐없이 남길 문장', individual_amounts: [10000, 20000], corporate_amounts: [100000, 200000],
@@ -16,10 +18,11 @@ const settings = {
   footer_note: '하단 안내 원문', is_visible: true, updated_at: '2026-09-16T00:00:00Z',
 }
 
-async function loadForm(overrides = {}, submit = async () => ({ data: true, error: null })) {
+async function loadForm(overrides = {}, submit = async () => ({ data: true, error: null }), editorCopy = {}) {
   const slots = []
   let cursor = 0
   const writes = []
+  const requests = []
   const react = {
     useState(initial) {
       const index = cursor++
@@ -34,8 +37,10 @@ async function loadForm(overrides = {}, submit = async () => ({ data: true, erro
   const exports = {}
   const imports = {
     react, 'react/jsx-runtime': require('react/jsx-runtime'),
-    '../../lib/publicData': { createSupportPledge: async payload => { writes.push(payload); return submit(payload) } },
+    '../../lib/publicData': { createSupportPledge: async (payload, requestId, settingsId) => { writes.push(payload); requests.push({ requestId, settingsId }); return submit(payload) } },
+    '../../lib/intakeModel': intakeModel,
     '../../constants/spiritContent': { supportSpiritCopy: { title: '후원 제목', body: '후원 본문', notice: '후원 안내', eyebrow: 'SUPPORT' }, donorCareItems: [], supportMethodItems: [] },
+    '../site-editor/useSiteEditor': { useSiteEditor: () => ({ copy: (_page, key, fallback) => Object.hasOwn(editorCopy, key) ? editorCopy[key] : fallback }) },
     '../common/Button': { Button: 'button' }, '../common/StaffLines': { StaffLines: 'StaffLines' }, '../common/Spirit': { SpiritRibbon: 'SpiritRibbon' },
   }
   const sandbox = { exports, require: name => {
@@ -65,8 +70,18 @@ async function loadForm(overrides = {}, submit = async () => ({ data: true, erro
   function click(label) { const node = find(n => n.type === 'button' && text(n) === label)[0]; assert.ok(node, `missing action: ${label}`); const result = node.props.onClick?.(); render(); return result }
   async function submitForm() { await find(n => n.type === 'form')[0].props.onSubmit({ preventDefault() {} }); render() }
   render()
-  return { find, text, field, consent, click, submitForm, render, writes }
+  return { find, text, field, consent, click, submitForm, render, writes, requests }
 }
+
+test('editor copy changes the chosen donor label without replacing legal text or submitting a pledge', async () => {
+  const form = await loadForm({}, undefined, { 'contact.pledge.support-name': '후원자 성명' })
+  const label = form.find(node => typeof node.type === 'function' && node.props?.htmlFor === 'support-name')[0]
+  assert.ok(label)
+  assert.equal(form.text(label.type(label.props)), '후원자 성명')
+  assert.ok(form.text().includes(settings.privacy_notice))
+  assert.ok(form.text().includes(settings.message))
+  assert.equal(form.writes.length, 0)
+})
 
 function fillRequired(form) {
   form.field('support-name', ' 김테스트 ')
@@ -125,6 +140,38 @@ test('submission exceptions show a recoverable error while retaining the reviewe
   assert.ok(form.find(n => n.props?.role === 'alert').length)
   assert.ok(form.text().includes('김테스트'))
   assert.equal(form.find(n => n.type === 'button' && form.text(n) === '약정서 보내기')[0].props.disabled, false)
+})
+
+test('ambiguous submission retries reuse their identity; changing answers creates a new request tied to the same guide', async () => {
+  const form = await loadForm({}, async () => ({ data: null, error: 'Uncertain network result' }))
+  fillRequired(form)
+  await form.submitForm()
+  await form.click('약정서 보내기')
+  form.render()
+  await form.click('약정서 보내기')
+  form.render()
+  assert.match(form.requests[0].requestId ?? '', /^[0-9a-f-]{36}$/)
+  assert.equal(form.requests[1].requestId, form.requests[0].requestId)
+  assert.equal(form.requests[0].settingsId, 'fixture')
+  form.click('수정하기')
+  form.field('support-name', '수정한 이름')
+  await form.submitForm()
+  await form.click('약정서 보내기')
+  assert.notEqual(form.requests[2].requestId, form.requests[0].requestId)
+})
+
+test('explicitly starting a new pledge creates a new receipt even for identical answers', async () => {
+  const form = await loadForm()
+  fillRequired(form)
+  await form.submitForm()
+  await form.click('약정서 보내기')
+  form.render()
+  await form.click('새 약정서 작성')
+  fillRequired(form)
+  await form.submitForm()
+  await form.click('약정서 보내기')
+  assert.equal(form.requests.length, 2)
+  assert.notEqual(form.requests[1].requestId, form.requests[0].requestId)
 })
 
 test('original CMS text, all input fields, privacy agreement and signature remain printable; incomplete account stays hidden', async () => {

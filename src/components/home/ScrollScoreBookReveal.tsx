@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import {
   useEffect,
   useMemo,
@@ -513,6 +514,7 @@ function getWordStyle(
 export function ScrollScoreBookReveal({
   content,
 }: ScrollScoreBookRevealProps) {
+  const { copy: copyText } = useSiteEditor()
   const { isAnimatedDesktop, progress, sectionRef } = useScoreBookProgress()
   const open = smoothstep(0.02, 0.3, progress)
   const paperReveal = smoothstep(0.7, 0.88, progress)
@@ -568,13 +570,11 @@ export function ScrollScoreBookReveal({
       <div className="motet-score-sticky-stage">
         <HomeSectionStaffCue
           className="home-section-staff-cue--score"
-          label="악보"
+          label={copyText("home", "home.fixed.ScrollScoreBookReveal.6043731e1e", "악보")}
           noteOffset={36}
           symbol="♩"
         />
-        <div aria-hidden="true" className="motet-score-stage-label">
-          MOTET SCORE
-        </div>
+        <div aria-hidden="true" className="motet-score-stage-label">{copyText("home", "home.fixed.ScrollScoreBookReveal.a62de3d762", "MOTET SCORE")}</div>
         <div aria-hidden="true" className="motet-score-orbit" />
 
         <div className="motet-score-book">
@@ -583,14 +583,12 @@ export function ScrollScoreBookReveal({
           <div className="motet-score-spread">
             <article className="motet-score-page motet-score-page-left">
               <div aria-hidden="true" className="motet-score-opening-voice motet-score-opening-voice--left">
-                <span>VOICE</span>
-                <strong>S · A</strong>
+                <span>{copyText("home", "home.fixed.ScrollScoreBookReveal.a430e6d293", "VOICE")}</span>
+                <strong>{copyText("home", "home.fixed.ScrollScoreBookReveal.4d7643851b", "S · A")}</strong>
               </div>
-              <span aria-hidden="true" className="motet-score-page-ghost">
-                SCORE
-              </span>
+              <span aria-hidden="true" className="motet-score-page-ghost">{copyText("home", "home.fixed.ScrollScoreBookReveal.a60ffbb10d", "SCORE")}</span>
               <div className="motet-score-final-copy">
-                <p className="motet-score-eyebrow">MOTET SCORE</p>
+                <p className="motet-score-eyebrow">{copyText("home", "home.fixed.ScrollScoreBookReveal.a62de3d762", "MOTET SCORE")}</p>
                 <h2>
                   {content.leftPage.titleLines.map((line) => (
                     <span key={line}>{line}</span>
@@ -611,8 +609,8 @@ export function ScrollScoreBookReveal({
 
             <article className="motet-score-page">
               <div aria-hidden="true" className="motet-score-opening-voice">
-                <span>VOICE</span>
-                <strong>T · B</strong>
+                <span>{copyText("home", "home.fixed.ScrollScoreBookReveal.a430e6d293", "VOICE")}</span>
+                <strong>{copyText("home", "home.fixed.ScrollScoreBookReveal.7fa445ed04", "T · B")}</strong>
               </div>
               <div className="motet-score-final-copy">
                 <span aria-hidden="true" className="motet-score-quote-mark">
@@ -642,7 +640,7 @@ export function ScrollScoreBookReveal({
 
           <div aria-hidden="true" className="motet-score-cover">
             <div className="motet-score-cover-inner">
-              <p>MOTET SCORE</p>
+              <p>{copyText("home", "home.fixed.ScrollScoreBookReveal.a62de3d762", "MOTET SCORE")}</p>
               <h2>
                 {coverLines.map((line) => (
                   <span key={line}>{line}</span>
@@ -711,7 +709,7 @@ export function ScrollScoreBookReveal({
               ))}
             </h2>
 
-            <div aria-label="합창 성부" className="motet-score-voice-legend">
+            <div aria-label={copyText("home", "home.fixed.ScrollScoreBookReveal.bc88db7be2", "합창 성부")} className="motet-score-voice-legend">
               {['SOPRANO', 'ALTO', 'TENOR', 'BASS'].map((voice) => (
                 <span key={voice}>{voice}</span>
               ))}

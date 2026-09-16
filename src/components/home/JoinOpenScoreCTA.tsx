@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import {
   useEffect,
   useRef,
@@ -157,6 +158,7 @@ export function JoinOpenScoreCTA({
   joinInfo,
   presentation = 'default',
 }: JoinOpenScoreCTAProps) {
+  const { copy: copyText } = useSiteEditor()
   const { isVisible, ref } = useOpenScoreReveal()
   const viewport = useHomeResponsiveViewport()
   const isFigmaPresentation = presentation === 'figma-open-score'
@@ -233,13 +235,7 @@ export function JoinOpenScoreCTA({
             src="/images/sample/join-open-score-m.svg"
           />
         </div>
-        <span aria-hidden="true" className="join-open-score__ghost">
-          JOIN
-          <br />
-          THE
-          <br />
-          CHOIR
-        </span>
+        <span aria-hidden="true" className="join-open-score__ghost">{copyText("home", "home.fixed.JoinOpenScoreCTA.a9e153ee4b", "JOIN")}<br />{copyText("home", "home.fixed.JoinOpenScoreCTA.a3e5514bcf", "THE")}<br />{copyText("home", "home.fixed.JoinOpenScoreCTA.2473d93676", "CHOIR")}</span>
 
         <div className="join-open-score__layout">
           <div className="join-open-score__intro">
@@ -288,7 +284,7 @@ export function JoinOpenScoreCTA({
             </p>
 
             <div
-              aria-label="입단 안내 바로가기"
+              aria-label={copyText("home", "home.fixed.JoinOpenScoreCTA.74eb92b100", "입단 안내 바로가기")}
               className="join-open-score__actions join-open-score__reveal"
               style={getRevealStyle(720)}
             >
@@ -316,7 +312,7 @@ export function JoinOpenScoreCTA({
             <dl className="join-open-score__facts">
               <FactItem
                 delay={420}
-                label="모집 대상"
+                label={copyText("home", "home.fixed.JoinOpenScoreCTA.b3ba7e318f", "모집 대상")}
                 value={isFigmaPresentation ? (
                   <>
                     <span className="hidden lg:inline">{target}</span>
@@ -326,12 +322,12 @@ export function JoinOpenScoreCTA({
               />
               <FactItem
                 delay={500}
-                label="연습 안내"
+                label={copyText("home", "home.fixed.JoinOpenScoreCTA.120afc446b", "연습 안내")}
                 value="일정·장소는 입단 안내에서 확인"
               />
               <FactItem
                 delay={580}
-                label="보호자 안내"
+                label={copyText("home", "home.fixed.JoinOpenScoreCTA.886055c890", "보호자 안내")}
                 value="지원 후 보호자 연락처로 안내"
               />
             </dl>
@@ -342,8 +338,8 @@ export function JoinOpenScoreCTA({
               className="join-open-score__process-heading join-open-score__reveal"
               style={getRevealStyle(280)}
             >
-              <p>THE JOINING SCORE · 04 STEPS</p>
-              <h3>입단은 네 번의 분명한 확인으로 시작됩니다</h3>
+              <p>{copyText("home", "home.fixed.JoinOpenScoreCTA.d3583c7b83", "THE JOINING SCORE · 04 STEPS")}</p>
+              <h3>{copyText("home", "home.fixed.JoinOpenScoreCTA.1485c2a2fe", "입단은 네 번의 분명한 확인으로 시작됩니다")}</h3>
             </div>
 
             <ol className="join-open-score__steps">
@@ -373,11 +369,11 @@ export function JoinOpenScoreCTA({
             </ol>
 
             <aside
-              aria-label="보호자 안내"
+              aria-label={copyText("home", "home.fixed.JoinOpenScoreCTA.886055c890", "보호자 안내")}
               className="join-open-score__guardian join-open-score__reveal"
               style={getRevealStyle(840)}
             >
-              <p>FOR PARENTS &amp; GUARDIANS</p>
+              <p>{copyText("home", "home.fixed.JoinOpenScoreCTA.924d5f8adf", "FOR PARENTS & GUARDIANS")}</p>
               <ul>
                 {visibleGuardianNotes.map((note) => (
                   <li key={note}>{note}</li>

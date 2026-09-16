@@ -4,7 +4,6 @@ import { Link, NavLink, useLocation } from 'react-router'
 
 import { adminNavigationGroups } from '../../constants/navigation'
 import { classNames } from '../../utils/classNames'
-import { BrandLogo } from '../common/BrandLogo'
 
 type AdminSidebarProps = {
   isOpen: boolean
@@ -165,16 +164,7 @@ export function AdminSidebar({
       >
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <BrandLogo
-              className="max-w-[64px] overflow-hidden"
-              size="md"
-              theme="dark"
-              variant="symbol"
-            />
-            <p className="mt-3 text-sm font-semibold text-gold-soft">관리자 CMS</p>
-            <p className="mt-2 text-xs leading-5 text-bg-ivory/60">
-              콘텐츠와 공개 상태를 관리합니다.
-            </p>
+            <p className="admin-brand">서울모테트<br />홈페이지 관리</p>
           </div>
           <button
             aria-label="관리자 메뉴 닫기"
@@ -246,16 +236,7 @@ export function AdminSidebar({
             <span>공개 홈페이지 보기</span>
             <span aria-hidden="true">↗</span>
           </Link>
-          <p className="mb-3 text-[11px] font-semibold text-bg-ivory/45">
-            서울모테트음악재단
-          </p>
-          <BrandLogo
-            brand="smf"
-            className="max-w-[150px]"
-            size="sm"
-            theme="dark"
-            withSurface
-          />
+          <p className="text-xs">서울모테트청소년합창단</p>
         </div>
       </aside>
     </>

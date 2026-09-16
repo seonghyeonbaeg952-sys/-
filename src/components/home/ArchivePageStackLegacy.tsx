@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import type { GalleryImage, Poster, VideoItem } from '../../types/content'
 import { Button } from '../common/Button'
 import { EmptyState } from '../common/EmptyState'
@@ -94,6 +95,7 @@ export function ArchivePageStackLegacy({
   title = '사진 · 영상 · 포스터',
   videos = [],
 }: ArchivePageStackLegacyProps) {
+  const { copy: copyText } = useSiteEditor()
   const archiveItems = buildArchiveItems(images, videos, posters)
 
   return (
@@ -124,7 +126,7 @@ export function ArchivePageStackLegacy({
         <div className="archive-preview-layout mt-9">
           <Reveal variant="fade-up">
             <div className="archive-preview-copy">
-              <p className="type-eyebrow text-gold-ink">ARCHIVE BOOK</p>
+              <p className="type-eyebrow text-gold-ink">{copyText("home", "home.fixed.ArchivePageStackLegacy.72513d3afb", "ARCHIVE BOOK")}</p>
               <h3 className="type-section-title mt-4 text-navy-deep">{title}</h3>
             </div>
           </Reveal>
@@ -176,8 +178,8 @@ export function ArchivePageStackLegacy({
                 ))}
 
                 <div aria-hidden="true" className="archive-folder-front">
-                  <span>SEOUL MOTET YOUTH CHOIR</span>
-                  <strong>ARCHIVE</strong>
+                  <span>{copyText("home", "home.fixed.ArchivePageStackLegacy.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</span>
+                  <strong>{copyText("home", "home.fixed.ArchivePageStackLegacy.b22a979932", "ARCHIVE")}</strong>
                 </div>
               </div>
             </div>

@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useEffect, useMemo, useState } from 'react'
 
 import { HOME_HERO_REFERENCE_COPY } from '../../constants/homeHeroReference'
@@ -240,8 +241,9 @@ function PlaybackIcon({ isPaused }: { isPaused: boolean }) {
 }
 
 function MottoChips({ chips }: { chips: readonly string[] }) {
+  const { copy: copyText } = useSiteEditor()
   return (
-    <div aria-label="합창단 핵심 가치" className="home-hero-motto-chips">
+    <div aria-label={copyText("home", "home.fixed.HomeHeroSlideshow.e03b479e2d", "합창단 핵심 가치")} className="home-hero-motto-chips">
       {chips.map((chip) => (
         <span className="home-hero-motto-chip" key={chip}>
           {chip}
@@ -257,6 +259,7 @@ export function HomeHeroSlideshow({
   mottoChips = HOME_HERO_REFERENCE_COPY.mottoChips,
   slides,
 }: HomeHeroSlideshowProps) {
+  const { copy: copyText } = useSiteEditor()
   const [activeIndex, setActiveIndex] = useState(0)
   const [isUserPaused, setIsUserPaused] = useState(false)
   const [failedImageIds, setFailedImageIds] = useState<Set<string>>(() => new Set())
@@ -330,7 +333,7 @@ export function HomeHeroSlideshow({
 
   return (
     <section
-      aria-label="홈 메인 비주얼"
+      aria-label={copyText("home", "home.fixed.HomeHeroSlideshow.de3d95d04b", "홈 메인 비주얼")}
       className="flow-section home-hero-section relative isolate overflow-hidden bg-navy-midnight text-bg-warm-white"
       data-flow-section="hero"
     >
@@ -453,9 +456,8 @@ export function HomeHeroSlideshow({
           </Reveal>
 
             {hasMultipleSlides ? (
-              <div className="home-hero-controls" aria-label="Hero 슬라이드 선택">
-                <p className="sr-only" aria-live="polite">
-                  현재 슬라이드 {safeActiveIndex + 1} / {renderedSlides.length}
+              <div className="home-hero-controls" aria-label={copyText("home", "home.fixed.HomeHeroSlideshow.cb6feb0499", "Hero 슬라이드 선택")}>
+                <p className="sr-only" aria-live="polite">{copyText("home", "home.fixed.HomeHeroSlideshow.34abf64188", "현재 슬라이드 ")}{safeActiveIndex + 1} / {renderedSlides.length}
                 </p>
                 <div className="home-hero-dots" role="tablist">
                   {renderedSlides.map((slide, index) => (
@@ -488,7 +490,7 @@ export function HomeHeroSlideshow({
                     <PlaybackIcon isPaused={isUserPaused} />
                   </button>
                   <button
-                    aria-label="이전 Hero 슬라이드 보기"
+                    aria-label={copyText("home", "home.fixed.HomeHeroSlideshow.4d8f6c234d", "이전 Hero 슬라이드 보기")}
                     className="home-hero-arrow"
                     onClick={() => goToSlide(safeActiveIndex - 1)}
                     type="button"
@@ -496,7 +498,7 @@ export function HomeHeroSlideshow({
                     <ChevronIcon direction="previous" />
                   </button>
                   <button
-                    aria-label="다음 Hero 슬라이드 보기"
+                    aria-label={copyText("home", "home.fixed.HomeHeroSlideshow.55c7f4dc59", "다음 Hero 슬라이드 보기")}
                     className="home-hero-arrow"
                     onClick={() => goToSlide(safeActiveIndex + 1)}
                     type="button"

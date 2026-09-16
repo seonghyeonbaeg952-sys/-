@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import {
   useEffect,
   useMemo,
@@ -72,6 +73,7 @@ function dismissToday(popupId: string, todayKey: string) {
 }
 
 export function HomePopupManager({ popups }: HomePopupManagerProps) {
+  const { copy: copyText } = useSiteEditor()
   const closeButtonRef = useRef<HTMLButtonElement | null>(null)
   const dialogRef = useRef<HTMLDivElement | null>(null)
   const todayKey = useMemo(() => getLocalDateKey(), [])
@@ -195,7 +197,7 @@ export function HomePopupManager({ popups }: HomePopupManagerProps) {
     >
       <div className="modal-panel relative max-h-[min(760px,calc(100svh-5rem))] w-full max-w-lg overflow-y-auto rounded-balanced border border-line-default bg-bg-warm-white shadow-[0_28px_90px_rgb(7_21_38/0.34)]">
         <button
-          aria-label="팝업 닫기"
+          aria-label={copyText("home", "home.fixed.HomePopupManager.5eb0f35253", "팝업 닫기")}
           className="absolute right-4 top-4 z-10 flex size-11 items-center justify-center rounded-full border border-line-default bg-bg-warm-white/92 text-navy-deep shadow-sm transition hover:border-gold-warm hover:text-gold-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink"
           onClick={closePopup}
           ref={closeButtonRef}
@@ -227,9 +229,7 @@ export function HomePopupManager({ popups }: HomePopupManagerProps) {
         ) : null}
 
         <div className="p-5 sm:p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold-ink">
-            NOTICE
-          </p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold-ink">{copyText("home", "home.fixed.HomePopupManager.dfb14fbb9e", "NOTICE")}</p>
           <h2
             className="mt-3 break-keep text-xl font-bold leading-7 text-navy-deep sm:text-2xl sm:leading-8"
             id="home-popup-title"
@@ -247,18 +247,14 @@ export function HomePopupManager({ popups }: HomePopupManagerProps) {
               className="min-h-11 rounded-pill px-4 text-sm font-semibold text-text-muted transition hover:bg-bg-ivory hover:text-navy-deep focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-ink"
               onClick={closeForToday}
               type="button"
-            >
-              오늘 하루 보지 않기
-            </button>
+            >{copyText("home", "home.fixed.HomePopupManager.2e4a51cc4d", "오늘 하루 보지 않기")}</button>
             <div className="flex flex-col gap-3 sm:flex-row">
               {activePopup.button_label && activePopup.button_href ? (
                 <Button href={activePopup.button_href} onClick={closePopup} variant="gold">
                   {activePopup.button_label}
                 </Button>
               ) : null}
-              <Button onClick={closePopup} variant="secondary">
-                닫기
-              </Button>
+              <Button onClick={closePopup} variant="secondary">{copyText("home", "home.fixed.HomePopupManager.1e8c10206f", "닫기")}</Button>
             </div>
           </div>
         </div>

@@ -1,3 +1,5 @@
+import { SiteCopy } from '../site-editor/SiteCopy'
+import { useSiteEditor } from '../site-editor/useSiteEditor'
 import {
   MotionConfig,
   motion,
@@ -120,6 +122,8 @@ function EditorialLabel({
 }
 
 function Introduction() {
+  const { copy: copyText } = useSiteEditor()
+  const { copy: editorCopy } = useSiteEditor()
   const sectionRef = useRef<HTMLElement | null>(null)
   const prefersReducedMotion = useReducedMotion()
   const { scrollYProgress } = useScroll({
@@ -142,9 +146,7 @@ function Introduction() {
             initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
             transition={{ duration: 0.58, ease: EASE_OUT }}
           >
-            <EditorialLabel secondary="MAKING VOICES MATTER">
-              ABOUT SMYC
-            </EditorialLabel>
+            <EditorialLabel secondary={editorCopy("about", "about.introduction.english1", "MAKING VOICES MATTER")}><SiteCopy page="about" id="about.introduction.english2" fallback={"ABOUT SMYC"} /></EditorialLabel>
           </motion.div>
 
           <h1 id="about-overview-title">
@@ -153,18 +155,14 @@ function Introduction() {
                 animate={{ opacity: 1, y: 0 }}
                 initial={prefersReducedMotion ? false : { opacity: 0, y: '105%' }}
                 transition={{ delay: 0.06, duration: 0.82, ease: EASE_OUT }}
-              >
-                청소년의 목소리로
-              </motion.span>
+              ><SiteCopy page="about" id="about.introduction.text1" fallback={"청소년의 목소리로"} /></motion.span>
             </span>
             <span className="about-overview__title-mask">
               <motion.span
                 animate={{ opacity: 1, y: 0 }}
                 initial={prefersReducedMotion ? false : { opacity: 0, y: '105%' }}
                 transition={{ delay: 0.12, duration: 0.82, ease: EASE_OUT }}
-              >
-                세상과 이웃을
-              </motion.span>
+              ><SiteCopy page="about" id="about.introduction.text2" fallback={"세상과 이웃을"} /></motion.span>
             </span>
             <span className="about-overview__title-mask about-overview__title-focus">
               <motion.span
@@ -172,7 +170,7 @@ function Introduction() {
                 initial={prefersReducedMotion ? false : { opacity: 0, y: '105%' }}
                 transition={{ delay: 0.18, duration: 0.82, ease: EASE_OUT }}
               >
-                <strong>이어</strong> <em>갑니다.</em>
+                <strong><SiteCopy page="about" id="about.introduction.text3" fallback={"이어"} /></strong> <em><SiteCopy page="about" id="about.introduction.text4" fallback={"갑니다."} /></em>
               </motion.span>
             </span>
           </h1>
@@ -182,11 +180,7 @@ function Introduction() {
             className="about-overview__intro-body"
             initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
             transition={{ delay: 0.3, duration: 0.66, ease: EASE_OUT }}
-          >
-            2014년 서울모테트합창단이 음악재단을 설립하며 청소년아카데미 산하에
-            창단했습니다. 정기연주회, 뮤직캠프, 초청·봉사연주, 해외 비전투어를 통해
-            음악적 역량과 공동체성, 세계시민의식을 함께 기릅니다.
-          </motion.p>
+          ><SiteCopy page="about" id="about.introduction.text5" fallback={"2014년 서울모테트합창단이 음악재단을 설립하며 청소년아카데미 산하에 창단했습니다. 정기연주회, 뮤직캠프, 초청·봉사연주, 해외 비전투어를 통해 음악적 역량과 공동체성, 세계시민의식을 함께 기릅니다."} /></motion.p>
 
           <motion.dl
             animate={{ opacity: 1, y: 0 }}
@@ -194,14 +188,14 @@ function Introduction() {
             initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
             transition={{ delay: 0.4, duration: 0.62, ease: EASE_OUT }}
           >
-            {facts.map((fact) => (
+            {facts.map((fact, index) => (
               <div key={fact.label}>
-                <dt>{fact.label}</dt>
-                <dd>{fact.caption}</dd>
+                <dt>{fact.label === '2014' ? fact.label : editorCopy('about', `about.facts.${index}.label`, fact.label)}</dt>
+                <dd>{editorCopy('about', `about.facts.${index}.caption`, fact.caption)}</dd>
               </div>
             ))}
           </motion.dl>
-          <span aria-hidden="true" className="about-overview__voices">VOICES</span>
+          <span aria-hidden="true" className="about-overview__voices"><SiteCopy page="about" id="about.introduction.english3" fallback={"VOICES"} /></span>
         </div>
 
         <motion.figure
@@ -212,7 +206,7 @@ function Introduction() {
           transition={{ delay: 0.1, duration: 0.96, ease: EASE_OUT }}
         >
           <OptimizedImage
-            alt="2018년 유럽 비전투어에 참여한 서울모테트청소년합창단 단체 사진"
+            alt={editorCopy("about", "about.introduction.alt6", "2018년 유럽 비전투어에 참여한 서울모테트청소년합창단 단체 사진")}
             className="about-overview__intro-image"
             fallbackVariant="gallery"
             imageClassName="about-overview__image-media"
@@ -223,18 +217,16 @@ function Introduction() {
           />
           <span aria-hidden="true" className="about-overview__photo-accent" />
           <figcaption className="about-overview__glass-caption">
-            <span>SEOUL MOTET YOUTH CHOIR</span>
-            <strong>서로 다른 목소리가<br />하나의 공동체가 됩니다.</strong>
+            <span>{copyText("about", "about.fixed.AboutOverviewExperience.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</span>
+            <strong><SiteCopy page="about" id="about.introduction.text7" fallback={"서로 다른 목소리가"} /><br /><SiteCopy page="about" id="about.introduction.text8" fallback={"하나의 공동체가 됩니다."} /></strong>
           </figcaption>
           <div className="about-overview__tour-badge">
             <strong>2018</strong>
-            <span>EUROPE TOUR</span>
+            <span><SiteCopy page="about" id="about.introduction.english4" fallback={"EUROPE TOUR"} /></span>
           </div>
         </motion.figure>
 
-        <p className="about-overview__intro-lyric">
-          생명의 노래&nbsp;&nbsp;·&nbsp;&nbsp;섬김의 노래&nbsp;&nbsp;·&nbsp;&nbsp;희망의 노래
-        </p>
+        <p className="about-overview__intro-lyric"><SiteCopy page="about" id="about.introduction.text9" fallback={"생명의 노래  ·  섬김의 노래  ·  희망의 노래"} /></p>
         <span aria-hidden="true" className="about-overview__bottom-rule" />
       </div>
     </section>
@@ -242,21 +234,20 @@ function Introduction() {
 }
 
 function FoundingStory() {
+  const { copy: copyText } = useSiteEditor()
+  const { copy: editorCopy } = useSiteEditor()
   return (
     <section aria-labelledby="about-founding-title" className="about-overview__founding" id="founding">
       <div className="about-overview__shell about-overview__founding-stage">
         <RevealBlock className="about-overview__founding-heading">
-          <EditorialLabel>WHY WE BEGAN</EditorialLabel>
-          <h2 id="about-founding-title">
-            합창음악의 위대한 힘으로,<br />
-            사람과 사회를 세웁니다.
-          </h2>
+          <EditorialLabel><SiteCopy page="about" id="about.foundingStory.english1" fallback={"WHY WE BEGAN"} /></EditorialLabel>
+          <h2 id="about-founding-title"><SiteCopy page="about" id="about.foundingStory.text1" fallback={"합창음악의 위대한 힘으로,"} /><br /><SiteCopy page="about" id="about.foundingStory.text2" fallback={"사람과 사회를 세웁니다."} /></h2>
         </RevealBlock>
 
         <RevealBlock className="about-overview__founding-visual">
           <figure>
             <OptimizedImage
-              alt="서울모테트청소년합창단 제1회 정기연주회 무대"
+              alt={editorCopy("about", "about.foundingStory.alt3", "서울모테트청소년합창단 제1회 정기연주회 무대")}
               className="about-overview__founding-image"
               fallbackVariant="gallery"
               imageClassName="about-overview__image-media"
@@ -265,8 +256,8 @@ function FoundingStory() {
             />
             <span aria-hidden="true" className="about-overview__photo-accent" />
             <figcaption className="about-overview__archive-caption">
-              <span>ARCHIVE / FIRST CONCERT</span>
-              <strong>제1회 정기연주회<br />함께 세운 첫 무대</strong>
+              <span><SiteCopy page="about" id="about.foundingStory.english2" fallback={"ARCHIVE / FIRST CONCERT"} /></span>
+              <strong><SiteCopy page="about" id="about.foundingStory.text4" fallback={"제1회 정기연주회"} /><br /><SiteCopy page="about" id="about.foundingStory.text5" fallback={"함께 세운 첫 무대"} /></strong>
             </figcaption>
           </figure>
         </RevealBlock>
@@ -274,22 +265,15 @@ function FoundingStory() {
         <RevealBlock className="about-overview__founding-copy" delay={0.08}>
           <p className="about-overview__founding-year">2014</p>
           <span aria-hidden="true" className="about-overview__year-rule" />
-          <h3>교회음악의 바른 이상을<br />다음 세대에게.</h3>
-          <p className="about-overview__founding-body">
-            서울모테트음악재단 설립 25주년과 재단 설립을 기념하여 창단되었습니다.
-            청소년들이 정통 합창음악을 통해 음악적 역량과 인성을 키우며, 이웃과
-            사회에 나눔과 사랑을 실천하는 인재로 성장하도록 돕는 것이 출발점이었습니다.
-          </p>
+          <h3><SiteCopy page="about" id="about.foundingStory.text6" fallback={"교회음악의 바른 이상을"} /><br /><SiteCopy page="about" id="about.foundingStory.text7" fallback={"다음 세대에게."} /></h3>
+          <p className="about-overview__founding-body"><SiteCopy page="about" id="about.foundingStory.text8" fallback={"서울모테트음악재단 설립 25주년과 재단 설립을 기념하여 창단되었습니다. 청소년들이 정통 합창음악을 통해 음악적 역량과 인성을 키우며, 이웃과 사회에 나눔과 사랑을 실천하는 인재로 성장하도록 돕는 것이 출발점이었습니다."} /></p>
           <blockquote>
-            <span aria-hidden="true">“</span>
-            음악의 참된 의미와 가치를 배우며,<br />
-            이웃을 향한 나눔과 사랑을 실천합니다.
-          </blockquote>
+            <span aria-hidden="true">“</span><SiteCopy page="about" id="about.foundingStory.text9" fallback={"음악의 참된 의미와 가치를 배우며,"} /><br /><SiteCopy page="about" id="about.foundingStory.text10" fallback={"이웃을 향한 나눔과 사랑을 실천합니다."} /></blockquote>
         </RevealBlock>
 
         <div className="about-overview__founding-meta">
-          <span>SEOUL MOTET MUSIC FOUNDATION · YOUTH ACADEMY</span>
-          <strong>2018 EUROPE&nbsp;&nbsp;/&nbsp;&nbsp;2020 NETFLIX&nbsp;&nbsp;/&nbsp;&nbsp;2023 tvN&nbsp;&nbsp;/&nbsp;&nbsp;2025 EUROPE</strong>
+          <span>{copyText("about", "about.fixed.AboutOverviewExperience.d1a873e08d", "SEOUL MOTET MUSIC FOUNDATION · YOUTH ACADEMY")}</span>
+          <strong>{copyText("about", "about.fixed.AboutOverviewExperience.6a7b704f6f", "2018 EUROPE  /  2020 NETFLIX  /  2023 tvN  /  2025 EUROPE")}</strong>
         </div>
       </div>
     </section>
@@ -297,6 +281,7 @@ function FoundingStory() {
 }
 
 function Spirit() {
+  const { copy: editorCopy } = useSiteEditor()
   const prefersReducedMotion = useReducedMotion()
   const [activeSpiritIndex, setActiveSpiritIndex] = useState(0)
   const spiritButtonRefs = useRef<Array<HTMLButtonElement | null>>([])
@@ -328,26 +313,17 @@ function Spirit() {
     <section aria-labelledby="about-spirit-title" className="about-overview__spirit-wrap" id="spirit">
       <div className="about-overview__shell about-overview__spirit-stage">
         <div className="about-overview__spirit-copy">
-          <EditorialLabel>OUR SPIRIT</EditorialLabel>
+          <EditorialLabel><SiteCopy page="about" id="about.spirit.english1" fallback={"OUR SPIRIT"} /></EditorialLabel>
           <RevealBlock>
-            <h2 aria-label="음악의 참된 의미와 가치를 배웁니다." id="about-spirit-title">
-              음악의 참된 의미와
-              <span>가치를 <em>배웁니다.</em></span>
+            <h2 aria-label={editorCopy("about", "about.spirit.ariaLabel1", "음악의 참된 의미와 가치를 배웁니다.")} id="about-spirit-title"><SiteCopy page="about" id="about.spirit.text2" fallback={"음악의 참된 의미와"} /><span><SiteCopy page="about" id="about.spirit.text3" fallback={"가치를 "} /><em><SiteCopy page="about" id="about.spirit.text4" fallback={"배웁니다."} /></em></span>
             </h2>
-            <p className="about-overview__spirit-body">
-              합창음악을 통해 지성·인성·영성의 조화를 이루고, 스스로를 공동체와
-              사회의 구성원으로 인식하도록 돕습니다. 음악은 개인의 기량을 넘어
-              이웃을 향한 위로와 희망, 나눔과 사랑으로 이어집니다.
-            </p>
-            <p className="about-overview__spirit-lyric">
-              삶에 지친 영혼을 치유하는 생명의 노래,<br />
-              세상과 이웃을 향한 섬김과 희망의 노래.
-            </p>
+            <p className="about-overview__spirit-body"><SiteCopy page="about" id="about.spirit.text5" fallback={"합창음악을 통해 지성·인성·영성의 조화를 이루고, 스스로를 공동체와 사회의 구성원으로 인식하도록 돕습니다. 음악은 개인의 기량을 넘어 이웃을 향한 위로와 희망, 나눔과 사랑으로 이어집니다."} /></p>
+            <p className="about-overview__spirit-lyric"><SiteCopy page="about" id="about.spirit.text6" fallback={"삶에 지친 영혼을 치유하는 생명의 노래,"} /><br /><SiteCopy page="about" id="about.spirit.text7" fallback={"세상과 이웃을 향한 섬김과 희망의 노래."} /></p>
           </RevealBlock>
-          <span aria-hidden="true" className="about-overview__one-voice">ONE VOICE</span>
+          <span aria-hidden="true" className="about-overview__one-voice"><SiteCopy page="about" id="about.spirit.english2" fallback={"ONE VOICE"} /></span>
         </div>
 
-        <div aria-label="합창단이 중요하게 여기는 네 가지 가치" className="about-overview__spirit-values">
+        <div aria-label={editorCopy("about", "about.spirit.ariaLabel8", "합창단이 중요하게 여기는 네 가지 가치")} className="about-overview__spirit-values">
           {spiritValues.map((value, index) => {
             const isActive = activeSpiritIndex === index
 
@@ -369,9 +345,9 @@ function Spirit() {
               >
                 <span>{value.number}</span>
                 <div>
-                  <h3>{value.title}</h3>
-                  <em>{value.english}</em>
-                  <p>{value.body}</p>
+                  <h3>{editorCopy('about', `about.values.${value.number}.title`, value.title)}</h3>
+                  <em>{editorCopy('about', `about.values.${value.number}.english`, value.english)}</em>
+                  <p>{editorCopy('about', `about.values.${value.number}.body`, value.body)}</p>
                 </div>
               </motion.button>
             )
@@ -379,19 +355,20 @@ function Spirit() {
         </div>
 
         <div className="about-overview__spirit-footer">
-          <p>LISTEN&nbsp;&nbsp;·&nbsp;&nbsp;RESPECT&nbsp;&nbsp;·&nbsp;&nbsp;HARMONIZE&nbsp;&nbsp;·&nbsp;&nbsp;SHARE</p>
-          <blockquote>“나의 노래를 가르쳐 부르게 하라”&nbsp;&nbsp;·&nbsp;&nbsp;신 31:19</blockquote>
+          <p><SiteCopy page="about" id="about.spirit.english3" fallback={"LISTEN  ·  RESPECT  ·  HARMONIZE  ·  SHARE"} /></p>
+          <blockquote><SiteCopy page="about" id="about.spirit.text9" fallback={"“나의 노래를 가르쳐 부르게 하라”  ·  신 31:19"} /></blockquote>
         </div>
       </div>
       <div className="about-overview__shell about-overview__spirit-outro">
-        <p>한 사람의 성장을 넘어, 함께 살아가는 태도를 배웁니다.</p>
-        <span>MUSIC BECOMES CHARACTER.</span>
+        <p><SiteCopy page="about" id="about.spirit.text10" fallback={"한 사람의 성장을 넘어, 함께 살아가는 태도를 배웁니다."} /></p>
+        <span><SiteCopy page="about" id="about.spirit.english4" fallback={"MUSIC BECOMES CHARACTER."} /></span>
       </div>
     </section>
   )
 }
 
 function Education() {
+  const { copy: editorCopy } = useSiteEditor()
   const sequenceRef = useRef<HTMLDivElement | null>(null)
   const prefersReducedMotion = useReducedMotion()
   const { scrollYProgress } = useScroll({
@@ -404,18 +381,16 @@ function Education() {
     <section aria-labelledby="about-education-title" className="about-overview__education" id="education">
       <div className="about-overview__shell about-overview__education-stage">
         <RevealBlock className="about-overview__education-heading">
-          <EditorialLabel>HOW WE LEARN</EditorialLabel>
-          <h2 id="about-education-title">
-            잘 부르는 기술보다
-            <span>함께 듣는 태도를.</span>
+          <EditorialLabel><SiteCopy page="about" id="about.education.english1" fallback={"HOW WE LEARN"} /></EditorialLabel>
+          <h2 id="about-education-title"><SiteCopy page="about" id="about.education.text1" fallback={"잘 부르는 기술보다"} /><span><SiteCopy page="about" id="about.education.text2" fallback={"함께 듣는 태도를."} /></span>
           </h2>
         </RevealBlock>
-        <p className="about-overview__learning-script">Learning<br />by Listening</p>
+        <p className="about-overview__learning-script"><SiteCopy page="about" id="about.education.english2" fallback={"Learning"} /><br /><SiteCopy page="about" id="about.education.english3" fallback={"by Listening"} /></p>
 
         <RevealBlock className="about-overview__education-visual">
           <figure>
             <OptimizedImage
-              alt="지휘자와 단원들이 함께 악보를 살피는 서울모테트청소년합창단 리허설"
+              alt={editorCopy("about", "about.education.alt3", "지휘자와 단원들이 함께 악보를 살피는 서울모테트청소년합창단 리허설")}
               className="about-overview__education-image"
               fallbackVariant="gallery"
               imageClassName="about-overview__image-media"
@@ -424,8 +399,8 @@ function Education() {
             />
             <span aria-hidden="true" className="about-overview__photo-accent" />
             <figcaption className="about-overview__practice-caption">
-              <span>PRACTICE / LISTENING FIRST</span>
-              <strong>서로를 듣는 순간부터<br />앙상블은 시작됩니다.</strong>
+              <span><SiteCopy page="about" id="about.education.english4" fallback={"PRACTICE / LISTENING FIRST"} /></span>
+              <strong><SiteCopy page="about" id="about.education.text4" fallback={"서로를 듣는 순간부터"} /><br /><SiteCopy page="about" id="about.education.text5" fallback={"앙상블은 시작됩니다."} /></strong>
             </figcaption>
           </figure>
         </RevealBlock>
@@ -451,9 +426,9 @@ function Education() {
               >
                 <span>{step.number}</span>
                 <div>
-                  <h3>{step.title}</h3>
-                  <em>{step.english}</em>
-                  <p>{step.body}</p>
+                  <h3>{editorCopy('about', `about.learning.${step.number}.title`, step.title)}</h3>
+                  <em>{editorCopy('about', `about.learning.${step.number}.english`, step.english)}</em>
+                  <p>{editorCopy('about', `about.learning.${step.number}.body`, step.body)}</p>
                 </div>
               </motion.li>
             ))}
@@ -462,20 +437,17 @@ function Education() {
 
         <div className="about-overview__education-statement">
           <RevealBlock>
-            <h3>합창은 발성, 악보 읽기, 협업 태도를<br />함께 배우는 교육입니다.</h3>
+            <h3><SiteCopy page="about" id="about.education.text6" fallback={"합창은 발성, 악보 읽기, 협업 태도를"} /><br /><SiteCopy page="about" id="about.education.text7" fallback={"함께 배우는 교육입니다."} /></h3>
           </RevealBlock>
           <RevealBlock delay={0.08}>
-            <p>
-              정기연주회로 예술적 성장을, 수련·뮤직캠프로 공동체성과 리더십을,
-              해외 비전투어로 문화 다양성에 대한 존중과 세계시민의식을 배웁니다.
-            </p>
-            <span>BREATHE&nbsp;&nbsp;·&nbsp;&nbsp;LISTEN&nbsp;&nbsp;·&nbsp;&nbsp;HARMONIZE&nbsp;&nbsp;·&nbsp;&nbsp;SHARE</span>
+            <p><SiteCopy page="about" id="about.education.text8" fallback={"정기연주회로 예술적 성장을, 수련·뮤직캠프로 공동체성과 리더십을, 해외 비전투어로 문화 다양성에 대한 존중과 세계시민의식을 배웁니다."} /></p>
+            <span><SiteCopy page="about" id="about.education.english5" fallback={"BREATHE  ·  LISTEN  ·  HARMONIZE  ·  SHARE"} /></span>
           </RevealBlock>
         </div>
 
         <div className="about-overview__programs">
-          <p>PROGRAMS IN PRACTICE</p>
-          <h3>무대와 삶으로 이어지는 다섯 가지 교육</h3>
+          <p><SiteCopy page="about" id="about.education.english6" fallback={"PROGRAMS IN PRACTICE"} /></p>
+          <h3><SiteCopy page="about" id="about.education.text9" fallback={"무대와 삶으로 이어지는 다섯 가지 교육"} /></h3>
           <div className="about-overview__program-grid">
             {programs.map((program, index) => (
               <motion.article
@@ -487,8 +459,8 @@ function Education() {
                 whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
               >
                 <span>{program.number}</span>
-                <h4>{program.title}</h4>
-                <p>{program.body}</p>
+                <h4>{editorCopy('about', `about.programs.${program.number}.title`, program.title)}</h4>
+                <p>{editorCopy('about', `about.programs.${program.number}.body`, program.body)}</p>
               </motion.article>
             ))}
           </div>

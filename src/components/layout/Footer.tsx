@@ -3,6 +3,8 @@ import { NavLink } from 'react-router'
 import { mockSiteSettings } from '../../constants/mockData'
 import { useContactData } from '../../hooks/usePublicData'
 import { BrandLogo } from '../common/BrandLogo'
+import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { navigationCopyKey } from '../../content/siteCopyCommonCatalog'
 import '../../styles/footer-utility.css'
 
 type FooterLink = {
@@ -86,6 +88,7 @@ function FooterLinkGroup({
   links: FooterLink[]
   title: string
 }) {
+  const { copy } = useSiteEditor()
   return (
     <nav
       aria-label={`${title} 푸터 메뉴`}
@@ -97,7 +100,7 @@ function FooterLinkGroup({
       <div className="footer-utility__link-list">
         {links.map((link) => (
           <NavLink className="footer-utility__link" key={link.href} to={link.href}>
-            <span>{link.label}</span>
+            <span>{copy('common', navigationCopyKey(link.href), link.label)}</span>
             <span aria-hidden="true" className="footer-utility__link-arrow">
               ↗
             </span>
@@ -109,6 +112,8 @@ function FooterLinkGroup({
 }
 
 export function Footer() {
+  const { copy: copyText } = useSiteEditor()
+  const { copy } = useSiteEditor()
   const currentYear = new Date().getFullYear()
   const contactData = useContactData()
   const settings = contactData.data.siteSettings
@@ -125,7 +130,7 @@ export function Footer() {
       <div className="footer-utility__frame">
         <div className="footer-utility__header">
           <NavLink
-            aria-label="서울모테트청소년합창단 홈으로 이동"
+            aria-label={copyText("common", "common.fixed.Footer.8975e38d2f", "서울모테트청소년합창단 홈으로 이동")}
             className="footer-utility__brand"
             to="/"
           >
@@ -137,24 +142,24 @@ export function Footer() {
               variant="symbol"
             />
             <span className="footer-utility__brand-copy">
-              <strong>서울모테트청소년합창단</strong>
-              <span>SEOUL MOTET YOUTH CHOIR</span>
+              <strong>{copyText("common", "common.fixed.Footer.9bb6e639c7", "서울모테트청소년합창단")}</strong>
+              <span>{copyText("common", "common.fixed.Footer.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</span>
             </span>
           </NavLink>
 
-          <nav aria-label="주요 바로가기" className="footer-utility__actions">
+          <nav aria-label={copyText("common", "common.fixed.Footer.66b325059d", "주요 바로가기")} className="footer-utility__actions">
             <NavLink
               className="footer-utility__action footer-utility__action--primary"
               to="/join"
             >
-              <span>입단 안내</span>
+              <span>{copy('common', navigationCopyKey('/join'), '입단 안내')}</span>
               <span aria-hidden="true">↗</span>
             </NavLink>
             <NavLink
               className="footer-utility__action footer-utility__action--secondary"
               to="/contact?section=support"
             >
-              <span>후원·문의</span>
+              <span>{copy('common', navigationCopyKey('/contact'), '후원·문의')}</span>
               <span aria-hidden="true">↗</span>
             </NavLink>
           </nav>
@@ -165,15 +170,15 @@ export function Footer() {
         <div className="footer-utility__body">
           <section className="footer-utility__contact" aria-labelledby="footer-contact-title">
             <p className="footer-utility__group-title" id="footer-contact-title">
-              CONTACT
+              {copy('common', 'common.footer.contact', 'CONTACT')}
             </p>
             <address className="footer-utility__contact-list">
               <div>
-                <p className="footer-utility__contact-label">주소</p>
+                <p className="footer-utility__contact-label">{copy('common', 'common.footer.address', '주소')}</p>
                 <p className="footer-utility__contact-value">{address}</p>
               </div>
               <div>
-                <p className="footer-utility__contact-label">전화</p>
+                <p className="footer-utility__contact-label">{copy('common', 'common.footer.phone', '전화')}</p>
                 <a
                   className="footer-utility__contact-value footer-utility__contact-link"
                   href={getTelephoneHref(phone)}
@@ -183,7 +188,7 @@ export function Footer() {
               </div>
               {email ? (
                 <div>
-                  <p className="footer-utility__contact-label">이메일</p>
+                  <p className="footer-utility__contact-label">{copy('common', 'common.footer.email', '이메일')}</p>
                   <p className="footer-utility__contact-value footer-utility__contact-email">
                     {email}
                   </p>
@@ -195,19 +200,19 @@ export function Footer() {
           <FooterLinkGroup
             className="footer-utility__explore"
             links={EXPLORE_LINKS}
-            title="EXPLORE"
+            title={copy('common', 'common.footer.explore', 'EXPLORE')}
           />
           <FooterLinkGroup
             className="footer-utility__participate"
             links={PARTICIPATION_LINKS}
-            title="TAKE PART"
+            title={copy('common', 'common.footer.participate', 'TAKE PART')}
           />
 
           <nav
-            aria-label="공식 소셜 채널"
+            aria-label={copyText("common", "common.fixed.Footer.ee6bcbc10b", "공식 소셜 채널")}
             className="footer-utility__link-group footer-utility__social"
           >
-            <p className="footer-utility__group-title">CONNECT</p>
+            <p className="footer-utility__group-title">{copy('common', 'common.footer.connect', 'CONNECT')}</p>
             {socialLinks.length > 0 ? (
               <div className="footer-utility__link-list">
                 {socialLinks.map((link) => (
@@ -227,7 +232,7 @@ export function Footer() {
                 ))}
               </div>
             ) : (
-              <p className="footer-utility__empty">공식 채널 준비 중</p>
+              <p className="footer-utility__empty">{copy('common', 'common.footer.empty', '공식 채널 준비 중')}</p>
             )}
           </nav>
         </div>
@@ -235,17 +240,17 @@ export function Footer() {
         <div aria-hidden="true" className="footer-utility__divider footer-utility__divider--legal" />
 
         <div className="footer-utility__legal">
-          <p>© {currentYear} Seoul Motet Youth Choir. All rights reserved.</p>
+          <p>© {currentYear}{copyText("common", "common.fixed.Footer.189e34321f", " Seoul Motet Youth Choir. All rights reserved.")}</p>
           <NavLink className="footer-utility__admin-link" to="/admin/login">
-            관리자 로그인
+            {copy('common', 'common.footer.admin', '관리자 로그인')}
           </NavLink>
           <button
-            aria-label="페이지 맨 위로 이동"
+            aria-label={copyText("common", "common.fixed.Footer.f3f317ea45", "페이지 맨 위로 이동")}
             className="footer-utility__top-button"
             onClick={scrollToPageTop}
             type="button"
           >
-            <span>TOP</span>
+            <span>{copy('common', 'common.footer.top', 'TOP')}</span>
             <span aria-hidden="true">↑</span>
           </button>
         </div>

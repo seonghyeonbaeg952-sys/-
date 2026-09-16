@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 
 const DEFAULT_MESSAGE = '저장하지 않은 변경사항이 있습니다. 페이지를 이동할까요?'
 
@@ -10,7 +10,7 @@ type UseUnsavedChangesGuardOptions = {
 const activeGuards = new Map<symbol, string>()
 let listenersAttached = false
 
-function getActiveMessage() {
+export function getUnsavedChangesMessage() {
   const messages = new Set(activeGuards.values())
 
   if (messages.size === 1) {
@@ -25,7 +25,13 @@ export function confirmUnsavedChanges(message?: string) {
     return true
   }
 
-  return window.confirm(message ?? getActiveMessage())
+  return window.confirm(message ?? getUnsavedChangesMessage())
+}
+
+export function shouldBlockUnsavedNavigation(currentPath: string, nextPath: string) {
+  // Auth expiry and explicit sign-out must not leave a protected screen trapped.
+  // Query/anchor changes keep the mounted editor and its per-page memory drafts.
+  return activeGuards.size > 0 && currentPath !== nextPath && nextPath !== '/admin/login'
 }
 
 function handleBeforeUnload(event: BeforeUnloadEvent) {
@@ -37,57 +43,12 @@ function handleBeforeUnload(event: BeforeUnloadEvent) {
   event.returnValue = ''
 }
 
-function handleDocumentClick(event: MouseEvent) {
-  if (
-    activeGuards.size === 0 ||
-    event.defaultPrevented ||
-    event.button !== 0 ||
-    event.metaKey ||
-    event.ctrlKey ||
-    event.shiftKey ||
-    event.altKey
-  ) {
-    return
-  }
-
-  const target = event.target
-
-  if (!(target instanceof Element)) {
-    return
-  }
-
-  const anchor = target.closest<HTMLAnchorElement>('a[href]')
-
-  if (
-    !anchor ||
-    anchor.hasAttribute('download') ||
-    (anchor.target && anchor.target !== '_self')
-  ) {
-    return
-  }
-
-  const nextUrl = new URL(anchor.href, window.location.href)
-
-  if (
-    nextUrl.origin !== window.location.origin ||
-    nextUrl.href === window.location.href
-  ) {
-    return
-  }
-
-  if (!confirmUnsavedChanges()) {
-    event.preventDefault()
-    event.stopPropagation()
-  }
-}
-
 function attachListeners() {
   if (listenersAttached || typeof window === 'undefined') {
     return
   }
 
   window.addEventListener('beforeunload', handleBeforeUnload)
-  document.addEventListener('click', handleDocumentClick, true)
   listenersAttached = true
 }
 
@@ -97,7 +58,6 @@ function detachListeners() {
   }
 
   window.removeEventListener('beforeunload', handleBeforeUnload)
-  document.removeEventListener('click', handleDocumentClick, true)
   listenersAttached = false
 }
 
@@ -107,7 +67,7 @@ export function useUnsavedChangesGuard({
 }: UseUnsavedChangesGuardOptions) {
   const guardIdRef = useRef(Symbol('unsaved-changes-guard'))
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!enabled) {
       return
     }

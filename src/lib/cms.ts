@@ -36,7 +36,6 @@ export const CMS_TABLES = [
 const SUPPORT_SCHEMA_MIGRATION = '2026_fix_spirit_support_schema.sql'
 const SPONSORS_SCHEMA_MIGRATION = '2026_add_sponsors.sql'
 const SITE_TEXTS_SCHEMA_MIGRATION = '2026_add_site_texts.sql'
-const JOIN_APPLICATION_FILES_BUCKET = 'join-application-files'
 
 export type CmsOrderOption<TTable extends CmsTableName> = {
   column: Extract<keyof CmsRowFor<TTable>, string>
@@ -59,6 +58,7 @@ export type ListRowsOptions<TTable extends CmsTableName> = {
   order?: CmsOrderOption<TTable>
   filters?: Array<CmsFilterOption<TTable>>
   search?: CmsSearchOption<TTable>
+  range?: { offset: number; limit: number }
 }
 
 export type CmsInFilterOption<TTable extends CmsTableName> = {
@@ -192,26 +192,17 @@ function normalizeRow<TTable extends CmsTableName>(
   return isRecord(data) ? (data as CmsRowFor<TTable>) : null
 }
 
-function getJoinApplicationAttachmentPaths(row: unknown) {
-  if (!isRecord(row)) {
-    return []
-  }
-
-  const paths = [row.photo_file_path, row.recommendation_file_path]
-    .filter((value): value is string => typeof value === 'string')
-    .map((value) => value.trim())
-    .filter((value) => value.startsWith('submissions/'))
-
-  return [...new Set(paths)]
-}
-
 export async function listRows<TTable extends CmsTableName>({
   filters = [],
   order,
   search,
   select = '*',
   table,
+  range,
 }: ListRowsOptions<TTable>): Promise<CmsResult<Array<CmsRowFor<TTable>>>> {
+  if (range && (!Number.isSafeInteger(range.offset) || range.offset < 0 || !Number.isSafeInteger(range.limit) || range.limit < 1 || range.limit > 101 || !Number.isSafeInteger(range.offset + range.limit))) {
+    return { data: null, error: '목록 범위가 올바르지 않습니다. 첫 페이지에서 다시 시도해 주세요.' }
+  }
   const clientResult = getSupabaseClientSafe()
 
   if (!clientResult.data) {
@@ -227,11 +218,15 @@ export async function listRows<TTable extends CmsTableName>({
   }
 
   if (search?.value.trim()) {
-    query = query.ilike(search.column, `%${search.value.trim()}%`)
+    query = query.ilike(search.column, `%${search.value.trim().replace(/[\\%_]/g, '\\$&')}%`)
   }
 
   if (order) {
     query = query.order(order.column, { ascending: order.ascending ?? true })
+  }
+  if (range) {
+    if (order?.column !== 'id') query = query.order('id', { ascending: true })
+    query = query.range(range.offset, range.offset + range.limit - 1)
   }
 
   const { data, error } = await query
@@ -274,11 +269,15 @@ export async function listRows<TTable extends CmsTableName>({
     }
 
     if (search?.value.trim()) {
-      legacyQuery = legacyQuery.ilike(search.column, `%${search.value.trim()}%`)
+      legacyQuery = legacyQuery.ilike(search.column, `%${search.value.trim().replace(/[\\%_]/g, '\\$&')}%`)
     }
 
     if (order) {
       legacyQuery = legacyQuery.order(order.column, { ascending: order.ascending ?? true })
+    }
+    if (range) {
+      if (order?.column !== 'id') legacyQuery = legacyQuery.order('id', { ascending: true })
+      legacyQuery = legacyQuery.range(range.offset, range.offset + range.limit - 1)
     }
 
     const legacyResult = await legacyQuery
@@ -544,56 +543,26 @@ export async function deleteRow<TTable extends CmsTableName>(
   table: TTable,
   id: string,
 ): Promise<CmsResult<true>> {
+  if (table === 'join_applications') {
+    return { data: null, error: '입단지원서는 영구 삭제하지 않고 보관 처리해 주세요. 첨부파일과 접수 원문은 유지됩니다.' }
+  }
   const clientResult = getSupabaseClientSafe()
 
   if (!clientResult.data) {
     return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
   }
 
-  if (table === 'join_applications') {
-    const { data: attachmentRow, error: attachmentLookupError } =
-      await clientResult.data
-        .from('join_applications')
-        .select('photo_file_path, recommendation_file_path')
-        .eq('id', id)
-        .maybeSingle()
-
-    if (attachmentLookupError) {
-      return {
-        data: null,
-        error: toCmsError(
-          attachmentLookupError,
-          '입단지원서 첨부파일 정보를 확인하지 못했습니다.',
-        ),
-      }
-    }
-
-    const attachmentPaths = getJoinApplicationAttachmentPaths(attachmentRow)
-
-    if (attachmentPaths.length > 0) {
-      const { error: attachmentDeleteError } = await clientResult.data.storage
-        .from(JOIN_APPLICATION_FILES_BUCKET)
-        .remove(attachmentPaths)
-
-      if (attachmentDeleteError) {
-        return {
-          data: null,
-          error: toCmsError(
-            attachmentDeleteError,
-            '입단지원서 첨부파일 삭제에 실패했습니다. 지원서는 삭제하지 않았습니다.',
-          ),
-        }
-      }
-    }
-  }
-
-  const { error } = await clientResult.data.from(table).delete().eq('id', id)
+  const { error, count } = await clientResult.data.from(table).delete({ count: 'exact' }).eq('id', id)
 
   if (error) {
     return {
       data: null,
       error: toCmsError(error, '삭제에 실패했습니다.'),
     }
+  }
+
+  if (count !== 1) {
+    return { data: null, error: '삭제된 항목을 확인하지 못했습니다. 권한 또는 다른 관리자의 변경을 확인한 뒤 목록을 새로고침해 주세요.' }
   }
 
   return { data: true, error: null }

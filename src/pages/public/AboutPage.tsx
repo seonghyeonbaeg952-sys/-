@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 import { useSearchParams } from 'react-router'
 
 import { AnimatedSectionTabs } from '../../components/common/AnimatedSectionTabs'
@@ -25,6 +26,7 @@ import {
 } from '../../lib/aboutNavigation'
 
 function AboutSectionSelector({ activeSection }: { activeSection: AboutSectionKey }) {
+  const { copy: copyText } = useSiteEditor()
   return (
     <div
       className="section-tabs-wrap relative overflow-hidden rounded-formal border border-line-default bg-bg-warm-white p-3 shadow-card"
@@ -32,7 +34,7 @@ function AboutSectionSelector({ activeSection }: { activeSection: AboutSectionKe
       <div aria-hidden="true" className="about-section-selector__accent" />
       <AnimatedSectionTabs
         activeValue={activeSection}
-        ariaLabel="소개 섹션 선택"
+        ariaLabel={copyText("about", "about.fixed.AboutPage.bc6e5381b9", "소개 섹션 선택")}
         tabs={aboutSectionTabs}
         tone="navy"
       />
@@ -41,6 +43,7 @@ function AboutSectionSelector({ activeSection }: { activeSection: AboutSectionKe
 }
 
 export function AboutPage() {
+  const { copy: copyText } = useSiteEditor()
   const aboutData = useAboutData()
   const [searchParams] = useSearchParams()
   const {
@@ -85,7 +88,7 @@ export function AboutPage() {
           '서울모테트청소년합창단의 지휘자, 반주자, 단원과 연혁을 소개합니다.'
         }
         path="/about"
-        title="합창단 소개"
+        title={copyText("about", "about.fixed.AboutPage.6f997f3eb6", "합창단 소개")}
       />
       {shouldShowOverview ||
       shouldShowDedicatedConductor ||
@@ -94,8 +97,8 @@ export function AboutPage() {
       shouldShowDedicatedHistory ? null : (
         <PageHero
           description={introSummary}
-          eyebrow="ABOUT"
-          title="합창단 소개"
+          eyebrow={copyText("about", "about.fixed.AboutPage.72b70ae303", "ABOUT")}
+          title={copyText("about", "about.fixed.AboutPage.6f997f3eb6", "합창단 소개")}
         />
       )}
 
@@ -103,8 +106,8 @@ export function AboutPage() {
         <Container className="space-y-4">
           {!shouldShowOverview && aboutData.error ? (
             <ErrorState
-              description="Supabase 공개 데이터를 불러오지 못해 기본 소개 정보를 표시합니다."
-              title="기본 소개 정보로 표시 중입니다"
+              description={copyText("about", "about.fixed.AboutPage.f13a27d56b", "Supabase 공개 데이터를 불러오지 못해 기본 소개 정보를 표시합니다.")}
+              title={copyText("about", "about.fixed.AboutPage.0e47327da4", "기본 소개 정보로 표시 중입니다")}
             />
           ) : null}
           <AboutSectionSelector activeSection={activeSection} />
@@ -144,7 +147,7 @@ export function AboutPage() {
           {shouldShowAll ? (
             <Container className="page-main">
               <section>
-                <SectionTitle eyebrow="LOCATION" title="오시는 길" />
+                <SectionTitle eyebrow={copyText("about", "about.fixed.AboutPage.ec4ecc14f8", "LOCATION")} title={copyText("about", "about.fixed.AboutPage.46d7c6aaf1", "오시는 길")} />
                 <div className="mt-8">
                   <MapPreview
                     address={locationAddress}

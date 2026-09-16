@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 import { useMemo, useRef, useState, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router'
 
@@ -14,6 +15,8 @@ import {
   noticeCategoryLabels,
 } from '../../components/notices/noticeViewModel'
 import { useNoticesData } from '../../hooks/usePublicData'
+import { usePageCopy } from '../../components/site-editor/usePageCopy'
+import { CopyLines } from '../../components/site-editor/SiteCopy'
 import '../../styles/notices-page.css'
 
 const categoryOptions = [
@@ -22,6 +25,8 @@ const categoryOptions = [
 ]
 
 export function NoticesPage() {
+  const { copy: copyText } = useSiteEditor()
+  const t = usePageCopy('notices')
   const noticesData = useNoticesData()
   const [searchParams, setSearchParams] = useSearchParams()
   const resultsRef = useRef<HTMLDivElement>(null)
@@ -70,28 +75,27 @@ export function NoticesPage() {
   return (
     <div className="notices-page">
       <SeoHead
-        description="서울모테트청소년합창단의 입단, 공연, 보도자료와 공식 소식을 확인합니다."
+        description={copyText("notices", "notices.fixed.NoticesPage.0d93e0e1fe", "서울모테트청소년합창단의 입단, 공연, 보도자료와 공식 소식을 확인합니다.")}
         path="/notices"
-        title="공지사항"
+        title={copyText("notices", "notices.fixed.NoticesPage.a8f562bb9b", "공지사항")}
       />
       <header className="notices-page__hero notices-page__shell">
         <div>
-          <p className="notices-page__eyebrow">NEWS &amp; NOTICES</p>
-          <h1 className="notices-page__title">공지사항</h1>
+          <p className="notices-page__eyebrow">{copyText("notices", "notices.fixed.NoticesPage.6441d0206e", "NEWS & NOTICES")}</p>
+          <h1 className="notices-page__title">{t('title')}</h1>
           <p className="notices-page__description">
-            입단 안내부터 공연 소식까지,<br />
-            서울모테트청소년합창단의 공식 소식을 전합니다.
+            <CopyLines text={t('description')} />
           </p>
         </div>
         <div aria-hidden="true" className="notices-page__signature">
-          <i>Notices.</i>
-          <span>SEOUL MOTET YOUTH CHOIR</span>
+          <i>{copyText("notices", "notices.fixed.NoticesPage.10317061d0", "Notices.")}</i>
+          <span>{copyText("notices", "notices.fixed.NoticesPage.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</span>
         </div>
       </header>
 
-      <section aria-label="공지 목록" className="notices-page__content notices-page__shell">
+      <section aria-label={copyText("notices", "notices.fixed.NoticesPage.4eb02c31f4", "공지 목록")} className="notices-page__content notices-page__shell">
         <div className="notices-page__controls">
-          <div aria-label="공지 필터" className="notices-page__tabs" role="group">
+          <div aria-label={copyText("notices", "notices.fixed.NoticesPage.f889c1a401", "공지 필터")} className="notices-page__tabs" role="group">
             <button
               aria-controls="notice-results"
               aria-pressed={!importantOnly}
@@ -99,7 +103,7 @@ export function NoticesPage() {
               onClick={() => updateFilter('filter', 'all')}
               type="button"
             >
-              전체{!noticesData.isLoading && !noticesData.error ? ` ${total}` : ''}
+              {t('all')}{!noticesData.isLoading && !noticesData.error ? ` ${total}` : ''}
             </button>
             <button
               aria-controls="notice-results"
@@ -108,47 +112,47 @@ export function NoticesPage() {
               onClick={() => updateFilter('filter', 'important')}
               type="button"
             >
-              중요 공지
+              {t('important')}
             </button>
           </div>
-          <form aria-label="공지 검색" className="notices-page__search" onSubmit={submitSearch} role="search">
-            <label className="sr-only" htmlFor="notice-search">공지 제목 또는 내용 검색</label>
+          <form aria-label={copyText("notices", "notices.fixed.NoticesPage.5e802054bd", "공지 검색")} className="notices-page__search" onSubmit={submitSearch} role="search">
+            <label className="sr-only" htmlFor="notice-search">{t('searchPlaceholder')}</label>
             <input
               autoComplete="off"
               id="notice-search"
               onChange={(event) => setSearch({ urlQuery: query, value: event.target.value })}
-              placeholder="공지 제목 또는 내용 검색"
+              placeholder={t('searchPlaceholder')}
               type="search"
               value={searchValue}
             />
-            <button type="submit">검색</button>
+            <button type="submit">{t('search')}</button>
           </form>
-          <FilterSelect className="notices-page__category" label="공지 분류" onChange={(value) => updateFilter('category', value)} options={categoryOptions} value={category} />
+          <FilterSelect className="notices-page__category" label={t('category')} onChange={(value) => updateFilter('category', value)} options={categoryOptions} value={category} />
         </div>
 
         <div
           aria-busy={noticesData.isLoading}
-          aria-label="공지 검색 결과"
+          aria-label={copyText("notices", "notices.fixed.NoticesPage.e71eb2b6df", "공지 검색 결과")}
           className="notices-page__results"
           id="notice-results"
           ref={resultsRef}
           tabIndex={-1}
         >
           {noticesData.isLoading ? (
-            <div className="notices-page__state"><LoadingState label="공지사항을 불러오는 중입니다" /></div>
+            <div className="notices-page__state"><LoadingState label={t('loading')} /></div>
           ) : noticesData.error ? (
             <div className="notices-page__state" role="alert">
               <ErrorState
-                title="공지사항을 불러오지 못했습니다"
-                description="연결 상태를 확인한 뒤 다시 시도해 주세요."
-                action={<button className="notices-page__action" onClick={noticesData.refetch} type="button">다시 시도</button>}
+                title={t('error')}
+                description={t('connection')}
+                action={<button className="notices-page__action" onClick={noticesData.refetch} type="button">{t('retry')}</button>}
               />
             </div>
           ) : filteredNotices.length === 0 ? (
             <div className="notices-page__state" role="status">
-              <h2>{hasFilters ? '조건에 맞는 공지가 없습니다.' : '등록된 공지사항이 없습니다.'}</h2>
-              <p>{hasFilters ? '분류를 바꾸거나 전체 공지를 확인해 주세요.' : '새로운 소식이 등록되면 이곳에서 안내합니다.'}</p>
-              {hasFilters ? <button className="notices-page__action" onClick={resetFilters} type="button">전체 공지 보기</button> : null}
+              <h2>{hasFilters ? t('noResults') : t('empty')}</h2>
+              <p>{hasFilters ? t('noResultsHelp') : t('emptyHelp')}</p>
+              {hasFilters ? <button className="notices-page__action" onClick={resetFilters} type="button">{t('allAction')}</button> : null}
             </div>
           ) : (
             <ul className="notices-page__list">
@@ -173,9 +177,7 @@ export function NoticesPage() {
             </ul>
           )}
           {!noticesData.isLoading && !noticesData.error ? (
-            <p aria-live="polite" aria-atomic="true" className="notices-page__count">
-              총 {filteredNotices.length}건의 공지사항
-            </p>
+            <p aria-live="polite" aria-atomic="true" className="notices-page__count">{copyText("notices", "notices.fixed.NoticesPage.90252b07ab", "총 ")}{filteredNotices.length}{copyText("notices", "notices.fixed.NoticesPage.ef7c0bca0a", "건의 공지사항")}</p>
           ) : null}
         </div>
       </section>

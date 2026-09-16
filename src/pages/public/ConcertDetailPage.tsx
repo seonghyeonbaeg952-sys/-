@@ -1,3 +1,4 @@
+import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 import { useMemo } from 'react'
 import { useParams } from 'react-router'
 
@@ -16,6 +17,7 @@ import {
   getSeoulDateString,
 } from '../../components/concerts/concertScheduleModel'
 import { useConcertDetailData } from '../../hooks/usePublicData'
+import { usePageCopy } from '../../components/site-editor/usePageCopy'
 import type { Concert } from '../../types/content'
 import '../../styles/concerts-page.css'
 import '../../styles/concert-detail.css'
@@ -47,6 +49,7 @@ function buildConcertStructuredData(concert: Concert) {
 }
 
 function ConcertInformation({ concert }: { concert: Concert }) {
+  const t = usePageCopy('concert-detail')
   const dateLabel = getConcertDateLabel(concert.date)
   const today = getSeoulDateString()
   const period = getConcertPeriod(concert, today)
@@ -73,17 +76,17 @@ function ConcertInformation({ concert }: { concert: Concert }) {
       {posterUrl ? <ConcertPoster key={posterUrl} src={posterUrl} title={concert.title} /> : null}
 
       <div className="concert-detail__actions">
-        {ticketUrl ? <a className="concert-detail__button concert-detail__button--primary" href={ticketUrl} rel="noopener noreferrer" target="_blank">예매하기 <span aria-hidden="true">↗</span></a> : null}
-        {applyUrl ? <a className="concert-detail__button concert-detail__button--primary" href={applyUrl} rel="noopener noreferrer" target="_blank">신청하기 <span aria-hidden="true">↗</span></a> : null}
-        <TransitionLink className={`concert-detail__button${ticketUrl || applyUrl ? '' : ' concert-detail__button--primary'}`} to="/concerts">공연 목록으로</TransitionLink>
-        <TransitionLink className="concert-detail__button" to="/contact#form">공연 문의</TransitionLink>
+        {ticketUrl ? <a className="concert-detail__button concert-detail__button--primary" href={ticketUrl} rel="noopener noreferrer" target="_blank">{t('ticket')} <span aria-hidden="true">↗</span></a> : null}
+        {applyUrl ? <a className="concert-detail__button concert-detail__button--primary" href={applyUrl} rel="noopener noreferrer" target="_blank">{t('apply')} <span aria-hidden="true">↗</span></a> : null}
+        <TransitionLink className={`concert-detail__button${ticketUrl || applyUrl ? '' : ' concert-detail__button--primary'}`} to="/concerts">{t('list')}</TransitionLink>
+        <TransitionLink className="concert-detail__button" to="/contact#form">{t('inquiry')}</TransitionLink>
       </div>
 
       {concert.description.trim() || concert.program.length || concert.performers.length ? (
         <div className="concert-detail__body">
-          {concert.description.trim() ? <section aria-labelledby="concert-description"><h2 id="concert-description">공연 소개</h2><p>{concert.description}</p></section> : null}
-          {concert.program.length > 0 ? <section aria-labelledby="concert-program"><h2 id="concert-program">프로그램</h2><ul>{concert.program.map((item, index) => <li key={`${index}-${item}`}>{item}</li>)}</ul></section> : null}
-          {concert.performers.length > 0 ? <section aria-labelledby="concert-performers"><h2 id="concert-performers">출연</h2><ul>{concert.performers.map((item, index) => <li key={`${index}-${item}`}>{item}</li>)}</ul></section> : null}
+          {concert.description.trim() ? <section aria-labelledby="concert-description"><h2 id="concert-description">{t('introduction')}</h2><p>{concert.description}</p></section> : null}
+          {concert.program.length > 0 ? <section aria-labelledby="concert-program"><h2 id="concert-program">{t('program')}</h2><ul>{concert.program.map((item, index) => <li key={`${index}-${item}`}>{item}</li>)}</ul></section> : null}
+          {concert.performers.length > 0 ? <section aria-labelledby="concert-performers"><h2 id="concert-performers">{t('performers')}</h2><ul>{concert.performers.map((item, index) => <li key={`${index}-${item}`}>{item}</li>)}</ul></section> : null}
         </div>
       ) : null}
     </article>
@@ -91,6 +94,8 @@ function ConcertInformation({ concert }: { concert: Concert }) {
 }
 
 export function ConcertDetailPage() {
+  const { copy: copyText } = useSiteEditor()
+  const t = usePageCopy('concert-detail')
   const { concertId } = useParams()
   const concertData = useConcertDetailData(concertId)
   const concert = !concertData.error && !concertData.isLoading ? concertData.data : null
@@ -110,15 +115,15 @@ export function ConcertDetailPage() {
         title={concert?.title || '공연 상세'}
       />
       <div className="concert-detail__container">
-        <nav aria-label="공연 탐색" className="concert-detail__breadcrumb">
-          <TransitionLink to="/concerts"><span aria-hidden="true">←</span> 공연·소식</TransitionLink>
+        <nav aria-label={copyText("concert-detail", "concert-detail.fixed.ConcertDetailPage.a631fbd972", "공연 탐색")} className="concert-detail__breadcrumb">
+          <TransitionLink to="/concerts"><span aria-hidden="true">←</span> {t('back')}</TransitionLink>
         </nav>
-        {concertData.isLoading ? <LoadingState label="공연 상세를 불러오는 중입니다" /> : null}
+        {concertData.isLoading ? <LoadingState label={t('loading')} /> : null}
         {!concertData.isLoading && concertData.error ? (
-          <ErrorState action={<Button onClick={concertData.refetch}>다시 불러오기</Button>} description={concertData.error} />
+          <ErrorState action={<Button onClick={concertData.refetch}>{t('retry')}</Button>} description={concertData.error} />
         ) : null}
         {!concertData.isLoading && !concertData.error && !concert ? (
-          <EmptyState action={<Button href="/concerts" variant="secondary">공연 목록으로</Button>} title="공연 정보를 찾을 수 없습니다" />
+          <EmptyState action={<Button href="/concerts" variant="secondary">{t('list')}</Button>} title={t('missing')} />
         ) : null}
         {concert ? <ConcertInformation concert={concert} /> : null}
       </div>

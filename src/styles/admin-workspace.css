@@ -1,0 +1,44 @@
+/* Figma Quiet Workspace. Every visual rule is scoped to CMS or its portal. */
+@font-face{font-family:"SMYC Admin";src:url('/fonts/GothicA1-Regular.ttf') format('truetype');font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:"SMYC Admin";src:url('/fonts/GothicA1-SemiBold.ttf') format('truetype');font-style:normal;font-weight:600;font-display:swap}
+@font-face{font-family:"SMYC Admin";src:url('/fonts/GothicA1-Bold.ttf') format('truetype');font-style:normal;font-weight:700 900;font-display:swap}
+.admin-shell,.admin-modal{
+  --admin-paper:#fcfaf5;--admin-canvas:#f2efe8;--admin-ink:#17171a;--admin-muted:#68665f;--admin-accent:#68233a;--admin-line:#d8d2c7;
+  --color-navy-deep:var(--admin-ink);--color-navy-midnight:var(--admin-ink);--color-text-charcoal:var(--admin-ink);--color-text-muted:var(--admin-muted);
+  --color-bg-ivory:var(--admin-paper);--color-bg-warm-white:var(--admin-paper);--color-gold-warm:var(--admin-accent);--color-gold-ink:var(--admin-accent);--color-gold-soft:var(--admin-line);--color-line-default:var(--admin-line);
+  --radius-formal:4px;--radius-button:4px;--radius-pill:4px;--shadow-card:none;--shadow-card-hover:none;--shadow-header:none;
+  font-family:"SMYC Admin",system-ui,sans-serif;color:var(--admin-ink);font-size:14px;line-height:1.6;
+}
+.admin-shell{min-height:100dvh;background:var(--admin-paper)}
+.admin-shell :where(h1,h2,h3,h4,p,a,button,input,textarea,select,summary),.admin-modal :where(h1,h2,h3,h4,p,a,button,input,textarea,select){font-family:inherit}
+.admin-shell :where(h1,h2,h3),.admin-modal :where(h1,h2,h3){letter-spacing:-.025em;line-height:1.5}
+.admin-shell h1{font-size:28px}.admin-shell h2{font-size:20px}
+.admin-workspace{min-width:0;padding:32px}
+.admin-header{min-height:72px;padding:14px 32px;background:var(--admin-paper);border-bottom:1px solid var(--admin-line)}
+.admin-page-title{margin-bottom:28px}.admin-page-title__eyebrow{color:var(--admin-muted);font-size:12px;font-weight:600}
+.admin-shell #admin-sidebar{background:var(--admin-canvas);color:var(--admin-ink);border-color:var(--admin-line);padding:24px 16px;box-shadow:none}
+.admin-shell #admin-sidebar :where(p,summary,a,button){color:var(--admin-muted)}
+.admin-shell #admin-sidebar nav a{border-radius:4px;box-shadow:none}
+.admin-shell #admin-sidebar nav a[aria-current="page"]{background:var(--admin-accent);color:var(--admin-paper);box-shadow:none}
+.admin-shell #admin-sidebar nav a:not([aria-current]):hover,.admin-shell #admin-sidebar summary:hover{background:var(--admin-paper);color:var(--admin-ink)}
+.admin-shell #admin-sidebar summary{font-size:12px;min-height:44px}
+.admin-shell .admin-brand{color:var(--admin-ink);font-size:16px;font-weight:700;line-height:1.65}
+.admin-shell :where(.motion-button),.admin-modal :where(.motion-button){min-height:44px;border-radius:4px;box-shadow:none;transform:none;font-weight:600;font-size:14px;line-height:1.5}
+.admin-shell :where(.btn-primary,.btn-navy),.admin-modal :where(.btn-primary,.btn-navy){background:var(--admin-accent);color:var(--admin-paper);border:1px solid var(--admin-accent)}
+.admin-shell :where(.btn-primary,.btn-navy):hover,.admin-modal :where(.btn-primary,.btn-navy):hover{background:#552032;color:var(--admin-paper);box-shadow:none}
+.admin-shell .btn-outline,.admin-modal .btn-outline{background:transparent;color:var(--admin-ink);border-color:var(--admin-line);box-shadow:none}
+.admin-shell .btn-outline:hover,.admin-modal .btn-outline:hover{background:var(--admin-canvas);color:var(--admin-ink);box-shadow:none}
+.admin-shell .motion-button::before,.admin-shell .motion-button::after,.admin-modal .motion-button::before,.admin-modal .motion-button::after{display:none}
+.admin-shell :where(input:not([type=checkbox]):not([type=radio]),textarea,select),.admin-modal :where(input:not([type=checkbox]):not([type=radio]),textarea,select){border-radius:4px;border-color:var(--admin-line);background:#fff;color:var(--admin-ink);font-size:14px;line-height:1.6}
+.admin-shell :where(input:not([type=checkbox]):not([type=radio]),select),.admin-modal :where(input:not([type=checkbox]):not([type=radio]),select){min-height:44px}
+.admin-shell :where(button,a,summary,input,textarea,select):focus-visible,.admin-modal :where(button,a,input,textarea,select):focus-visible{outline:2px solid var(--admin-accent);outline-offset:3px;box-shadow:none}
+.admin-shell :where(.shadow-card,.shadow-header,.interactive-card),.admin-modal :where(.shadow-card,.shadow-header,.interactive-card){box-shadow:none;transform:none}
+.admin-shell .glow-card::before,.admin-shell .glow-card::after{display:none}
+.admin-shell :where(th,td){overflow-wrap:anywhere}.admin-shell th{font-size:12px;font-weight:600}
+.admin-shell [role="alert"],.admin-modal [role="alert"]{overflow-wrap:anywhere}
+.admin-modal{background:rgb(23 23 26 / .35)}
+.admin-modal [role="dialog"]{background:var(--admin-paper);border-color:var(--admin-line);box-shadow:0 20px 80px rgb(23 23 26 / .15)}
+@media(min-width:1024px){.admin-shell--workspace{display:grid;grid-template-columns:224px minmax(0,1fr)}.admin-shell #admin-sidebar{position:sticky;top:0;height:100dvh;min-height:0;overflow:hidden}}
+@media(max-width:1023px){.admin-workspace{padding:28px 24px}.admin-header{padding:12px 24px}.admin-shell #admin-sidebar{width:min(304px,calc(100vw - 32px))}}
+@media(max-width:767px){.admin-workspace{padding:24px 16px}.admin-header{padding:12px 16px}.admin-shell h1{font-size:24px}.admin-page-title{margin-bottom:24px}.admin-header__row{flex-direction:row;align-items:center;gap:8px}.admin-header__actions>a{display:none}.admin-header__identity{min-width:0;max-width:160px}.admin-header__identity p{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.admin-header__actions{flex-shrink:0}}
+@media(prefers-reduced-motion:reduce){.admin-shell *,.admin-modal *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}

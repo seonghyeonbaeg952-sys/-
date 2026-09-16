@@ -19,7 +19,6 @@ const tableChecks = [
   'faq',
   'locations',
   'support_settings',
-  'sponsors',
 ]
 
 const columnChecks = [
@@ -40,10 +39,6 @@ const columnChecks = [
     target: 'columns:support_settings pledge format fields',
   },
   {
-    path: '/rest/v1/sponsors?select=id,name,display_name,category,tier,logo_url,website_url,consent_public,show_on_home,show_on_support,show_on_footer,display_order&is_visible=eq.true&consent_public=eq.true&limit=1',
-    target: 'columns:sponsors public consent fields',
-  },
-  {
     path: '/rest/v1/conductor?select=id,profile_image_alt,profile_summary,profile_highlight,hero_quote,current_roles,education_items,career_items,awards_items,activities_items,philosophy_title,philosophy_body,philosophy_quote,teaching_principles,message_title,message_body,activity_images,is_featured&limit=1',
     target: 'columns:conductor document profile fields',
   },
@@ -55,27 +50,35 @@ const columnChecks = [
 
 const privateTableChecks = [
   {
-    path: '/rest/v1/members?select=name&limit=1',
+    path: '/rest/v1/sponsors?select=name&limit=0',
+    target: 'private-column:sponsors raw name',
+  },
+  {
+    path: '/rest/v1/sponsors?select=internal_notes&limit=0',
+    target: 'private-column:sponsors internal notes',
+  },
+  {
+    path: '/rest/v1/members?select=name&limit=0',
     target: 'private-column:members raw name',
   },
   {
-    path: '/rest/v1/members?select=photo_url&limit=1',
+    path: '/rest/v1/members?select=photo_url&limit=0',
     target: 'private-column:members photo URL',
   },
   {
-    path: '/rest/v1/members?select=description&limit=1',
+    path: '/rest/v1/members?select=description&limit=0',
     target: 'private-column:members description',
   },
   {
-    path: '/rest/v1/contacts?select=id&limit=1',
+    path: '/rest/v1/contacts?select=id&limit=0',
     target: 'private-table:contacts',
   },
   {
-    path: '/rest/v1/join_applications?select=id&limit=1',
+    path: '/rest/v1/join_applications?select=id&limit=0',
     target: 'private-table:join_applications',
   },
   {
-    path: '/rest/v1/support_pledges?select=id&limit=1',
+    path: '/rest/v1/support_pledges?select=id&limit=0',
     target: 'private-table:support_pledges',
   },
 ]
@@ -149,18 +152,16 @@ function getStatusLabel(result) {
   return '[failed]'
 }
 
-async function requestJsonOnce({ anonKey, body, method = 'GET', path, url }) {
+async function requestJsonOnce({ anonKey, path, url }) {
   const { controller, timer } = createTimeoutSignal(12000)
 
   try {
     const response = await fetch(`${url}${path}`, {
-      body: body ? JSON.stringify(body) : undefined,
       headers: {
         apikey: anonKey,
         authorization: `Bearer ${anonKey}`,
-        ...(body ? { 'content-type': 'application/json' } : {}),
       },
-      method,
+      method: 'GET',
       signal: controller.signal,
     })
 
@@ -250,9 +251,7 @@ const publicMemberFields = new Set([
 ])
 const publicMembersResult = await requestJson({
   anonKey: supabaseAnonKey,
-  body: {},
-  method: 'POST',
-  path: '/rest/v1/rpc/get_public_members',
+  path: '/rest/v1/rpc/get_public_members?limit=1',
   url: supabaseUrl,
 })
 const hasUnexpectedPublicMemberField = Array.isArray(publicMembersResult.data)
@@ -270,6 +269,29 @@ results.push({
       ? '[unsafe-member-shape]'
       : '[ok]'
     : getStatusLabel(publicMembersResult),
+})
+
+const publicSponsorFields = new Set([
+  'id', 'name', 'display_name', 'category', 'tier', 'description', 'logo_url',
+  'website_url', 'show_on_home', 'show_on_support', 'show_on_footer',
+  'display_order', 'is_visible', 'created_at',
+])
+const publicSponsorsResult = await requestJson({
+  anonKey: supabaseAnonKey,
+  path: '/rest/v1/rpc/get_public_sponsors?limit=1',
+  url: supabaseUrl,
+})
+const validSponsorRows = Array.isArray(publicSponsorsResult.data)
+  && publicSponsorsResult.data.every(row => row !== null && typeof row === 'object' && !Array.isArray(row))
+const unsafeSponsorRows = validSponsorRows && publicSponsorsResult.data.some(row =>
+  Object.keys(row).some(key => !publicSponsorFields.has(key)) || row.is_visible !== true,
+)
+results.push({
+  status: publicSponsorsResult.status,
+  target: 'rpc:get_public_sponsors safe public fields',
+  verdict: !publicSponsorsResult.ok ? getStatusLabel(publicSponsorsResult)
+    : !validSponsorRows ? '[invalid-sponsor-shape]'
+      : unsafeSponsorRows ? '[unsafe-sponsor-shape]' : '[ok]',
 })
 
 const siteTextParams = new URLSearchParams({
@@ -321,54 +343,7 @@ for (const check of privateTableChecks) {
   })
 }
 
-const storageResult = await requestJson({
-  anonKey: supabaseAnonKey,
-  body: { limit: 1, prefix: 'hero' },
-  method: 'POST',
-  path: '/storage/v1/object/list/site-images',
-  url: supabaseUrl,
-})
-
-results.push({
-  status: storageResult.status,
-  target: 'storage:site-images/hero',
-  verdict: getStatusLabel(storageResult),
-})
-
-const sponsorStorageResult = await requestJson({
-  anonKey: supabaseAnonKey,
-  body: { limit: 1, prefix: 'sponsors' },
-  method: 'POST',
-  path: '/storage/v1/object/list/site-images',
-  url: supabaseUrl,
-})
-
-results.push({
-  status: sponsorStorageResult.status,
-  target: 'storage:site-images/sponsors',
-  verdict: getStatusLabel(sponsorStorageResult),
-})
-
-const memberStorageResult = await requestJson({
-  anonKey: supabaseAnonKey,
-  body: { limit: 100, prefix: 'members' },
-  method: 'POST',
-  path: '/storage/v1/object/list/site-images',
-  url: supabaseUrl,
-})
-const hasPublicMemberAssets =
-  Array.isArray(memberStorageResult.data) && memberStorageResult.data.length > 0
-
-results.push({
-  status: memberStorageResult.status,
-  target: 'storage:site-images/members legacy assets',
-  verdict: memberStorageResult.ok
-    ? hasPublicMemberAssets
-      ? '[public-member-assets]'
-      : '[ok]'
-    : getStatusLabel(memberStorageResult),
-})
-
+console.info('[not-checked] Storage object listing requires POST and is excluded from this GET-only check. No upload, deletion or submission is performed.')
 console.table(results)
 
 const hasFailure = results.some(
