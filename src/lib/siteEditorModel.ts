@@ -1,53 +1,25 @@
 import type {
-  EditorAppearance, EditorDevice, EditorFont, EditorPageId, SiteEditorDocument, SiteEditorDocuments,
+  EditorAppearance, EditorDevice, EditorPageId, SiteEditorDocument, SiteEditorDocuments,
 } from '../types/siteEditor'
+import { EDITOR_FONTS, EDITOR_FONT_FAMILIES as fontFamilies, isEditorRecord as isPlainRecord, isEditorCopyKey as validCopyKey, isEditorCopyText as validCopyText, validateTextStyles } from './siteEditorTextStyles'
+export { EDITOR_FONTS } from './siteEditorTextStyles'
 
 export const EDITOR_PAGE_IDS: readonly EditorPageId[] = [
   'common', 'home', 'about', 'spirit', 'conductor', 'accompanist', 'members', 'history',
   'concerts', 'concert-detail', 'notices', 'notice-detail', 'gallery', 'join', 'contact',
 ]
 export const EDITOR_DEVICES: readonly EditorDevice[] = ['mobile', 'tablet', 'desktop']
-export const EDITOR_FONTS: readonly EditorFont[] = ['system', 'gothic-a1', 'hahmlet', 'arita-buri', 'gowun-batang', 'grandiflora']
 export const EDITOR_NUMBER_RANGES = {
   fontSize: [12, 32], h1Size: [20, 120], h2Size: [16, 80], h3Size: [14, 64],
   labelSize: [10, 24], lineHeight: [1.1, 2.4], letterSpacing: [-0.04, 0.2],
 } as const
 
 const colors = ['textColor', 'headingColor', 'mutedColor', 'accentColor', 'backgroundColor'] as const
-const unsafeSegments = new Set(['__proto__', 'prototype', 'constructor'])
-const documentKeys = ['schemaVersion', 'copy', 'deviceCopy', 'appearance']
+const documentKeys = ['schemaVersion', 'copy', 'deviceCopy', 'appearance', 'textStyles']
 const appearanceKeys = ['fontFamily', 'headingFontFamily', 'fontWeight', ...Object.keys(EDITOR_NUMBER_RANGES), ...colors]
-const fontFamilies: Record<EditorFont, string> = {
-  system: 'system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
-  'gothic-a1': '"Gothic A1",sans-serif',
-  hahmlet: '"Hahmlet",serif',
-  'arita-buri': '"AritaBuri",serif',
-  'gowun-batang': '"Gowun Batang",serif',
-  grandiflora: '"Grandiflora One",serif',
-}
 
 export function isEditorPageId(value: unknown): value is EditorPageId {
   return typeof value === 'string' && EDITOR_PAGE_IDS.some(page => page === value)
-}
-
-function isPlainRecord(value: unknown): value is Record<string, unknown> {
-  if (value === null || typeof value !== 'object') return false
-  const prototype = Object.getPrototypeOf(value)
-  if (prototype !== Object.prototype && prototype !== null) return false
-  return Reflect.ownKeys(value).every(key => typeof key === 'string'
-    && !unsafeSegments.has(key)
-    && Object.getOwnPropertyDescriptor(value, key)?.enumerable === true
-    && Object.hasOwn(Object.getOwnPropertyDescriptor(value, key) ?? {}, 'value'))
-}
-
-function validCopyKey(key: string): boolean {
-  return key.length > 0 && key.length <= 120 && /^[a-zA-Z0-9_.-]+$/.test(key)
-    && key.split('.').every(segment => segment.length > 0 && !unsafeSegments.has(segment))
-}
-
-function validCopyText(value: unknown): value is string {
-  return typeof value === 'string' && Array.from(value).length <= 10000
-    && !/<\s*\/?\s*[a-z][^>]*>/i.test(value)
 }
 
 function validCopyMap(value: unknown): boolean {
@@ -72,7 +44,7 @@ export function emptySiteEditorDocument(): SiteEditorDocument {
 
 export function validateSiteEditorDocument(value: unknown): string | null {
   try {
-    if (!isPlainRecord(value) || Object.keys(value).length !== documentKeys.length
+    if (!isPlainRecord(value)
       || Object.keys(value).some(key => !documentKeys.includes(key)) || value.schemaVersion !== 1) {
       return '편집 문서 형식을 확인해 주세요.'
     }
@@ -84,6 +56,10 @@ export function validateSiteEditorDocument(value: unknown): string | null {
     if (!isPlainRecord(value.appearance) || Object.entries(value.appearance).some(([scope, appearance]) =>
       !(scope === 'shared' || EDITOR_DEVICES.some(device => device === scope)) || !validAppearance(appearance))) {
       return '디자인의 글꼴, 크기, 색상과 입력 범위를 확인해 주세요.'
+    }
+    if (Object.hasOwn(value, 'textStyles')) {
+      const error = validateTextStyles(value.textStyles)
+      if (error) return error
     }
     if (new TextEncoder().encode(JSON.stringify(value)).byteLength > 512 * 1024) {
       return '편집 문서는 512KB 이내로 저장해 주세요.'

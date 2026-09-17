@@ -31,6 +31,7 @@ export type AdminFieldConfig<TRow extends CmsRecord> = {
   description?: string
   folder?: string
   formatValue?: (value: CmsValue | undefined) => CmsValue | undefined
+  fullWidth?: boolean
   label: string
   maxSizeMb?: number
   name: Extract<keyof TRow, string>
@@ -39,6 +40,7 @@ export type AdminFieldConfig<TRow extends CmsRecord> = {
   readOnly?: boolean
   required?: boolean
   rows?: number
+  section?: string
   type: AdminFieldType
 }
 
@@ -52,6 +54,7 @@ type AdminRecordFormProps<TRow extends CmsRecord> = {
   onSubmit: (payload: CmsMutationPayload) => Promise<boolean>
   stickyActions?: boolean
   submitLabel?: string
+  validateFields?: (values: CmsMutationPayload) => FormErrors
 }
 
 type FormErrors = Record<string, string | undefined>
@@ -119,6 +122,7 @@ export function AdminRecordForm<TRow extends CmsRecord>({
   onSubmit,
   stickyActions = false,
   submitLabel = '저장',
+  validateFields,
 }: AdminRecordFormProps<TRow>) {
   const generatedId = useId().replaceAll(':', '')
   const initialValues = useMemo(() => {
@@ -158,7 +162,9 @@ export function AdminRecordForm<TRow extends CmsRecord>({
     onDirtyChange?.(fields.some(field => valuesRef.current[field.name] !== savedValues[field.name]
       || ['selected', 'uploading', 'error'].includes(uploadStatesRef.current[field.name])))
     setValues(valuesRef.current)
-    setErrors((current) => ({ ...current, [name]: undefined }))
+    setErrors((current) => validateFields && Object.values(current).some(Boolean)
+      ? getValidationErrors(valuesRef.current)
+      : { ...current, [name]: undefined })
     setSubmitError(null)
   }
 
@@ -170,11 +176,11 @@ export function AdminRecordForm<TRow extends CmsRecord>({
     setSubmitError(null)
   }
 
-  const validate = () => {
-    const nextErrors: FormErrors = {}
+  const getValidationErrors = (currentValues: FormValues) => {
+    const nextErrors: FormErrors = { ...validateFields?.(currentValues) }
 
     for (const field of fields) {
-      const value = valuesRef.current[field.name]
+      const value = currentValues[field.name]
 
       if (
         field.required &&
@@ -186,6 +192,11 @@ export function AdminRecordForm<TRow extends CmsRecord>({
       }
     }
 
+    return nextErrors
+  }
+
+  const validate = () => {
+    const nextErrors = getValidationErrors(valuesRef.current)
     setErrors(nextErrors)
 
     const firstErrorField = fields.find(
@@ -200,7 +211,7 @@ export function AdminRecordForm<TRow extends CmsRecord>({
       })
     }
 
-    return Object.keys(nextErrors).length === 0
+    return !Object.values(nextErrors).some(Boolean)
   }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -243,145 +254,158 @@ export function AdminRecordForm<TRow extends CmsRecord>({
     }
   }
 
+  const renderField = (field: AdminFieldConfig<TRow>) => {
+    const value = values[field.name]
+    const fieldId = `${generatedId}-${field.name}`
+    const commonProps = {
+      description: field.description,
+      disabled: busy || field.readOnly,
+      error: errors[field.name],
+      id: fieldId,
+      label: field.label,
+      name: field.name,
+      required: field.required,
+    }
+
+    if (field.type === 'textarea') {
+      return (
+        <div className="md:col-span-2" key={field.name}>
+          <AdminTextarea
+            {...commonProps}
+            onChange={(event) => setValue(field.name, event.target.value)}
+            placeholder={field.placeholder}
+            rows={field.rows ?? 5}
+            value={typeof value === 'string' ? value : ''}
+          />
+        </div>
+      )
+    }
+
+    if (field.type === 'image') {
+      return (
+        <div className="md:col-span-2" key={field.name}>
+          <ImageUploader
+            accept={field.accept}
+            allowManualUrl={field.allowManualUrl}
+            allowSvg={field.allowSvg}
+            description={field.description}
+            disabled={busy || field.readOnly}
+            folder={field.folder ?? 'settings'}
+            id={fieldId}
+            label={field.label}
+            maxSizeMb={field.maxSizeMb}
+            onChange={(nextValue) => setValue(field.name, nextValue)}
+            onUploadStateChange={(state) => updateUploadState(field.name, state)}
+            required={field.required}
+            value={typeof value === 'string' ? value : null}
+          />
+          {errors[field.name] ? (
+            <p className="mt-2 text-sm text-state-error" role="alert">
+              {errors[field.name]}
+            </p>
+          ) : null}
+        </div>
+      )
+    }
+
+    if (field.type === 'select') {
+      return (
+        <AdminSelect
+          {...commonProps}
+          key={field.name}
+          onChange={(event) => setValue(field.name, event.target.value)}
+          options={typeof value === 'string' && value && !field.options?.some(option => option.value === value)
+            ? [{ label: `기존 값: ${value}`, value }, ...(field.options ?? [])]
+            : field.options ?? []}
+          value={typeof value === 'string' ? value : ''}
+        />
+      )
+    }
+
+    if (field.type === 'switch') {
+      return (
+        <AdminSwitch
+          checked={Boolean(value)}
+          description={field.description}
+          disabled={busy || field.readOnly}
+          id={fieldId}
+          key={field.name}
+          label={field.label}
+          name={field.name}
+          onChange={(checked) => setValue(field.name, checked)}
+        />
+      )
+    }
+
+    if (field.type === 'signature') {
+      const signatureSrc = typeof value === 'string' ? value : ''
+
+      return (
+        <div className="md:col-span-2" key={field.name}>
+          <div className="mb-2">
+            <span className="text-sm font-semibold text-navy-deep">
+              {field.label}
+            </span>
+            {field.description ? (
+              <p className="mt-1 text-xs leading-5 text-text-muted">
+                {field.description}
+              </p>
+            ) : null}
+          </div>
+          <div className="rounded-formal border border-line-default bg-bg-warm-white p-4">
+            {signatureSrc && isSignaturePng(signatureSrc) ? (
+              <img
+                alt={`${field.label} 이미지`}
+                className="h-32 w-full rounded-button border border-line-default bg-bg-ivory object-contain"
+                src={signatureSrc}
+              />
+            ) : (
+              <p className="rounded-button border border-dashed border-line-default bg-bg-ivory px-4 py-8 text-center text-sm text-text-muted">
+                {signatureSrc ? '서명 형식을 확인할 수 없습니다. 원본 접수 자료를 확인해 주세요.' : '저장된 서명 이미지가 없습니다.'}
+              </p>
+            )}
+          </div>
+        </div>
+      )
+    }
+
+    const input = (
+      <AdminFormField
+        {...commonProps}
+        key={field.name}
+        onChange={(event) =>
+          setValue(
+            field.name,
+            field.type === 'number'
+              ? event.target.value === ''
+                ? ''
+                : Number(event.target.value)
+              : event.target.value,
+          )
+        }
+        placeholder={field.placeholder}
+        type={field.type}
+        value={value === null || value === undefined ? '' : String(value)}
+      />
+    )
+    return field.fullWidth ? <div className="md:col-span-2" key={field.name}>{input}</div> : input
+  }
+
+  const groups: Array<{ section?: string; fields: Array<AdminFieldConfig<TRow>> }> = []
+  for (const field of fields) {
+    const group = groups.at(-1)
+    if (group && group.section === field.section) group.fields.push(field)
+    else groups.push({ section: field.section, fields: [field] })
+  }
+
   return (
     <form aria-busy={busy} className="space-y-5" onSubmit={handleSubmit}>
-      <div className="grid gap-5 md:grid-cols-2">
-        {fields.map((field) => {
-          const value = values[field.name]
-          const fieldId = `${generatedId}-${field.name}`
-          const commonProps = {
-            description: field.description,
-            disabled: busy || field.readOnly,
-            error: errors[field.name],
-            id: fieldId,
-            label: field.label,
-            name: field.name,
-            required: field.required,
-          }
-
-          if (field.type === 'textarea') {
-            return (
-              <div className="md:col-span-2" key={field.name}>
-                <AdminTextarea
-                  {...commonProps}
-                  onChange={(event) => setValue(field.name, event.target.value)}
-                  placeholder={field.placeholder}
-                  rows={field.rows ?? 5}
-                  value={typeof value === 'string' ? value : ''}
-                />
-              </div>
-            )
-          }
-
-          if (field.type === 'image') {
-            return (
-              <div className="md:col-span-2" key={field.name}>
-                <ImageUploader
-                  accept={field.accept}
-                  allowManualUrl={field.allowManualUrl}
-                  allowSvg={field.allowSvg}
-                  description={field.description}
-                  disabled={busy || field.readOnly}
-                  folder={field.folder ?? 'settings'}
-                  id={fieldId}
-                  label={field.label}
-                  maxSizeMb={field.maxSizeMb}
-                  onChange={(nextValue) => setValue(field.name, nextValue)}
-                  onUploadStateChange={(state) => updateUploadState(field.name, state)}
-                  required={field.required}
-                  value={typeof value === 'string' ? value : null}
-                />
-                {errors[field.name] ? (
-                  <p className="mt-2 text-sm text-state-error" role="alert">
-                    {errors[field.name]}
-                  </p>
-                ) : null}
-              </div>
-            )
-          }
-
-          if (field.type === 'select') {
-            return (
-              <AdminSelect
-                {...commonProps}
-                key={field.name}
-                onChange={(event) => setValue(field.name, event.target.value)}
-                options={typeof value === 'string' && value && !field.options?.some(option => option.value === value)
-                  ? [{ label: `기존 값: ${value}`, value }, ...(field.options ?? [])]
-                  : field.options ?? []}
-                value={typeof value === 'string' ? value : ''}
-              />
-            )
-          }
-
-          if (field.type === 'switch') {
-            return (
-              <AdminSwitch
-                checked={Boolean(value)}
-                description={field.description}
-                disabled={busy || field.readOnly}
-                id={fieldId}
-                key={field.name}
-                label={field.label}
-                name={field.name}
-                onChange={(checked) => setValue(field.name, checked)}
-              />
-            )
-          }
-
-          if (field.type === 'signature') {
-            const signatureSrc = typeof value === 'string' ? value : ''
-
-            return (
-              <div className="md:col-span-2" key={field.name}>
-                <div className="mb-2">
-                  <span className="text-sm font-semibold text-navy-deep">
-                    {field.label}
-                  </span>
-                  {field.description ? (
-                    <p className="mt-1 text-xs leading-5 text-text-muted">
-                      {field.description}
-                    </p>
-                  ) : null}
-                </div>
-                <div className="rounded-formal border border-line-default bg-bg-warm-white p-4">
-                  {signatureSrc && isSignaturePng(signatureSrc) ? (
-                    <img
-                      alt={`${field.label} 이미지`}
-                      className="h-32 w-full rounded-button border border-line-default bg-bg-ivory object-contain"
-                      src={signatureSrc}
-                    />
-                  ) : (
-                    <p className="rounded-button border border-dashed border-line-default bg-bg-ivory px-4 py-8 text-center text-sm text-text-muted">
-                      {signatureSrc ? '서명 형식을 확인할 수 없습니다. 원본 접수 자료를 확인해 주세요.' : '저장된 서명 이미지가 없습니다.'}
-                    </p>
-                  )}
-                </div>
-              </div>
-            )
-          }
-
-          return (
-            <AdminFormField
-              {...commonProps}
-              key={field.name}
-              onChange={(event) =>
-                setValue(
-                  field.name,
-                  field.type === 'number'
-                    ? event.target.value === ''
-                      ? ''
-                      : Number(event.target.value)
-                    : event.target.value,
-                )
-              }
-              placeholder={field.placeholder}
-              type={field.type}
-              value={value === null || value === undefined ? '' : String(value)}
-            />
-          )
-        })}
-      </div>
+      {groups.map((group) => group.section ? (
+        <fieldset className="admin-record-section" key={group.fields[0].name}>
+          <legend>{group.section}</legend>
+          <div className="grid gap-5 md:grid-cols-2">{group.fields.map(renderField)}</div>
+        </fieldset>
+      ) : <div className="grid gap-5 md:grid-cols-2" key={group.fields[0].name}>{group.fields.map(renderField)}</div>)}
 
       {hasPendingImages ? <p className="text-sm leading-6 text-text-muted" role="status">선택한 이미지의 업로드를 완료하거나 선택을 취소해야 저장할 수 있습니다.</p> : null}
       {submitError ? <p className="rounded-button bg-state-error/10 px-4 py-3 text-sm text-state-error" role="alert">{submitError}</p> : null}

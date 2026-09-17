@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../../components/site-editor/FormattedCopy'
 import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
@@ -101,10 +102,10 @@ function PosterPlate({ concert }: { concert: Concert }) {
         />
       ) : (
         <div className="concerts-page__poster-fallback">
-          <span>{copyText("concerts", "concerts.fixed.ConcertsPage.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</span>
+          <span>{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.f34c03131f" text={copyText("concerts", "concerts.fixed.ConcertsPage.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}>{copyText("concerts", "concerts.fixed.ConcertsPage.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</FormattedCopy>}</span>
           <i aria-hidden="true" />
-          <strong>{copyText("concerts", "concerts.fixed.ConcertsPage.d9399485e9", "SMYC")}</strong>
-          <small>{copyText("concerts", "concerts.fixed.ConcertsPage.01d1d0ac27", "CONCERT PROGRAM")}</small>
+          <strong>{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.d9399485e9" text={copyText("concerts", "concerts.fixed.ConcertsPage.d9399485e9", "SMYC")}>{copyText("concerts", "concerts.fixed.ConcertsPage.d9399485e9", "SMYC")}</FormattedCopy>}</strong>
+          <small>{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.01d1d0ac27" text={copyText("concerts", "concerts.fixed.ConcertsPage.01d1d0ac27", "CONCERT PROGRAM")}>{copyText("concerts", "concerts.fixed.ConcertsPage.01d1d0ac27", "CONCERT PROGRAM")}</FormattedCopy>}</small>
         </div>
       )}
     </div>
@@ -120,8 +121,8 @@ function FeaturedStage({ concert, today }: { concert: Concert | null; today: str
         <img alt="" aria-hidden="true" src={FEATURED_ARCHIVE_IMAGE} />
         <div className="concerts-page__stage-wash" />
         <div className="concerts-page__stage-empty-copy">
-          <span>{copyText("concerts", "concerts.fixed.ConcertsPage.01d1d0ac27", "CONCERT PROGRAM")}</span>
-          <strong>{t('emptyStage')}</strong>
+          <span>{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.01d1d0ac27" text={copyText("concerts", "concerts.fixed.ConcertsPage.01d1d0ac27", "CONCERT PROGRAM")}>{copyText("concerts", "concerts.fixed.ConcertsPage.01d1d0ac27", "CONCERT PROGRAM")}</FormattedCopy>}</span>
+          <strong>{<FormattedCopy page="concerts" id="concerts.emptyStage" text={t('emptyStage')}>{t('emptyStage')}</FormattedCopy>}</strong>
         </div>
       </div>
     )
@@ -151,7 +152,7 @@ function FeaturedStage({ concert, today }: { concert: Concert | null; today: str
           className="concerts-page__stage-link"
           to={`/concerts/${concert.id}`}
         >
-          {t('detail')} <span aria-hidden="true">→</span>
+          {<FormattedCopy page="concerts" id="concerts.detail" text={t('detail')}>{t('detail')}</FormattedCopy>} <span aria-hidden="true">→</span>
         </TransitionLink>
       </div>
       <div className="concerts-page__stage-poster">
@@ -344,18 +345,18 @@ export function ConcertsPage() {
         <section className="concerts-page__hero" aria-labelledby="concerts-page-title">
           <div className="concerts-page__hero-inner">
             <div className="concerts-page__hero-copy">
-              <p>{copyText("concerts", "concerts.fixed.ConcertsPage.b799293c64", "CONCERT PROGRAM ·")}{' '}
-                {getDateParts(rawSchedule.featured?.date ?? '').year || today.slice(0, 4)}{' '}{copyText("concerts", "concerts.fixed.ConcertsPage.563c7ab915", "SEASON")}</p>
+              <p>{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.b799293c64" text={copyText("concerts", "concerts.fixed.ConcertsPage.b799293c64", "CONCERT PROGRAM ·")}>{copyText("concerts", "concerts.fixed.ConcertsPage.b799293c64", "CONCERT PROGRAM ·")}</FormattedCopy>}{' '}
+                {getDateParts(rawSchedule.featured?.date ?? '').year || today.slice(0, 4)}{' '}{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.563c7ab915" text={copyText("concerts", "concerts.fixed.ConcertsPage.563c7ab915", "SEASON")}>{copyText("concerts", "concerts.fixed.ConcertsPage.563c7ab915", "SEASON")}</FormattedCopy>}</p>
               <i aria-hidden="true" />
               <h1 id="concerts-page-title">
-                <CopyLines text={t('title')} />
+                <FormattedCopy page="concerts" id="concerts.title" text={t('title')} lineBreaks><CopyLines text={t('title')} /></FormattedCopy>
               </h1>
-              <span>{t('description')}</span>
+              <span>{<FormattedCopy page="concerts" id="concerts.description" text={t('description')}>{t('description')}</FormattedCopy>}</span>
               <nav aria-label={copyText("concerts", "concerts.fixed.ConcertsPage.917033508b", "공연·소식 바로가기")} className="concerts-page__local-nav">
                 <a aria-current="page" href="#concert-discovery">
-                  {t('schedule')}
+                  {<FormattedCopy page="concerts" id="concerts.schedule" text={t('schedule')}>{t('schedule')}</FormattedCopy>}
                 </a>
-                <TransitionLink to="/notices">{t('notices')}</TransitionLink>
+                <TransitionLink to="/notices">{<FormattedCopy page="concerts" id="concerts.notices" text={t('notices')}>{t('notices')}</FormattedCopy>}</TransitionLink>
               </nav>
             </div>
             <FeaturedStage concert={rawSchedule.featured} today={today} />
@@ -365,8 +366,8 @@ export function ConcertsPage() {
         <section className="concerts-page__discovery" id="concert-discovery">
           <div className="concerts-page__discovery-inner">
             <div className="concerts-page__discovery-heading">
-              <h2>{t('find')}</h2>
-              <p aria-live="polite">{copyText("concerts", "concerts.fixed.ConcertsPage.5e1c40e141", "전체 ")}{resultCount}{copyText("concerts", "concerts.fixed.ConcertsPage.578c084317", "개 · 날짜순")}</p>
+              <h2>{<FormattedCopy page="concerts" id="concerts.find" text={t('find')}>{t('find')}</FormattedCopy>}</h2>
+              <p aria-live="polite">{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.5e1c40e141" text={copyText("concerts", "concerts.fixed.ConcertsPage.5e1c40e141", "전체 ")}>{copyText("concerts", "concerts.fixed.ConcertsPage.5e1c40e141", "전체 ")}</FormattedCopy>}{resultCount}{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.578c084317" text={copyText("concerts", "concerts.fixed.ConcertsPage.578c084317", "개 · 날짜순")}>{copyText("concerts", "concerts.fixed.ConcertsPage.578c084317", "개 · 날짜순")}</FormattedCopy>}</p>
             </div>
 
             <div className="concerts-page__filter-bar">
@@ -423,7 +424,7 @@ export function ConcertsPage() {
                     value={categoryFilter}
                   />
                   <button className="concerts-page__reset" onClick={resetFilters} type="button">
-                    {t('reset')}
+                    {<FormattedCopy page="concerts" id="concerts.reset" text={t('reset')}>{t('reset')}</FormattedCopy>}
                   </button>
                 </div>
 
@@ -434,7 +435,7 @@ export function ConcertsPage() {
                   onClick={() => setIsFilterOpen(true)}
                   type="button"
                 >
-                  <span>{copyText("concerts", "concerts.fixed.ConcertsPage.dc613f56f8", "필터 ")}{activeFilterCount}</span>
+                  <span>{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.dc613f56f8" text={copyText("concerts", "concerts.fixed.ConcertsPage.dc613f56f8", "필터 ")}>{copyText("concerts", "concerts.fixed.ConcertsPage.dc613f56f8", "필터 ")}</FormattedCopy>}{activeFilterCount}</span>
                   <span aria-hidden="true">＋</span>
                 </button>
               </div>
@@ -467,7 +468,7 @@ export function ConcertsPage() {
                   onClick={() => void concertsData.refetch()}
                   type="button"
                 >
-                  {t('retry')}
+                  {<FormattedCopy page="concerts" id="concerts.retry" text={t('retry')}>{t('retry')}</FormattedCopy>}
                 </button>
               }
               description={t('errorHelp')}
@@ -486,8 +487,8 @@ export function ConcertsPage() {
               >
                 <div className="concerts-page__section-inner">
                   <div className="concerts-page__section-heading">
-                    <h2 id="upcoming-concerts-title">{t('upcoming')}</h2>
-                    <p>{copyText("concerts", "concerts.fixed.ConcertsPage.89545f172d", "가까운 날짜순 · ")}{filteredSchedule.upcoming.length}{copyText("concerts", "concerts.fixed.ConcertsPage.a57ab05712", "개")}</p>
+                    <h2 id="upcoming-concerts-title">{<FormattedCopy page="concerts" id="concerts.upcoming" text={t('upcoming')}>{t('upcoming')}</FormattedCopy>}</h2>
+                    <p>{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.89545f172d" text={copyText("concerts", "concerts.fixed.ConcertsPage.89545f172d", "가까운 날짜순 · ")}>{copyText("concerts", "concerts.fixed.ConcertsPage.89545f172d", "가까운 날짜순 · ")}</FormattedCopy>}{filteredSchedule.upcoming.length}{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.a57ab05712" text={copyText("concerts", "concerts.fixed.ConcertsPage.a57ab05712", "개")}>{copyText("concerts", "concerts.fixed.ConcertsPage.a57ab05712", "개")}</FormattedCopy>}</p>
                   </div>
                   <div aria-hidden="true" className="concerts-page__section-rule" />
 
@@ -516,10 +517,10 @@ export function ConcertsPage() {
               >
                 <div className="concerts-page__section-inner">
                   <div className="concerts-page__section-heading">
-                    <h2 id="past-concerts-title">{t('archive')}</h2>
+                    <h2 id="past-concerts-title">{<FormattedCopy page="concerts" id="concerts.archive" text={t('archive')}>{t('archive')}</FormattedCopy>}</h2>
                     <p>
                       {activeArchiveYear ? `${activeArchiveYear}년` : '기록'} ·{' '}
-                      {displayedArchiveRows.length}{copyText("concerts", "concerts.fixed.ConcertsPage.a57ab05712", "개")}</p>
+                      {displayedArchiveRows.length}{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.a57ab05712" text={copyText("concerts", "concerts.fixed.ConcertsPage.a57ab05712", "개")}>{copyText("concerts", "concerts.fixed.ConcertsPage.a57ab05712", "개")}</FormattedCopy>}</p>
                   </div>
 
                   {archiveYears.length > 0 ? (

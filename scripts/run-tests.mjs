@@ -57,6 +57,7 @@ const tests = [
   'src/components/home/HomeHeroSlideshow.image.test.mjs',
   'src/types/siteEditor.test.mjs',
   'src/lib/siteEditorModel.test.mjs',
+  'src/lib/siteEditorTextStyles.test.mjs',
   'src/lib/siteEditorApi.test.mjs',
   'src/lib/siteEditorPreview.test.mjs',
   'src/lib/siteEditorPublication.test.mjs',
@@ -65,8 +66,15 @@ const tests = [
   'src/content/siteCopyAboutCatalog.test.mjs',
   'src/components/admin/site-editor/editorSessionModel.test.mjs',
   'src/components/admin/site-editor/EditorCopyPanel.test.mjs',
+  'src/components/admin/site-editor/EditorTextSelection.test.mjs',
+  'src/components/admin/site-editor/editorChangePresentation.test.mjs',
   'src/components/admin/site-editor/editorPreviewModel.test.mjs',
   'src/components/site-editor/SiteEditorProvider.test.mjs',
+  'src/components/site-editor/FormattedCopy.test.mjs',
+  'src/components/home/HomeCopy.test.mjs',
+  'src/pages/public/nonhomeformat.test.mjs',
+  'src/pages/admin/AdminPopupNoticesPage.test.mjs',
+  'src/lib/cmsPopupNotices.test.mjs',
 ]
 
 const result = spawnSync(process.execPath, ['--test', '--test-concurrency=4', ...tests], {

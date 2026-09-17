@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { SiteCopy } from '../site-editor/SiteCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import type { PersonProfileRow } from '../../types/cms'
@@ -176,7 +177,7 @@ export function ConductorProfileDocument({ person }: { person?: PersonProfileRow
             <span aria-hidden="true" className="conductor-profile__heading-rule" />
             <h1 id="conductor-profile-title"><SiteCopy page="conductor" id="conductor.conductorProfileDocument.text1" fallback={"지휘자 소개"} /></h1>
           </div>
-          <p className="conductor-profile__organization">{copyText("conductor", "conductor.fixed.ConductorProfileDocument.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</p>
+          <p className="conductor-profile__organization">{<FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.f34c03131f" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</FormattedCopy>}</p>
         </header>
 
         <section
@@ -214,11 +215,11 @@ export function ConductorProfileDocument({ person }: { person?: PersonProfileRow
 
           <div className="conductor-profile__details">
             <div className="conductor-profile__identity">
-              <p>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</p>
-              <small><SiteCopy page="conductor" id="conductor.conductorProfileDocument.english2" fallback={"CONDUCTOR"} />{copyText("conductor", "conductor.fixed.ConductorProfileDocument.8a191edde4", " · 2014 — PRESENT")}</small>
+              <p>{<FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.f34c03131f" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</FormattedCopy>}</p>
+              <small><SiteCopy page="conductor" id="conductor.conductorProfileDocument.english2" fallback={"CONDUCTOR"} />{<FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.8a191edde4" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.8a191edde4", " · 2014 — PRESENT")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.8a191edde4", " · 2014 — PRESENT")}</FormattedCopy>}</small>
               <span aria-hidden="true" className="conductor-profile__identity-rule" />
               <h2>{name}</h2>
-              <strong>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.ab3fd80626", "KIM HYUNG-SU")}</strong>
+              <strong>{<FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.ab3fd80626" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.ab3fd80626", "KIM HYUNG-SU")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.ab3fd80626", "KIM HYUNG-SU")}</FormattedCopy>}</strong>
             </div>
 
             <div className="conductor-profile__copy">
@@ -239,7 +240,7 @@ export function ConductorProfileDocument({ person }: { person?: PersonProfileRow
             </div>
           </div>
 
-          <footer className="conductor-profile__footer-note"><SiteCopy page="conductor" id="conductor.conductorProfileDocument.english4" fallback={"SMYC CONDUCTOR PROFILE"} />{copyText("conductor", "conductor.fixed.ConductorProfileDocument.daecd7d7b9", " · KIM HYUNG-SU")}</footer>
+          <footer className="conductor-profile__footer-note"><SiteCopy page="conductor" id="conductor.conductorProfileDocument.english4" fallback={"SMYC CONDUCTOR PROFILE"} />{<FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.daecd7d7b9" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.daecd7d7b9", " · KIM HYUNG-SU")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.daecd7d7b9", " · KIM HYUNG-SU")}</FormattedCopy>}</footer>
         </section>
       </div>
     </div>

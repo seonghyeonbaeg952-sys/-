@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../../components/site-editor/FormattedCopy'
 import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 import { useCallback, useMemo, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
@@ -58,7 +59,7 @@ function MediaFigure({ item, poster = false, lead = false, priority = false, onO
         <span className="gallery-journal__category">{'category' in item ? getGalleryCategoryLabel(item.category) : '포스터'}</span>
         <h2 className="gallery-journal__media-title">{item.title}</h2>
         {date ? <span className="gallery-journal__date">{formatKoreanDate(date)}</span> : null}
-        <span className="gallery-journal__media-action">{poster ? '포스터' : '사진'}{copyText("gallery", "gallery.fixed.GalleryPage.f62132629c", " 크게 보기 ")}<span aria-hidden="true">↗</span></span>
+        <span className="gallery-journal__media-action">{poster ? '포스터' : '사진'}{<FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.f62132629c" text={copyText("gallery", "gallery.fixed.GalleryPage.f62132629c", " 크게 보기 ")}>{copyText("gallery", "gallery.fixed.GalleryPage.f62132629c", " 크게 보기 ")}</FormattedCopy>}<span aria-hidden="true">↗</span></span>
       </button>
     </article>
   )
@@ -87,12 +88,12 @@ function VideoFigure({ video, onOpen }: { video: VideoItem; onOpen: OpenMedia })
         />
       </button>
       <div className="gallery-journal__video-copy">
-        <p className="gallery-journal__category">{copyText("gallery", "gallery.fixed.GalleryPage.c3c2ad668c", "공연 영상")}</p>
+        <p className="gallery-journal__category">{<FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.c3c2ad668c" text={copyText("gallery", "gallery.fixed.GalleryPage.c3c2ad668c", "공연 영상")}>{copyText("gallery", "gallery.fixed.GalleryPage.c3c2ad668c", "공연 영상")}</FormattedCopy>}</p>
         <h2 className="gallery-journal__media-title">{video.title}</h2>
         {video.description ? <p className="gallery-journal__description">{video.description}</p> : null}
         {playable ? (
-          <button className="gallery-journal__command" onClick={event => onOpen(video.id, event.currentTarget)} type="button">{copyText("gallery", "gallery.fixed.GalleryPage.5a541f5512", "영상 보기 ")}<span aria-hidden="true">↗</span></button>
-        ) : <p className="gallery-journal__description">{copyText("gallery", "gallery.fixed.GalleryPage.5c774429e7", "영상 링크를 확인할 수 없습니다.")}</p>}
+          <button className="gallery-journal__command" onClick={event => onOpen(video.id, event.currentTarget)} type="button">{<FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.5a541f5512" text={copyText("gallery", "gallery.fixed.GalleryPage.5a541f5512", "영상 보기 ")}>{copyText("gallery", "gallery.fixed.GalleryPage.5a541f5512", "영상 보기 ")}</FormattedCopy>}<span aria-hidden="true">↗</span></button>
+        ) : <p className="gallery-journal__description">{<FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.5c774429e7" text={copyText("gallery", "gallery.fixed.GalleryPage.5c774429e7", "영상 링크를 확인할 수 없습니다.")}>{copyText("gallery", "gallery.fixed.GalleryPage.5c774429e7", "영상 링크를 확인할 수 없습니다.")}</FormattedCopy>}</p>}
       </div>
     </article>
   )
@@ -155,10 +156,10 @@ export function GalleryPage() {
       <SeoHead description={copyText("gallery", "gallery.fixed.GalleryPage.1f4da7fcb1", "서울모테트청소년합창단의 공연, 연습, 포스터와 영상 기록을 확인합니다.")} path="/gallery" title={copyText("gallery", "gallery.fixed.GalleryPage.5cd4cd7669", "갤러리")} />
       <div className="gallery-journal__shell">
         <header className="gallery-journal__intro">
-          <p className="gallery-journal__eyebrow">{copyText("gallery", "gallery.fixed.GalleryPage.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</p>
+          <p className="gallery-journal__eyebrow">{<FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.f34c03131f" text={copyText("gallery", "gallery.fixed.GalleryPage.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}>{copyText("gallery", "gallery.fixed.GalleryPage.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</FormattedCopy>}</p>
           <div className="gallery-journal__intro-row">
-            <h1>{t('title')}</h1>
-            <p className="gallery-journal__description"><CopyLines text={t('description')} /></p>
+            <h1>{<FormattedCopy page="gallery" id="gallery.title" text={t('title')}>{t('title')}</FormattedCopy>}</h1>
+            <p className="gallery-journal__description"><FormattedCopy page="gallery" id="gallery.description" text={t('description')} lineBreaks><CopyLines text={t('description')} /></FormattedCopy></p>
           </div>
         </header>
 
@@ -167,22 +168,22 @@ export function GalleryPage() {
           <div className="gallery-journal__filter-row">
             {tab === 'photos' ? (
               <FilterSelect className="gallery-journal__select" label={t('category')} onChange={changeCategory} options={categoryOptions} value={category} />
-            ) : <span className="gallery-journal__collection-label">{copyText("gallery", "gallery.fixed.GalleryPage.5e1c40e141", "전체 ")}{tab === 'videos' ? '영상' : '포스터'}</span>}
-            <p className="gallery-journal__hint">{tab === 'videos' ? t('videoHint') : tab === 'posters' ? t('posterHint') : t('photoHint')}</p>
+            ) : <span className="gallery-journal__collection-label">{<FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.5e1c40e141" text={copyText("gallery", "gallery.fixed.GalleryPage.5e1c40e141", "전체 ")}>{copyText("gallery", "gallery.fixed.GalleryPage.5e1c40e141", "전체 ")}</FormattedCopy>}{tab === 'videos' ? '영상' : '포스터'}</span>}
+            <p className="gallery-journal__hint">{tab === 'videos' ? <FormattedCopy page="gallery" id="gallery.videoHint" text={t('videoHint')}>{t('videoHint')}</FormattedCopy> : tab === 'posters' ? <FormattedCopy page="gallery" id="gallery.posterHint" text={t('posterHint')}>{t('posterHint')}</FormattedCopy> : <FormattedCopy page="gallery" id="gallery.photoHint" text={t('photoHint')}>{t('photoHint')}</FormattedCopy>}</p>
           </div>
         </div>
 
         {galleryData.error ? (
           <div className="gallery-journal__notice" role="status">
-            <p>{t('partialError')}</p>
-            <button className="gallery-journal__text-button" disabled={galleryData.isLoading} onClick={galleryData.refetch} type="button">{t('retry')}</button>
+            <p>{<FormattedCopy page="gallery" id="gallery.partialError" text={t('partialError')}>{t('partialError')}</FormattedCopy>}</p>
+            <button className="gallery-journal__text-button" disabled={galleryData.isLoading} onClick={galleryData.refetch} type="button">{<FormattedCopy page="gallery" id="gallery.retry" text={t('retry')}>{t('retry')}</FormattedCopy>}</button>
           </div>
         ) : null}
 
         {mediaId && !galleryData.isLoading && !selectedIsPlayable ? (
           <div className="gallery-journal__notice" role="status">
-            <p>{selectedItem ? t('videoError') : t('missing')}</p>
-            <button className="gallery-journal__text-button" onClick={closeDetail} type="button">{t('back')}</button>
+            <p>{selectedItem ? <FormattedCopy page="gallery" id="gallery.videoError" text={t('videoError')}>{t('videoError')}</FormattedCopy> : <FormattedCopy page="gallery" id="gallery.missing" text={t('missing')}>{t('missing')}</FormattedCopy>}</p>
+            <button className="gallery-journal__text-button" onClick={closeDetail} type="button">{<FormattedCopy page="gallery" id="gallery.back" text={t('back')}>{t('back')}</FormattedCopy>}</button>
           </div>
         ) : null}
 
@@ -197,7 +198,7 @@ export function GalleryPage() {
           {galleryData.isLoading && items.length === 0 ? <LoadingState label={t('loading')} /> : null}
           {!galleryData.isLoading && items.length === 0 ? (
             <EmptyState
-              action={tab === 'photos' && category !== 'all' ? <button className="gallery-journal__command" onClick={() => changeCategory('all')} type="button">{t('allPhotos')}</button> : undefined}
+              action={tab === 'photos' && category !== 'all' ? <button className="gallery-journal__command" onClick={() => changeCategory('all')} type="button">{<FormattedCopy page="gallery" id="gallery.allPhotos" text={t('allPhotos')}>{t('allPhotos')}</FormattedCopy>}</button> : undefined}
               description={tab === 'photos' && category !== 'all' ? t('noCategoryHelp') : galleryData.error ? t('retryHelp') : t('emptyHelp')}
               title={tab === 'photos' && category !== 'all' ? t('noCategory') : tab === 'photos' ? t('noPhotos') : tab === 'videos' ? t('noVideos') : t('noPosters')}
             />
@@ -207,7 +208,7 @@ export function GalleryPage() {
             <div className="gallery-journal__photo-lead" data-single={featuredPhotos.length === 1 || undefined}>
               <MediaFigure item={featuredPhotos[0]} lead onOpen={openMedia} priority />
               {featuredPhotos[1] ? <div className="gallery-journal__photo-side">
-                <p className="gallery-journal__side-title">{t('sideTitle')}</p>
+                <p className="gallery-journal__side-title">{<FormattedCopy page="gallery" id="gallery.sideTitle" text={t('sideTitle')}>{t('sideTitle')}</FormattedCopy>}</p>
                 <MediaFigure item={featuredPhotos[1]} onOpen={openMedia} priority />
               </div> : null}
             </div>
@@ -228,8 +229,8 @@ export function GalleryPage() {
                 {view.posters.map(item => <MediaFigure item={item} key={item.id} onOpen={openMedia} poster />)}
               </div>
               <aside className="gallery-journal__poster-note">
-                <h2>{t('posterTitle')}</h2>
-                <p><CopyLines text={t('posterDescription')} /></p>
+                <h2>{<FormattedCopy page="gallery" id="gallery.posterTitle" text={t('posterTitle')}>{t('posterTitle')}</FormattedCopy>}</h2>
+                <p><FormattedCopy page="gallery" id="gallery.posterDescription" text={t('posterDescription')} lineBreaks><CopyLines text={t('posterDescription')} /></FormattedCopy></p>
               </aside>
             </div>
           ) : null}

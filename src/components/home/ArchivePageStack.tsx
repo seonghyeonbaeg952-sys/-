@@ -1,4 +1,6 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { HomeCopy } from './HomeCopy'
+import { splitHomeCopyLines } from '../../lib/homeCopySlices'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent } from 'react'
 
@@ -533,6 +535,7 @@ export function ArchivePageStack({
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean)
+  const desktopTitleSlices = splitHomeCopyLines(desktopTitle)
   const [reducedMotion, setReducedMotion] = useState(initialReducedMotion)
   const [isRunning, setIsRunning] = useState(false)
   const [selectedRecord, setSelectedRecord] =
@@ -943,7 +946,7 @@ export function ArchivePageStack({
           <span aria-hidden="true" className="archive__ghost-year">
             {primaryYear}
           </span>
-          <p className="archive__eyebrow">{eyebrow}</p>
+          <p className="archive__eyebrow"><HomeCopy sourceKey="home.current.archive.eyebrowEn" text={eyebrow} /></p>
           <span className="archive__year">{primaryYear}</span>
           <h2 className="archive__title">
             {desktopTitleLines.map((line, index) => (
@@ -954,14 +957,14 @@ export function ArchivePageStack({
                 <span
                   className={index === 1 ? 'archive__title-emphasis' : undefined}
                 >
-                  {line}
+                  <HomeCopy sourceKey="home.current.archive.desktopTitle" text={line} fullText={desktopTitle} offset={desktopTitleSlices[index].offset} />
                 </span>
               </span>
             ))}
           </h2>
           <p className="archive__body">
-            <strong>{leadDescription}</strong>{' '}
-            {description}
+            <strong><HomeCopy sourceKey="home.current.archive.leadDescription" text={leadDescription} /></strong>{' '}
+            <HomeCopy sourceKey="home.current.archive.description" text={description} />
           </p>
           <dl className="archive__meta">
             <div>
@@ -982,7 +985,7 @@ export function ArchivePageStack({
           </p>
           <div className="archive__actions">
             <TransitionLink className="archive__secondary" to="/gallery">
-              <span>{buttonLabel}</span>
+              <span><HomeCopy sourceKey="home.current.archive.ctaLabel" text={buttonLabel} /></span>
               <span aria-hidden="true">↗</span>
             </TransitionLink>
           </div>

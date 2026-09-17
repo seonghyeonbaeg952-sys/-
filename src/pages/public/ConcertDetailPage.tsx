@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../../components/site-editor/FormattedCopy'
 import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 import { useMemo } from 'react'
 import { useParams } from 'react-router'
@@ -76,17 +77,17 @@ function ConcertInformation({ concert }: { concert: Concert }) {
       {posterUrl ? <ConcertPoster key={posterUrl} src={posterUrl} title={concert.title} /> : null}
 
       <div className="concert-detail__actions">
-        {ticketUrl ? <a className="concert-detail__button concert-detail__button--primary" href={ticketUrl} rel="noopener noreferrer" target="_blank">{t('ticket')} <span aria-hidden="true">↗</span></a> : null}
-        {applyUrl ? <a className="concert-detail__button concert-detail__button--primary" href={applyUrl} rel="noopener noreferrer" target="_blank">{t('apply')} <span aria-hidden="true">↗</span></a> : null}
-        <TransitionLink className={`concert-detail__button${ticketUrl || applyUrl ? '' : ' concert-detail__button--primary'}`} to="/concerts">{t('list')}</TransitionLink>
-        <TransitionLink className="concert-detail__button" to="/contact#form">{t('inquiry')}</TransitionLink>
+        {ticketUrl ? <a className="concert-detail__button concert-detail__button--primary" href={ticketUrl} rel="noopener noreferrer" target="_blank">{<FormattedCopy page="concert-detail" id="concert-detail.ticket" text={t('ticket')}>{t('ticket')}</FormattedCopy>} <span aria-hidden="true">↗</span></a> : null}
+        {applyUrl ? <a className="concert-detail__button concert-detail__button--primary" href={applyUrl} rel="noopener noreferrer" target="_blank">{<FormattedCopy page="concert-detail" id="concert-detail.apply" text={t('apply')}>{t('apply')}</FormattedCopy>} <span aria-hidden="true">↗</span></a> : null}
+        <TransitionLink className={`concert-detail__button${ticketUrl || applyUrl ? '' : ' concert-detail__button--primary'}`} to="/concerts">{<FormattedCopy page="concert-detail" id="concert-detail.list" text={t('list')}>{t('list')}</FormattedCopy>}</TransitionLink>
+        <TransitionLink className="concert-detail__button" to="/contact#form">{<FormattedCopy page="concert-detail" id="concert-detail.inquiry" text={t('inquiry')}>{t('inquiry')}</FormattedCopy>}</TransitionLink>
       </div>
 
       {concert.description.trim() || concert.program.length || concert.performers.length ? (
         <div className="concert-detail__body">
-          {concert.description.trim() ? <section aria-labelledby="concert-description"><h2 id="concert-description">{t('introduction')}</h2><p>{concert.description}</p></section> : null}
-          {concert.program.length > 0 ? <section aria-labelledby="concert-program"><h2 id="concert-program">{t('program')}</h2><ul>{concert.program.map((item, index) => <li key={`${index}-${item}`}>{item}</li>)}</ul></section> : null}
-          {concert.performers.length > 0 ? <section aria-labelledby="concert-performers"><h2 id="concert-performers">{t('performers')}</h2><ul>{concert.performers.map((item, index) => <li key={`${index}-${item}`}>{item}</li>)}</ul></section> : null}
+          {concert.description.trim() ? <section aria-labelledby="concert-description"><h2 id="concert-description">{<FormattedCopy page="concert-detail" id="concert-detail.introduction" text={t('introduction')}>{t('introduction')}</FormattedCopy>}</h2><p>{concert.description}</p></section> : null}
+          {concert.program.length > 0 ? <section aria-labelledby="concert-program"><h2 id="concert-program">{<FormattedCopy page="concert-detail" id="concert-detail.program" text={t('program')}>{t('program')}</FormattedCopy>}</h2><ul>{concert.program.map((item, index) => <li key={`${index}-${item}`}>{item}</li>)}</ul></section> : null}
+          {concert.performers.length > 0 ? <section aria-labelledby="concert-performers"><h2 id="concert-performers">{<FormattedCopy page="concert-detail" id="concert-detail.performers" text={t('performers')}>{t('performers')}</FormattedCopy>}</h2><ul>{concert.performers.map((item, index) => <li key={`${index}-${item}`}>{item}</li>)}</ul></section> : null}
         </div>
       ) : null}
     </article>
@@ -116,14 +117,14 @@ export function ConcertDetailPage() {
       />
       <div className="concert-detail__container">
         <nav aria-label={copyText("concert-detail", "concert-detail.fixed.ConcertDetailPage.a631fbd972", "공연 탐색")} className="concert-detail__breadcrumb">
-          <TransitionLink to="/concerts"><span aria-hidden="true">←</span> {t('back')}</TransitionLink>
+          <TransitionLink to="/concerts"><span aria-hidden="true">←</span> {<FormattedCopy page="concert-detail" id="concert-detail.back" text={t('back')}>{t('back')}</FormattedCopy>}</TransitionLink>
         </nav>
         {concertData.isLoading ? <LoadingState label={t('loading')} /> : null}
         {!concertData.isLoading && concertData.error ? (
-          <ErrorState action={<Button onClick={concertData.refetch}>{t('retry')}</Button>} description={concertData.error} />
+          <ErrorState action={<Button onClick={concertData.refetch}>{<FormattedCopy page="concert-detail" id="concert-detail.retry" text={t('retry')}>{t('retry')}</FormattedCopy>}</Button>} description={concertData.error} />
         ) : null}
         {!concertData.isLoading && !concertData.error && !concert ? (
-          <EmptyState action={<Button href="/concerts" variant="secondary">{t('list')}</Button>} title={t('missing')} />
+          <EmptyState action={<Button href="/concerts" variant="secondary">{<FormattedCopy page="concert-detail" id="concert-detail.list" text={t('list')}>{t('list')}</FormattedCopy>}</Button>} title={t('missing')} />
         ) : null}
         {concert ? <ConcertInformation concert={concert} /> : null}
       </div>

@@ -1,4 +1,5 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { HomeCopy } from './HomeCopy'
 import {
   useEffect,
   useMemo,
@@ -553,6 +554,7 @@ export function ScrollScoreBookReveal({
   const displayedValueWords = useMemo(
     () =>
       content.valueItems.slice(0, 6).map((item) => ({
+        id: item.id,
         body: item.description,
         word: item.label,
       })),
@@ -590,19 +592,19 @@ export function ScrollScoreBookReveal({
               <div className="motet-score-final-copy">
                 <p className="motet-score-eyebrow">{copyText("home", "home.fixed.ScrollScoreBookReveal.a62de3d762", "MOTET SCORE")}</p>
                 <h2>
-                  {content.leftPage.titleLines.map((line) => (
-                    <span key={line}>{line}</span>
+                  {content.leftPage.titleLines.map((line, index, lines) => (
+                    <span key={line}><HomeCopy sourceKey="home.scoreBook.leftPage.titleLines" text={line} fullText={lines.join('\n')} offset={lines.slice(0, index).reduce((length, previous) => length + previous.length + 1, 0)} /></span>
                   ))}
                 </h2>
                 <p className="motet-score-final-body">
-                  {content.leftPage.body}
+                  <HomeCopy sourceKey="home.scoreBook.leftPage.body" text={content.leftPage.body} />
                 </p>
                 <p className="motet-score-keywords">
-                  {content.leftPage.keywords}
+                  <HomeCopy sourceKey="home.scoreBook.leftPage.keywords" text={content.leftPage.keywords} />
                 </p>
                 <div className="motet-score-final-callout">
-                  <strong>{content.leftPage.calloutTitle}</strong>
-                  <p>{content.leftPage.calloutBody}</p>
+                  <strong><HomeCopy sourceKey="home.scoreBook.leftPage.calloutTitle" text={content.leftPage.calloutTitle} /></strong>
+                  <p><HomeCopy sourceKey="home.scoreBook.leftPage.calloutBody" text={content.leftPage.calloutBody} /></p>
                 </div>
               </div>
             </article>
@@ -617,20 +619,20 @@ export function ScrollScoreBookReveal({
                   ”
                 </span>
                 <h3>
-                  {content.rightPage.prefix}
-                  {content.rightPage.titleLines.map((line) => (
-                    <span key={line}>{line}</span>
+                  <HomeCopy sourceKey="home.scoreBook.rightPage.prefix" text={content.rightPage.prefix} />
+                  {content.rightPage.titleLines.map((line, index, lines) => (
+                    <span key={line}><HomeCopy sourceKey="home.scoreBook.rightPage.titleLines" text={line} fullText={lines.join('\n')} offset={lines.slice(0, index).reduce((length, previous) => length + previous.length + 1, 0)} /></span>
                   ))}
                 </h3>
                 <p className="motet-score-final-body">
-                  {content.rightPage.body}
+                  <HomeCopy sourceKey="home.scoreBook.rightPage.body" text={content.rightPage.body} />
                 </p>
                 <p className="motet-score-keywords">
-                  {content.rightPage.keywords}
+                  <HomeCopy sourceKey="home.scoreBook.rightPage.keywords" text={content.rightPage.keywords} />
                 </p>
                 <div className="motet-score-final-callout">
-                  <strong>{content.rightPage.calloutTitle}</strong>
-                  <p>{content.rightPage.calloutBody}</p>
+                  <strong><HomeCopy sourceKey="home.scoreBook.rightPage.calloutTitle" text={content.rightPage.calloutTitle} /></strong>
+                  <p><HomeCopy sourceKey="home.scoreBook.rightPage.calloutBody" text={content.rightPage.calloutBody} /></p>
                 </div>
               </div>
             </article>
@@ -642,8 +644,8 @@ export function ScrollScoreBookReveal({
             <div className="motet-score-cover-inner">
               <p>{copyText("home", "home.fixed.ScrollScoreBookReveal.a62de3d762", "MOTET SCORE")}</p>
               <h2>
-                {coverLines.map((line) => (
-                  <span key={line}>{line}</span>
+                {coverLines.map((line, index, lines) => (
+                  <span key={line}><HomeCopy sourceKey="home.scoreBook.cover.titleLines" text={line} fullText={lines.join('\n')} offset={lines.slice(0, index).reduce((length, previous) => length + previous.length + 1, 0)} /></span>
                 ))}
               </h2>
               <span />
@@ -660,8 +662,8 @@ export function ScrollScoreBookReveal({
                     key={`${waveIndex}-${item.word}`}
                     style={getWordStyle(progress, index, waveIndex)}
                   >
-                    <strong>{item.word}</strong>
-                    <small>{item.body}</small>
+                    <strong><HomeCopy sourceKey={`home.scoreBook.valueItems.${item.id}.label`} text={item.word} /></strong>
+                    <small><HomeCopy sourceKey={`home.scoreBook.valueItems.${item.id}.description`} text={item.body} /></small>
                   </span>
                 )),
               )}
@@ -699,9 +701,9 @@ export function ScrollScoreBookReveal({
           />
           <div className="motet-score-final-sheet-content">
             <h2 id="motet-score-final-title">
-              {finalLines.map((line, index) => (
+              {finalLines.map((line, index, lines) => (
                 <span key={line}>
-                  {line}
+                  <HomeCopy sourceKey="home.scoreBook.final.titleLines" text={line} fullText={lines.join('\n')} offset={lines.slice(0, index).reduce((length, previous) => length + previous.length + 1, 0)} />
                   {index === finalLines.length - 1 ? (
                     <span aria-hidden="true" className="motet-score-final-period">.</span>
                   ) : null}
@@ -722,7 +724,7 @@ export function ScrollScoreBookReveal({
               src="/images/effects/home-score-m-staff.png"
             />
 
-            <p className="motet-score-final-summary">{finalBody}</p>
+            <p className="motet-score-final-summary"><HomeCopy sourceKey="home.scoreBook.final.summary" text={finalBody} /></p>
 
             <div className="motet-score-final-actions">
               <Button
@@ -731,7 +733,7 @@ export function ScrollScoreBookReveal({
                 href="/gallery"
                 showArrow={false}
               >
-                {content.final.primaryCtaLabel}
+                <HomeCopy sourceKey="home.scoreBook.final.primaryCtaLabel" text={content.final.primaryCtaLabel} />
               </Button>
               <Button
                 className="motet-score-final-secondary"
@@ -739,7 +741,7 @@ export function ScrollScoreBookReveal({
                 href="/concerts"
                 variant="ghost"
               >
-                {content.final.secondaryCtaLabel}
+                <HomeCopy sourceKey="home.scoreBook.final.secondaryCtaLabel" text={content.final.secondaryCtaLabel} />
               </Button>
             </div>
           </div>

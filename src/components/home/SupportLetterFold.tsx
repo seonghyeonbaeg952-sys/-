@@ -1,4 +1,5 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { HomeCopy } from './HomeCopy'
 import { legacyLocationSeed } from '../../constants/legacyContent'
 import type { SiteSettings } from '../../types/content'
 import type { HomeContentV2 } from '../../types/homeContent'
@@ -73,12 +74,12 @@ export function SupportLetterFold({
 
         <div className="support-letter-layout">
           <div className="support-pledge-copy">
-            <p className="support-pledge-eyebrow">{content.eyebrowEn}</p>
+            <p className="support-pledge-eyebrow"><HomeCopy sourceKey="home.supportLetter.eyebrowEn" text={content.eyebrowEn} /></p>
             <h2 id="home-support-title">
-              {content.title || fallback.title}
+              <HomeCopy sourceKey="home.supportLetter.title" text={content.title || fallback.title} />
             </h2>
             <p className="support-pledge-description">
-              {content.description || fallback.body}
+              <HomeCopy sourceKey="home.supportLetter.description" text={content.description || fallback.body} />
             </p>
             <p className="support-pledge-values">{copyText("home", "home.fixed.SupportLetterFold.97e1959dd9", "정직한 음악 ")}<span aria-hidden="true">·</span>{copyText("home", "home.fixed.SupportLetterFold.31e5f76d33", " 함께 부르는 공동체")}{' '}
               <span aria-hidden="true">·</span>{copyText("home", "home.fixed.SupportLetterFold.6a95b54c19", " 다음 세대 교육")}</p>
@@ -89,7 +90,7 @@ export function SupportLetterFold({
                 size="lg"
                 variant="gold"
               >
-                {content.primaryCtaLabel}
+                <HomeCopy sourceKey="home.supportLetter.primaryCtaLabel" text={content.primaryCtaLabel} />
               </Button>
               <Button
                 className="support-pledge-action support-pledge-action--secondary"
@@ -97,18 +98,18 @@ export function SupportLetterFold({
                 size="lg"
                 variant="secondary"
               >
-                {content.secondaryCtaLabel}
+                <HomeCopy sourceKey="home.supportLetter.secondaryCtaLabel" text={content.secondaryCtaLabel} />
               </Button>
             </div>
           </div>
 
           <article className="support-pledge-letter">
             <p className="support-pledge-letter__eyebrow">
-              {content.pledgeEyebrow}
+              <HomeCopy sourceKey="home.supportLetter.pledgeEyebrow" text={content.pledgeEyebrow} />
             </p>
-            <h3>{content.pledgeTitle}</h3>
+            <h3><HomeCopy sourceKey="home.supportLetter.pledgeTitle" text={content.pledgeTitle} /></h3>
             <p className="support-pledge-letter__description">
-              {content.pledgeDescription}
+              <HomeCopy sourceKey="home.supportLetter.pledgeDescription" text={content.pledgeDescription} />
             </p>
 
             <ol className="support-pledge-uses">

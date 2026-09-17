@@ -1,4 +1,5 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { HomeCopy } from './HomeCopy'
 import { useId } from 'react'
 import type { GalleryImage, Poster, VideoItem } from '../../types/content'
 import { Button } from '../common/Button'
@@ -33,7 +34,7 @@ export function ResponsiveArchive({ buttonLabel, categoryLabel, emptyDescription
       ? { src: poster.image_url, fallbackSrcs: undefined, title: poster.title, alt: poster.title, tab: 'posters' }
       : video ? { src: video.thumbnail_url, fallbackSrcs: video.thumbnail_fallback_urls, title: video.title, alt: video.title, tab: 'videos' } : null
 
-  const action = <Button className="home-responsive-archive__action" href="/gallery" variant="secondary">{buttonLabel}</Button>
+  const action = <Button className="home-responsive-archive__action" href="/gallery" variant="secondary"><HomeCopy sourceKey="home.current.archive.ctaLabel" text={buttonLabel} /></Button>
   const mediaContent = media ? (
           <figure>
             <TransitionLink aria-label={`${media.title} 보기`} to={`/gallery?tab=${media.tab}`}>
@@ -61,15 +62,15 @@ export function ResponsiveArchive({ buttonLabel, categoryLabel, emptyDescription
   </nav>
   return (
     <section id="home-responsive-archive" aria-labelledby={headingId} className="flow-section home-section home-responsive-archive" data-flow-section="archive-stack">
-      <p className="home-responsive-archive__eyebrow"><span aria-hidden="true">{tablet ? '06' : '05 /'}</span> {eyebrow}</p>
+      <p className="home-responsive-archive__eyebrow"><span aria-hidden="true">{tablet ? '06' : '05 /'}</span> <HomeCopy sourceKey="home.current.archive.eyebrowEn" text={eyebrow} /></p>
       {tablet ? <>
         <div className="home-responsive-archive__pair">
-          <div className="home-responsive-archive__intro"><h2 id={headingId}>{title}</h2>{action}</div>
+          <div className="home-responsive-archive__intro"><h2 id={headingId}><HomeCopy sourceKey="home.current.archive.desktopTitle" text={title} /></h2>{action}</div>
           {mediaContent}
         </div>
         {tabs}
       </> : <>
-        <h2 id={headingId}>{title}</h2>
+        <h2 id={headingId}><HomeCopy sourceKey="home.current.archive.desktopTitle" text={title} /></h2>
         {mediaContent}
         {tabs}
         {action}

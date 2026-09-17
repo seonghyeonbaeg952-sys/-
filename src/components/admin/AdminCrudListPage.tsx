@@ -69,6 +69,7 @@ type AdminCrudListPageProps<TTable extends CmsTableName> = {
   table: TTable
   title: string
   toolbarFilters?: AdminToolbarFilter[]
+  validateFields?: (payload: CmsMutationPayload) => Record<string, string | undefined>
   validatePayload?: (
     payload: CmsMutationPayload,
     row: CmsRowFor<TTable> | null,
@@ -97,6 +98,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
   table,
   title,
   toolbarFilters = [],
+  validateFields,
   validatePayload,
 }: AdminCrudListPageProps<TTable>) {
   const [searchValue, setSearchValue] = useState('')
@@ -331,6 +333,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
           onDirtyChange={setIsFormDirty}
           onSubmit={handleSubmit}
           stickyActions
+          validateFields={validateFields}
         />
       </AdminModal>
 

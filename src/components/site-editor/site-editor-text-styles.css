@@ -1,0 +1,5 @@
+/* Only explicit character annotations override page-wide typography. */
+[data-site-editor-page] smyc-text.site-copy-text{display:inline;min-width:0}
+[data-site-editor-page] smyc-copy.site-copy-format{display:inline}
+[data-site-editor-page] smyc-copy.site-copy-format[data-site-copy-font]{font-family:var(--site-copy-font)!important}
+[data-site-editor-page] smyc-copy.site-copy-format[data-site-copy-size]{font-size:var(--site-copy-size)!important}

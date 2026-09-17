@@ -1,4 +1,5 @@
 import { useSiteEditor } from '../../site-editor/useSiteEditor'
+import { HomeCopy } from '../../home/HomeCopy'
 import type { Notice } from '../../../types/content'
 import { getColorSampleHref } from '../../../utils/colorSamplePath'
 import { formatShortDate } from '../../../utils/formatDate'
@@ -57,14 +58,14 @@ export function HomeV4ProgramNoticeStrip({
       >
       <div className="home-v4-program-note__heading">
         <p>{copyText("home", "home.fixed.HomeV4ProgramNoticeStrip.dfb14fbb9e", "NOTICE")}</p>
-        <h3>{panelTitle}</h3>
+        <h3><HomeCopy sourceKey="home.concertProgram.noticePanelTitle" text={panelTitle} /></h3>
       </div>
 
       <TransitionLink
         className="home-v4-program-note__all"
         to={getColorSampleHref('/notices')}
       >
-        <span>{panelButtonLabel}</span>
+        <span><HomeCopy sourceKey="home.concertProgram.noticePanelCtaLabel" text={panelButtonLabel} /></span>
         <span aria-hidden="true">→</span>
       </TransitionLink>
 
@@ -100,10 +101,10 @@ export function HomeV4ProgramNoticeStrip({
         </div>
       ) : (
         <div className="home-v4-program-note__empty">
-          <strong>{emptyTitle}</strong>
-          <p>{emptyDescription}</p>
+          <strong><HomeCopy sourceKey="home.concertProgram.emptyNoticeTitle" text={emptyTitle} /></strong>
+          <p><HomeCopy sourceKey="home.concertProgram.emptyNoticeDescription" text={emptyDescription} /></p>
           <TransitionLink to={getColorSampleHref('/notices')}>
-            {emptyButtonLabel}
+            <HomeCopy sourceKey="home.concertProgram.emptyNoticeCtaLabel" text={emptyButtonLabel} />
             <span aria-hidden="true">→</span>
           </TransitionLink>
         </div>

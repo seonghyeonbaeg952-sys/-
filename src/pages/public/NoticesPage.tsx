@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../../components/site-editor/FormattedCopy'
 import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 import { useMemo, useRef, useState, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router'
@@ -81,15 +82,15 @@ export function NoticesPage() {
       />
       <header className="notices-page__hero notices-page__shell">
         <div>
-          <p className="notices-page__eyebrow">{copyText("notices", "notices.fixed.NoticesPage.6441d0206e", "NEWS & NOTICES")}</p>
-          <h1 className="notices-page__title">{t('title')}</h1>
+          <p className="notices-page__eyebrow">{<FormattedCopy page="notices" id="notices.fixed.NoticesPage.6441d0206e" text={copyText("notices", "notices.fixed.NoticesPage.6441d0206e", "NEWS & NOTICES")}>{copyText("notices", "notices.fixed.NoticesPage.6441d0206e", "NEWS & NOTICES")}</FormattedCopy>}</p>
+          <h1 className="notices-page__title">{<FormattedCopy page="notices" id="notices.title" text={t('title')}>{t('title')}</FormattedCopy>}</h1>
           <p className="notices-page__description">
-            <CopyLines text={t('description')} />
+            <FormattedCopy page="notices" id="notices.description" text={t('description')} lineBreaks><CopyLines text={t('description')} /></FormattedCopy>
           </p>
         </div>
         <div aria-hidden="true" className="notices-page__signature">
-          <i>{copyText("notices", "notices.fixed.NoticesPage.10317061d0", "Notices.")}</i>
-          <span>{copyText("notices", "notices.fixed.NoticesPage.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</span>
+          <i>{<FormattedCopy page="notices" id="notices.fixed.NoticesPage.10317061d0" text={copyText("notices", "notices.fixed.NoticesPage.10317061d0", "Notices.")}>{copyText("notices", "notices.fixed.NoticesPage.10317061d0", "Notices.")}</FormattedCopy>}</i>
+          <span>{<FormattedCopy page="notices" id="notices.fixed.NoticesPage.f34c03131f" text={copyText("notices", "notices.fixed.NoticesPage.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}>{copyText("notices", "notices.fixed.NoticesPage.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</FormattedCopy>}</span>
         </div>
       </header>
 
@@ -103,7 +104,7 @@ export function NoticesPage() {
               onClick={() => updateFilter('filter', 'all')}
               type="button"
             >
-              {t('all')}{!noticesData.isLoading && !noticesData.error ? ` ${total}` : ''}
+              {<FormattedCopy page="notices" id="notices.all" text={t('all')}>{t('all')}</FormattedCopy>}{!noticesData.isLoading && !noticesData.error ? ` ${total}` : ''}
             </button>
             <button
               aria-controls="notice-results"
@@ -112,7 +113,7 @@ export function NoticesPage() {
               onClick={() => updateFilter('filter', 'important')}
               type="button"
             >
-              {t('important')}
+              {<FormattedCopy page="notices" id="notices.important" text={t('important')}>{t('important')}</FormattedCopy>}
             </button>
           </div>
           <form aria-label={copyText("notices", "notices.fixed.NoticesPage.5e802054bd", "공지 검색")} className="notices-page__search" onSubmit={submitSearch} role="search">
@@ -125,7 +126,7 @@ export function NoticesPage() {
               type="search"
               value={searchValue}
             />
-            <button type="submit">{t('search')}</button>
+            <button type="submit">{<FormattedCopy page="notices" id="notices.search" text={t('search')}>{t('search')}</FormattedCopy>}</button>
           </form>
           <FilterSelect className="notices-page__category" label={t('category')} onChange={(value) => updateFilter('category', value)} options={categoryOptions} value={category} />
         </div>
@@ -145,14 +146,14 @@ export function NoticesPage() {
               <ErrorState
                 title={t('error')}
                 description={t('connection')}
-                action={<button className="notices-page__action" onClick={noticesData.refetch} type="button">{t('retry')}</button>}
+                action={<button className="notices-page__action" onClick={noticesData.refetch} type="button">{<FormattedCopy page="notices" id="notices.retry" text={t('retry')}>{t('retry')}</FormattedCopy>}</button>}
               />
             </div>
           ) : filteredNotices.length === 0 ? (
             <div className="notices-page__state" role="status">
-              <h2>{hasFilters ? t('noResults') : t('empty')}</h2>
-              <p>{hasFilters ? t('noResultsHelp') : t('emptyHelp')}</p>
-              {hasFilters ? <button className="notices-page__action" onClick={resetFilters} type="button">{t('allAction')}</button> : null}
+              <h2>{hasFilters ? <FormattedCopy page="notices" id="notices.noResults" text={t('noResults')}>{t('noResults')}</FormattedCopy> : <FormattedCopy page="notices" id="notices.empty" text={t('empty')}>{t('empty')}</FormattedCopy>}</h2>
+              <p>{hasFilters ? <FormattedCopy page="notices" id="notices.noResultsHelp" text={t('noResultsHelp')}>{t('noResultsHelp')}</FormattedCopy> : <FormattedCopy page="notices" id="notices.emptyHelp" text={t('emptyHelp')}>{t('emptyHelp')}</FormattedCopy>}</p>
+              {hasFilters ? <button className="notices-page__action" onClick={resetFilters} type="button">{<FormattedCopy page="notices" id="notices.allAction" text={t('allAction')}>{t('allAction')}</FormattedCopy>}</button> : null}
             </div>
           ) : (
             <ul className="notices-page__list">
@@ -177,7 +178,7 @@ export function NoticesPage() {
             </ul>
           )}
           {!noticesData.isLoading && !noticesData.error ? (
-            <p aria-live="polite" aria-atomic="true" className="notices-page__count">{copyText("notices", "notices.fixed.NoticesPage.90252b07ab", "총 ")}{filteredNotices.length}{copyText("notices", "notices.fixed.NoticesPage.ef7c0bca0a", "건의 공지사항")}</p>
+            <p aria-live="polite" aria-atomic="true" className="notices-page__count">{<FormattedCopy page="notices" id="notices.fixed.NoticesPage.90252b07ab" text={copyText("notices", "notices.fixed.NoticesPage.90252b07ab", "총 ")}>{copyText("notices", "notices.fixed.NoticesPage.90252b07ab", "총 ")}</FormattedCopy>}{filteredNotices.length}{<FormattedCopy page="notices" id="notices.fixed.NoticesPage.ef7c0bca0a" text={copyText("notices", "notices.fixed.NoticesPage.ef7c0bca0a", "건의 공지사항")}>{copyText("notices", "notices.fixed.NoticesPage.ef7c0bca0a", "건의 공지사항")}</FormattedCopy>}</p>
           ) : null}
         </div>
       </section>

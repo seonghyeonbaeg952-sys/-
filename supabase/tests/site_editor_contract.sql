@@ -7,7 +7,7 @@ declare
   administrator uuid;
   saved public.site_editor_pages%rowtype;
   revision_id uuid;
-  document jsonb := '{"schemaVersion":1,"copy":{"common.test":"  원문\n보존  "},"deviceCopy":{"mobile":{"common.test":"모바일"}},"appearance":{"shared":{"fontSize":16},"mobile":{"textColor":"#123456"}}}'::jsonb;
+  document jsonb := '{"schemaVersion":1,"copy":{"common.test":"  원문\n보존  "},"deviceCopy":{"mobile":{"common.test":"모바일"}},"appearance":{"shared":{"fontSize":16},"mobile":{"textColor":"#123456"}},"textStyles":{"mobile":{"common.test":{"text":"모바일","runs":[{"start":0,"end":2,"style":{"fontFamily":"hahmlet","fontSize":28}}]}}}}'::jsonb;
   invalid_document jsonb;
 begin
   -- Fail closed rather than overwriting a real editor page during a repeat run.

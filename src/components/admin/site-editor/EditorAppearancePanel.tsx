@@ -1,15 +1,11 @@
 import { useId } from 'react'
-import type { EditorAppearance, EditorFont } from '../../../types/siteEditor'
+import type { EditorAppearance } from '../../../types/siteEditor'
 import { EDITOR_NUMBER_RANGES } from '../../../lib/siteEditorModel'
 import { AdminFormField } from '../AdminFormField'
 import { AdminSelect } from '../AdminSelect'
 import { Button } from '../../common/Button'
 
-const fonts: Array<{ value: EditorFont; label: string }> = [
-  { value: 'system', label: '기본 산세리프' }, { value: 'gothic-a1', label: '고딕 A1' },
-  { value: 'hahmlet', label: '함렛' }, { value: 'arita-buri', label: '아리따 부리' },
-  { value: 'gowun-batang', label: '고운 바탕' }, { value: 'grandiflora', label: '그란디플로라' },
-]
+import { editorFontOptions as fonts } from './editorUiOptions'
 const numbers = [
   { key: 'fontSize', label: '본문 크기', step: 1, unit: 'px' },
   { key: 'h1Size', label: '큰 제목 크기', step: 1, unit: 'px' },

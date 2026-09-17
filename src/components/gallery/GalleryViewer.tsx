@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useEffect, useId, useRef } from 'react'
 import { Link } from 'react-router'
@@ -79,7 +80,7 @@ export function GalleryViewer({ item, index, count, onClose, onMove }: GalleryVi
       <div className="gallery-viewer__layout">
         <header className="gallery-viewer__header">
           <h2 id={titleId}>{item.title}</h2>
-          <button aria-label={t('closeViewer')} data-gallery-close onClick={onClose} type="button">{t('close')} <span aria-hidden="true">×</span></button>
+          <button aria-label={t('closeViewer')} data-gallery-close onClick={onClose} type="button">{<FormattedCopy page="gallery" id="gallery.close" text={t('close')}>{t('close')}</FormattedCopy>} <span aria-hidden="true">×</span></button>
         </header>
         {video ? (
           <div className="gallery-viewer__video">
@@ -109,13 +110,13 @@ export function GalleryViewer({ item, index, count, onClose, onMove }: GalleryVi
           <p className="gallery-viewer__title">{item.title}</p>
           <p>{category}{date ? ` · ${formatKoreanDate(date)}` : ''}</p>
           {description ? <p className="gallery-viewer__description">{description}</p> : null}
-          {'concert_id' in item && item.concert_id ? <Link to={`/concerts/${encodeURIComponent(item.concert_id)}`}>{t('relatedConcert')} <span aria-hidden="true">↗</span></Link> : null}
-          {video ? <a href={video.external} rel="noreferrer noopener" target="_blank">{t('youtube')} <span aria-hidden="true">↗</span></a> : null}
+          {'concert_id' in item && item.concert_id ? <Link to={`/concerts/${encodeURIComponent(item.concert_id)}`}>{<FormattedCopy page="gallery" id="gallery.relatedConcert" text={t('relatedConcert')}>{t('relatedConcert')}</FormattedCopy>} <span aria-hidden="true">↗</span></Link> : null}
+          {video ? <a href={video.external} rel="noreferrer noopener" target="_blank">{<FormattedCopy page="gallery" id="gallery.youtube" text={t('youtube')}>{t('youtube')}</FormattedCopy>} <span aria-hidden="true">↗</span></a> : null}
         </div>
         {!video ? <nav aria-label={copyText("gallery", "gallery.fixed.GalleryViewer.654cac2e51", "확대 자료 탐색")} className="gallery-viewer__navigation">
-          {count > 1 ? <button aria-label={copyText("gallery", "gallery.fixed.GalleryViewer.07a39517cc", "이전 자료")} onClick={() => onMove('previous')} type="button"><span aria-hidden="true">←</span> {t('previous')}</button> : <span />}
+          {count > 1 ? <button aria-label={copyText("gallery", "gallery.fixed.GalleryViewer.07a39517cc", "이전 자료")} onClick={() => onMove('previous')} type="button"><span aria-hidden="true">←</span> {<FormattedCopy page="gallery" id="gallery.previous" text={t('previous')}>{t('previous')}</FormattedCopy>}</button> : <span />}
           <p aria-live="polite" aria-atomic="true">{index + 1} / {count}</p>
-          {count > 1 ? <button aria-label={copyText("gallery", "gallery.fixed.GalleryViewer.3fd798379d", "다음 자료")} onClick={() => onMove('next')} type="button">{t('next')} <span aria-hidden="true">→</span></button> : <span />}
+          {count > 1 ? <button aria-label={copyText("gallery", "gallery.fixed.GalleryViewer.3fd798379d", "다음 자료")} onClick={() => onMove('next')} type="button">{<FormattedCopy page="gallery" id="gallery.next" text={t('next')}>{t('next')}</FormattedCopy>} <span aria-hidden="true">→</span></button> : <span />}
         </nav> : null}
       </div>
     </dialog>

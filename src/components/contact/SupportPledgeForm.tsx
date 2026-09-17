@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent, PointerEvent as ReactPointerEvent } from 'react'
 
@@ -601,9 +602,9 @@ export function SupportPledgeForm({
     <section id="support" className="support-pledge" aria-labelledby="support-pledge-title">
       <div className="support-pledge__layout">
         <aside className="support-pledge__guidance support-print-hidden">
-          <p className="support-pledge__eyebrow">{copyText("contact", "contact.fixed.SupportPledgeForm.4d6b2e4d52", "SUPPORT PLEDGE")}</p>
-          <h2 id="support-pledge-title">{copyText("contact", "contact.fixed.SupportPledgeForm.4f366fcc24", "약정 정보를")}<br />{copyText("contact", "contact.fixed.SupportPledgeForm.5e885eeb1f", "확인해 주세요.")}</h2>
-          <p>{copyText("contact", "contact.fixed.SupportPledgeForm.c004f885b7", "필수 항목을 작성한 뒤 내용을 확인하고 보내주세요.")}<br />{copyText("contact", "contact.fixed.SupportPledgeForm.2ab6e86ebe", "후원 관련 문의는 아래 연락처로 안내받으실 수 있습니다.")}</p>
+          <p className="support-pledge__eyebrow">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.4d6b2e4d52" text={copyText("contact", "contact.fixed.SupportPledgeForm.4d6b2e4d52", "SUPPORT PLEDGE")}>{copyText("contact", "contact.fixed.SupportPledgeForm.4d6b2e4d52", "SUPPORT PLEDGE")}</FormattedCopy>}</p>
+          <h2 id="support-pledge-title">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.4f366fcc24" text={copyText("contact", "contact.fixed.SupportPledgeForm.4f366fcc24", "약정 정보를")}>{copyText("contact", "contact.fixed.SupportPledgeForm.4f366fcc24", "약정 정보를")}</FormattedCopy>}<br />{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.5e885eeb1f" text={copyText("contact", "contact.fixed.SupportPledgeForm.5e885eeb1f", "확인해 주세요.")}>{copyText("contact", "contact.fixed.SupportPledgeForm.5e885eeb1f", "확인해 주세요.")}</FormattedCopy>}</h2>
+          <p>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.c004f885b7" text={copyText("contact", "contact.fixed.SupportPledgeForm.c004f885b7", "필수 항목을 작성한 뒤 내용을 확인하고 보내주세요.")}>{copyText("contact", "contact.fixed.SupportPledgeForm.c004f885b7", "필수 항목을 작성한 뒤 내용을 확인하고 보내주세요.")}</FormattedCopy>}<br />{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.2ab6e86ebe" text={copyText("contact", "contact.fixed.SupportPledgeForm.2ab6e86ebe", "후원 관련 문의는 아래 연락처로 안내받으실 수 있습니다.")}>{copyText("contact", "contact.fixed.SupportPledgeForm.2ab6e86ebe", "후원 관련 문의는 아래 연락처로 안내받으실 수 있습니다.")}</FormattedCopy>}</p>
           <dl className="support-pledge__contacts">
             {contactItems.map((item) => (
               <div key={item.label}>
@@ -615,7 +616,7 @@ export function SupportPledgeForm({
           <Button className="support-pledge__button" onClick={handlePrint} type="button" variant="secondary">
             {settings.print_button_label}
           </Button>
-          <a className="support-pledge__back" href="/contact">{copyText("contact", "contact.fixed.SupportPledgeForm.4637af5f7d", "후원·문의로 돌아가기 ")}<span aria-hidden="true">←</span></a>
+          <a className="support-pledge__back" href="/contact">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.4637af5f7d" text={copyText("contact", "contact.fixed.SupportPledgeForm.4637af5f7d", "후원·문의로 돌아가기 ")}>{copyText("contact", "contact.fixed.SupportPledgeForm.4637af5f7d", "후원·문의로 돌아가기 ")}</FormattedCopy>}<span aria-hidden="true">←</span></a>
         </aside>
 
         <form className="support-pledge-print-area support-pledge__form" aria-describedby={submitError ? 'support-pledge-error' : undefined} onSubmit={handleSubmit} ref={printAreaRef}>
@@ -636,17 +637,17 @@ export function SupportPledgeForm({
 
           <div data-print-fields hidden={isReviewing || Boolean(submitSuccess)}>
             <fieldset className="support-pledge__fieldset" disabled={isSubmitting}>
-              <legend>{copyText("contact", "contact.fixed.SupportPledgeForm.7548f47214", "후원금 선택")}</legend>
+              <legend>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.7548f47214" text={copyText("contact", "contact.fixed.SupportPledgeForm.7548f47214", "후원금 선택")}>{copyText("contact", "contact.fixed.SupportPledgeForm.7548f47214", "후원금 선택")}</FormattedCopy>}</legend>
               <div className="support-print-only support-pledge__print-summary">
                 <dl>
-                  <div><dt>{copyText("contact", "contact.fixed.SupportPledgeForm.8ccb1fb226", "후원 구분")}</dt><dd>{memberTypeLabel}</dd></div>
-                  <div><dt>{copyText("contact", "contact.fixed.SupportPledgeForm.f44dd0ef78", "약정 금액")}</dt><dd>{selectedAmountLabel}</dd></div>
-                  <div><dt>{copyText("contact", "contact.fixed.SupportPledgeForm.b5c634d8c3", "납입자명")}</dt><dd>{values.depositor || values.name || '미작성'}</dd></div>
+                  <div><dt>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.8ccb1fb226" text={copyText("contact", "contact.fixed.SupportPledgeForm.8ccb1fb226", "후원 구분")}>{copyText("contact", "contact.fixed.SupportPledgeForm.8ccb1fb226", "후원 구분")}</FormattedCopy>}</dt><dd>{memberTypeLabel}</dd></div>
+                  <div><dt>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.f44dd0ef78" text={copyText("contact", "contact.fixed.SupportPledgeForm.f44dd0ef78", "약정 금액")}>{copyText("contact", "contact.fixed.SupportPledgeForm.f44dd0ef78", "약정 금액")}</FormattedCopy>}</dt><dd>{selectedAmountLabel}</dd></div>
+                  <div><dt>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.b5c634d8c3" text={copyText("contact", "contact.fixed.SupportPledgeForm.b5c634d8c3", "납입자명")}>{copyText("contact", "contact.fixed.SupportPledgeForm.b5c634d8c3", "납입자명")}</FormattedCopy>}</dt><dd>{values.depositor || values.name || '미작성'}</dd></div>
                 </dl>
               </div>
               <div className="support-print-amount-controls support-pledge__type-options" role="group" aria-label={copyText("contact", "contact.fixed.SupportPledgeForm.8ccb1fb226", "후원 구분")}>
-                <button className={`support-pledge__option${values.memberType === 'individual' ? ' is-selected' : ''}`} aria-pressed={values.memberType === 'individual'} onClick={() => setMemberType('individual')} type="button">{copyText("contact", "contact.fixed.SupportPledgeForm.5c44fdce11", "개인회원")}</button>
-                <button className={`support-pledge__option${values.memberType === 'corporate' ? ' is-selected' : ''}`} aria-pressed={values.memberType === 'corporate'} onClick={() => setMemberType('corporate')} type="button">{copyText("contact", "contact.fixed.SupportPledgeForm.b4e56985cb", "기업회원")}</button>
+                <button className={`support-pledge__option${values.memberType === 'individual' ? ' is-selected' : ''}`} aria-pressed={values.memberType === 'individual'} onClick={() => setMemberType('individual')} type="button">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.5c44fdce11" text={copyText("contact", "contact.fixed.SupportPledgeForm.5c44fdce11", "개인회원")}>{copyText("contact", "contact.fixed.SupportPledgeForm.5c44fdce11", "개인회원")}</FormattedCopy>}</button>
+                <button className={`support-pledge__option${values.memberType === 'corporate' ? ' is-selected' : ''}`} aria-pressed={values.memberType === 'corporate'} onClick={() => setMemberType('corporate')} type="button">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.b4e56985cb" text={copyText("contact", "contact.fixed.SupportPledgeForm.b4e56985cb", "기업회원")}>{copyText("contact", "contact.fixed.SupportPledgeForm.b4e56985cb", "기업회원")}</FormattedCopy>}</button>
               </div>
               <div className="support-print-amount-controls support-pledge__amount-options" role="group" aria-label={copyText("contact", "contact.fixed.SupportPledgeForm.add9ff2579", "매월 후원 금액")}>
                 {amountOptions.map((amount) => (
@@ -657,7 +658,7 @@ export function SupportPledgeForm({
                 ))}
                 {settings.allow_custom_amount ? (
                   <label className={`support-pledge__option${values.amount === 'custom' ? ' is-selected' : ''}`}>
-                    <input checked={values.amount === 'custom'} className="sr-only" name="support-amount" onChange={() => setValue('amount', 'custom')} type="radio" value="custom" />{copyText("contact", "contact.fixed.SupportPledgeForm.2991f61ced", "기타")}</label>
+                    <input checked={values.amount === 'custom'} className="sr-only" name="support-amount" onChange={() => setValue('amount', 'custom')} type="radio" value="custom" />{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.2991f61ced" text={copyText("contact", "contact.fixed.SupportPledgeForm.2991f61ced", "기타")}>{copyText("contact", "contact.fixed.SupportPledgeForm.2991f61ced", "기타")}</FormattedCopy>}</label>
                 ) : null}
               </div>
               {values.amount === 'custom' ? (
@@ -669,8 +670,8 @@ export function SupportPledgeForm({
             </fieldset>
 
             <fieldset className="support-pledge__fieldset" disabled={isSubmitting}>
-              <legend>{copyText("contact", "contact.fixed.SupportPledgeForm.b959ef0bbf", "후원자 정보")}</legend>
-              <p className="support-pledge__field-hint">{copyText("contact", "contact.fixed.SupportPledgeForm.7f8bf7a633", "이름, 핸드폰, E-mail은 필수 항목입니다.")}</p>
+              <legend>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.b959ef0bbf" text={copyText("contact", "contact.fixed.SupportPledgeForm.b959ef0bbf", "후원자 정보")}>{copyText("contact", "contact.fixed.SupportPledgeForm.b959ef0bbf", "후원자 정보")}</FormattedCopy>}</legend>
+              <p className="support-pledge__field-hint">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.7f8bf7a633" text={copyText("contact", "contact.fixed.SupportPledgeForm.7f8bf7a633", "이름, 핸드폰, E-mail은 필수 항목입니다.")}>{copyText("contact", "contact.fixed.SupportPledgeForm.7f8bf7a633", "이름, 핸드폰, E-mail은 필수 항목입니다.")}</FormattedCopy>}</p>
               <div className="support-pledge__fields support-print-donor-grid">
                 <div>
                   <FieldLabel htmlFor="support-name">이름 (필수)</FieldLabel>
@@ -707,22 +708,22 @@ export function SupportPledgeForm({
 
             {hasCompleteBankAccount ? (
               <section className="support-pledge__bank" aria-labelledby="support-bank-title">
-                <h4 id="support-bank-title">{copyText("contact", "contact.fixed.SupportPledgeForm.320d5b016b", "후원 계좌 안내")}</h4>
+                <h4 id="support-bank-title">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.320d5b016b" text={copyText("contact", "contact.fixed.SupportPledgeForm.320d5b016b", "후원 계좌 안내")}>{copyText("contact", "contact.fixed.SupportPledgeForm.320d5b016b", "후원 계좌 안내")}</FormattedCopy>}</h4>
                 <dl className="support-pledge__review-list">
-                  <div><dt>{copyText("contact", "contact.fixed.SupportPledgeForm.1f1859979a", "은행명")}</dt><dd>{bankName}</dd></div>
-                  <div><dt>{copyText("contact", "contact.fixed.SupportPledgeForm.e93f44ec04", "계좌번호")}</dt><dd>{bankAccountNumber}</dd></div>
-                  <div><dt>{copyText("contact", "contact.fixed.SupportPledgeForm.71b9138c69", "예금주")}</dt><dd>{bankAccountHolder}</dd></div>
+                  <div><dt>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.1f1859979a" text={copyText("contact", "contact.fixed.SupportPledgeForm.1f1859979a", "은행명")}>{copyText("contact", "contact.fixed.SupportPledgeForm.1f1859979a", "은행명")}</FormattedCopy>}</dt><dd>{bankName}</dd></div>
+                  <div><dt>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.e93f44ec04" text={copyText("contact", "contact.fixed.SupportPledgeForm.e93f44ec04", "계좌번호")}>{copyText("contact", "contact.fixed.SupportPledgeForm.e93f44ec04", "계좌번호")}</FormattedCopy>}</dt><dd>{bankAccountNumber}</dd></div>
+                  <div><dt>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.71b9138c69" text={copyText("contact", "contact.fixed.SupportPledgeForm.71b9138c69", "예금주")}>{copyText("contact", "contact.fixed.SupportPledgeForm.71b9138c69", "예금주")}</FormattedCopy>}</dt><dd>{bankAccountHolder}</dd></div>
                 </dl>
                 {bankNote ? <p className="support-pledge__copy">{bankNote}</p> : null}
                 <div className="support-print-hidden">
-                  <Button className="support-pledge__button" disabled={!hasBankAccount} onClick={handleCopyAccount} size="sm" type="button" variant="secondary">{copyText("contact", "contact.fixed.SupportPledgeForm.2c270028c3", "계좌번호 복사")}</Button>
+                  <Button className="support-pledge__button" disabled={!hasBankAccount} onClick={handleCopyAccount} size="sm" type="button" variant="secondary">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.2c270028c3" text={copyText("contact", "contact.fixed.SupportPledgeForm.2c270028c3", "계좌번호 복사")}>{copyText("contact", "contact.fixed.SupportPledgeForm.2c270028c3", "계좌번호 복사")}</FormattedCopy>}</Button>
                   {copyStatus ? <p className="support-pledge__field-hint" role="status">{copyStatus}</p> : null}
                 </div>
               </section>
             ) : null}
 
             <fieldset className="support-pledge__fieldset" disabled={isSubmitting}>
-              <legend>{copyText("contact", "contact.fixed.SupportPledgeForm.b250029234", "약정 확인")}</legend>
+              <legend>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.b250029234" text={copyText("contact", "contact.fixed.SupportPledgeForm.b250029234", "약정 확인")}>{copyText("contact", "contact.fixed.SupportPledgeForm.b250029234", "약정 확인")}</FormattedCopy>}</legend>
               <div className="support-pledge__fields">
                 <div>
                   <FieldLabel htmlFor="support-pledge-date">날짜</FieldLabel>
@@ -736,10 +737,10 @@ export function SupportPledgeForm({
               <div className="support-print-signature-box support-pledge__signature">
                 <div className="support-pledge__signature-heading">
                   <div>
-                    <p className="support-pledge__label">{copyText("contact", "contact.fixed.SupportPledgeForm.0ad855d230", "인 / 서명")}</p>
-                    <p className="support-print-hidden support-pledge__field-hint" id="support-signature-help">{copyText("contact", "contact.fixed.SupportPledgeForm.8cf9c4e00e", "마우스나 손가락으로 직접 서명할 수 있습니다. 키보드 이용 시 위 서명 이름을 입력해 주세요.")}</p>
+                    <p className="support-pledge__label">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.0ad855d230" text={copyText("contact", "contact.fixed.SupportPledgeForm.0ad855d230", "인 / 서명")}>{copyText("contact", "contact.fixed.SupportPledgeForm.0ad855d230", "인 / 서명")}</FormattedCopy>}</p>
+                    <p className="support-print-hidden support-pledge__field-hint" id="support-signature-help">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.8cf9c4e00e" text={copyText("contact", "contact.fixed.SupportPledgeForm.8cf9c4e00e", "마우스나 손가락으로 직접 서명할 수 있습니다. 키보드 이용 시 위 서명 이름을 입력해 주세요.")}>{copyText("contact", "contact.fixed.SupportPledgeForm.8cf9c4e00e", "마우스나 손가락으로 직접 서명할 수 있습니다. 키보드 이용 시 위 서명 이름을 입력해 주세요.")}</FormattedCopy>}</p>
                   </div>
-                  <button className="support-print-hidden support-pledge__clear" onClick={clearSignatureDrawing} type="button">{copyText("contact", "contact.fixed.SupportPledgeForm.c8dbc399b9", "지우기")}</button>
+                  <button className="support-print-hidden support-pledge__clear" onClick={clearSignatureDrawing} type="button">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.c8dbc399b9" text={copyText("contact", "contact.fixed.SupportPledgeForm.c8dbc399b9", "지우기")}>{copyText("contact", "contact.fixed.SupportPledgeForm.c8dbc399b9", "지우기")}</FormattedCopy>}</button>
                 </div>
                 <canvas aria-label={copyText("contact", "contact.fixed.SupportPledgeForm.ee44810cdb", "마우스 또는 터치로 그리는 인/서명 영역")} aria-describedby="support-signature-help" className="support-signature-canvas" height={220} onPointerCancel={finishSignatureDrawing} onPointerDown={handleSignaturePointerDown} onPointerLeave={finishSignatureDrawing} onPointerMove={handleSignaturePointerMove} onPointerUp={finishSignatureDrawing} ref={signatureCanvasRef} width={900} />
                 <p className="support-pledge__signer">{values.signature || values.name || '서명 이름'}</p>
@@ -757,13 +758,13 @@ export function SupportPledgeForm({
 
           {isReviewing ? (
             <section className="support-print-hidden support-pledge__review" aria-label={copyText("contact", "contact.fixed.SupportPledgeForm.d9796f81d6", "후원약정 작성 내용 확인")}>
-              <h4 ref={reviewHeadingRef} tabIndex={-1}>{copyText("contact", "contact.fixed.SupportPledgeForm.6073524827", "작성 내용을 확인해 주세요.")}</h4>
-              <p className="support-pledge__copy">{copyText("contact", "contact.fixed.SupportPledgeForm.560a5275f4", "아래 내용이 맞는지 확인한 뒤 약정서를 보내주세요. 아직 접수되지 않았습니다.")}</p>
+              <h4 ref={reviewHeadingRef} tabIndex={-1}>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.6073524827" text={copyText("contact", "contact.fixed.SupportPledgeForm.6073524827", "작성 내용을 확인해 주세요.")}>{copyText("contact", "contact.fixed.SupportPledgeForm.6073524827", "작성 내용을 확인해 주세요.")}</FormattedCopy>}</h4>
+              <p className="support-pledge__copy">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.560a5275f4" text={copyText("contact", "contact.fixed.SupportPledgeForm.560a5275f4", "아래 내용이 맞는지 확인한 뒤 약정서를 보내주세요. 아직 접수되지 않았습니다.")}>{copyText("contact", "contact.fixed.SupportPledgeForm.560a5275f4", "아래 내용이 맞는지 확인한 뒤 약정서를 보내주세요. 아직 접수되지 않았습니다.")}</FormattedCopy>}</p>
               <dl className="support-pledge__review-list">
                 {reviewItems.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
               </dl>
               {values.signatureImageUrl ? <img className="support-pledge__review-signature" src={values.signatureImageUrl} alt={copyText("contact", "contact.fixed.SupportPledgeForm.5cc6723f8c", "작성한 인/서명")} /> : null}
-              {hasCompleteBankAccount ? <dl className="support-pledge__review-list"><div><dt>{copyText("contact", "contact.fixed.SupportPledgeForm.1f1859979a", "은행명")}</dt><dd>{bankName}</dd></div><div><dt>{copyText("contact", "contact.fixed.SupportPledgeForm.e93f44ec04", "계좌번호")}</dt><dd>{bankAccountNumber}</dd></div><div><dt>{copyText("contact", "contact.fixed.SupportPledgeForm.71b9138c69", "예금주")}</dt><dd>{bankAccountHolder}</dd></div></dl> : null}
+              {hasCompleteBankAccount ? <dl className="support-pledge__review-list"><div><dt>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.1f1859979a" text={copyText("contact", "contact.fixed.SupportPledgeForm.1f1859979a", "은행명")}>{copyText("contact", "contact.fixed.SupportPledgeForm.1f1859979a", "은행명")}</FormattedCopy>}</dt><dd>{bankName}</dd></div><div><dt>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.e93f44ec04" text={copyText("contact", "contact.fixed.SupportPledgeForm.e93f44ec04", "계좌번호")}>{copyText("contact", "contact.fixed.SupportPledgeForm.e93f44ec04", "계좌번호")}</FormattedCopy>}</dt><dd>{bankAccountNumber}</dd></div><div><dt>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.71b9138c69" text={copyText("contact", "contact.fixed.SupportPledgeForm.71b9138c69", "예금주")}>{copyText("contact", "contact.fixed.SupportPledgeForm.71b9138c69", "예금주")}</FormattedCopy>}</dt><dd>{bankAccountHolder}</dd></div></dl> : null}
               {hasCompleteBankAccount && bankNote ? <p className="support-pledge__copy">{bankNote}</p> : null}
               <p className="support-pledge__copy">{settings.privacy_notice}</p>
               <p className="support-pledge__copy">{settings.print_note}</p>
@@ -780,32 +781,32 @@ export function SupportPledgeForm({
 
           {submitError ? <p className="support-print-hidden support-pledge__feedback is-error" id="support-pledge-error" role="alert">{submitError}</p> : null}
           {submitSuccess ? <p className="support-print-hidden support-pledge__feedback is-success" role="status">{submitSuccess}</p> : null}
-          {!settings.enable_online_submission ? <p className="support-print-hidden support-pledge__feedback">{copyText("contact", "contact.fixed.SupportPledgeForm.45cda4bcf7", "현재 온라인 제출은 닫혀 있습니다. 약정서를 인쇄해 제출해 주세요.")}</p> : null}
+          {!settings.enable_online_submission ? <p className="support-print-hidden support-pledge__feedback">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.45cda4bcf7" text={copyText("contact", "contact.fixed.SupportPledgeForm.45cda4bcf7", "현재 온라인 제출은 닫혀 있습니다. 약정서를 인쇄해 제출해 주세요.")}>{copyText("contact", "contact.fixed.SupportPledgeForm.45cda4bcf7", "현재 온라인 제출은 닫혀 있습니다. 약정서를 인쇄해 제출해 주세요.")}</FormattedCopy>}</p> : null}
 
           <div className="support-print-hidden support-pledge__actions">
             {settings.enable_online_submission && !submitSuccess ? (
               isReviewing ? <>
                 <Button className="support-pledge__button is-primary" aria-busy={isSubmitting} disabled={isSubmitting} onClick={handleConfirm} type="button" variant="primary">{isSubmitting ? '저장 중' : settings.submit_button_label}</Button>
-                <Button className="support-pledge__button" disabled={isSubmitting} onClick={() => { setIsReviewing(false); setSubmitError(null) }} type="button" variant="secondary">{copyText("contact", "contact.fixed.SupportPledgeForm.ae5b437795", "수정하기")}</Button>
-              </> : <Button className="support-pledge__button is-primary" type="submit" variant="primary">{copyText("contact", "contact.fixed.SupportPledgeForm.317302ecaa", "작성 내용 확인 ")}<span aria-hidden="true">→</span></Button>
+                <Button className="support-pledge__button" disabled={isSubmitting} onClick={() => { setIsReviewing(false); setSubmitError(null) }} type="button" variant="secondary">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.ae5b437795" text={copyText("contact", "contact.fixed.SupportPledgeForm.ae5b437795", "수정하기")}>{copyText("contact", "contact.fixed.SupportPledgeForm.ae5b437795", "수정하기")}</FormattedCopy>}</Button>
+              </> : <Button className="support-pledge__button is-primary" type="submit" variant="primary">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.317302ecaa" text={copyText("contact", "contact.fixed.SupportPledgeForm.317302ecaa", "작성 내용 확인 ")}>{copyText("contact", "contact.fixed.SupportPledgeForm.317302ecaa", "작성 내용 확인 ")}</FormattedCopy>}<span aria-hidden="true">→</span></Button>
             ) : null}
             <Button className="support-pledge__button" onClick={handlePrint} type="button" variant="secondary">{settings.print_button_label}</Button>
-            {submitSuccess ? <Button className="support-pledge__button" onClick={() => { submission.current.reset(); setValues(getInitialValues(settings)); wasSubmittedRef.current = false; setSubmitSuccess(null); setSubmitError(null) }} type="button" variant="secondary">{copyText("contact", "contact.fixed.SupportPledgeForm.c1d9e990fc", "새 약정서 작성")}</Button> : null}
+            {submitSuccess ? <Button className="support-pledge__button" onClick={() => { submission.current.reset(); setValues(getInitialValues(settings)); wasSubmittedRef.current = false; setSubmitSuccess(null); setSubmitError(null) }} type="button" variant="secondary">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.c1d9e990fc" text={copyText("contact", "contact.fixed.SupportPledgeForm.c1d9e990fc", "새 약정서 작성")}>{copyText("contact", "contact.fixed.SupportPledgeForm.c1d9e990fc", "새 약정서 작성")}</FormattedCopy>}</Button> : null}
           </div>
         </form>
       </div>
 
       <details className="support-pledge__background support-print-hidden">
-        <summary>{copyText("contact", "contact.fixed.SupportPledgeForm.9cefa2a311", "후원 안내")}</summary>
+        <summary>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.9cefa2a311" text={copyText("contact", "contact.fixed.SupportPledgeForm.9cefa2a311", "후원 안내")}>{copyText("contact", "contact.fixed.SupportPledgeForm.9cefa2a311", "후원 안내")}</FormattedCopy>}</summary>
         <p className="support-pledge__eyebrow">{supportSpiritCopy.eyebrow}</p>
         <h3>{supportSpiritCopy.title}</h3>
         <p className="support-pledge__copy">{supportSpiritCopy.body}</p>
         <p className="support-pledge__copy">{supportSpiritCopy.notice}</p>
         <div className="support-pledge__background-grid">
-          <div><h4>{copyText("contact", "contact.fixed.SupportPledgeForm.0c5170bd78", "후원은 이렇게 연결됩니다")}</h4>{supportMethodItems.map(item => <div key={item.title}><h5>{item.title}</h5><p>{item.description}</p></div>)}</div>
-          <div><h4>{copyText("contact", "contact.fixed.SupportPledgeForm.7850a98e79", "안전한 후원 접수")}</h4>{donorCareItems.map(item => <div key={item.title}><h5>{item.title}</h5><p>{item.description}</p></div>)}</div>
+          <div><h4>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.0c5170bd78" text={copyText("contact", "contact.fixed.SupportPledgeForm.0c5170bd78", "후원은 이렇게 연결됩니다")}>{copyText("contact", "contact.fixed.SupportPledgeForm.0c5170bd78", "후원은 이렇게 연결됩니다")}</FormattedCopy>}</h4>{supportMethodItems.map(item => <div key={item.title}><h5>{item.title}</h5><p>{item.description}</p></div>)}</div>
+          <div><h4>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.7850a98e79" text={copyText("contact", "contact.fixed.SupportPledgeForm.7850a98e79", "안전한 후원 접수")}>{copyText("contact", "contact.fixed.SupportPledgeForm.7850a98e79", "안전한 후원 접수")}</FormattedCopy>}</h4>{donorCareItems.map(item => <div key={item.title}><h5>{item.title}</h5><p>{item.description}</p></div>)}</div>
         </div>
-        <p className="support-pledge__copy">{copyText("contact", "contact.fixed.SupportPledgeForm.97207df43d", "청소년 음악교육 · 정기연주와 초청연주 · 봉사와 나눔의 무대")}</p>
+        <p className="support-pledge__copy">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.97207df43d" text={copyText("contact", "contact.fixed.SupportPledgeForm.97207df43d", "청소년 음악교육 · 정기연주와 초청연주 · 봉사와 나눔의 무대")}>{copyText("contact", "contact.fixed.SupportPledgeForm.97207df43d", "청소년 음악교육 · 정기연주와 초청연주 · 봉사와 나눔의 무대")}</FormattedCopy>}</p>
       </details>
     </section>
   )

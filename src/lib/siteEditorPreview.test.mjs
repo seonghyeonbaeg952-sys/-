@@ -5,7 +5,8 @@ import ts from 'typescript'
 
 const compile = source => ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText
 const moduleUrl = source => `data:text/javascript;base64,${Buffer.from(compile(source)).toString('base64')}`
-const modelUrl = moduleUrl(await readFile(new URL('./siteEditorModel.ts', import.meta.url), 'utf8'))
+const stylesUrl = moduleUrl(await readFile(new URL('./siteEditorTextStyles.ts', import.meta.url), 'utf8'))
+const modelUrl = moduleUrl((await readFile(new URL('./siteEditorModel.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl)))
 const source = await readFile(new URL('./siteEditorPreview.ts', import.meta.url), 'utf8')
 const preview = await import(moduleUrl(source.replace("'./siteEditorModel'", JSON.stringify(modelUrl))))
 const nonce = 'ec50cd93-7e23-4428-a4d6-9688109cd605'

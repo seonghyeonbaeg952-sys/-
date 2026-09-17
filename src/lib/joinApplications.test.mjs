@@ -8,7 +8,8 @@ const compile = source => ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
 }).outputText
 const modelUrl = dataModule(compile(await readFile(new URL('../components/join/joinApplicationModel.ts', import.meta.url), 'utf8')))
-const editorModelUrl = dataModule(compile(await readFile(new URL('./siteEditorModel.ts', import.meta.url), 'utf8')))
+const editorStylesUrl = dataModule(compile(await readFile(new URL('./siteEditorTextStyles.ts', import.meta.url), 'utf8')))
+const editorModelUrl = dataModule(compile(await readFile(new URL('./siteEditorModel.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(editorStylesUrl)))
 const previewUrl = dataModule(compile(await readFile(new URL('./siteEditorPreview.ts', import.meta.url), 'utf8'))
   .replace(/(['"])\.\/siteEditorModel\1/g, JSON.stringify(editorModelUrl)))
 const transportKey = '__smyc_join_api_test_transport__'

@@ -1,4 +1,6 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { HomeCopy } from './HomeCopy'
+import { splitHomeCopyLines, type HomeCopyPart } from '../../lib/homeCopySlices'
 import type { JoinInfoRow } from '../../types/cms'
 import type { HomeContentV2 } from '../../types/homeContent'
 import { Button } from '../common/Button'
@@ -44,7 +46,9 @@ export function ResponsiveCollectivePortrait({
   const description = (tablet ? content?.responsiveTabletDescription : content?.responsiveMobileDescription) || summary
   const founded = content?.responsiveFounded || ['SINCE', facts[0]?.value].filter(Boolean).join('\n')
   const context = content?.responsiveContext || facts.slice(1).map((fact) => fact.value).join('\n')
-  const tabletFacts = contentLines(content?.responsiveTabletFacts || facts.map((fact) => fact.value).join('\n'))
+  const tabletFactsText = content?.responsiveTabletFacts || facts.map((fact) => fact.value).join('\n')
+  const tabletFacts = contentLines(tabletFactsText)
+  const tabletFactSlices = splitHomeCopyLines(tabletFactsText)
   const portrait = image ?? {
     alt: '서울모테트청소년합창단 공연 무대',
     caption: '',
@@ -52,7 +56,7 @@ export function ResponsiveCollectivePortrait({
   }
   const action = (
     <Button className="responsive-about__action responsive-about-join__action" href="/about" variant="secondary">
-      <span>{buttonLabel}</span>
+      <span><HomeCopy sourceKey="home.current.about.ctaLabel" text={buttonLabel} /></span>
     </Button>
   )
 
@@ -67,12 +71,12 @@ export function ResponsiveCollectivePortrait({
     >
       {!tablet ? <div aria-hidden="true" className="responsive-about__rule" /> : null}
       <p className="responsive-about-join__eyebrow">
-        <span aria-hidden="true">{tablet ? '01' : '01 /'}</span> {kicker}
+        <span aria-hidden="true">{tablet ? '01' : '01 /'}</span> <HomeCopy sourceKey="home.current.about.eyebrowEn" text={kicker} />
       </p>
       <div className="responsive-about__introduction">
-        <h2 id="home-responsive-about-title">{title}</h2>
+        <h2 id="home-responsive-about-title"><HomeCopy sourceKey="home.current.about.title" text={title} /></h2>
         <div className="responsive-about__statement">
-          {description ? <p className="responsive-about__description">{description}</p> : null}
+          {description ? <p className="responsive-about__description"><HomeCopy sourceKey={`home.responsive.about.${tablet ? 'tabletDescription' : 'mobileDescription'}`} text={description} /></p> : null}
           {tablet ? action : null}
         </div>
       </div>
@@ -87,12 +91,12 @@ export function ResponsiveCollectivePortrait({
       />
       {tablet ? (
         <ul aria-label={copyText("home", "home.fixed.ResponsiveAboutJoin.1f761dd796", "합창단 핵심 정보")} className="responsive-about__tablet-facts">
-          {tabletFacts.map((fact, index) => <li key={`${index}-${fact}`}>{fact}</li>)}
+          {tabletFacts.map((fact, index) => <li key={`${index}-${fact}`}><HomeCopy sourceKey="home.responsive.about.tabletFacts" text={fact} fullText={tabletFactsText} offset={tabletFactSlices[index].offset} /></li>)}
         </ul>
       ) : (
         <div aria-label={copyText("home", "home.fixed.ResponsiveAboutJoin.1f761dd796", "합창단 핵심 정보")} className="responsive-about__mobile-facts">
-          <p className="responsive-about__founded">{founded}</p>
-          <p className="responsive-about__context">{context}</p>
+          <p className="responsive-about__founded"><HomeCopy sourceKey="home.responsive.about.founded" text={founded} /></p>
+          <p className="responsive-about__context"><HomeCopy sourceKey="home.responsive.about.context" text={context} /></p>
         </div>
       )}
       {!tablet ? action : null}
@@ -121,12 +125,20 @@ export function ResponsiveJoinInvitation({
   const steps = cmsSteps.length ? cmsSteps : fallbackSteps.map((step) => step.title)
   const title = tablet ? content.title : content.responsiveMobileTitle || content.title
   const description = tablet ? tabletDescription : content.responsiveMobileDescription || content.description
+  const descriptionDivider = content.description.indexOf(',')
+  const descriptionLead = descriptionDivider >= 0 ? content.description.slice(0, descriptionDivider + 1) : content.description
+  const tabletDescriptionParts: HomeCopyPart[] = [
+    { sourceKey: 'home.current.join.description', text: descriptionLead, fullText: content.description },
+    { sourceKey: 'home.current.join.compactDescription', text: content.compactDescription },
+  ].filter(part => Boolean(part.text)).flatMap((part, index) => index ? [{ text: '\n' }, part] : [part])
   const guardianCopy = tablet ? content.responsiveTabletGuardianNotes : content.responsiveMobileGuardianNotes
-  const guardianNotes = contentLines(guardianCopy || fallbackGuardianNotes.join('\n'))
+  const guardianText = guardianCopy || fallbackGuardianNotes.join('\n')
+  const guardianNotes = contentLines(guardianText)
+  const guardianSlices = splitHomeCopyLines(guardianText)
 
   const primaryAction = (
     <Button className="responsive-join__primary responsive-about-join__action" href="/join?section=contact#application" variant="gold">
-      <span>{buttonLabel || content.ctaLabel}</span>
+      <span><HomeCopy sourceKey="home.current.join.ctaLabel" text={buttonLabel || content.ctaLabel} /></span>
     </Button>
   )
   const targetInfo = target ? <p className="responsive-join__target">{target}</p> : null
@@ -146,7 +158,7 @@ export function ResponsiveJoinInvitation({
   const guardianInfo = (
     <aside aria-label={copyText("home", "home.fixed.ResponsiveAboutJoin.886055c890", "보호자 안내")} className="responsive-join__guardian">
       {!tablet ? <p>{copyText("home", "home.fixed.ResponsiveAboutJoin.924d5f8adf", "FOR PARENTS & GUARDIANS")}</p> : null}
-      <ul>{guardianNotes.map((note, index) => <li key={`${index}-${note}`}>{note}</li>)}</ul>
+      <ul>{guardianNotes.map((note, index) => <li key={`${index}-${note}`}><HomeCopy sourceKey={`home.responsive.join.${tablet ? 'tabletGuardianNotes' : 'mobileGuardianNotes'}`} text={note} fullText={guardianText} offset={guardianSlices[index].offset} /></li>)}</ul>
     </aside>
   )
 
@@ -161,11 +173,11 @@ export function ResponsiveJoinInvitation({
     >
       {!tablet ? <img alt="" aria-hidden="true" className="responsive-join__motif" height={30} src="/images/home/responsive-join-motif.svg" width={342} /> : null}
       <p className="responsive-about-join__eyebrow">
-        <span aria-hidden="true">{tablet ? '02' : '02 /'}</span> {content.eyebrowEn}
+        <span aria-hidden="true">{tablet ? '02' : '02 /'}</span> <HomeCopy sourceKey="home.current.join.eyebrowEn" text={content.eyebrowEn} />
       </p>
       <div className="responsive-join__invitation">
-        <h2 id="home-responsive-join-title">{title}</h2>
-        {description ? <p className="responsive-join__description">{description}</p> : null}
+        <h2 id="home-responsive-join-title"><HomeCopy sourceKey={tablet ? 'home.current.join.title' : 'home.responsive.join.mobileTitle'} text={title} /></h2>
+        {description ? <p className="responsive-join__description"><HomeCopy sourceKey={tablet ? 'home.current.join.description' : 'home.responsive.join.mobileDescription'} text={description} parts={tablet ? tabletDescriptionParts : undefined} /></p> : null}
         {!tablet ? targetInfo : null}
         {primaryAction}
       </div>
@@ -181,7 +193,7 @@ export function ResponsiveJoinInvitation({
           <div aria-hidden="true" className="responsive-join__rule" />
           {guardianInfo}
           <Button className="responsive-join__secondary responsive-about-join__action" href="/join?section=process" variant="secondary">
-            <span>{content.secondaryCtaLabel}</span>
+            <span><HomeCopy sourceKey="home.current.join.secondaryCtaLabel" text={content.secondaryCtaLabel} /></span>
           </Button>
         </>
       )}

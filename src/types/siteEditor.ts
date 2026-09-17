@@ -7,6 +7,11 @@ export type EditorPageId =
 
 export type EditorFont = 'system' | 'gothic-a1' | 'hahmlet' | 'arita-buri' | 'gowun-batang' | 'grandiflora'
 
+export type EditorTextStyle = { fontFamily?: EditorFont; fontSize?: number }
+/** UTF-16 offsets, aligned to whole graphemes (the browser selection convention). */
+export type EditorTextRun = { start: number; end: number; style: EditorTextStyle }
+export type EditorStyledCopy = { text: string; runs: EditorTextRun[] }
+
 export type EditorAppearance = {
   fontFamily?: EditorFont
   headingFontFamily?: EditorFont
@@ -30,6 +35,7 @@ export type SiteEditorDocument = {
   copy: Record<string, string>
   deviceCopy: Partial<Record<EditorDevice, Record<string, string>>>
   appearance: Partial<Record<'shared' | EditorDevice, EditorAppearance>>
+  textStyles?: Partial<Record<'shared' | EditorDevice, Record<string, EditorStyledCopy>>>
 }
 
 export type SiteEditorDocuments = Partial<Record<EditorPageId, SiteEditorDocument>>

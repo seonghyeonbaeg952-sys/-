@@ -1,4 +1,5 @@
 import type { HomeContentV2 } from '../../types/homeContent'
+import { HomeCopy } from './HomeCopy'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
 import '../../styles/home-responsive-spirit.css'
@@ -25,16 +26,16 @@ export function ResponsiveSpiritList({ wrapper }: ResponsiveSpiritListProps) {
     >
       <Container className="home-responsive-spirit__container">
         <p className="home-responsive-spirit__eyebrow">
-          {wrapper.responsiveEyebrow}
+          <HomeCopy sourceKey="home.spiritWrapper.responsiveEyebrow" text={wrapper.responsiveEyebrow} />
         </p>
         <h2
           className="home-responsive-spirit__title"
           id="home-responsive-spirit-heading"
         >
-          {wrapper.responsiveTitle}
+          <HomeCopy sourceKey="home.spiritWrapper.responsiveTitle" text={wrapper.responsiveTitle} />
         </h2>
         <p className="home-responsive-spirit__description">
-          {wrapper.responsiveDescription}
+          <HomeCopy sourceKey="home.spiritWrapper.responsiveDescription" text={wrapper.responsiveDescription} />
         </p>
         <ol
           aria-labelledby="home-responsive-spirit-heading"
@@ -45,7 +46,7 @@ export function ResponsiveSpiritList({ wrapper }: ResponsiveSpiritListProps) {
               <span aria-hidden="true" className="home-responsive-spirit__number">
                 {String(index + 1).padStart(2, '0')}
               </span>
-              <span>{label}</span>
+              <span><HomeCopy sourceKey={`home.spiritWrapper.responsiveLabel${index + 1}`} text={label} /></span>
             </li>
           ))}
         </ol>
@@ -55,7 +56,7 @@ export function ResponsiveSpiritList({ wrapper }: ResponsiveSpiritListProps) {
           href="/spirit"
           variant="gold"
         >
-          <span>{wrapper.responsiveCtaLabel}</span>
+          <span><HomeCopy sourceKey="home.spiritWrapper.responsiveCtaLabel" text={wrapper.responsiveCtaLabel} /></span>
         </Button>
       </Container>
     </section>

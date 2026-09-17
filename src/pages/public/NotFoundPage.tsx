@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../../components/site-editor/FormattedCopy'
 import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 import { Button } from '../../components/common/Button'
 import { Container } from '../../components/common/Container'
@@ -17,7 +18,7 @@ export function NotFoundPage() {
         <Container className="py-section-mobile lg:py-section-desktop">
           <EmptyState
             action={
-              <Button href="/" variant="gold">{copyText("common", "common.fixed.NotFoundPage.64a9bf4fc5", "홈으로 이동")}</Button>
+              <Button href="/" variant="gold">{<FormattedCopy page="common" id="common.fixed.NotFoundPage.64a9bf4fc5" text={copyText("common", "common.fixed.NotFoundPage.64a9bf4fc5", "홈으로 이동")}>{copyText("common", "common.fixed.NotFoundPage.64a9bf4fc5", "홈으로 이동")}</FormattedCopy>}</Button>
             }
             description={copyText("common", "common.fixed.NotFoundPage.5e80327cc4", "주소를 다시 확인하거나 홈으로 이동해 주세요.")}
             title={copyText("common", "common.fixed.NotFoundPage.031cc1a110", "페이지를 찾을 수 없습니다")}

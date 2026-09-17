@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../../components/site-editor/FormattedCopy'
 import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 import { useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router'
@@ -34,7 +35,7 @@ export function NoticeDetailPage() {
       />
       <div className="notices-page__detail notices-page__shell">
         <nav aria-label={copyText("notice-detail", "notice-detail.fixed.NoticeDetailPage.e282a8fa21", "현재 위치")} className="notices-page__breadcrumb">
-          <Link to={listLocation}>{t('list')}</Link><span aria-hidden="true">/</span><span aria-current="page">{t('title')}</span>
+          <Link to={listLocation}>{<FormattedCopy page="notice-detail" id="notice-detail.list" text={t('list')}>{t('list')}</FormattedCopy>}</Link><span aria-hidden="true">/</span><span aria-current="page">{<FormattedCopy page="notice-detail" id="notice-detail.title" text={t('title')}>{t('title')}</FormattedCopy>}</span>
         </nav>
         {noticeData.isLoading ? (
           <div className="notices-page__state"><LoadingState label={t('loading')} /></div>
@@ -44,13 +45,13 @@ export function NoticeDetailPage() {
             <ErrorState
               title={t('error')}
               description={t('connection')}
-              action={<button className="notices-page__action" onClick={noticeData.refetch} type="button">{t('retry')}</button>}
+              action={<button className="notices-page__action" onClick={noticeData.refetch} type="button">{<FormattedCopy page="notice-detail" id="notice-detail.retry" text={t('retry')}>{t('retry')}</FormattedCopy>}</button>}
             />
           </div>
         ) : !notice ? (
           <div className="notices-page__state" role="status">
-            <h1>{t('missing')}</h1>
-            <p>{t('missingHelp')}</p>
+            <h1>{<FormattedCopy page="notice-detail" id="notice-detail.missing" text={t('missing')}>{t('missing')}</FormattedCopy>}</h1>
+            <p>{<FormattedCopy page="notice-detail" id="notice-detail.missingHelp" text={t('missingHelp')}>{t('missingHelp')}</FormattedCopy>}</p>
           </div>
         ) : (
           <article className="notices-page__article">
@@ -63,8 +64,8 @@ export function NoticeDetailPage() {
             {notice.cover_image_url ? (
               failedImage === notice.cover_image_url ? (
                 <div className="notices-page__image-error" role="status">
-                  <p>{t('imageError')}</p>
-                  <button className="notices-page__action" onClick={() => setFailedImage('')} type="button">{t('imageRetry')}</button>
+                  <p>{<FormattedCopy page="notice-detail" id="notice-detail.imageError" text={t('imageError')}>{t('imageError')}</FormattedCopy>}</p>
+                  <button className="notices-page__action" onClick={() => setFailedImage('')} type="button">{<FormattedCopy page="notice-detail" id="notice-detail.imageRetry" text={t('imageRetry')}>{t('imageRetry')}</FormattedCopy>}</button>
                 </div>
               ) : <OptimizedImage
                 alt={`${notice.title} 대표 이미지`}
@@ -77,11 +78,11 @@ export function NoticeDetailPage() {
                 transform={{ quality: 85, resize: 'contain', width: 1280, widths: [640, 960, 1280] }}
               />
             ) : null}
-            <div className="notices-page__body">{notice.content || t('bodyEmpty')}</div>
+            <div className="notices-page__body">{notice.content || <FormattedCopy page="notice-detail" id="notice-detail.bodyEmpty" text={t('bodyEmpty')}>{t('bodyEmpty')}</FormattedCopy>}</div>
           </article>
         )}
         <div className="notices-page__back">
-          <Link className="notices-page__action" to={listLocation}>{t('back')}</Link>
+          <Link className="notices-page__action" to={listLocation}>{<FormattedCopy page="notice-detail" id="notice-detail.back" text={t('back')}>{t('back')}</FormattedCopy>}</Link>
         </div>
       </div>
     </div>

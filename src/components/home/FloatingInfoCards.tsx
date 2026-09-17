@@ -1,4 +1,5 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { HomeCopy } from './HomeCopy'
 import { useEffect, useState } from 'react'
 import type { HomeQuickActionItem } from '../../types/homeContent'
 import { getColorSampleHref } from '../../utils/colorSamplePath'
@@ -44,7 +45,7 @@ function ResponsiveQuickActions({ cards }: { cards: HomeQuickActionItem[] }) {
               <a className="home-responsive-quick__row" href={getColorSampleHref(card.href)}>
                 <span aria-hidden="true" className="home-responsive-quick__code">{card.code}</span>
                 <span aria-hidden="true" className="home-responsive-quick__divider">/</span>
-                <span className="home-responsive-quick__title">{card.title}</span>
+                <span className="home-responsive-quick__title"><HomeCopy sourceKey={`home.quickActions.${card.id}.title`} text={card.title} /></span>
               </a>
             </li>
           ))}
@@ -110,14 +111,14 @@ export function FloatingInfoCards({
                   {card.code}
                   </p>
                   <h2 className="text-xl font-semibold leading-7 text-navy-deep">
-                    {card.title}
+                    <HomeCopy sourceKey={`home.quickActions.${card.id}.title`} text={card.title} />
                   </h2>
                   <p className="mt-3 text-sm leading-6 text-text-muted">
-                    {card.description}
+                    <HomeCopy sourceKey={`home.quickActions.${card.id}.description`} text={card.description} />
                   </p>
                 </div>
                 <div className="home-quick-action-link" aria-hidden="true">
-                  {card.ctaLabel}
+                  <HomeCopy sourceKey={`home.quickActions.${card.id}.ctaLabel`} text={card.ctaLabel} />
                   <span>→</span>
                 </div>
               </a>

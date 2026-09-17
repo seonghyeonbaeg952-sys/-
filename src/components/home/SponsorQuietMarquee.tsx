@@ -1,4 +1,5 @@
 import type { Sponsor } from '../../types/content'
+import { HomeCopy } from './HomeCopy'
 import type { HomeContentV2 } from '../../types/homeContent'
 import { classNames } from '../../utils/classNames'
 import { Button } from '../common/Button'
@@ -36,14 +37,14 @@ export function SponsorQuietMarquee({
           <div className="sponsor-quiet-panel">
             <div>
               <p className="type-eyebrow text-gold-ink">
-                {content.eyebrow}
+                <HomeCopy sourceKey="home.sponsors.eyebrow" text={content.eyebrow} />
               </p>
               <StaffLines className="mt-3 max-w-64 opacity-45" density="light" variant="gold" />
               <h2 className="type-section-title mt-4 text-navy-deep">
-                {content.title}
+                <HomeCopy sourceKey="home.sponsors.title" text={content.title} />
               </h2>
               <p className="type-body mt-4 text-text-muted">
-                {content.description}
+                <HomeCopy sourceKey="home.sponsors.description" text={content.description} />
               </p>
               <Button
                 className="mt-5"
@@ -51,7 +52,7 @@ export function SponsorQuietMarquee({
                 size="sm"
                 variant="secondary"
               >
-                {content.ctaLabel}
+                <HomeCopy sourceKey="home.sponsors.ctaLabel" text={content.ctaLabel} />
               </Button>
             </div>
 

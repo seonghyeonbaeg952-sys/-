@@ -14,6 +14,35 @@ export function publicMarkupSource(source, file) {
   const normalized = roots.map(root => {
     const result = ts.transform(root, [context => {
       const visit = node => {
+        if (ts.isJsxElement(node) && ['FormattedCopy', 'HomeCopy'].includes(node.openingElement.tagName.getText(tree))) {
+          const children = node.children.filter(child => !ts.isJsxText(child) || cookJsx(source.slice(child.getFullStart(), child.end)))
+          if (children.length === 1) {
+            const child = children[0]
+            const expressionPosition = !ts.isJsxElement(node.parent) && !ts.isJsxFragment(node.parent)
+            return visit(expressionPosition && ts.isJsxExpression(child) ? child.expression : child)
+          }
+        }
+        if (ts.isJsxSelfClosingElement(node) && node.tagName.getText(tree) === 'HomeCopy') {
+          const text = node.attributes.properties.find(attr => ts.isJsxAttribute(attr) && attr.name.getText(tree) === 'text')?.initializer
+          if (text && ts.isJsxExpression(text) && text.expression) {
+            return ts.isJsxElement(node.parent) || ts.isJsxFragment(node.parent)
+              ? ts.factory.createJsxExpression(undefined, visit(text.expression)) : visit(text.expression)
+          }
+        }
+        if (ts.isJsxAttribute(node) && ['sourceKey', 'fullText', 'offset'].includes(node.name.getText(tree))
+          && ts.isJsxSelfClosingElement(node.parent.parent) && node.parent.parent.tagName.getText(tree) === 'HomeDisplayTitleText') return undefined
+        if (ts.isJsxAttribute(node) && node.name.getText(tree) === 'sourceParagraphs'
+          && ts.isJsxSelfClosingElement(node.parent.parent) && node.parent.parent.tagName.getText(tree) === 'CollectivePortrait') return undefined
+        if (ts.isArrowFunction(node) && /<(?:HomeCopy|HomeDisplayTitleText)\b/.test(node.getText(tree))) {
+          const normalized = ts.visitEachChild(node, visit, context)
+          const used = new Set()
+          const collectIdentifiers = child => { if (ts.isIdentifier(child)) used.add(child.text); ts.forEachChild(child, collectIdentifiers) }
+          collectIdentifiers(normalized.body)
+          const parameters = [...normalized.parameters]
+          // Extra map callback positions exist only to locate a formatted slice.
+          while (parameters.length > 1 && ts.isIdentifier(parameters.at(-1).name) && !used.has(parameters.at(-1).name.text)) parameters.pop()
+          return ts.factory.updateArrowFunction(normalized, normalized.modifiers, normalized.typeParameters, parameters, normalized.type, normalized.equalsGreaterThanToken, normalized.body)
+        }
         if (ts.isJsxText(node)) return ts.factory.createJsxExpression(undefined, ts.factory.createStringLiteral(cookJsx(source.slice(node.getFullStart(), node.end))))
         if (ts.isJsxSelfClosingElement(node) && node.tagName.getText(tree) === 'SiteCopy') {
           const props = Object.fromEntries(node.attributes.properties.filter(ts.isJsxAttribute).map(attr => [attr.name.getText(tree), attr.initializer]))

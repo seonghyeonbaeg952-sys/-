@@ -5,7 +5,8 @@ import ts from 'typescript'
 
 const compile = source => ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText
 const moduleUrl = source => `data:text/javascript;base64,${Buffer.from(source).toString('base64')}`
-const modelUrl = moduleUrl(compile(await readFile(new URL('./siteEditorModel.ts', import.meta.url), 'utf8')))
+const stylesUrl = moduleUrl(compile(await readFile(new URL('./siteEditorTextStyles.ts', import.meta.url), 'utf8')))
+const modelUrl = moduleUrl(compile(await readFile(new URL('./siteEditorModel.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl)))
 const transportKey = '__motet_site_editor_api_fixture__'
 const calls = []
 let response = { data: null, error: null }

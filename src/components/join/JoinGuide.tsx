@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useEffect, useId, useState } from 'react'
 
@@ -73,7 +74,7 @@ export function JoinGuide({ activeSection, applicationHref, faqs, getSectionHref
 
   const applicationLink = (
     <TransitionLink className="join-guide__apply-link" to={applicationHref}>
-      {t('apply')} <span aria-hidden="true">→</span>
+      {<FormattedCopy page="join" id="join.apply" text={t('apply')}>{t('apply')}</FormattedCopy>} <span aria-hidden="true">→</span>
     </TransitionLink>
   )
 
@@ -82,13 +83,13 @@ export function JoinGuide({ activeSection, applicationHref, faqs, getSectionHref
       <section aria-labelledby="join-guide-title" className="join-guide__intro join-guide__container">
         <div className="join-guide__invitation">
           <p className="join-guide__eyebrow">{joinInfo.title?.trim() || '입단 안내'}</p>
-          <h1 id="join-guide-title"><CopyLines text={t('guideTitle')} /></h1>
+          <h1 id="join-guide-title"><FormattedCopy page="join" id="join.guideTitle" text={t('guideTitle')} lineBreaks><CopyLines text={t('guideTitle')} /></FormattedCopy></h1>
           <p className="join-guide__description">
             {publicCopy(joinInfo.description, '모집 대상과 오디션, 연습 안내를 확인하고 지원서를 작성해 주세요.')}
           </p>
         </div>
         <div className="join-guide__intro-action">
-          <p>{copyText("join", "join.fixed.JoinGuide.9bb6e639c7", "서울모테트청소년합창단")}</p>
+          <p>{<FormattedCopy page="join" id="join.fixed.JoinGuide.9bb6e639c7" text={copyText("join", "join.fixed.JoinGuide.9bb6e639c7", "서울모테트청소년합창단")}>{copyText("join", "join.fixed.JoinGuide.9bb6e639c7", "서울모테트청소년합창단")}</FormattedCopy>}</p>
           {recruitment.label ? (
             <p className="join-guide__recruitment" role="status">
               <strong>{recruitment.label}</strong>
@@ -96,7 +97,7 @@ export function JoinGuide({ activeSection, applicationHref, faqs, getSectionHref
             </p>
           ) : null}
           {applicationLink}
-          <p className="join-guide__action-note">{t('actionNote')}</p>
+          <p className="join-guide__action-note">{<FormattedCopy page="join" id="join.actionNote" text={t('actionNote')}>{t('actionNote')}</FormattedCopy>}</p>
         </div>
       </section>
 
@@ -116,7 +117,7 @@ export function JoinGuide({ activeSection, applicationHref, faqs, getSectionHref
 
       <section aria-labelledby="join-eligibility-title" id="eligibility" className="join-guide__section">
         <div className="join-guide__section-grid join-guide__container">
-          <h2 id="join-eligibility-title">{t('eligibility')}</h2>
+          <h2 id="join-eligibility-title">{<FormattedCopy page="join" id="join.eligibility" text={t('eligibility')}>{t('eligibility')}</FormattedCopy>}</h2>
           <div className="join-guide__content">
             {targets.length ? (
               <ul className="join-guide__targets">
@@ -127,9 +128,9 @@ export function JoinGuide({ activeSection, applicationHref, faqs, getSectionHref
                   </li>
                 ))}
               </ul>
-            ) : <p className="join-guide__body">{copyText("join", "join.fixed.JoinGuide.43f2c51475", "모집 대상은 입단 문의를 통해 확인해 주세요.")}</p>}
+            ) : <p className="join-guide__body">{<FormattedCopy page="join" id="join.fixed.JoinGuide.43f2c51475" text={copyText("join", "join.fixed.JoinGuide.43f2c51475", "모집 대상은 입단 문의를 통해 확인해 주세요.")}>{copyText("join", "join.fixed.JoinGuide.43f2c51475", "모집 대상은 입단 문의를 통해 확인해 주세요.")}</FormattedCopy>}</p>}
             <div className="join-guide__subsection">
-              <h3>{t('parts')}</h3>
+              <h3>{<FormattedCopy page="join" id="join.parts" text={t('parts')}>{t('parts')}</FormattedCopy>}</h3>
               <p className="join-guide__lead">{publicCopy(joinInfo.parts, '모집 파트는 입단 문의를 통해 확인해 주세요.')}</p>
             </div>
           </div>
@@ -138,12 +139,12 @@ export function JoinGuide({ activeSection, applicationHref, faqs, getSectionHref
 
       <section aria-labelledby="join-process-title" id="process" className="join-guide__section join-guide__section--cool">
         <div className="join-guide__section-grid join-guide__container">
-          <h2 id="join-process-title">{t('process')}</h2>
+          <h2 id="join-process-title">{<FormattedCopy page="join" id="join.process" text={t('process')}>{t('process')}</FormattedCopy>}</h2>
           <div className="join-guide__content" id="audition-guide">
-            <p className="join-guide__lead join-guide__steps">{t('steps')}</p>
+            <p className="join-guide__lead join-guide__steps">{<FormattedCopy page="join" id="join.steps" text={t('steps')}>{t('steps')}</FormattedCopy>}</p>
             <p className="join-guide__body">{publicCopy(joinInfo.audition_process, '오디션 절차와 일정은 입단 문의를 통해 확인해 주세요.')}</p>
             <div className="join-guide__subsection">
-              <h3>{t('preparation')}</h3>
+              <h3>{<FormattedCopy page="join" id="join.preparation" text={t('preparation')}>{t('preparation')}</FormattedCopy>}</h3>
               <p className="join-guide__lead">{publicCopy(joinInfo.preparation, '필요한 준비사항은 입단 문의를 통해 확인해 주세요.')}</p>
             </div>
           </div>
@@ -152,13 +153,13 @@ export function JoinGuide({ activeSection, applicationHref, faqs, getSectionHref
 
       <section aria-labelledby="join-practice-title" id="practice" className="join-guide__section">
         <div className="join-guide__section-grid join-guide__container">
-          <h2 id="join-practice-title">{t('practice')}</h2>
+          <h2 id="join-practice-title">{<FormattedCopy page="join" id="join.practice" text={t('practice')}>{t('practice')}</FormattedCopy>}</h2>
           <div className="join-guide__content join-guide__practice">
-            <h3>{t('regular')}</h3>
+            <h3>{<FormattedCopy page="join" id="join.regular" text={t('regular')}>{t('regular')}</FormattedCopy>}</h3>
             <p className="join-guide__schedule">{publicCopy(joinInfo.rehearsal_time, '연습 시간은 입단 문의를 통해 확인해 주세요.')}</p>
             <p className="join-guide__body">{publicCopy(joinInfo.rehearsal_location, '연습 장소는 입단 문의를 통해 확인해 주세요.')}</p>
             <TransitionLink className="join-guide__text-link" to="/contact?section=location">
-              {t('location')} <span aria-hidden="true">↗</span>
+              {<FormattedCopy page="join" id="join.location" text={t('location')}>{t('location')}</FormattedCopy>} <span aria-hidden="true">↗</span>
             </TransitionLink>
           </div>
         </div>
@@ -166,7 +167,7 @@ export function JoinGuide({ activeSection, applicationHref, faqs, getSectionHref
 
       <section aria-labelledby="join-faq-title" id="faq" className="join-guide__section">
         <div className="join-guide__section-grid join-guide__container">
-          <h2 id="join-faq-title">{t('faq')}</h2>
+          <h2 id="join-faq-title">{<FormattedCopy page="join" id="join.faq" text={t('faq')}>{t('faq')}</FormattedCopy>}</h2>
           <div className="join-guide__faqs">
             {visibleFaqs.length ? visibleFaqs.map((faq, index) => {
               const isOpen = openFaqId === faq.id
@@ -194,8 +195,8 @@ export function JoinGuide({ activeSection, applicationHref, faqs, getSectionHref
               )
             }) : (
               <div className="join-guide__faq-empty">
-                <p className="join-guide__body">{t('faqEmpty')}</p>
-                <TransitionLink className="join-guide__text-link" to="/contact#form">{t('inquiry')}</TransitionLink>
+                <p className="join-guide__body">{<FormattedCopy page="join" id="join.faqEmpty" text={t('faqEmpty')}>{t('faqEmpty')}</FormattedCopy>}</p>
+                <TransitionLink className="join-guide__text-link" to="/contact#form">{<FormattedCopy page="join" id="join.inquiry" text={t('inquiry')}>{t('inquiry')}</FormattedCopy>}</TransitionLink>
               </div>
             )}
           </div>
@@ -205,8 +206,8 @@ export function JoinGuide({ activeSection, applicationHref, faqs, getSectionHref
       <section aria-labelledby="join-ready-title" className="join-guide__ready join-guide__section--cool">
         <div className="join-guide__ready-grid join-guide__container">
           <div>
-            <h2 id="join-ready-title">{t('ready')}</h2>
-            <TransitionLink className="join-guide__text-link" to="/contact#form">{t('relatedInquiry')} <span aria-hidden="true">↗</span></TransitionLink>
+            <h2 id="join-ready-title">{<FormattedCopy page="join" id="join.ready" text={t('ready')}>{t('ready')}</FormattedCopy>}</h2>
+            <TransitionLink className="join-guide__text-link" to="/contact#form">{<FormattedCopy page="join" id="join.relatedInquiry" text={t('relatedInquiry')}>{t('relatedInquiry')}</FormattedCopy>} <span aria-hidden="true">↗</span></TransitionLink>
           </div>
           {applicationLink}
         </div>

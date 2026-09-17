@@ -6,6 +6,7 @@ import {
 } from 'react'
 
 import type { Concert } from '../../../types/content'
+import { HomeCopy } from '../../home/HomeCopy'
 import { formatKoreanDate } from '../../../utils/formatDate'
 import { Button } from '../../common/Button'
 import './HomeV4PerformanceCarousel.css'
@@ -314,7 +315,7 @@ function CurrentProgramTemplate({
                 showArrow={false}
                 variant="gold"
               >
-                {detailButtonLabel} <span aria-hidden="true">→</span>
+                <HomeCopy sourceKey="home.concertProgram.detailCtaLabel" text={detailButtonLabel} /> <span aria-hidden="true">→</span>
               </Button>
               <Button
                 href="/sample/contact?section=performance"
@@ -477,9 +478,9 @@ export function HomeV4PerformanceCarousel({
         <div className="home-v4-performance-carousel__rail" aria-hidden="true">
           <span />
         </div>
-        <h2>{title}</h2>
+        <h2><HomeCopy sourceKey="home.concertProgram.title" text={title} /></h2>
         <p className="home-v4-performance-carousel__description">
-          {description}
+          <HomeCopy sourceKey="home.concertProgram.description" text={description} />
         </p>
         <div className="home-v4-performance-carousel__active-copy" aria-live="polite">
           <p>NEXT CONCERT</p>
@@ -501,10 +502,10 @@ export function HomeV4PerformanceCarousel({
             showArrow={false}
             variant="gold"
           >
-            {detailButtonLabel} <span aria-hidden="true">→</span>
+            <HomeCopy sourceKey="home.concertProgram.detailCtaLabel" text={detailButtonLabel} /> <span aria-hidden="true">→</span>
           </Button>
           <Button href="/sample/concerts" showArrow={false} variant="secondary">
-            {concertButtonLabel} <span aria-hidden="true">→</span>
+            <HomeCopy sourceKey="home.concertProgram.desktopConcertsCtaLabel" text={concertButtonLabel} /> <span aria-hidden="true">→</span>
           </Button>
         </div>
         <ol

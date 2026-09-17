@@ -1,4 +1,6 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { HomeCopy } from './HomeCopy'
+import { splitHomeCopyLines } from '../../lib/homeCopySlices'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 
@@ -186,6 +188,7 @@ function HomeSpiritChorusOrbitDesktop({
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean)
+  const orbitHeadlineSlices = splitHomeCopyLines(wrapper.orbitHeadline)
 
   const cancelHoverClose = () => {
     if (hoverCloseTimerRef.current === null) {
@@ -274,18 +277,18 @@ function HomeSpiritChorusOrbitDesktop({
               className="home-spirit-chorus-orbit__center-default"
             >
               <p className="home-spirit-chorus-orbit__eyebrow">
-                {wrapper.orbitEyebrow}
+                <HomeCopy sourceKey="home.spiritWrapper.orbitEyebrow" text={wrapper.orbitEyebrow} />
               </p>
               <h2
                 className="home-spirit-chorus-orbit__headline"
                 id="home-spirit-chorus-orbit-heading"
               >
-                {orbitHeadlineLines.map((line) => (
-                  <span key={line}>{line}</span>
+                {orbitHeadlineLines.map((line, index) => (
+                  <span key={line}><HomeCopy sourceKey="home.spiritWrapper.orbitHeadline" text={line} fullText={wrapper.orbitHeadline} offset={orbitHeadlineSlices[index].offset} /></span>
                 ))}
               </h2>
               <p className="home-spirit-chorus-orbit__signature">
-                {wrapper.orbitSignature}
+                <HomeCopy sourceKey="home.spiritWrapper.orbitSignature" text={wrapper.orbitSignature} />
               </p>
             </div>
 
@@ -376,7 +379,7 @@ function HomeSpiritChorusOrbitDesktop({
             size="sm"
             variant="secondary"
           >
-            {wrapper.ctaLabel}
+            <HomeCopy sourceKey="home.spiritWrapper.ctaLabel" text={wrapper.ctaLabel} />
           </Button>
         </div>
       </Container>

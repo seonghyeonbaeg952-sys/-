@@ -16,16 +16,17 @@ export function AdminImagePreview({
     <OptimizedImage
       alt={alt}
       className={classNames(
-        'flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-button border border-line-default bg-linear-to-br from-blue-soft via-bg-ivory to-gold-soft text-center text-[11px] font-semibold leading-4 text-text-muted shadow-sm',
+        'admin-image-preview flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-button border border-line-default bg-bg-warm-white text-center text-[11px] font-semibold leading-4 text-text-muted shadow-sm',
         className,
       )}
       fallbackLabel="이미지 준비 중"
       fallbackVariant="profile"
+      objectFit="contain"
       sizes="64px"
       src={src}
       transform={{
         quality: 70,
-        resize: 'cover',
+        resize: 'contain',
         width: 160,
       }}
     />

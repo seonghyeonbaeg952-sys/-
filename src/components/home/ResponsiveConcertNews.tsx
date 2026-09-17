@@ -1,4 +1,5 @@
 import { useId } from 'react'
+import { HomeCopy } from './HomeCopy'
 
 import type { Concert, Notice } from '../../types/content'
 import { formatShortDate } from '../../utils/formatDate'
@@ -82,16 +83,16 @@ export function ResponsiveConcertNews({
     >
       <div className="responsive-concerts__content">
         <header className="responsive-concerts__heading">
-          {eyebrow ? <p className="responsive-concerts__eyebrow">{eyebrow}</p> : null}
-          <h2 id={headingId}>{title}</h2>
-          {description ? <p className="responsive-concerts__description">{description}</p> : null}
+          {eyebrow ? <p className="responsive-concerts__eyebrow"><HomeCopy sourceKey="home.concertProgram.eyebrowEn" text={eyebrow} /></p> : null}
+          <h2 id={headingId}><HomeCopy sourceKey="home.concertProgram.title" text={title} /></h2>
+          {description ? <p className="responsive-concerts__description"><HomeCopy sourceKey="home.concertProgram.responsiveDescription" text={description} /></p> : null}
         </header>
 
         {concert ? (
           <article className="responsive-concerts__ticket">
             <div className="responsive-concerts__date-panel">
               {responsiveCardEyebrow ? (
-                <p className="responsive-concerts__card-eyebrow">{responsiveCardEyebrow}</p>
+                <p className="responsive-concerts__card-eyebrow"><HomeCopy sourceKey="home.concertProgram.responsiveCardEyebrow" text={responsiveCardEyebrow} /></p>
               ) : null}
               {date ? (
                 <time aria-label={date.label} className="responsive-concerts__date" dateTime={concert.date}>
@@ -117,7 +118,7 @@ export function ResponsiveConcertNews({
                 href={`/concerts/${concert.id}`}
                 variant="gold"
               >
-                {detailButtonLabel}
+                <HomeCopy sourceKey="home.concertProgram.detailCtaLabel" text={detailButtonLabel} />
               </Button>
             </div>
           </article>
@@ -126,7 +127,7 @@ export function ResponsiveConcertNews({
             <EmptyState
               action={
                 <Button className="responsive-concerts__action" href="/concerts" variant="secondary">
-                  {emptyConcertButtonLabel}
+                  <HomeCopy sourceKey="home.concertProgram.emptyConcertCtaLabel" text={emptyConcertButtonLabel} />
                 </Button>
               }
               description={emptyConcertText}
@@ -137,12 +138,12 @@ export function ResponsiveConcertNews({
 
         <aside aria-labelledby={noticesHeadingId} className="responsive-concerts__notices">
           {programNoteLabel ? (
-            <p className="responsive-concerts__notice-eyebrow">{programNoteLabel}</p>
+            <p className="responsive-concerts__notice-eyebrow"><HomeCopy sourceKey="home.concertProgram.responsiveNoticeEyebrow" text={programNoteLabel} /></p>
           ) : null}
           <div className="responsive-concerts__notice-heading">
-            <h3 id={noticesHeadingId}>{noticePanelTitle}</h3>
+            <h3 id={noticesHeadingId}><HomeCopy sourceKey="home.concertProgram.noticePanelTitle" text={noticePanelTitle} /></h3>
             <Button className="responsive-concerts__all-notices" href="/notices" showArrow={false} size="sm" variant="ghost">
-              {noticePanelButtonLabel}
+              <HomeCopy sourceKey="home.concertProgram.noticePanelCtaLabel" text={noticePanelButtonLabel} />
               <span aria-hidden="true" className="btn-arrow responsive-concerts__notice-arrow--mobile">→</span>
               <span aria-hidden="true" className="btn-arrow responsive-concerts__notice-arrow--tablet">↗</span>
             </Button>
@@ -155,7 +156,7 @@ export function ResponsiveConcertNews({
                     <strong>{notice.title}</strong>
                     <span className="responsive-concerts__notice-date">
                       {notice.is_important && responsiveNoticeImportantLabel ? (
-                        <span className="responsive-concerts__notice-important">{responsiveNoticeImportantLabel} · </span>
+                        <span className="responsive-concerts__notice-important"><HomeCopy sourceKey="home.concertProgram.responsiveNoticeImportantLabel" text={responsiveNoticeImportantLabel} /> · </span>
                       ) : null}
                       <span className="responsive-concerts__notice-date--compact">{formatShortDate(notice.created_at).replaceAll(' ', '').replace(/\.$/, '')}</span>
                       <span className="responsive-concerts__notice-date--spaced">{formatShortDate(notice.created_at)}</span>
@@ -169,7 +170,7 @@ export function ResponsiveConcertNews({
               <EmptyState
                 action={
                   <Button className="responsive-concerts__action" href="/notices" variant="secondary">
-                    {emptyNoticeButtonLabel}
+                    <HomeCopy sourceKey="home.concertProgram.emptyNoticeCtaLabel" text={emptyNoticeButtonLabel} />
                   </Button>
                 }
                 description={emptyNoticeText}
@@ -180,7 +181,7 @@ export function ResponsiveConcertNews({
         </aside>
 
         <Button className="responsive-concerts__action responsive-concerts__all-concerts" href="/concerts" variant="secondary">
-          {concertButtonLabel}
+          <HomeCopy sourceKey="home.concertProgram.concertsCtaLabel" text={concertButtonLabel} />
         </Button>
       </div>
     </section>

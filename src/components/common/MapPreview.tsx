@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useMemo } from 'react'
 
@@ -54,11 +55,11 @@ export function MapPreview({
             className="absolute -right-12 -top-12 size-40 rounded-full border border-gold-soft/35 bg-gold-soft/18"
           />
           <StaffLines className="absolute inset-x-6 top-8 !w-auto opacity-50" density="light" variant="gold" />
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-ink">{copyText("common", "common.fixed.MapPreview.ec4ecc14f8", "LOCATION")}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-ink">{<FormattedCopy page="common" id="common.fixed.MapPreview.ec4ecc14f8" text={copyText("common", "common.fixed.MapPreview.ec4ecc14f8", "LOCATION")}>{copyText("common", "common.fixed.MapPreview.ec4ecc14f8", "LOCATION")}</FormattedCopy>}</p>
           <div className="mt-4 grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
             <div>
-              <h3 className="break-keep text-2xl font-semibold text-navy-deep md:text-3xl">{copyText("common", "common.fixed.MapPreview.46d7c6aaf1", "오시는 길")}</h3>
-              <p className="mt-3 break-keep text-sm leading-7 text-text-muted">{copyText("common", "common.fixed.MapPreview.707c918711", "아래 버튼을 눌러 지도 앱에서 위치를 확인하세요.")}</p>
+              <h3 className="break-keep text-2xl font-semibold text-navy-deep md:text-3xl">{<FormattedCopy page="common" id="common.fixed.MapPreview.46d7c6aaf1" text={copyText("common", "common.fixed.MapPreview.46d7c6aaf1", "오시는 길")}>{copyText("common", "common.fixed.MapPreview.46d7c6aaf1", "오시는 길")}</FormattedCopy>}</h3>
+              <p className="mt-3 break-keep text-sm leading-7 text-text-muted">{<FormattedCopy page="common" id="common.fixed.MapPreview.707c918711" text={copyText("common", "common.fixed.MapPreview.707c918711", "아래 버튼을 눌러 지도 앱에서 위치를 확인하세요.")}>{copyText("common", "common.fixed.MapPreview.707c918711", "아래 버튼을 눌러 지도 앱에서 위치를 확인하세요.")}</FormattedCopy>}</p>
               <div className="mt-5 rounded-button border border-line-default bg-bg-warm-white/82 px-4 py-3 shadow-[0_10px_24px_rgb(16_35_63/0.06)]">
                 <p className="text-sm font-semibold text-navy-deep">
                   {resolvedPlaceName}
@@ -90,7 +91,7 @@ export function MapPreview({
             ))}
           </div>
         ) : (
-          <p className="rounded-button bg-bg-ivory px-4 py-3 text-sm text-text-muted">{copyText("common", "common.fixed.MapPreview.51ced7f862", "지도 바로가기를 제공하지 않는 위치입니다. 위 주소를 확인해 주세요.")}</p>
+          <p className="rounded-button bg-bg-ivory px-4 py-3 text-sm text-text-muted">{<FormattedCopy page="common" id="common.fixed.MapPreview.51ced7f862" text={copyText("common", "common.fixed.MapPreview.51ced7f862", "지도 바로가기를 제공하지 않는 위치입니다. 위 주소를 확인해 주세요.")}>{copyText("common", "common.fixed.MapPreview.51ced7f862", "지도 바로가기를 제공하지 않는 위치입니다. 위 주소를 확인해 주세요.")}</FormattedCopy>}</p>
         )}
       </div>
       </Card>

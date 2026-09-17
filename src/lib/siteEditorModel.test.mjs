@@ -6,7 +6,10 @@ import ts from 'typescript'
 let model = {}
 try {
   const source = await readFile(new URL('./siteEditorModel.ts', import.meta.url), 'utf8')
-  const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText
+  const styleSource = await readFile(new URL('./siteEditorTextStyles.ts', import.meta.url), 'utf8')
+  const styles = ts.transpileModule(styleSource, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText
+  const stylesUrl = `data:text/javascript;base64,${Buffer.from(styles).toString('base64')}`
+  const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText.replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl))
   model = await import(`data:text/javascript;base64,${Buffer.from(compiled).toString('base64')}`)
 } catch (error) {
   if (error.code !== 'ENOENT') throw error

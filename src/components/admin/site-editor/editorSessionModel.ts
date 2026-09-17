@@ -1,9 +1,10 @@
-import type { EditorAppearance, EditorDevice, SiteCopyDefinition, SiteEditorDocument, SiteEditorPageRecord } from '../../../types/siteEditor'
+import type { EditorAppearance, EditorDevice, EditorStyledCopy, EditorTextRun, SiteCopyDefinition, SiteEditorDocument, SiteEditorPageRecord } from '../../../types/siteEditor'
+import { isEditorCopyText, rebaseTextRuns, resolveTextRuns, supportsTextSegmentation, validateTextStyles } from '../../../lib/siteEditorTextStyles'
 
 export type EditorScope = 'shared' | EditorDevice
 export type EditorChange = {
   id: string
-  kind: 'copy' | 'appearance'
+  kind: 'copy' | 'appearance' | 'textStyle'
   scope: EditorScope
   key: string
   before: string | number | undefined
@@ -30,6 +31,12 @@ function documentFields(document: SiteEditorDocument) {
   add('copy', 'shared', document.copy)
   for (const scope of ['mobile', 'tablet', 'desktop'] as const) add('copy', scope, document.deviceCopy[scope] ?? {})
   for (const scope of ['shared', 'mobile', 'tablet', 'desktop'] as const) add('appearance', scope, document.appearance[scope] ?? {})
+  for (const scope of ['shared', 'mobile', 'tablet', 'desktop'] as const) {
+    add('textStyle', scope, Object.fromEntries(Object.entries(document.textStyles?.[scope] ?? {}).map(([key, value]) => [key, JSON.stringify({
+      text: value.text,
+      runs: value.runs.map(run => ({ start: run.start, end: run.end, style: { fontFamily: run.style.fontFamily, fontSize: run.style.fontSize } })),
+    })])))
+  }
   return fields
 }
 
@@ -46,6 +53,9 @@ export function getEditorChanges(before: SiteEditorDocument, after: SiteEditorDo
 }
 
 function applyChange(document: SiteEditorDocument, change: EditorChange): SiteEditorDocument {
+  if (change.kind === 'textStyle') {
+    return setStyledCopy(document, change.scope, change.key, change.after === undefined ? undefined : JSON.parse(String(change.after)) as EditorStyledCopy)
+  }
   if (change.kind === 'appearance') {
     const values = { ...document.appearance[change.scope], [change.key]: change.after }
     if (change.after === undefined) delete values[change.key as keyof typeof values]
@@ -62,17 +72,61 @@ function applyChange(document: SiteEditorDocument, change: EditorChange): SiteEd
   return { ...document, deviceCopy }
 }
 
+function setStyledCopy(document: SiteEditorDocument, scope: EditorScope, key: string, copy: EditorStyledCopy | undefined): SiteEditorDocument {
+  const values = { ...document.textStyles?.[scope] }
+  if (copy === undefined) delete values[key]
+  else values[key] = structuredClone(copy)
+  const textStyles = { ...document.textStyles, [scope]: values }
+  if (Object.keys(values).length === 0) delete textStyles[scope]
+  const next: SiteEditorDocument = { ...document, textStyles }
+  if (Object.keys(textStyles).length === 0) delete next.textStyles
+  return next
+}
+
+function fieldGroup(field: Pick<EditorChange, 'kind' | 'scope' | 'key'>): string {
+  return JSON.stringify([field.kind === 'appearance' ? 'appearance' : 'text', field.scope, field.key])
+}
+
+/** A copy and its offsets always travel together through refresh/restore/conflicts. */
+function transferChange(target: SiteEditorDocument, source: SiteEditorDocument, change: EditorChange): SiteEditorDocument {
+  if (change.kind === 'appearance') return applyChange(target, change)
+  const copy = change.scope === 'shared' ? source.copy[change.key] : source.deviceCopy[change.scope]?.[change.key]
+  const next = applyChange(target, { ...change, kind: 'copy', after: copy })
+  return setStyledCopy(next, change.scope, change.key, source.textStyles?.[change.scope]?.[change.key])
+}
+
 export function createEditorSession(record: SiteEditorPageRecord): EditorSession {
   return { record: structuredClone(record), baseline: structuredClone(record.draft), document: structuredClone(record.draft), conflicts: [] }
 }
 
 export function replaceEditorDocument(session: EditorSession, document: SiteEditorDocument): EditorSession {
-  const fields = documentFields(document)
-  return { ...session, document, conflicts: session.conflicts.map((conflict) => ({ ...conflict, after: fields.get(conflict.id)?.value })) }
+  const conflictGroups = new Set(session.conflicts.map(fieldGroup))
+  return { ...session, document, conflicts: getEditorChanges(session.baseline, document).filter(change => conflictGroups.has(fieldGroup(change))) }
 }
 
 export function editSessionCopy(session: EditorSession, scope: EditorScope, key: string, value: string | undefined): EditorSession {
-  return replaceEditorDocument(session, applyChange(session.document, { id: JSON.stringify(['copy', scope, key]), kind: 'copy', scope, key, before: undefined, after: value }))
+  const original = session.document
+  let document = applyChange(original, { id: JSON.stringify(['copy', scope, key]), kind: 'copy', scope, key, before: undefined, after: value })
+  if (value === undefined) document = setStyledCopy(document, scope, key, undefined)
+  else if (isEditorCopyText(value) && supportsTextSegmentation) {
+    const existing = original.textStyles?.[scope]?.[key] ?? (scope !== 'shared' ? original.textStyles?.shared?.[key] : undefined)
+    const previousValue = (scope !== 'shared' ? original.deviceCopy[scope]?.[key] : undefined) ?? original.copy[key]
+    // Invalid intermediate typing is kept for the normal save validator. Its last
+    // valid snapshot remains dormant, then can be rebased when text is valid again.
+    const oldText = isEditorCopyText(previousValue) ? previousValue : existing?.text
+    if (existing && oldText !== undefined) {
+      const runs = rebaseTextRuns(oldText, value, resolveTextRuns(original, scope, key, oldText))
+      document = setStyledCopy(document, scope, key, { text: value, runs })
+    }
+  }
+  return replaceEditorDocument(session, document)
+}
+
+export function editSessionTextStyle(session: EditorSession, scope: EditorScope, key: string, text: string, runs: EditorTextRun[]): EditorSession {
+  const error = validateTextStyles({ [scope]: { [key]: { text, runs } } })
+  if (error) throw new RangeError(error)
+  const document = applyChange(session.document, { id: JSON.stringify(['copy', scope, key]), kind: 'copy', scope, key, before: undefined, after: text })
+  return replaceEditorDocument(session, setStyledCopy(document, scope, key, { text, runs }))
 }
 
 export function editSessionAppearance<K extends keyof EditorAppearance>(session: EditorSession, scope: EditorScope, key: K, value: EditorAppearance[K] | undefined): EditorSession {
@@ -87,11 +141,11 @@ export function acceptEditorSave(session: EditorSession, record: SiteEditorPageR
 export function reconcileEditorSession(session: EditorSession, record: SiteEditorPageRecord): EditorSession {
   if (record.version < session.record.version) return session
   const localChanges = getEditorChanges(session.baseline, session.document)
-  const remoteChanges = new Set(getEditorChanges(session.baseline, record.draft).map((change) => change.id))
-  for (const conflict of session.conflicts) remoteChanges.add(conflict.id)
+  const remoteChanges = new Set(getEditorChanges(session.baseline, record.draft).map(fieldGroup))
+  for (const conflict of session.conflicts) remoteChanges.add(fieldGroup(conflict))
   let document = structuredClone(record.draft)
-  for (const change of localChanges) document = applyChange(document, change)
-  const conflicts = getEditorChanges(record.draft, document).filter((change) => remoteChanges.has(change.id))
+  for (const change of localChanges) document = transferChange(document, session.document, change)
+  const conflicts = getEditorChanges(record.draft, document).filter((change) => remoteChanges.has(fieldGroup(change)))
   return { record: structuredClone(record), baseline: structuredClone(record.draft), document, conflicts }
 }
 
@@ -100,15 +154,15 @@ export function resolveEditorConflict(session: EditorSession, id: string, choice
   if (!conflict) return session
   return {
     ...session,
-    document: choice === 'server' ? applyChange(session.document, { ...conflict, after: conflict.before }) : session.document,
-    conflicts: session.conflicts.filter((change) => change.id !== id),
+    document: choice === 'server' ? transferChange(session.document, session.baseline, { ...conflict, after: conflict.before }) : session.document,
+    conflicts: session.conflicts.filter((change) => fieldGroup(change) !== fieldGroup(conflict)),
   }
 }
 
 export function acceptEditorRestore(session: EditorSession, submitted: SiteEditorDocument, record: SiteEditorPageRecord): EditorSession {
   if (record.version < session.record.version) return session
   let document = structuredClone(record.draft)
-  for (const change of getEditorChanges(submitted, session.document)) document = applyChange(document, change)
+  for (const change of getEditorChanges(submitted, session.document)) document = transferChange(document, session.document, change)
   return { record: structuredClone(record), baseline: structuredClone(record.draft), document, conflicts: [] }
 }
 
@@ -117,6 +171,10 @@ export function resetEditorScope(session: EditorSession, scope: EditorScope): Ed
   if (scope === 'shared') document.copy = {}
   else delete document.deviceCopy[scope]
   delete document.appearance[scope]
+  if (document.textStyles) {
+    delete document.textStyles[scope]
+    if (Object.keys(document.textStyles).length === 0) delete document.textStyles
+  }
   return replaceEditorDocument(session, document)
 }
 

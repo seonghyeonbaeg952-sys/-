@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
@@ -133,8 +134,8 @@ export function ConcertFilterDrawer({
       >
         <div className="concert-filter-drawer__header">
           <div>
-            <p className="concert-filter-drawer__eyebrow">{copyText("concerts", "concerts.fixed.ConcertFilterDrawer.085d6ee60c", "CONCERT FILTER")}</p>
-            <h2 id={titleId}>{t('filterTitle')}</h2>
+            <p className="concert-filter-drawer__eyebrow">{<FormattedCopy page="concerts" id="concerts.fixed.ConcertFilterDrawer.085d6ee60c" text={copyText("concerts", "concerts.fixed.ConcertFilterDrawer.085d6ee60c", "CONCERT FILTER")}>{copyText("concerts", "concerts.fixed.ConcertFilterDrawer.085d6ee60c", "CONCERT FILTER")}</FormattedCopy>}</p>
+            <h2 id={titleId}>{<FormattedCopy page="concerts" id="concerts.filterTitle" text={t('filterTitle')}>{t('filterTitle')}</FormattedCopy>}</h2>
           </div>
           <button
             aria-label={t('close')}
@@ -149,7 +150,7 @@ export function ConcertFilterDrawer({
 
         <div className="concert-filter-drawer__fields">
           <div>
-            <span>{t('filterDate')}</span>
+            <span>{<FormattedCopy page="concerts" id="concerts.filterDate" text={t('filterDate')}>{t('filterDate')}</FormattedCopy>}</span>
             <FilterSelect
               label={t('dateFilter')}
               onChange={onYearChange}
@@ -158,7 +159,7 @@ export function ConcertFilterDrawer({
             />
           </div>
           <div>
-            <span>{t('categoryFilter')}</span>
+            <span>{<FormattedCopy page="concerts" id="concerts.categoryFilter" text={t('categoryFilter')}>{t('categoryFilter')}</FormattedCopy>}</span>
             <FilterSelect
               label={t('categoryFilter')}
               onChange={onCategoryChange}
@@ -170,14 +171,14 @@ export function ConcertFilterDrawer({
 
         <div className="concert-filter-drawer__footer">
           <button className="concert-filter-drawer__reset" onClick={onReset} type="button">
-            {t('reset')}
+            {<FormattedCopy page="concerts" id="concerts.reset" text={t('reset')}>{t('reset')}</FormattedCopy>}
           </button>
           <button
             className="concert-filter-drawer__apply"
             onClick={() => onCloseRef.current()}
             type="button"
           >
-            {resultCount}{t('showResults')}
+            {resultCount}{<FormattedCopy page="concerts" id="concerts.showResults" text={t('showResults')}>{t('showResults')}</FormattedCopy>}
           </button>
         </div>
       </div>

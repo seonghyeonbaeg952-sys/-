@@ -11,6 +11,7 @@ import type { SiteEditorDocuments } from '../../types/siteEditor'
 import { SiteEditorContext } from './useSiteEditor'
 import previewCss from './site-editor-public.css?inline'
 import editorFontFaces from './site-editor-fonts.css?inline'
+import textStyleCss from './site-editor-text-styles.css?inline'
 
 export function SiteEditorProvider({ children }: { children: ReactNode }) {
   const location = useLocation()
@@ -27,7 +28,8 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
     ? { ...published, ...preview.documents } : published, [isPreview, nonce, page, preview, published])
   const copy = useCallback((target: Parameters<typeof resolveEditorCopy>[1], key: string, fallback: string) =>
     resolveEditorCopy(documents, target, key, fallback, device), [documents, device])
-  const css = useMemo(() => page ? buildEditorCss(documents, page) : '', [documents, page])
+  const hasTextStyles = page ? [documents.common, documents[page]].some(document => Object.values(document?.textStyles ?? {}).some(values => Object.values(values ?? {}).some(copy => copy.runs.length > 0))) : false
+  const css = useMemo(() => page ? buildEditorCss(documents, page) + (hasTextStyles ? textStyleCss : '') : '', [documents, page, hasTextStyles])
   const context = useMemo(() => ({ copy, documents, device, isPreview }), [copy, documents, device, isPreview])
 
   useEffect(() => {
@@ -124,7 +126,7 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
 
   return (
     <SiteEditorContext value={context}>
-      {css || isPreview ? <style>{css.includes('"Gothic A1"') ? editorFontFaces : ''}{isPreview ? previewCss : ''}{css}</style> : null}
+      {css || isPreview ? <style>{css.includes('"Gothic A1"') || hasTextStyles ? editorFontFaces : ''}{isPreview ? previewCss : ''}{css}</style> : null}
       {isPreview ? <div className="site-editor-preview-banner" role="status">초안 미리보기 · 실제 접수는 차단됩니다.{notice ? <span>{notice}</span> : null}</div> : null}
       {children}
     </SiteEditorContext>

@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { NavLink } from 'react-router'
 
 import { mockSiteSettings } from '../../constants/mockData'
@@ -142,8 +143,8 @@ export function Footer() {
               variant="symbol"
             />
             <span className="footer-utility__brand-copy">
-              <strong>{copyText("common", "common.fixed.Footer.9bb6e639c7", "서울모테트청소년합창단")}</strong>
-              <span>{copyText("common", "common.fixed.Footer.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</span>
+              <strong>{<FormattedCopy page="common" id="common.fixed.Footer.9bb6e639c7" text={copyText("common", "common.fixed.Footer.9bb6e639c7", "서울모테트청소년합창단")}>{copyText("common", "common.fixed.Footer.9bb6e639c7", "서울모테트청소년합창단")}</FormattedCopy>}</strong>
+              <span>{<FormattedCopy page="common" id="common.fixed.Footer.f34c03131f" text={copyText("common", "common.fixed.Footer.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}>{copyText("common", "common.fixed.Footer.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</FormattedCopy>}</span>
             </span>
           </NavLink>
 
@@ -240,7 +241,7 @@ export function Footer() {
         <div aria-hidden="true" className="footer-utility__divider footer-utility__divider--legal" />
 
         <div className="footer-utility__legal">
-          <p>© {currentYear}{copyText("common", "common.fixed.Footer.189e34321f", " Seoul Motet Youth Choir. All rights reserved.")}</p>
+          <p>© {currentYear}{<FormattedCopy page="common" id="common.fixed.Footer.189e34321f" text={copyText("common", "common.fixed.Footer.189e34321f", " Seoul Motet Youth Choir. All rights reserved.")}>{copyText("common", "common.fixed.Footer.189e34321f", " Seoul Motet Youth Choir. All rights reserved.")}</FormattedCopy>}</p>
           <NavLink className="footer-utility__admin-link" to="/admin/login">
             {copy('common', 'common.footer.admin', '관리자 로그인')}
           </NavLink>

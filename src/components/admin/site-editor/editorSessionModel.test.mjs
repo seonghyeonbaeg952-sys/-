@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict'
-import { after, test } from 'node:test'
-import { createServer } from 'vite'
+import { test } from 'node:test'
+import { readFile } from 'node:fs/promises'
+import ts from 'typescript'
 
-const vite = await createServer({ configFile: false, appType: 'custom', cacheDir: 'node_modules/.vite-site-editor-session-test', logLevel: 'silent', root: process.cwd(), server: { middlewareMode: true } })
-const model = await vite.ssrLoadModule('/src/components/admin/site-editor/editorSessionModel.ts').catch(() => ({}))
-after(() => vite.close())
+const compile = source => ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText
+const moduleUrl = source => `data:text/javascript;base64,${Buffer.from(compile(source)).toString('base64')}`
+const stylesUrl = moduleUrl(await readFile(new URL('../../../lib/siteEditorTextStyles.ts', import.meta.url), 'utf8'))
+const model = await import(moduleUrl((await readFile(new URL('./editorSessionModel.ts', import.meta.url), 'utf8')).replaceAll("'../../../lib/siteEditorTextStyles'", JSON.stringify(stylesUrl))))
 
 const empty = () => ({ schemaVersion: 1, copy: {}, deviceCopy: {}, appearance: {} })
 const record = (draft = empty(), version = 0) => ({ page_key: 'join', draft, published: null, version, updated_at: '', published_at: null })
@@ -150,4 +152,84 @@ test('conflict comparison tracks further edits to the local value', () => {
   session = model.editSessionCopy(session, 'shared', 'title', '재검토한 입력')
   assert.equal(session.conflicts[0].after, '재검토한 입력')
   assert.equal(session.conflicts[0].before, '다른 관리자')
+})
+
+const run = (start, end, fontSize = 24) => ({ start, end, style: { fontSize } })
+
+test('character formatting stores the exact copy with styles and text edits rebase preserved characters', () => {
+  assert.equal(typeof model.editSessionTextStyle, 'function')
+  let session = model.editSessionTextStyle(start(), 'shared', 'title', 'abcd', [run(0, 4)])
+  assert.equal(session.document.copy.title, 'abcd')
+  assert.deepEqual(session.document.textStyles.shared.title, { text: 'abcd', runs: [run(0, 4)] })
+  assert.ok(model.getEditorChanges(session.baseline, session.document).some(change => change.kind === 'textStyle'))
+  session = model.editSessionCopy(session, 'shared', 'title', 'abXXcd')
+  assert.deepEqual(session.document.textStyles.shared.title, { text: 'abXXcd', runs: [run(0, 2), run(4, 6)] })
+  session = model.editSessionCopy(session, 'shared', 'title', undefined)
+  assert.equal(session.document.textStyles?.shared?.title, undefined)
+})
+
+test('copy versus style concurrent edits conflict and each resolution preserves a coherent pair', () => {
+  assert.equal(typeof model.editSessionTextStyle, 'function')
+  const base = { ...empty(), copy: { title: 'abcd' } }
+  let local = model.editSessionTextStyle(start(base), 'shared', 'title', 'abcd', [run(0, 4)])
+  local = model.reconcileEditorSession(local, record({ ...empty(), copy: { title: 'different', other: 'server' } }, 1))
+  assert.equal(local.document.copy.title, 'abcd')
+  assert.ok(local.conflicts.length > 0)
+  const server = model.resolveEditorConflict(local, local.conflicts[0].id, 'server')
+  assert.equal(server.document.copy.title, 'different')
+  assert.equal(server.document.textStyles?.shared?.title, undefined)
+  assert.equal(server.conflicts.length, 0)
+  assert.equal(server.document.copy.other, 'server')
+  const mine = model.resolveEditorConflict(local, local.conflicts[0].id, 'local')
+  assert.equal(mine.document.copy.title, 'abcd')
+  assert.deepEqual(mine.document.textStyles.shared.title.runs, [run(0, 4)])
+  assert.equal(mine.conflicts.length, 0)
+})
+
+test('concurrent remote style and local copy edits never attach old offsets to the new text', () => {
+  assert.equal(typeof model.editSessionTextStyle, 'function')
+  const base = { ...empty(), copy: { title: 'abcd' } }
+  let local = model.editSessionCopy(start(base), 'shared', 'title', 'different')
+  const remote = model.editSessionTextStyle(start(base), 'shared', 'title', 'abcd', [run(0, 4)])
+  local = model.reconcileEditorSession(local, record(remote.document, 1))
+  assert.ok(local.conflicts.length > 0)
+  assert.equal(local.document.copy.title, 'different')
+  assert.equal(local.document.textStyles?.shared?.title, undefined)
+  const server = model.resolveEditorConflict(local, local.conflicts[0].id, 'server')
+  assert.equal(server.document.copy.title, 'abcd')
+  assert.deepEqual(server.document.textStyles.shared.title.runs, [run(0, 4)])
+})
+
+test('scope reset and restore retain unrelated styles plus edits made while restore is pending', () => {
+  assert.equal(typeof model.editSessionTextStyle, 'function')
+  let session = model.editSessionTextStyle(start(), 'mobile', 'title', 'abc', [run(0, 3)])
+  session = model.editSessionTextStyle(session, 'desktop', 'title', 'abcd', [run(0, 4)])
+  const reset = model.resetEditorScope(session, 'mobile')
+  assert.equal(reset.document.textStyles?.mobile, undefined)
+  assert.deepEqual(reset.document.textStyles.desktop.title.runs, [run(0, 4)])
+  const submitted = structuredClone(session.document)
+  session = model.editSessionTextStyle(session, 'mobile', 'title', 'abc', [run(0, 3, 30)])
+  session = model.acceptEditorRestore(session, submitted, record(empty(), 1))
+  assert.equal(session.document.deviceCopy.mobile.title, 'abc')
+  assert.deepEqual(session.document.textStyles.mobile.title.runs, [run(0, 3, 30)])
+  assert.equal(session.document.textStyles?.desktop, undefined)
+})
+
+test('JSONB key ordering never invents unsaved style changes after a successful save', () => {
+  const local = { ...empty(), copy: { title: 'ab' }, textStyles: { shared: { title: { text: 'ab', runs: [{ start: 0, end: 2, style: { fontFamily: 'hahmlet', fontSize: 24 } }] } } } }
+  const server = { ...empty(), copy: { title: 'ab' }, textStyles: { shared: { title: { runs: [{ end: 2, style: { fontSize: 24, fontFamily: 'hahmlet' }, start: 0 }], text: 'ab' } } } }
+  assert.deepEqual(model.getEditorChanges(server, local), [])
+  const session = model.acceptEditorSave(start(local), record(server, 1))
+  assert.equal(model.getEditorStatus(session).unsavedCount, 0)
+  assert.equal(model.getEditorStatus(session).canPublish, true)
+})
+
+test('temporarily invalid typed text stays editable without losing the previous formatting snapshot', () => {
+  let session = model.editSessionTextStyle(start(), 'shared', 'title', 'abcd', [run(0, 4)])
+  session = model.editSessionCopy(session, 'shared', 'title', '<b>abcd')
+  assert.equal(session.document.copy.title, '<b>abcd')
+  assert.deepEqual(session.document.textStyles.shared.title, { text: 'abcd', runs: [run(0, 4)] })
+  session = model.editSessionCopy(session, 'shared', 'title', 'abcde')
+  assert.equal(session.document.copy.title, 'abcde')
+  assert.deepEqual(session.document.textStyles.shared.title, { text: 'abcde', runs: [run(0, 4)] })
 })

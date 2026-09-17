@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { SiteCopy } from '../site-editor/SiteCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import {
@@ -217,7 +218,7 @@ function Introduction() {
           />
           <span aria-hidden="true" className="about-overview__photo-accent" />
           <figcaption className="about-overview__glass-caption">
-            <span>{copyText("about", "about.fixed.AboutOverviewExperience.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</span>
+            <span>{<FormattedCopy page="about" id="about.fixed.AboutOverviewExperience.f34c03131f" text={copyText("about", "about.fixed.AboutOverviewExperience.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}>{copyText("about", "about.fixed.AboutOverviewExperience.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</FormattedCopy>}</span>
             <strong><SiteCopy page="about" id="about.introduction.text7" fallback={"서로 다른 목소리가"} /><br /><SiteCopy page="about" id="about.introduction.text8" fallback={"하나의 공동체가 됩니다."} /></strong>
           </figcaption>
           <div className="about-overview__tour-badge">
@@ -272,8 +273,8 @@ function FoundingStory() {
         </RevealBlock>
 
         <div className="about-overview__founding-meta">
-          <span>{copyText("about", "about.fixed.AboutOverviewExperience.d1a873e08d", "SEOUL MOTET MUSIC FOUNDATION · YOUTH ACADEMY")}</span>
-          <strong>{copyText("about", "about.fixed.AboutOverviewExperience.6a7b704f6f", "2018 EUROPE  /  2020 NETFLIX  /  2023 tvN  /  2025 EUROPE")}</strong>
+          <span>{<FormattedCopy page="about" id="about.fixed.AboutOverviewExperience.d1a873e08d" text={copyText("about", "about.fixed.AboutOverviewExperience.d1a873e08d", "SEOUL MOTET MUSIC FOUNDATION · YOUTH ACADEMY")}>{copyText("about", "about.fixed.AboutOverviewExperience.d1a873e08d", "SEOUL MOTET MUSIC FOUNDATION · YOUTH ACADEMY")}</FormattedCopy>}</span>
+          <strong>{<FormattedCopy page="about" id="about.fixed.AboutOverviewExperience.6a7b704f6f" text={copyText("about", "about.fixed.AboutOverviewExperience.6a7b704f6f", "2018 EUROPE  /  2020 NETFLIX  /  2023 tvN  /  2025 EUROPE")}>{copyText("about", "about.fixed.AboutOverviewExperience.6a7b704f6f", "2018 EUROPE  /  2020 NETFLIX  /  2023 tvN  /  2025 EUROPE")}</FormattedCopy>}</strong>
         </div>
       </div>
     </section>

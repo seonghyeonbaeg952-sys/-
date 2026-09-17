@@ -1,4 +1,6 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { HomeCopy } from './HomeCopy'
+import { splitHomeCopyLines } from '../../lib/homeCopySlices'
 import {
   useEffect,
   useRef,
@@ -243,7 +245,7 @@ export function JoinOpenScoreCTA({
               className="join-open-score__eyebrow join-open-score__reveal"
               style={getRevealStyle(120)}
             >
-              {content.eyebrowEn}
+              <HomeCopy sourceKey="home.current.join.eyebrowEn" text={content.eyebrowEn} />
             </p>
             <h2
               className="join-open-score__title join-open-score__reveal"
@@ -262,6 +264,9 @@ export function JoinOpenScoreCTA({
                     <HomeDisplayTitleText
                       accents={HOME_TITLE_ACCENTS.join}
                       text={line}
+                      sourceKey="home.current.join.title"
+                      fullText={content.title}
+                      offset={splitHomeCopyLines(content.title)[index].offset}
                     />
                   </span>
                 ))}
@@ -272,13 +277,13 @@ export function JoinOpenScoreCTA({
             >
               <span className="sr-only">{content.description}</span>
               <span aria-hidden="true">
-                {descriptionLead}
+                <HomeCopy sourceKey="home.current.join.description" text={descriptionLead} fullText={content.description} />
                 {descriptionDetail ? <br /> : null}
                 <span className="join-open-score__description--desktop">
-                  {descriptionDetail}
+                  <HomeCopy sourceKey="home.current.join.description" text={descriptionDetail} fullText={content.description} offset={descriptionDivider + 1 + content.description.slice(descriptionDivider + 1).indexOf(descriptionDetail)} />
                 </span>
                 <span className="join-open-score__description--compact">
-                  {content.compactDescription}
+                  <HomeCopy sourceKey="home.current.join.compactDescription" text={content.compactDescription} />
                 </span>
               </span>
             </p>
@@ -294,7 +299,7 @@ export function JoinOpenScoreCTA({
                 showArrow={false}
                 size="lg"
               >
-                <span>{buttonLabel || content.ctaLabel}</span>
+                <span><HomeCopy sourceKey="home.current.join.ctaLabel" text={buttonLabel || content.ctaLabel} /></span>
                 <span aria-hidden="true">→</span>
               </Button>
               <Button
@@ -304,7 +309,7 @@ export function JoinOpenScoreCTA({
                 size="lg"
                 variant="secondary"
               >
-                <span>{content.secondaryCtaLabel}</span>
+                <span><HomeCopy sourceKey="home.current.join.secondaryCtaLabel" text={content.secondaryCtaLabel} /></span>
                 <span aria-hidden="true">→</span>
               </Button>
             </div>

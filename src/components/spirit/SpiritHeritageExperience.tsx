@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { SiteCopy } from '../site-editor/SiteCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import {
@@ -344,7 +345,7 @@ function SpiritHero({ copy }: { copy: SpiritCopy }) {
       <div aria-hidden="true" className="spirit-heritage__hero-veil" />
 
       <div className="spirit-heritage__hero-inner">
-        <div className="spirit-heritage__eyebrow spirit-heritage__eyebrow--hero">{copyText("spirit", "spirit.fixed.SpiritHeritageExperience.12198036a1", "SEOUL MOTET YOUTH CHOIR · ")}<SiteCopy page="spirit" id="spirit.spiritHero.english1" fallback={"SPIRIT"} /></div>
+        <div className="spirit-heritage__eyebrow spirit-heritage__eyebrow--hero">{<FormattedCopy page="spirit" id="spirit.fixed.SpiritHeritageExperience.12198036a1" text={copyText("spirit", "spirit.fixed.SpiritHeritageExperience.12198036a1", "SEOUL MOTET YOUTH CHOIR · ")}>{copyText("spirit", "spirit.fixed.SpiritHeritageExperience.12198036a1", "SEOUL MOTET YOUTH CHOIR · ")}</FormattedCopy>}<SiteCopy page="spirit" id="spirit.spiritHero.english1" fallback={"SPIRIT"} /></div>
         <motion.h1
           className="spirit-heritage__display-title"
           data-node-id="45:2"

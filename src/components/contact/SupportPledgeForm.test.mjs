@@ -1,9 +1,14 @@
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
-import { test } from 'node:test'
+import { after, test } from 'node:test'
 import vm from 'node:vm'
 import ts from 'typescript'
+import { createServer } from 'vite'
+
+const vite = await createServer({ configFile: false, appType: 'custom', logLevel: 'silent', server: { middlewareMode: true } })
+after(() => vite.close())
+const formattedCopy = await vite.ssrLoadModule('/src/components/site-editor/FormattedCopy.tsx')
 
 const require = createRequire(import.meta.url)
 const intakeModule = ts.transpileModule(await readFile(new URL('../../lib/intakeModel.ts', import.meta.url), 'utf8'), { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText
@@ -41,6 +46,7 @@ async function loadForm(overrides = {}, submit = async () => ({ data: true, erro
     '../../lib/intakeModel': intakeModel,
     '../../constants/spiritContent': { supportSpiritCopy: { title: '후원 제목', body: '후원 본문', notice: '후원 안내', eyebrow: 'SUPPORT' }, donorCareItems: [], supportMethodItems: [] },
     '../site-editor/useSiteEditor': { useSiteEditor: () => ({ copy: (_page, key, fallback) => Object.hasOwn(editorCopy, key) ? editorCopy[key] : fallback }) },
+    '../site-editor/FormattedCopy': formattedCopy,
     '../common/Button': { Button: 'button' }, '../common/StaffLines': { StaffLines: 'StaffLines' }, '../common/Spirit': { SpiritRibbon: 'SpiritRibbon' },
   }
   const sandbox = { exports, require: name => {

@@ -1,4 +1,6 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { HomeCopy } from './HomeCopy'
+import { splitHomeCopyLines, splitHomeParagraphCopy } from '../../lib/homeCopySlices'
 import type { GalleryImage } from '../../types/content'
 import type { SiteSettings } from '../../types/content'
 import type { HomeProgramItem } from '../../types/homeContent'
@@ -42,7 +44,7 @@ type AboutPreviewProps = {
   programTitle?: string
   settings?: Pick<SiteSettings, 'instagram_url' | 'youtube_url'>
   summary?: string
-  responsiveContent?: Partial<AboutResponsiveCopy>
+  responsiveContent?: Partial<AboutResponsiveCopy> & { paragraphs?: string[] }
   title?: string
 }
 
@@ -115,7 +117,7 @@ type CollectivePortraitProps = Pick<
   | 'label'
   | 'summary'
   | 'title'
->
+> & { sourceParagraphs?: readonly string[] }
 
 function CollectivePortrait({
   buttonLabel = '합창단 소개 보기',
@@ -124,6 +126,7 @@ function CollectivePortrait({
   kicker = 'ABOUT',
   label = '소개',
   summary,
+  sourceParagraphs,
   title = '함께 빚어가는 화음,\n다음 세대의 노래',
 }: CollectivePortraitProps) {
   const { copy: copyText } = useSiteEditor()
@@ -136,7 +139,9 @@ function CollectivePortrait({
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean)
+  const titleSlices = splitHomeCopyLines(title)
   const summaryLines = getSummaryParagraphs(summary)
+  const summaryParts = sourceParagraphs && sourceParagraphs.join('\n\n') === summary ? splitHomeParagraphCopy(sourceParagraphs) : []
 
   return (
     <section
@@ -163,15 +168,18 @@ function CollectivePortrait({
           >
             <div className="home-about-portrait__eyebrow">
               <span aria-hidden="true" />
-              <p>{kicker}</p>
+              <p><HomeCopy sourceKey="home.current.about.eyebrowEn" text={kicker} /></p>
               <i aria-hidden="true" />
             </div>
             <h2 id="home-about-portrait-title">
-              {titleLines.map((line) => (
+              {titleLines.map((line, index) => (
                 <span key={line}>
                   <HomeDisplayTitleText
                     accents={HOME_TITLE_ACCENTS.about}
                     text={line}
+                    sourceKey="home.current.about.title"
+                    fullText={title}
+                    offset={titleSlices[index].offset}
                   />
                 </span>
               ))}
@@ -186,7 +194,7 @@ function CollectivePortrait({
             <p>
               {summaryLines.map((line, index) => (
                 <span key={line}>
-                  {line}
+                  <HomeCopy sourceKey={summaryParts[index]?.sourceKey ?? ''} text={line} parts={summaryParts[index] ? [summaryParts[index]] : undefined} />
                   {index < summaryLines.length - 1 ? <br /> : null}
                 </span>
               ))}
@@ -243,9 +251,9 @@ function CollectivePortrait({
             variant="fade-up"
           >
             <Button href="/about" variant="secondary">
-              {buttonLabel}
+              <HomeCopy sourceKey="home.current.about.ctaLabel" text={buttonLabel} />
             </Button>
-            <p>{identityTagline}</p>
+            <p><HomeCopy sourceKey="home.current.about.globalTagline" text={identityTagline} /></p>
           </Reveal>
 
           <span
@@ -304,6 +312,7 @@ export function AboutPreview({
         kicker={kicker}
         label={label}
         summary={summary}
+        sourceParagraphs={responsiveContent?.paragraphs}
         title={title}
       />
     )

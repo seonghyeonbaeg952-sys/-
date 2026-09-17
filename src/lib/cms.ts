@@ -158,6 +158,10 @@ function toCmsError(error: unknown, fallback: string) {
   const status = getErrorStatus(error)
   const lowerMessage = message.toLowerCase()
 
+  if (lowerMessage.includes('popup_notices_date_range_check')) {
+    return '노출 종료일은 시작일과 같거나 이후여야 합니다.'
+  }
+
   if (
     status === '401' ||
     status === '403' ||

@@ -91,7 +91,8 @@ function ImageUploaderPreview({ alt, src }: ImagePreviewProps) {
   return (
     <OptimizedImage
       alt={alt}
-      className="aspect-[16/10] rounded-balanced border border-line-default shadow-sm"
+      className={classNames('admin-image-preview admin-upload-preview aspect-[16/10] rounded-balanced border border-line-default shadow-sm', !src && 'admin-upload-preview--empty')}
+      fallbackLabel="이미지를 표시할 수 없습니다."
       fallbackVariant="gallery"
       sizes="(min-width: 1024px) 360px, calc(100vw - 40px)"
       objectFit="contain"

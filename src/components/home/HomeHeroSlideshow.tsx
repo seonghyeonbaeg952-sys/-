@@ -1,4 +1,5 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { HomeCopy } from './HomeCopy'
 import { useEffect, useMemo, useState } from 'react'
 
 import { HOME_HERO_REFERENCE_COPY } from '../../constants/homeHeroReference'
@@ -244,9 +245,9 @@ function MottoChips({ chips }: { chips: readonly string[] }) {
   const { copy: copyText } = useSiteEditor()
   return (
     <div aria-label={copyText("home", "home.fixed.HomeHeroSlideshow.e03b479e2d", "합창단 핵심 가치")} className="home-hero-motto-chips">
-      {chips.map((chip) => (
+      {chips.map((chip, index) => (
         <span className="home-hero-motto-chip" key={chip}>
-          {chip}
+          <HomeCopy sourceKey={`home.heroSupplement.mottoChips.${index + 1}`} text={chip} />
         </span>
       ))}
     </div>
@@ -426,7 +427,7 @@ export function HomeHeroSlideshow({
           </Reveal>
           <Reveal delayMs={150}>
             <p className="type-body mt-6 max-w-[560px] text-bg-ivory/88">
-              {description}
+              <HomeCopy sourceKey="home.heroSupplement.fallbackDescription" text={description} />
             </p>
           </Reveal>
           <Reveal delayMs={220}>
