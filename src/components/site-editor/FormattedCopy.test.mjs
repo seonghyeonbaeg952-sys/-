@@ -35,3 +35,14 @@ test('device selection cannot leak formatting into another device', () => {
   doc.textStyles = { mobile: { test: { text: '서울모테트 합창단', runs: [{ start: 0, end: 2, style: { fontSize: 32 } }] } } }
   assert.equal(render(doc), '<h2>서울모테트 합창단</h2>')
 })
+
+test('selected character color, weight, italic and decoration render without formatting the remainder', () => {
+  const doc = empty()
+  doc.textStyles = { shared: { test: { text: '서울모테트 합창단', runs: [{ start: 0, end: 2, style: { color: '#68233a', fontWeight: 700, fontStyle: 'italic', textDecoration: 'underline' } }] } } }
+  const html = render(doc)
+  assert.match(html, /color:#68233a/)
+  assert.match(html, /font-weight:700/)
+  assert.match(html, /font-style:italic/)
+  assert.match(html, /text-decoration:underline/)
+  assert.match(html, />서울<\/smyc-copy>모테트 합창단/)
+})

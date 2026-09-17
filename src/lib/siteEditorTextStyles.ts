@@ -10,11 +10,12 @@ export const EDITOR_FONT_FAMILIES: Record<EditorFont, string> = {
 }
 export const EDITOR_FONTS = Object.keys(EDITOR_FONT_FAMILIES) as EditorFont[]
 const scopes = ['shared', 'mobile', 'tablet', 'desktop']
+const textStyleKeys = ['fontFamily', 'fontSize', 'color', 'fontWeight', 'fontStyle', 'textDecoration'] as const
 const unsafeSegments = new Set(['__proto__', 'prototype', 'constructor'])
 const segmenter = typeof Intl !== 'undefined' && typeof Intl.Segmenter === 'function'
   ? new Intl.Segmenter('ko', { granularity: 'grapheme' }) : null
 export const supportsTextSegmentation = segmenter !== null
-const invalidMessage = '선택한 글자의 글꼴, 크기와 범위를 확인해 주세요.'
+const invalidMessage = '선택한 글자의 글꼴, 크기, 색상, 서식과 범위를 확인해 주세요.'
 const unsupportedMessage = '이 브라우저에서는 글자 서식을 편집할 수 없습니다. 최신 브라우저를 사용해 주세요.'
 
 export function isEditorRecord(value: unknown): value is Record<string, unknown> {
@@ -49,10 +50,14 @@ function boundaries(text: string): number[] {
 function validStyle(value: unknown, patch = false): value is EditorTextStyle {
   return isEditorRecord(value) && (patch || Object.keys(value).length > 0)
     && Object.entries(value).every(([key, entry]) => {
-      if (key !== 'fontFamily' && key !== 'fontSize') return false
+      if (!textStyleKeys.some(property => property === key)) return false
       if (patch && entry === undefined) return true
-      return key === 'fontFamily' ? EDITOR_FONTS.some(font => font === entry)
-        : typeof entry === 'number' && Number.isFinite(entry) && entry >= 10 && entry <= 120
+      if (key === 'fontFamily') return EDITOR_FONTS.some(font => font === entry)
+      if (key === 'fontSize') return typeof entry === 'number' && Number.isFinite(entry) && entry >= 10 && entry <= 120
+      if (key === 'color') return typeof entry === 'string' && /^#[0-9a-f]{6}$/i.test(entry)
+      if (key === 'fontWeight') return [400, 500, 600, 700, 800].some(weight => weight === entry)
+      if (key === 'fontStyle') return entry === 'normal' || entry === 'italic'
+      return entry === 'none' || entry === 'underline' || entry === 'line-through'
     })
 }
 
@@ -91,15 +96,30 @@ export function snapTextSelection(text: string, start: number, end: number): { s
   return { start: edges.findLast(edge => edge <= start) ?? 0, end: edges.find(edge => edge >= end) ?? text.length }
 }
 
+/** Stable property order for comparisons/history; undefined means inherit. */
+export function canonicalTextStyle(style: EditorTextStyle): EditorTextStyle {
+  const result: EditorTextStyle = {
+    fontFamily: style.fontFamily,
+    fontSize: style.fontSize,
+    color: style.color,
+    fontWeight: style.fontWeight,
+    fontStyle: style.fontStyle,
+    textDecoration: style.textDecoration,
+  }
+  for (const key of textStyleKeys) if (result[key] === undefined) delete result[key]
+  return result
+}
+
 function sameStyle(a: EditorTextStyle, b: EditorTextStyle): boolean {
-  return a.fontFamily === b.fontFamily && a.fontSize === b.fontSize
+  return textStyleKeys.every(key => a[key] === b[key])
 }
 
 function appendRun(runs: EditorTextRun[], start: number, end: number, style: EditorTextStyle) {
-  if (start >= end || Object.keys(style).length === 0) return
+  const canonical = canonicalTextStyle(style)
+  if (start >= end || Object.keys(canonical).length === 0) return
   const previous = runs.at(-1)
-  if (previous && previous.end === start && sameStyle(previous.style, style)) previous.end = end
-  else runs.push({ start, end, style: { ...style } })
+  if (previous && previous.end === start && sameStyle(previous.style, canonical)) previous.end = end
+  else runs.push({ start, end, style: canonical })
 }
 
 export function applyTextStyle(text: string, runs: EditorTextRun[], start: number, end: number, patch: EditorTextStyle | null): EditorTextRun[] {
@@ -117,8 +137,6 @@ export function applyTextStyle(text: string, runs: EditorTextRun[], start: numbe
     let style = { ...(runs[index]?.start <= from ? runs[index].style : {}) }
     if (from >= selection.start && to <= selection.end) {
       style = patch === null ? {} : { ...style, ...patch }
-      if (style.fontFamily === undefined) delete style.fontFamily
-      if (style.fontSize === undefined) delete style.fontSize
     }
     appendRun(result, from, to, style)
   }

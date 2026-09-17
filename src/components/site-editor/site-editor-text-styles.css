@@ -3,3 +3,7 @@
 [data-site-editor-page] smyc-copy.site-copy-format{display:inline}
 [data-site-editor-page] smyc-copy.site-copy-format[data-site-copy-font]{font-family:var(--site-copy-font)!important}
 [data-site-editor-page] smyc-copy.site-copy-format[data-site-copy-size]{font-size:var(--site-copy-size)!important}
+[data-site-editor-page] smyc-copy.site-copy-format[data-site-copy-color]{color:var(--site-copy-color)!important}
+[data-site-editor-page] smyc-copy.site-copy-format[data-site-copy-weight]{font-weight:var(--site-copy-weight)!important}
+[data-site-editor-page] smyc-copy.site-copy-format[data-site-copy-slant]{font-style:var(--site-copy-slant)!important}
+[data-site-editor-page] smyc-copy.site-copy-format[data-site-copy-decoration]{text-decoration:var(--site-copy-decoration)!important}

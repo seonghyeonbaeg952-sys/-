@@ -113,3 +113,79 @@ test('browsers without Intl.Segmenter still load defaults and edit plain copy wh
   assert.equal(session.document.copy.title, 'A 새 문구 B')
   assert.deepEqual(session.document.textStyles.shared.title, { text: 'A😀B', runs: [size(1, 3)] }, 'unavailable segmentation keeps the old snapshot dormant rather than moving its offsets')
 })
+
+test('version-one snapshots accept only the explicit character color, weight, style and decoration values', () => {
+  const cases = [
+    { color: '#A0b1C2' }, { color: '#000000' }, { color: '#FFFFFF' },
+    ...[400, 500, 600, 700, 800].map(fontWeight => ({ fontWeight })),
+    ...['normal', 'italic'].map(fontStyle => ({ fontStyle })),
+    ...['none', 'underline', 'line-through'].map(textDecoration => ({ textDecoration })),
+    { fontFamily: 'hahmlet', fontSize: 32, color: '#10233F', fontWeight: 700, fontStyle: 'italic', textDecoration: 'underline' },
+  ]
+  for (const style of cases) {
+    const document = { ...empty(), textStyles: { shared: { title: { text: '제목', runs: [{ start: 0, end: 2, style }] } } } }
+    const before = structuredClone(document)
+    assert.equal(documentModel.validateSiteEditorDocument(document), null, JSON.stringify(style))
+    assert.deepEqual(model.resolveTextRuns(document, 'desktop', 'title', '제목'), [{ start: 0, end: 2, style }])
+    assert.deepEqual(document, before)
+  }
+  assert.deepEqual(documentModel.emptySiteEditorDocument(), empty())
+  assert.equal(documentModel.buildEditorCss({ home: empty() }, 'home'), '')
+})
+
+test('color and emphasis updates affect only selected characters while keeping existing font and size', () => {
+  const original = [size(0, 6)]
+  const result = model.applyTextStyle('abcdef', original, 2, 4, { color: '#123ABC', fontWeight: 700, fontStyle: 'italic', textDecoration: 'underline' })
+  assert.deepEqual(result, [size(0, 2), { start: 2, end: 4, style: { fontSize: 24, color: '#123ABC', fontWeight: 700, fontStyle: 'italic', textDecoration: 'underline' } }, size(4, 6)])
+  assert.deepEqual(original, [size(0, 6)])
+})
+
+test('adjacent runs differing in any new property are never incorrectly merged', () => {
+  for (const [first, second] of [
+    [{ color: '#112233' }, { color: '#445566' }],
+    [{ fontWeight: 400 }, { fontWeight: 700 }],
+    [{ fontStyle: 'normal' }, { fontStyle: 'italic' }],
+    [{ textDecoration: 'none' }, { textDecoration: 'underline' }],
+  ]) {
+    const runs = [{ start: 0, end: 2, style: first }, { start: 2, end: 4, style: second }]
+    assert.deepEqual(model.applyTextStyle('abcd', runs, 0, 4, {}), runs)
+    assert.deepEqual(model.rebaseTextRuns('aXXb', 'ab', [{ start: 0, end: 1, style: first }, { start: 3, end: 4, style: second }]), [{ start: 0, end: 1, style: first }, { start: 1, end: 2, style: second }])
+  }
+})
+
+test('each optional style property can be removed without losing other selected formatting', () => {
+  const full = { fontFamily: 'hahmlet', fontSize: 24, color: '#10233F', fontWeight: 600, fontStyle: 'italic', textDecoration: 'line-through' }
+  const runs = [{ start: 0, end: 4, style: full }]
+  const partiallyCleared = model.applyTextStyle('abcd', runs, 1, 3, { color: undefined, fontWeight: undefined, fontStyle: undefined, textDecoration: undefined })
+  assert.deepEqual(partiallyCleared, [
+    { start: 0, end: 1, style: full },
+    { start: 1, end: 3, style: { fontFamily: 'hahmlet', fontSize: 24 } },
+    { start: 3, end: 4, style: full },
+  ])
+  assert.deepEqual(model.applyTextStyle('abcd', runs, 0, 4, { fontFamily: undefined, fontSize: undefined, color: undefined, fontWeight: undefined, fontStyle: undefined, textDecoration: undefined }), [])
+  assert.deepEqual(model.applyTextStyle('abcd', runs, 1, 3, null), [{ start: 0, end: 1, style: full }, { start: 3, end: 4, style: full }])
+  assert.deepEqual(model.applyTextStyle('abcd', [], 0, 4, { fontStyle: 'normal', textDecoration: 'none' }), [{ start: 0, end: 4, style: { fontStyle: 'normal', textDecoration: 'none' } }])
+})
+
+test('canonical character styles preserve all properties and remove undefined independent of object key order', () => {
+  assert.equal(typeof model.canonicalTextStyle, 'function')
+  const style = { textDecoration: 'underline', fontStyle: 'italic', fontWeight: 700, color: '#112233', fontSize: 30, fontFamily: 'hahmlet' }
+  const canonical = model.canonicalTextStyle(style)
+  assert.equal(JSON.stringify(canonical), '{"fontFamily":"hahmlet","fontSize":30,"color":"#112233","fontWeight":700,"fontStyle":"italic","textDecoration":"underline"}')
+  assert.deepEqual(model.canonicalTextStyle({ fontSize: undefined, fontFamily: undefined, color: '#112233', fontWeight: undefined, fontStyle: 'normal', textDecoration: 'none' }), { color: '#112233', fontStyle: 'normal', textDecoration: 'none' })
+  assert.deepEqual(style, { textDecoration: 'underline', fontStyle: 'italic', fontWeight: 700, color: '#112233', fontSize: 30, fontFamily: 'hahmlet' })
+})
+
+test('new style values reject CSS injection, shorthand colors, unapproved weights and arbitrary decorations', () => {
+  for (const style of [
+    ...['red', '#abc', '#12345678', '#12345G', '#123456;display:none', 'var(--secret)', 'url(javascript:1)', ' #123456', '#123456 '].map(color => ({ color })),
+    ...[300, 900, 450, '700', null, Infinity].map(fontWeight => ({ fontWeight })),
+    ...['oblique', 'initial', '', null].map(fontStyle => ({ fontStyle })),
+    ...['underline line-through', 'overline', 'inherit', '', null].map(textDecoration => ({ textDecoration })),
+    { color: undefined }, { fontWeight: undefined }, { fontStyle: undefined }, { textDecoration: undefined },
+    { backgroundColor: '#123456' }, { color: '#123456', fontWeight: 700, css: 'display:none' },
+  ]) {
+    assert.ok(model.validateTextStyles({ shared: { title: { text: '제목', runs: [{ start: 0, end: 2, style }] } } }), JSON.stringify(style))
+    if (!Object.values(style).includes(undefined)) assert.throws(() => model.applyTextStyle('제목', [], 0, 2, style), RangeError)
+  }
+})

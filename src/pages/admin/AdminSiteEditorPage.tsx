@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { siteEditorPages } from '../../content/siteEditorCatalog'
 import { getSiteCopyDefaults, siteCopyDefinitions } from '../../content/siteCopyCatalog'
@@ -8,6 +8,9 @@ import { AdminPageTitle } from '../../components/admin/AdminPageTitle'
 import { EditorAppearancePanel } from '../../components/admin/site-editor/EditorAppearancePanel'
 import { EditorCopyPanel } from '../../components/admin/site-editor/EditorCopyPanel'
 import { EditorPreview } from '../../components/admin/site-editor/EditorPreview'
+import { commitCanvasGrant, type CanvasCommitResult, type IssuedCanvasGrant } from '../../components/admin/site-editor/editorCanvasController'
+import type { CanvasSourcePatch } from '../../lib/siteEditorCanvasProtocol'
+import { emptyCanvasHistory, moveCanvasHistory, recordCanvasHistory, type CanvasDocumentHistory } from '../../components/admin/site-editor/editorCanvasHistory'
 import { EditorPublishHistory } from '../../components/admin/site-editor/EditorPublishHistory'
 import { editorViewports, formatEditorTime, formatEditorChangeValue } from '../../components/admin/site-editor/editorUiOptions'
 import { editSessionAppearance, editSessionCopy, editSessionTextStyle, getEditorChanges, getEditorExitGuard, getEditorStatus, replaceEditorDocument, resetEditorScope, resolveEditorConflict, validateEditorCopyFields, type EditorScope } from '../../components/admin/site-editor/editorSessionModel'
@@ -30,8 +33,12 @@ export function AdminSiteEditorPage({ initialPage = 'home' }: { initialPage?: Ed
   const page = isEditorPageId(pageParam) ? pageParam : initialPage
   const pageDefinition = siteEditorPages.find((item) => item.id === page)!
   const workspace = useEditorWorkspace(page)
-  const [scope, setScope] = useState<EditorScope>('mobile')
-  const [device, setDevice] = useState<EditorDevice>('mobile')
+  const [scope, setScope] = useState<EditorScope>('desktop')
+  const [device, setDevice] = useState<EditorDevice>('desktop')
+  const [canvasActive, setCanvasActive] = useState(false)
+  const canvasHistory = useRef<Partial<Record<EditorPageId, CanvasDocumentHistory>>>({})
+  const [historyCounts, setHistoryCounts] = useState<Partial<Record<EditorPageId, { undo: number; redo: number }>>>({})
+  const [canvasNotice, setCanvasNotice] = useState('')
   const [panel, setPanel] = useState<'copy' | 'appearance' | 'history'>('copy')
   const [view, setView] = useState<'editor' | 'preview'>('editor')
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null)
@@ -55,7 +62,18 @@ export function AdminSiteEditorPage({ initialPage = 'home' }: { initialPage?: Ed
   const needsDetail = page === 'concert-detail' || page === 'notice-detail'
   const previewPath = needsDetail ? detailPaths[page] ?? null : pageDefinition.previewPath
 
-  useUnsavedChangesGuard(getEditorExitGuard(allDirty, busy))
+  useUnsavedChangesGuard(getEditorExitGuard(allDirty + Number(canvasActive), busy))
+  const saveDraft = workspace.save
+  useEffect(() => {
+    const keydown = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || event.shiftKey || event.altKey || event.isComposing || event.key.toLowerCase() !== 's') return
+      event.preventDefault()
+      if (canvasActive) { setCanvasNotice('현재 문구의 편집을 마친 뒤 임시저장하세요. 입력은 그대로 유지됩니다.'); return }
+      if (!busy && session && status.unsavedCount && !validation && !session.conflicts.length) void saveDraft()
+    }
+    window.addEventListener('keydown', keydown)
+    return () => window.removeEventListener('keydown', keydown)
+  }, [busy, canvasActive, saveDraft, session, status.unsavedCount, validation])
 
   useEffect(() => {
     let active = true
@@ -82,15 +100,43 @@ export function AdminSiteEditorPage({ initialPage = 'home' }: { initialPage?: Ed
   }, [page])
 
   const choosePage = (id: EditorPageId) => {
+    if (canvasActive || busy) return
     const next = new URLSearchParams(params)
     next.set('page', id)
     setParams(next, { replace: true })
     setConfirmation(null)
   }
-  const chooseScope = (next: EditorScope) => { setScope(next); if (next !== 'shared') setDevice(next) }
+  const chooseScope = (next: EditorScope) => { if (canvasActive || busy) return; setScope(next); if (next !== 'shared') setDevice(next) }
+  const canvasContext = { editorPage: page, previewPage: page === 'common' ? 'home' as const : page, device, scope, documents,
+    loadedOwners: new Set(Object.keys(workspace.sessions).filter(isEditorPageId)), defaultsTrusted: !defaultLoading && !defaultError && !busy, defaults }
+  const commitCanvas = (issued: IssuedCanvasGrant, sourceChanges: CanvasSourcePatch[], baseDraftSequence: number): CanvasCommitResult => {
+    let result: CanvasCommitResult = { ok: false, reason: 'stale', message: '현재 초안을 불러온 뒤 다시 시도해 주세요.' }
+    if (busy) return result
+    workspace.edit(page, current => {
+      result = commitCanvasGrant({ ...canvasContext, documents: { ...documents, [page]: current.document }, baseDraftSequence }, issued, sourceChanges)
+      if (result.ok) {
+        const next = recordCanvasHistory(canvasHistory.current[page] ?? emptyCanvasHistory(), current.document, result.document)
+        canvasHistory.current[page] = next
+        setHistoryCounts(counts => ({ ...counts, [page]: { undo: next.past.length, redo: next.future.length } }))
+      }
+      return result.ok ? replaceEditorDocument(current, result.document) : current
+    })
+    return result
+  }
+  const moveDocumentHistory = (direction: 'undo' | 'redo') => {
+    if (canvasActive || busy) return
+    workspace.edit(page, current => {
+      const result = moveCanvasHistory(canvasHistory.current[page] ?? emptyCanvasHistory(), current.document, direction)
+      if (!result.ok) { setCanvasNotice(result.message); return current }
+      canvasHistory.current[page] = result.history
+      setHistoryCounts(counts => ({ ...counts, [page]: { undo: result.history.past.length, redo: result.history.future.length } }))
+      setCanvasNotice(direction === 'undo' ? '최근 화면 편집을 되돌렸습니다. 공개 홈페이지는 그대로입니다.' : '화면 편집을 다시 적용했습니다. 공개 홈페이지는 그대로입니다.')
+      return replaceEditorDocument(current, result.document)
+    })
+  }
   const confirm = async () => {
     if (!confirmation || !session || busy) return
-    if (confirmation.kind === 'publish') { if (await workspace.publish()) setConfirmation(null); return }
+    if (confirmation.kind === 'publish') { if (await workspace.publish()) { setConfirmation(null); setCanvasNotice('') } return }
     if (confirmation.kind === 'restore') { if (await workspace.restore(confirmation.revision)) setConfirmation(null); return }
     workspace.edit(page, (current) => {
       if (confirmation.kind === 'reset-page') return replaceEditorDocument(current, emptySiteEditorDocument())
@@ -103,10 +149,10 @@ export function AdminSiteEditorPage({ initialPage = 'home' }: { initialPage?: Ed
   }
   const isHomeDefaultsUnavailable = page === 'home' && (defaultLoading || Boolean(defaultError))
 
-  return <div className="site-editor" data-editor-view={view}>
+  return <div className="site-editor site-editor--canvas" data-editor-view={view}>
     <AdminPageTitle title="홈페이지 편집" description="문구와 디자인을 수정한 뒤 미리보기에서 확인하세요. 임시저장과 게시는 별도입니다." />
     <div className="site-editor__layout">
-      <div className="site-editor__selectors">
+      <fieldset className="site-editor__selectors" disabled={canvasActive || busy}>
       <section className="site-editor__pages" aria-label="편집할 화면 선택">
         <p className="site-editor__selector-label">편집할 화면</p>
         <FilterSelect label="편집할 화면" value={page} onChange={(id) => { if (isEditorPageId(id)) choosePage(id) }} options={siteEditorPages.map((item) => {
@@ -120,7 +166,7 @@ export function AdminSiteEditorPage({ initialPage = 'home' }: { initialPage?: Ed
         <p className="site-editor__selector-label">이 변경을 적용할 기기</p>
         <div className="site-editor__scope-tabs" role="group" aria-label="편집 적용 범위">{(['shared', 'mobile', 'tablet', 'desktop'] as const).map((item) => <button type="button" key={item} aria-pressed={scope === item} onClick={() => chooseScope(item)}><span>{scopeLabels[item]}</span><small>{item === 'shared' ? '모든 기기의 기본값' : `${editorViewports.find((viewport) => viewport.id === item)?.width}px`}{changes.some((change) => change.scope === item) ? ` · 미저장 ${changes.filter((change) => change.scope === item).length}` : ''}</small></button>)}</div>
       </section>
-      </div>
+      </fieldset>
       <div className="site-editor__main">
         <details className="site-editor__metadata"><summary>게시 상태와 공개 화면</summary>
         <div className="site-editor__page-heading"><div><h2 className="sr-only">{pageDefinition.label}</h2><p className="site-editor__help">마지막 임시저장 {formatEditorTime(session?.record.updated_at ?? null)} · 게시 {formatEditorTime(session?.record.published_at ?? null)}</p></div>{previewPath ? <Button href={previewPath} target="_blank" rel="noopener noreferrer" variant="secondary" size="sm">공개 화면 보기</Button> : null}</div>
@@ -131,18 +177,29 @@ export function AdminSiteEditorPage({ initialPage = 'home' }: { initialPage?: Ed
         {session?.conflicts.length ? <section className="site-editor__conflicts" aria-label="겹친 변경 확인"><h3>다른 관리자와 같은 항목을 수정했습니다</h3><p>입력은 유지됩니다. 각 항목에서 사용할 값을 선택하면 저장할 수 있습니다.</p>{session.conflicts.map((conflict) => <div key={conflict.id}><strong>{scopeLabels[conflict.scope]} · {changeLabel(conflict.key)}</strong><dl><dt>서버에 저장된 값</dt><dd>{formatEditorChangeValue(conflict.kind, conflict.before)}</dd><dt>내 입력</dt><dd>{formatEditorChangeValue(conflict.kind, conflict.after)}</dd></dl><div className="site-editor__inline-actions"><Button size="sm" variant="secondary" onClick={() => workspace.edit(page, (current) => resolveEditorConflict(current, conflict.id, 'server'))}>서버값 사용</Button><Button size="sm" variant="secondary" onClick={() => workspace.edit(page, (current) => resolveEditorConflict(current, conflict.id, 'local'))}>내 입력 유지</Button></div></div>)}</section> : null}
         <div className="site-editor__mobile-view" role="group" aria-label="작업 화면"><button type="button" aria-pressed={view === 'editor'} onClick={() => setView('editor')}>편집</button><button type="button" aria-pressed={view === 'preview'} onClick={() => setView('preview')}>미리보기</button></div>
         {session ? <div className="site-editor__workbench">
-          <div className="site-editor__edit-pane">
+          <div className="site-editor__document-history">
+            <div className="site-editor__preview-tools" role="group" aria-label="마친 화면 편집 되돌리기">
+              <button type="button" disabled={canvasActive || busy || !historyCounts[page]?.undo} onClick={() => moveDocumentHistory('undo')}>최근 편집 실행 취소</button>
+              <button type="button" disabled={canvasActive || busy || !historyCounts[page]?.redo} onClick={() => moveDocumentHistory('redo')}>최근 편집 다시 실행</button>
+            </div>
+            {canvasNotice ? <p role="status" className="site-editor__help">{canvasNotice}</p> : null}
+          </div>
+          <details className="site-editor__edit-pane">
+            <summary>문구 목록 · 페이지 전체 서식 · 게시 이력</summary>
+            <p className="site-editor__help">화면에서 선택되지 않는 문구, 여러 조각으로 나뉜 제목, 입력창 안내는 여기에서 수정하세요.</p>
+            <fieldset disabled={canvasActive || busy}>
             <div className="site-editor__panel-tabs" role="group" aria-label="편집 종류">{([{ id: 'copy', label: '문구' }, { id: 'appearance', label: '페이지 전체 서식' }, { id: 'history', label: '게시 이력' }] as const).map((item) => <button key={item.id} type="button" aria-pressed={panel === item.id} onClick={() => setPanel(item.id)}>{item.label}</button>)}</div>
 {panel === 'copy' ? isHomeDefaultsUnavailable ? <p role="status" className="site-editor__empty">기존 홈 문구를 확인한 뒤 편집할 수 있습니다.</p> : <EditorCopyPanel key={`${page}:${scope}`} definitions={definitions} document={session.document} scope={scope} defaults={defaults} emptyMessage={page === 'home' && scope === 'shared' ? '기존 홈 문구는 기기별로 관리됩니다. 모바일·태블릿·데스크톱을 골라 수정하세요. 모든 기기의 글꼴과 색상은 공통 디자인에서 설정할 수 있습니다.' : undefined} onChange={(key, value) => workspace.edit(page, (current) => editSessionCopy(current, scope, key, value))} onFormat={(key, text, runs) => workspace.edit(page, current => !runs.length && !current.document.textStyles?.[scope]?.[key] ? editSessionCopy(current, scope, key, text) : editSessionTextStyle(current, scope, key, text, runs))} /> : panel === 'appearance' ? <EditorAppearancePanel value={session.document.appearance[scope] ?? {}} onChange={(key, value) => workspace.edit(page, (current) => editSessionAppearance(current, scope, key, value))} onReset={() => setConfirmation({ kind: 'reset-appearance' })} /> : <EditorPublishHistory revisions={workspace.revisions} loading={workspace.historyLoading} error={workspace.historyError} disabled={busy || status.unsavedCount > 0 || session.conflicts.length > 0} onReload={() => void workspace.refreshHistory()} onRestore={(revision) => setConfirmation({ kind: 'restore', revision })} />}
             {panel === 'history' && status.unsavedCount ? <p className="site-editor__notice">현재 입력을 먼저 임시저장하면 이전 게시본을 불러올 수 있습니다.</p> : null}
             <div className="site-editor__reset-actions"><Button size="sm" variant="ghost" disabled={busy} onClick={() => setConfirmation({ kind: 'reset-scope' })}>{scopeLabels[scope]} 편집값 초기화</Button><Button size="sm" variant="ghost" disabled={busy} onClick={() => setConfirmation({ kind: 'reset-page' })}>이 화면 전체 초기화</Button></div>
-          </div>
-          <div className="site-editor__preview-pane">{detailErrors[page] ? <p role="alert" className="site-editor__error">{detailErrors[page]}</p> : null}<EditorPreview page={page} label={pageDefinition.label} path={previewPath} loadingPath={needsDetail && !Object.hasOwn(detailPaths, page)} device={device} documents={documents} onDeviceChange={setDevice} /></div>
+            </fieldset>
+          </details>
+          <div className="site-editor__preview-pane">{detailErrors[page] ? <p role="alert" className="site-editor__error">{detailErrors[page]}</p> : null}<EditorPreview page={page} label={pageDefinition.label} path={previewPath} loadingPath={needsDetail && !Object.hasOwn(detailPaths, page)} device={device} documents={documents} locked={canvasActive || busy} context={canvasContext} onCommit={commitCanvas} onActiveChange={setCanvasActive} onSave={() => { if (!canvasActive && !busy && status.unsavedCount && !validation && !session.conflicts.length) void workspace.save() }} onDeviceChange={(next) => { if (!canvasActive && !busy) { setDevice(next); if (scope !== 'shared') setScope(next) } }} /></div>
         </div> : !workspace.error ? <p role="status" className="site-editor__empty">안전하게 저장된 초안을 불러오고 있습니다.</p> : null}
         {pageDefinition.contentLinks.length ? <section className="site-editor__content-links"><h3>실제 내용은 여기에서 관리합니다</h3><p className="site-editor__help">공연·프로필·입단 안내·후원 원문과 사진은 기존 콘텐츠 관리가 원본입니다.</p><div>{pageDefinition.contentLinks.map((link) => <Button key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" variant="secondary" size="sm">{link.label} · 새 탭</Button>)}</div></section> : null}
       </div>
     </div>
-    <div className="site-editor__save-bar"><div><strong>{pageDefinition.label}</strong><span role="status">{busy ? '처리 중입니다. 추가 입력은 보존됩니다.' : !session ? workspace.error ? '초안을 불러오지 못했습니다' : '초안을 불러오는 중' : status.unsavedCount ? `미저장 ${status.unsavedCount}개 · 저장 후 게시할 수 있습니다` : status.unpublishedCount ? `임시저장 완료 · 게시 전 변경 ${status.unpublishedCount}개` : '저장된 초안과 게시본이 같습니다'}</span>{allDirty > (status.unsavedCount ? 1 : 0) ? <span>다른 화면에도 미저장 초안이 있습니다.</span> : null}{validation ? <span className="site-editor__error" role="alert">{validation}</span> : null}</div><div className="site-editor__inline-actions"><Button variant="secondary" disabled={!session || busy || !status.unsavedCount || Boolean(validation) || Boolean(session.conflicts.length)} onClick={() => void workspace.save()}>{workspace.action?.kind === 'save' ? '임시저장 중…' : '임시저장'}</Button><Button disabled={!session || busy || !status.canPublish || Boolean(validation)} onClick={() => setConfirmation({ kind: 'publish' })}>이 화면 게시</Button></div></div>
+    <div className="site-editor__save-bar"><div><strong>{pageDefinition.label}</strong><span role="status">{canvasActive ? '화면에서 문구 수정 중 · 편집을 먼저 마쳐 주세요' : busy ? '처리 중입니다. 추가 입력은 보존됩니다.' : !session ? workspace.error ? '초안을 불러오지 못했습니다' : '초안을 불러오는 중' : status.unsavedCount ? `미저장 ${status.unsavedCount}개 · 저장 후 게시할 수 있습니다` : status.unpublishedCount ? `임시저장 완료 · 게시 전 변경 ${status.unpublishedCount}개` : '저장된 초안과 게시본이 같습니다'}</span>{allDirty > (status.unsavedCount ? 1 : 0) ? <span>다른 화면에도 미저장 초안이 있습니다.</span> : null}{validation ? <span className="site-editor__error" role="alert">{validation}</span> : null}</div><div className="site-editor__inline-actions"><Button variant="secondary" disabled={!session || busy || canvasActive || !status.unsavedCount || Boolean(validation) || Boolean(session.conflicts.length)} onClick={() => void workspace.save()}>{workspace.action?.kind === 'save' ? '임시저장 중…' : '임시저장'}</Button><Button disabled={!session || busy || canvasActive || !status.canPublish || Boolean(validation)} onClick={() => setConfirmation({ kind: 'publish' })}>이 화면 게시</Button></div></div>
     <AdminModal isOpen={Boolean(confirmation)} onClose={() => { if (!busy) setConfirmation(null) }} title={confirmation?.kind === 'publish' ? `${pageDefinition.label} · 홈페이지에 게시` : confirmation?.kind === 'restore' ? '이전 게시본을 초안으로 불러오기' : '편집값 초기화'} footer={<div className="site-editor__inline-actions"><Button variant="secondary" disabled={busy} onClick={() => setConfirmation(null)}>취소</Button><Button disabled={busy || !session || (confirmation?.kind === 'publish' && !status.canPublish)} onClick={() => void confirm()}>{busy ? '처리 중…' : confirmation?.kind === 'publish' ? `${pageDefinition.label} 게시하기` : confirmation?.kind === 'restore' ? '초안으로 불러오기' : '초기화하기'}</Button></div>}>
       {confirmation?.kind === 'publish' ? <><p>저장된 <strong>{pageDefinition.label}</strong> 초안을 공개 홈페이지에 적용합니다. 다른 화면의 초안은 게시하지 않습니다.</p><ul className="site-editor__change-summary">{publishChanges.map((change) => <li key={change.id}><strong>{scopeLabels[change.scope]} · {changeLabel(change.key)}</strong><span>{formatEditorChangeValue(change.kind, change.after)}</span></li>)}</ul></> : confirmation?.kind === 'restore' ? <p>{formatEditorTime(confirmation.revision.published_at)}의 문구·디자인 설정을 초안으로 불러옵니다. 현재 공개 홈페이지와 전용 콘텐츠 원문은 그대로 유지됩니다. 확인 후 별도로 게시해 주세요.</p> : <p>{confirmation?.kind === 'reset-page' ? '이 화면의 모든 공통·기기별 문구와 디자인' : confirmation?.kind === 'reset-appearance' ? `${scopeLabels[scope]} 디자인` : `${scopeLabels[scope]} 문구와 디자인`}의 편집값을 지우고 기존 원문과 디자인을 사용합니다. 임시저장·게시 전에는 공개 홈페이지가 바뀌지 않습니다.</p>}
       {workspace.error ? <p className="site-editor__error" role="alert">{workspace.error}</p> : null}

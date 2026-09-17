@@ -43,3 +43,14 @@
 @media(max-width:1023px){.site-editor__save-bar{left:0;right:0;padding:16px 24px}.site-editor__selectors{grid-template-columns:minmax(0,1fr);gap:16px}}
 @media(max-width:767px){.site-editor{padding-bottom:184px}.site-editor__layout{grid-template-columns:minmax(0,1fr);gap:18px}.site-editor__pages{position:static}.site-editor__pages>.site-editor__help{margin:6px 0}.site-editor__scope-tabs{gap:2px}.site-editor__edit-pane,.site-editor__preview{padding:0}.site-editor__field-grid{grid-template-columns:minmax(0,1fr)}.site-editor__save-bar{bottom:0;align-items:stretch;flex-direction:column;padding:12px 16px max(16px,env(safe-area-inset-bottom));gap:12px}.site-editor__save-bar .site-editor__inline-actions{display:grid;grid-template-columns:1fr 1fr}.site-editor__conflicts dl{grid-template-columns:minmax(0,1fr)}.site-editor__conflicts dt{font-weight:700}.site-editor__page-heading h2{font-size:19px}}
 @media(prefers-reduced-motion:reduce){.site-editor *{scroll-behavior:auto;transition:none!important}}
+.site-editor--canvas fieldset{min-width:0;border:0;margin:0;padding:0}
+.site-editor--canvas .site-editor__workbench{display:flex;flex-direction:column;align-items:stretch;gap:24px}
+.site-editor--canvas .site-editor__preview-pane{order:-1;display:block!important;position:static}
+.site-editor--canvas .site-editor__edit-pane{display:block!important;border-top:1px solid var(--editor-line);padding-top:12px}
+.site-editor--canvas .site-editor__edit-pane>summary{min-height:44px;cursor:pointer;font-weight:600;font-size:14px;line-height:1.6;padding:10px 0}
+.site-editor--canvas .site-editor__edit-pane>summary:focus-visible{outline:2px solid var(--editor-accent);outline-offset:4px}
+.site-editor--canvas .site-editor__mobile-view{display:none}
+.site-editor--canvas .site-editor__preview{padding:0;border:0}
+.site-editor__canvas-find>summary{min-height:44px;padding:10px 0;font-size:13px;cursor:pointer;color:var(--editor-muted)}
+.site-editor__canvas-find label{display:grid;gap:8px;font-size:13px;margin-bottom:16px}
+.site-editor__canvas-find select{max-width:100%;min-width:0;padding:8px;border:1px solid var(--editor-line);background:var(--editor-paper)}

@@ -28,7 +28,10 @@ export function formatEditorChangeValue(kind: string, value: string | number | u
       const text = formatted.text.slice(run.start, run.end)
       const font = editorFontOptions.find(option => option.value === run.style.fontFamily)?.label
       const size = run.style.fontSize === undefined ? undefined : `${run.style.fontSize}px`
-      return `“${text.length > 30 ? `${text.slice(0, 30)}…` : text}”: ${[font, size].filter(Boolean).join(' · ')}`
+      const weight = run.style.fontWeight === undefined ? undefined : `굵기 ${run.style.fontWeight}`
+      const slant = run.style.fontStyle === undefined ? undefined : run.style.fontStyle === 'italic' ? '기울임' : '기울임 해제'
+      const decoration = run.style.textDecoration === undefined ? undefined : ({ none: '줄 장식 해제', underline: '밑줄', 'line-through': '취소선' }[run.style.textDecoration])
+      return `“${text.length > 30 ? `${text.slice(0, 30)}…` : text}”: ${[font, size, run.style.color, weight, slant, decoration].filter(Boolean).join(' · ')}`
     })
     return labels.join('\n') + (formatted.runs.length > 8 ? `\n외 ${formatted.runs.length - 8}개 범위` : '')
   } catch { return '글자별 서식 변경' }

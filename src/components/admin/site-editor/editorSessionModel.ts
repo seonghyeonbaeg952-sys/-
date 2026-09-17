@@ -1,5 +1,5 @@
 import type { EditorAppearance, EditorDevice, EditorStyledCopy, EditorTextRun, SiteCopyDefinition, SiteEditorDocument, SiteEditorPageRecord } from '../../../types/siteEditor'
-import { isEditorCopyText, rebaseTextRuns, resolveTextRuns, supportsTextSegmentation, validateTextStyles } from '../../../lib/siteEditorTextStyles'
+import { canonicalTextStyle, isEditorCopyText, rebaseTextRuns, resolveTextRuns, supportsTextSegmentation, validateTextStyles } from '../../../lib/siteEditorTextStyles'
 
 export type EditorScope = 'shared' | EditorDevice
 export type EditorChange = {
@@ -34,7 +34,7 @@ function documentFields(document: SiteEditorDocument) {
   for (const scope of ['shared', 'mobile', 'tablet', 'desktop'] as const) {
     add('textStyle', scope, Object.fromEntries(Object.entries(document.textStyles?.[scope] ?? {}).map(([key, value]) => [key, JSON.stringify({
       text: value.text,
-      runs: value.runs.map(run => ({ start: run.start, end: run.end, style: { fontFamily: run.style.fontFamily, fontSize: run.style.fontSize } })),
+      runs: value.runs.map(run => ({ start: run.start, end: run.end, style: canonicalTextStyle(run.style) })),
     })])))
   }
   return fields

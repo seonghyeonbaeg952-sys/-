@@ -17,8 +17,9 @@ function load(code, dependencies) {
 const styles = load(await compile('../../../lib/siteEditorTextStyles.ts'), {})
 const options = load(await compile('./editorUiOptions.ts'), {})
 const context = load(await compile('../../site-editor/useSiteEditor.ts'), {})
+const canvasCopy = load(await compile('../../site-editor/CanvasCopy.tsx'), { './useSiteEditor': context })
 const formatted = load(await compile('../../site-editor/FormattedCopy.tsx'), {
-  '../../lib/siteEditorTextStyles': styles, './useSiteEditor': context,
+  '../../lib/siteEditorTextStyles': styles, './useSiteEditor': context, './CanvasCopy': canvasCopy,
 })
 const code = await compile('./EditorTextSelection.tsx')
 

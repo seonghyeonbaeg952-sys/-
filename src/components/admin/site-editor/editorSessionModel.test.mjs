@@ -22,6 +22,19 @@ test('opening a fresh editor never materializes fallback copy or styles as overr
   assert.deepEqual(model.getEditorChanges(session.baseline, session.document), [])
 })
 
+test('color-only and emphasis-only edits are dirty and conflicting remote formatting is not silently discarded', () => {
+  const draft = { ...empty(), textStyles: { shared: { title: { text: '합창단', runs: [{ start: 0, end: 2, style: { color: '#17171a', fontWeight: 400 } }] } } } }
+  let session = start(draft)
+  session = model.editSessionTextStyle(session, 'shared', 'title', '합창단', [{ start: 0, end: 2, style: { color: '#68233a', fontWeight: 700, fontStyle: 'italic', textDecoration: 'underline' } }])
+  const changes = model.getEditorChanges(session.baseline, session.document)
+  assert.ok(changes.some(change => change.kind === 'textStyle' && JSON.parse(change.after).runs[0].style.color === '#68233a'))
+  const remote = structuredClone(draft)
+  remote.textStyles.shared.title.runs[0].style.color = '#f04b23'
+  session = model.reconcileEditorSession(session, record(remote, 1))
+  assert.ok(session.conflicts.some(conflict => conflict.kind === 'textStyle'))
+  assert.equal(session.document.textStyles.shared.title.runs[0].style.color, '#68233a')
+})
+
 test('device edits retain other devices and distinguish blank copy from removing an override', () => {
   let session = start({ ...empty(), copy: { 'join.title': '공통' }, deviceCopy: { desktop: { 'join.title': 'PC' } } })
   session = model.editSessionCopy(session, 'mobile', 'join.title', '')

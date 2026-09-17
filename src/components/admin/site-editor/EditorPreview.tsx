@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { isEditorPageId, validateSiteEditorDocument } from '../../../lib/siteEditorModel'
 import { SITE_EDITOR_PROTOCOL_VERSION } from '../../../lib/siteEditorPreview'
 import { siteCopyDefinitions } from '../../../content/siteCopyCatalog'
@@ -7,6 +7,8 @@ import { Button } from '../../common/Button'
 import { readEditorPreviewReply } from './editorPreviewModel'
 import { editorViewports } from './editorUiOptions'
 import { validateEditorCopyFields } from './editorSessionModel'
+import { useCanvasBridge, type CanvasBridgeOptions } from './useCanvasBridge'
+import { EditorCanvasToolbar } from './EditorCanvasToolbar'
 
 type Props = {
   page: EditorPageId
@@ -16,9 +18,9 @@ type Props = {
   documents: SiteEditorDocuments
   loadingPath?: boolean
   onDeviceChange: (device: EditorDevice) => void
-}
+} & CanvasBridgeOptions & { locked: boolean }
 
-function PreviewFrame({ page, label, path, device, documents, fit }: Omit<Props, 'onDeviceChange'> & { path: string; fit: boolean }) {
+function PreviewFrame({ page, label, path, device, documents, fit, context, onCommit, onActiveChange, onSave }: Omit<Props, 'onDeviceChange'> & { path: string; fit: boolean }) {
   const [nonce] = useState(() => crypto.randomUUID())
   const frame = useRef<HTMLIFrameElement>(null)
   const holder = useRef<HTMLDivElement>(null)
@@ -28,6 +30,8 @@ function PreviewFrame({ page, label, path, device, documents, fit }: Omit<Props,
   const [pending, setPending] = useState(0)
   const [applied, setApplied] = useState(0)
   const sequence = useRef(0)
+  const forceRefresh = useCallback(() => setReadyCount(value => value + 1), [])
+  const canvas = useCanvasBridge({ frame, nonce, draftSequence: sequence, context, onCommit, onActiveChange, onSave, onCommitted: forceRefresh })
   const viewport = editorViewports.find((item) => item.id === device) ?? editorViewports[0]
   const previewPage = page === 'common' ? 'home' : page
   const scale = fit && available > 0 ? Math.min(1, available / viewport.width) : 1
@@ -81,12 +85,22 @@ function PreviewFrame({ page, label, path, device, documents, fit }: Omit<Props,
   }, [readyCount, invalidDraft, allowedUrl, documents, nonce, previewPage])
 
   useEffect(() => {
-    if (!pending || pending === applied) return
+    if (!pending || pending === applied || canvas.active) return
     const timer = window.setTimeout(() => setFailure('초안 반영을 확인하지 못했습니다. 미리보기를 새로고침해 주세요.'), 10000)
     return () => window.clearTimeout(timer)
-  }, [pending, applied])
+  }, [pending, applied, canvas.active])
 
   return <>
+    <div className="site-editor__preview-tools" role="group" aria-label="화면에서 편집 또는 둘러보기">
+      <button type="button" disabled={canvas.active} aria-pressed={canvas.mode === 'edit'} onClick={() => canvas.setMode('edit')}>화면에서 편집</button>
+      <button type="button" disabled={canvas.active} aria-pressed={canvas.mode === 'preview'} onClick={() => canvas.setMode('preview')}>둘러보기</button>
+    </div>
+    {canvas.mode === 'edit' ? <EditorCanvasToolbar blockLabel={canvas.blockLabel} selection={canvas.selection} summary={canvas.summary} active={canvas.active} busy={false} onBegin={canvas.begin} onFormat={canvas.format} onAction={canvas.action} /> : null}
+    {canvas.mode === 'edit' && !canvas.active ? <details className="site-editor__canvas-find"><summary>키보드로 문구 선택 · 화면에서 찾기</summary>
+      <label>화면에 표시된 문구<select aria-label="화면에 표시된 문구" value="" disabled={!canvas.connected} onChange={event => canvas.choose(event.target.value)}><option value="">수정할 문구를 고르세요</option>{canvas.choices.map(choice => <option key={choice.id} value={choice.id}>{choice.label}</option>)}</select></label>
+    </details> : null}
+    {canvas.error ? <p role="alert" className="site-editor__error">{canvas.error}</p> : null}
+    {canvas.active ? <p className="site-editor__notice">문구를 수정 중입니다. 편집을 마친 뒤 임시저장하세요. Esc는 입력을 버리지 않습니다.</p> : null}
     <p className={failure || invalidDraft ? 'site-editor__error' : 'site-editor__help'} role={failure || invalidDraft ? 'alert' : 'status'}>
       {invalidDraft ? '입력 범위를 벗어난 값이 있어 마지막 미리보기를 유지합니다. 입력을 확인해 주세요.' : failure ?? (!readyCount ? '공개 화면에 미리보기를 연결하는 중입니다.' : pending === applied && applied > 0 ? '현재 초안을 반영했습니다. 실제 접수는 차단됩니다.' : '초안을 반영하는 중입니다.')}
     </p>
@@ -98,17 +112,17 @@ function PreviewFrame({ page, label, path, device, documents, fit }: Omit<Props,
   </>
 }
 
-export function EditorPreview({ page, label, path, device, documents, loadingPath = false, onDeviceChange }: Props) {
+export function EditorPreview({ page, label, path, device, documents, loadingPath = false, onDeviceChange, locked, ...canvasOptions }: Props) {
   const [fit, setFit] = useState(true)
   const [refresh, setRefresh] = useState(0)
   const [open, setOpen] = useState(true)
   return <section className="site-editor__preview" aria-label="실제 화면 미리보기">
-    <div className="site-editor__section-heading"><h2>초안 미리보기</h2><Button size="sm" variant="ghost" aria-expanded={open} onClick={() => setOpen((value) => !value)}>{open ? '접기' : '펼치기'}</Button></div>
+    <div className="site-editor__section-heading"><h2>홈페이지 화면에서 편집</h2><Button size="sm" variant="ghost" disabled={locked} aria-expanded={open} onClick={() => setOpen((value) => !value)}>{open ? '접기' : '펼치기'}</Button></div>
     <p className="site-editor__help">이 창은 관리자 초안입니다. 임시저장이나 미리보기는 공개 홈페이지를 바꾸지 않습니다.</p>
     <div hidden={!open}>
-      <div className="site-editor__preview-tools" role="group" aria-label="미리보기 크기">{editorViewports.map((viewport) => <button key={viewport.id} type="button" aria-pressed={device === viewport.id} onClick={() => onDeviceChange(viewport.id)}>{viewport.label} {viewport.width}</button>)}</div>
-      <div className="site-editor__preview-tools" role="group" aria-label="미리보기 표시"><button type="button" aria-pressed={fit} onClick={() => setFit(true)}>화면에 맞춤</button><button type="button" aria-pressed={!fit} onClick={() => setFit(false)}>실제 크기</button><button type="button" onClick={() => setRefresh((value) => value + 1)}>새로고침</button></div>
-      {loadingPath ? <p role="status">미리볼 공개 항목을 찾는 중입니다.</p> : path ? <PreviewFrame key={`${page}-${path}-${refresh}`} page={page} label={label} path={path} device={device} documents={documents} fit={fit} /> : <p className="site-editor__empty">미리볼 공개 항목이 없습니다. 연결된 콘텐츠 관리에서 항목을 등록하고 공개한 뒤 다시 열어 주세요.</p>}
+      <div className="site-editor__preview-tools" role="group" aria-label="미리보기 크기">{editorViewports.map((viewport) => <button key={viewport.id} type="button" disabled={locked} aria-pressed={device === viewport.id} onClick={() => onDeviceChange(viewport.id)}>{viewport.label} {viewport.width}</button>)}</div>
+      <div className="site-editor__preview-tools" role="group" aria-label="미리보기 표시"><button type="button" aria-pressed={fit} onClick={() => setFit(true)}>화면에 맞춤</button><button type="button" aria-pressed={!fit} onClick={() => setFit(false)}>실제 크기</button><button type="button" disabled={locked} onClick={() => setRefresh((value) => value + 1)}>새로고침</button></div>
+      {loadingPath ? <p role="status">미리볼 공개 항목을 찾는 중입니다.</p> : path ? <PreviewFrame key={`${page}-${path}-${refresh}`} page={page} label={label} path={path} device={device} documents={documents} fit={fit} locked={locked} {...canvasOptions} /> : <p className="site-editor__empty">미리볼 공개 항목이 없습니다. 연결된 콘텐츠 관리에서 항목을 등록하고 공개한 뒤 다시 열어 주세요.</p>}
     </div>
   </section>
 }

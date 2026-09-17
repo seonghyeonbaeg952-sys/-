@@ -7,7 +7,14 @@ export type EditorPageId =
 
 export type EditorFont = 'system' | 'gothic-a1' | 'hahmlet' | 'arita-buri' | 'gowun-batang' | 'grandiflora'
 
-export type EditorTextStyle = { fontFamily?: EditorFont; fontSize?: number }
+export type EditorTextStyle = {
+  fontFamily?: EditorFont
+  fontSize?: number
+  color?: string
+  fontWeight?: 400 | 500 | 600 | 700 | 800
+  fontStyle?: 'normal' | 'italic'
+  textDecoration?: 'none' | 'underline' | 'line-through'
+}
 /** UTF-16 offsets, aligned to whole graphemes (the browser selection convention). */
 export type EditorTextRun = { start: number; end: number; style: EditorTextStyle }
 export type EditorStyledCopy = { text: string; runs: EditorTextRun[] }
