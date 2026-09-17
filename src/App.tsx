@@ -4,6 +4,8 @@ import { createBrowserRouter, Navigate, Route, RouterProvider, Routes } from 're
 import { PublicLayout } from './components/layout/PublicLayout'
 import { RouteScrollManager } from './components/layout/RouteScrollManager'
 import { SiteEditorProvider } from './components/site-editor/SiteEditorProvider'
+import { useSiteEditor } from './components/site-editor/useSiteEditor'
+import { FormattedCopy } from './components/site-editor/FormattedCopy'
 import {
   COLOR_SAMPLE_BASENAME,
   isColorSamplePath,
@@ -188,6 +190,7 @@ const AdminAccountPage = lazy(() =>
 )
 
 export function RouteFallback() {
+  const { copy: copyText } = useSiteEditor()
   const isPublicRoute = !window.location.pathname.startsWith('/admin')
 
   if (!isPublicRoute) {
@@ -208,8 +211,8 @@ export function RouteFallback() {
         <span>C</span>
       </div>
       <div className="route-loading-screen__copy">
-        <p>서울모테트청소년합창단</p>
-        <strong>페이지를 준비하고 있습니다</strong>
+        <p><FormattedCopy page="common" id="common.route.brand" text={copyText('common', 'common.route.brand', '서울모테트청소년합창단')}>{copyText('common', 'common.route.brand', '서울모테트청소년합창단')}</FormattedCopy></p>
+        <strong><FormattedCopy page="common" id="common.route.loading" text={copyText('common', 'common.route.loading', '페이지를 준비하고 있습니다')}>{copyText('common', 'common.route.loading', '페이지를 준비하고 있습니다')}</FormattedCopy></strong>
       </div>
     </main>
   )

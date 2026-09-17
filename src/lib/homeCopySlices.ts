@@ -1,4 +1,5 @@
 import type { EditorTextRun } from '../types/siteEditor'
+import { canonicalTextStyle } from './siteEditorTextStyles'
 
 export type HomeCopyPart = {
   sourceKey?: string
@@ -37,7 +38,7 @@ export function projectHomeCopyRuns(part: HomeCopyPart, runs: readonly EditorTex
   const append = (start: number, end: number, run: EditorTextRun) => {
     if (start >= end) return
     const previous = result.runs.at(-1)
-    if (previous?.end === start && previous.style.fontFamily === run.style.fontFamily && previous.style.fontSize === run.style.fontSize) previous.end = end
+    if (previous?.end === start && JSON.stringify(canonicalTextStyle(previous.style)) === JSON.stringify(canonicalTextStyle(run.style))) previous.end = end
     else result.runs.push({ start, end, style: run.style })
   }
   if (!part.collapseWhitespace) {

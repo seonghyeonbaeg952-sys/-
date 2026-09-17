@@ -101,7 +101,7 @@ function PosterViewer({ src, title, onClose }: PosterProps & { onClose: () => vo
             aria-pressed={zoomed}
             onClick={() => { setZoomed(current => !current); canvasRef.current?.scrollTo(0, 0) }}
             type="button"
-          >{zoomed ? '화면에 맞추기' : '확대'}</button>
+          >{zoomed ? <FormattedCopy page="concert-detail" id="concert-detail.fixed.ConcertPoster.96aaea968a" text={copyText("concert-detail", "concert-detail.fixed.ConcertPoster.96aaea968a", "화면에 맞추기")}>{copyText("concert-detail", "concert-detail.fixed.ConcertPoster.96aaea968a", "화면에 맞추기")}</FormattedCopy> : <FormattedCopy page="concert-detail" id="concert-detail.fixed.ConcertPoster.11c2e8e755" text={copyText("concert-detail", "concert-detail.fixed.ConcertPoster.11c2e8e755", "확대")}>{copyText("concert-detail", "concert-detail.fixed.ConcertPoster.11c2e8e755", "확대")}</FormattedCopy>}</button>
           <button aria-label={copyText("concert-detail", "concert-detail.fixed.ConcertPoster.ebfe025c82", "포스터 닫기")} onClick={onClose} ref={closeRef} type="button">{<FormattedCopy page="concert-detail" id="concert-detail.fixed.ConcertPoster.e73c04e5c1" text={copyText("concert-detail", "concert-detail.fixed.ConcertPoster.e73c04e5c1", "닫기 ")}>{copyText("concert-detail", "concert-detail.fixed.ConcertPoster.e73c04e5c1", "닫기 ")}</FormattedCopy>}<span aria-hidden="true">×</span></button>
         </div>
       </header>

@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { SiteCopy } from '../site-editor/SiteCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useMemo, useState } from 'react'
@@ -30,6 +31,7 @@ export function HistoryCueSheetExperience({
   history,
   shouldUseLegacyFallback,
 }: HistoryCueSheetExperienceProps) {
+  const { copy: copyText } = useSiteEditor()
   const { copy: editorCopy } = useSiteEditor()
   const sourceRows = useMemo<readonly HistoryCueSource[]>(() => {
     if (history.length > 0) {
@@ -139,7 +141,7 @@ export function HistoryCueSheetExperience({
                   <strong>
                     {cmsHeroImage
                       ? editorCopy('history', 'history.photo.caption', '첫 번째 공개 사진 기록')
-                      : 'FOLIO 18 · 2025 11TH REGULAR CONCERT'}
+                      : <FormattedCopy page="history" id="history.fixed.HistoryCueSheetExperience.7205bf9fa9" text={copyText("history", "history.fixed.HistoryCueSheetExperience.7205bf9fa9", "FOLIO 18 · 2025 11TH REGULAR CONCERT")}>{copyText("history", "history.fixed.HistoryCueSheetExperience.7205bf9fa9", "FOLIO 18 · 2025 11TH REGULAR CONCERT")}</FormattedCopy>}
                   </strong>
                 </figcaption>
               </figure>

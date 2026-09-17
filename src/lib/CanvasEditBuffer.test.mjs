@@ -130,3 +130,98 @@ test('every IME update derives outside styles from the original composition snap
   assert.deepEqual(undone.runs, original.runs)
   assert.deepEqual(api.moveCanvasBufferHistory(undone, 'redo').buffer.runs, buffer.runs)
 })
+
+function createCollapsed(runs = []) {
+  const text = '앞| \t함께\t\t노래  |뒤'
+  const collapsedBlock = { ...block, visibleText: '함께 노래', segments: [{ source: { ...source, text }, sourceStart: 2, sourceEnd: 12, visibleStart: 0, visibleEnd: 5, transform: 'collapse-whitespace' }] }
+  // The real parent excludes trimmed characters from the edit grant.
+  const collapsedGrant = { ...grant, fields: [{ ...grant.fields[0], text, runs, ranges: [{ start: 4, end: 10 }] }] }
+  const result = api.createCanvasEditBuffer(collapsedBlock, collapsedGrant)
+  assert.equal(result.ok, true, result.reason)
+  return result.buffer
+}
+
+test('normalized text editing preserves hidden trims and untouched repeated whitespace in its original authorized slice', () => {
+  const buffer = createCollapsed([{ start: 8, end: 10, style: { color: '#123456' } }])
+  assert.deepEqual(buffer.runs, [{ start: 3, end: 5, style: { color: '#123456' } }])
+  const next = api.replaceCanvasBufferText(buffer, '함께 합창', { start: 5, end: 5 }, false, { start: 3, end: 5 })
+  assert.equal(next.ok, true, next.reason)
+  assert.deepEqual(api.getCanvasBufferChanges(next.buffer)[0].edits, [{ start: 4, end: 10, text: '함께\t\t합창', runs: [{ start: 4, end: 6, style: { color: '#123456' } }] }])
+  const undone = api.moveCanvasBufferHistory(next.buffer, 'undo').buffer
+  assert.deepEqual(api.getCanvasBufferChanges(undone), api.getCanvasBufferChanges(buffer))
+  assert.deepEqual(api.getCanvasBufferChanges(api.moveCanvasBufferHistory(undone, 'redo').buffer), api.getCanvasBufferChanges(next.buffer))
+})
+
+test('deleting a normalized visible space deletes its full original whitespace run only', () => {
+  const result = api.replaceCanvasBufferText(createCollapsed(), '함께노래', { start: 2, end: 2 }, false, { start: 2, end: 3 })
+  assert.equal(result.ok, true, result.reason)
+  assert.equal(api.getCanvasBufferChanges(result.buffer)[0].edits[0].text, '함께노래')
+})
+
+test('formatting normalized text maps styles to original characters without coloring hidden whitespace', () => {
+  const original = createCollapsed([{ start: 7, end: 8, style: { color: '#abcdef' } }])
+  const result = api.applyCanvasBufferStyle(original, { start: 0, end: 5 }, { fontWeight: 700 })
+  assert.equal(result.ok, true, result.reason)
+  assert.deepEqual(result.buffer.runs, [{ start: 0, end: 5, style: { fontWeight: 700 } }])
+  assert.deepEqual(api.getCanvasBufferChanges(result.buffer)[0].edits, [{ start: 4, end: 10, text: '함께\t\t노래', runs: [
+    { start: 0, end: 3, style: { fontWeight: 700 } }, { start: 3, end: 4, style: { color: '#abcdef' } }, { start: 4, end: 6, style: { fontWeight: 700 } },
+  ] }])
+})
+
+test('normalized Korean composition preserves source whitespace and undoes the whole composition once', () => {
+  const original = api.selectCanvasBuffer(createCollapsed(), { start: 3, end: 5 }).buffer
+  let buffer = api.beginCanvasBufferComposition(original)
+  for (const text of ['함께 ㅎ', '함께 한', '함께 한글']) {
+    const result = api.replaceCanvasBufferText(buffer, text, { start: text.length, end: text.length }, true)
+    assert.equal(result.ok, true, result.reason); buffer = result.buffer
+  }
+  buffer = api.endCanvasBufferComposition(buffer)
+  assert.equal(api.getCanvasBufferChanges(buffer)[0].edits[0].text, '함께\t\t한글')
+  assert.equal(buffer.past.length, 1)
+  assert.deepEqual(api.getCanvasBufferChanges(api.moveCanvasBufferHistory(buffer, 'undo').buffer), api.getCanvasBufferChanges(original))
+})
+
+test('non-representable normalized whitespace input is rejected without changing the source or history', () => {
+  const original = createCollapsed()
+  const result = api.replaceCanvasBufferText(original, '함께  노래', { start: 3, end: 3 }, false, { start: 2, end: 2 })
+  assert.equal(result.ok, false)
+  assert.equal(result.buffer, original)
+})
+
+test('successive normalized replacements update their source coordinates but keep the original grant interval', () => {
+  let buffer = createCollapsed()
+  buffer = api.replaceCanvasBufferText(buffer, '함께 새노래', { start: 6, end: 6 }, false, { start: 3, end: 5 }).buffer
+  const next = api.replaceCanvasBufferText(buffer, '함께 새합창', { start: 6, end: 6 }, false, { start: 4, end: 6 })
+  assert.equal(next.ok, true, next.reason)
+  assert.deepEqual(api.getCanvasBufferChanges(next.buffer)[0].edits, [{ start: 4, end: 10, text: '함께\t\t새합창', runs: [] }])
+})
+
+test('deleting all normalized text and typing again keeps hidden source trims outside the grant', () => {
+  const empty = api.replaceCanvasBufferText(createCollapsed(), '', { start: 0, end: 0 }, false)
+  assert.equal(empty.ok, true, empty.reason)
+  const next = api.replaceCanvasBufferText(empty.buffer, '새', { start: 1, end: 1 }, false)
+  assert.equal(next.ok, true, next.reason)
+  assert.deepEqual(api.getCanvasBufferChanges(next.buffer)[0].edits, [{ start: 4, end: 10, text: '새', runs: [] }])
+})
+
+test('the real parent grant accepts a normalized buffer patch while preserving invisible surrounding text and styles', async () => {
+  const controller = await vite.ssrLoadModule('/src/components/admin/site-editor/editorCanvasController.ts')
+  const text = '앞| \t함께\t\t노래  |뒤'
+  const original = { schemaVersion: 1, copy: {}, deviceCopy: {}, appearance: {}, textStyles: { shared: {
+    'notices.title': { text, runs: [{ start: 0, end: 4, style: { color: '#123456' } }, { start: 10, end: 14, style: { fontStyle: 'italic' } }] },
+  } } }
+  const context = { editorPage: 'notices', previewPage: 'notices', device: 'desktop', scope: 'desktop', documents: { notices: original }, loadedOwners: new Set(['notices']), defaultsTrusted: true, defaults: { 'notices.title': text }, baseDraftSequence: 1 }
+  const projectedBlock = { ...block, visibleText: '함께 노래', segments: [{ source: { ...source, text }, sourceStart: 2, sourceEnd: 12, visibleStart: 0, visibleEnd: 5, transform: 'collapse-whitespace' }] }
+  const issued = controller.makeCanvasGrant(context, projectedBlock, { editId: 'normalized-edit', fieldVersionFactory: () => 'normalized-field' })
+  assert.equal(issued.ok, true, issued.message)
+  const created = api.createCanvasEditBuffer(projectedBlock, issued.issued.grant)
+  assert.equal(created.ok, true, created.reason)
+  const buffer = api.replaceCanvasBufferText(created.buffer, '함께 합창', { start: 5, end: 5 }, false, { start: 3, end: 5 }).buffer
+  const committed = controller.commitCanvasGrant(context, issued.issued, api.getCanvasBufferChanges(buffer))
+  assert.equal(committed.ok, true, committed.message)
+  assert.equal(committed.document.deviceCopy.desktop['notices.title'], '앞| \t함께\t\t합창  |뒤')
+  assert.deepEqual(committed.document.textStyles.desktop['notices.title'].runs, [
+    { start: 0, end: 4, style: { color: '#123456' } }, { start: 10, end: 14, style: { fontStyle: 'italic' } },
+  ])
+  assert.deepEqual(original.deviceCopy, {})
+})

@@ -67,7 +67,7 @@ function ContactContent() {
         <p className="contact-atelier__eyebrow">{<FormattedCopy page="contact" id="contact.fixed.ContactPage.f34c03131f" text={copyText("contact", "contact.fixed.ContactPage.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}>{copyText("contact", "contact.fixed.ContactPage.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</FormattedCopy>}</p>
         <div className="contact-atelier__title-row">
           <h1>{title}</h1>
-          <p>{activeSection === 'support' ? (supportSettings?.subtitle || '후원 방식과 약정 내용을 확인해 주세요.') : <FormattedCopy page="contact" id="contact.description" text={t('description')} lineBreaks><CopyLines text={t('description')} /></FormattedCopy>}</p>
+          <p>{activeSection === 'support' ? (supportSettings?.subtitle || <FormattedCopy page="contact" id="contact.fixed.ContactPage.3752940cdb" text={copyText("contact", "contact.fixed.ContactPage.3752940cdb", "후원 방식과 약정 내용을 확인해 주세요.")}>{copyText("contact", "contact.fixed.ContactPage.3752940cdb", "후원 방식과 약정 내용을 확인해 주세요.")}</FormattedCopy>) : <FormattedCopy page="contact" id="contact.description" text={t('description')} lineBreaks><CopyLines text={t('description')} /></FormattedCopy>}</p>
         </div>
       </header>
       <nav className="contact-atelier__navigation contact-atelier__shell" aria-label={copyText("contact", "contact.fixed.ContactPage.29d1e6fdd4", "후원·문의 섹션 선택")}>
@@ -83,7 +83,7 @@ function ContactContent() {
             <div className="contact-atelier__aside">
               <p className="contact-atelier__eyebrow">{<FormattedCopy page="contact" id="contact.support" text={t('support')}>{t('support')}</FormattedCopy>}</p>
               <h2 id="contact-support-title"><FormattedCopy page="contact" id="contact.supportTitle" text={t('supportTitle')} lineBreaks><CopyLines text={t('supportTitle')} /></FormattedCopy></h2>
-              <p>{supportSettings?.description || siteSettings.support_text || '후원 관련 안내는 문의를 통해 도와드리겠습니다.'}</p>
+              <p>{supportSettings?.description || siteSettings.support_text || <FormattedCopy page="contact" id="contact.fixed.ContactPage.a5bc205860" text={copyText("contact", "contact.fixed.ContactPage.a5bc205860", "후원 관련 안내는 문의를 통해 도와드리겠습니다.")}>{copyText("contact", "contact.fixed.ContactPage.a5bc205860", "후원 관련 안내는 문의를 통해 도와드리겠습니다.")}</FormattedCopy>}</p>
               <Link className="contact-atelier__action contact-atelier__action--primary" to={supportSettings ? '/contact?section=support#support' : '/contact?section=inquiry&type=support#form'}>{supportSettings ? <FormattedCopy page="contact" id="contact.pledgeAction" text={t('pledgeAction')}>{t('pledgeAction')}</FormattedCopy> : <FormattedCopy page="contact" id="contact.supportInquiry" text={t('supportInquiry')}>{t('supportInquiry')}</FormattedCopy>} <span aria-hidden="true">→</span></Link>
             </div>
             <div>
@@ -121,7 +121,7 @@ function ContactContent() {
             <div className="contact-atelier__columns">
               <div>
                 <p className="contact-atelier__eyebrow">{<FormattedCopy page="contact" id="contact.location" text={t('location')}>{t('location')}</FormattedCopy>}</p>
-                <h2 id="contact-location-title">{address || '장소 정보를 준비하고 있습니다.'}</h2>
+                <h2 id="contact-location-title">{address || <FormattedCopy page="contact" id="contact.fixed.ContactPage.85e1cf0fe2" text={copyText("contact", "contact.fixed.ContactPage.85e1cf0fe2", "장소 정보를 준비하고 있습니다.")}>{copyText("contact", "contact.fixed.ContactPage.85e1cf0fe2", "장소 정보를 준비하고 있습니다.")}</FormattedCopy>}</h2>
                 {location?.transit_info ? <p>{location.transit_info}</p> : null}
                 {location?.parking_info ? <p>{location.parking_info}</p> : null}
                 <div className="contact-atelier__map-actions">{maps.buttons.map(action => <a key={action.provider} className="contact-atelier__action" href={action.href} target="_blank" rel="noopener noreferrer">{action.label} <span aria-hidden="true">↗</span></a>)}</div>

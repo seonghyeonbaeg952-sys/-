@@ -52,6 +52,7 @@ function editor(initial = {}) {
     cursor = 0
     tree = component.EditorTextSelection({ label: '제목', value, runs, allowFormatting: initial.allowFormatting ?? true,
       onChange(text, nextRuns) { value = text; runs = nextRuns },
+      onCompositionChange: initial.onCompositionChange,
     })
     textarea.value = value
     find(node => node.type === 'textarea')[0].props.ref.current = textarea
@@ -159,4 +160,11 @@ test('one undo reverses a completed Korean IME composition without leaving an un
   assert.equal(p.snapshot().text, '')
   p.key('z', { shiftKey: true })
   assert.equal(p.snapshot().text, '한')
+})
+
+test('outer document history receives one composition boundary including the final text', () => {
+  const phases = []
+  const p = editor({ value: '', onCompositionChange: active => phases.push({ active, text: p.snapshot().text }) })
+  p.compose('start'); p.type('ㅎ', true); p.type('하', true); p.type('한', true); p.compose('end')
+  assert.deepEqual(phases, [{ active: true, text: '' }, { active: false, text: '한' }])
 })

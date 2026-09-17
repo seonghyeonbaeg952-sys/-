@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { HomeCopy } from './HomeCopy'
 import { useId } from 'react'
@@ -58,7 +59,7 @@ export function ResponsiveArchive({ buttonLabel, categoryLabel, emptyDescription
   const tabs = <nav aria-label={categoryLabel} className="home-responsive-archive__tabs">
     <TransitionLink to="/gallery?tab=photos"><span aria-hidden="true">01</span>{copyText("home", "home.fixed.ResponsiveArchive.6005c285bf", " 사진 ")}{tablet ? <span aria-hidden="true">↗</span> : null}</TransitionLink>
     <TransitionLink to="/gallery?tab=posters"><span aria-hidden="true">02</span>{copyText("home", "home.fixed.ResponsiveArchive.931ffe3cf3", " 포스터 ")}{tablet ? <span aria-hidden="true">↗</span> : null}</TransitionLink>
-    <TransitionLink to="/gallery?tab=videos"><span aria-hidden="true">03</span> {tablet ? '동영상' : '영상'} {tablet ? <span aria-hidden="true">↗</span> : null}</TransitionLink>
+    <TransitionLink to="/gallery?tab=videos"><span aria-hidden="true">03</span> {tablet ? <FormattedCopy page="home" id="home.fixed.ResponsiveArchive.c11734267e" text={copyText("home", "home.fixed.ResponsiveArchive.c11734267e", "동영상")}>{copyText("home", "home.fixed.ResponsiveArchive.c11734267e", "동영상")}</FormattedCopy> : <FormattedCopy page="home" id="home.fixed.ResponsiveArchive.be562142ef" text={copyText("home", "home.fixed.ResponsiveArchive.be562142ef", "영상")}>{copyText("home", "home.fixed.ResponsiveArchive.be562142ef", "영상")}</FormattedCopy>} {tablet ? <span aria-hidden="true">↗</span> : null}</TransitionLink>
   </nav>
   return (
     <section id="home-responsive-archive" aria-labelledby={headingId} className="flow-section home-section home-responsive-archive" data-flow-section="archive-stack">

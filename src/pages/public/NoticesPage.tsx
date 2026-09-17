@@ -20,7 +20,7 @@ import { usePageCopy } from '../../components/site-editor/usePageCopy'
 import { CopyLines } from '../../components/site-editor/SiteCopy'
 import '../../styles/notices-page.css'
 
-const categoryOptions = [
+const defaultCategoryOptions = [
   { value: 'all', label: '전체 분류' },
   ...Object.entries(noticeCategoryLabels).map(([value, label]) => ({ value, label })),
 ]
@@ -28,6 +28,7 @@ const categoryOptions = [
 export function NoticesPage() {
   const { copy: copyText } = useSiteEditor()
   const t = usePageCopy('notices')
+  const categoryOptions = defaultCategoryOptions.map(item => ({ ...item, label: copyText('notices', `notices.options.${item.value}`, item.label) }))
   const noticesData = useNoticesData()
   const [searchParams, setSearchParams] = useSearchParams()
   const resultsRef = useRef<HTMLDivElement>(null)
@@ -164,7 +165,7 @@ export function NoticesPage() {
                     to={{ pathname: `/notices/${encodeURIComponent(notice.id)}`, search: listSearch ? `?${listSearch}` : '' }}
                   >
                     <span className="notices-page__row-category">
-                      {notice.is_important ? '중요 공지' : getNoticeCategoryLabel(notice.category)}
+                      {notice.is_important ? <FormattedCopy page="notices" id="notices.fixed.NoticesPage.39b62d01a5" text={copyText("notices", "notices.fixed.NoticesPage.39b62d01a5", "중요 공지")}>{copyText("notices", "notices.fixed.NoticesPage.39b62d01a5", "중요 공지")}</FormattedCopy> : <FormattedCopy page="notices" id={`notices.options.${notice.category}`} text={copyText('notices', `notices.options.${notice.category}`, getNoticeCategoryLabel(notice.category))}>{copyText('notices', `notices.options.${notice.category}`, getNoticeCategoryLabel(notice.category))}</FormattedCopy>}
                     </span>
                     <div className="notices-page__row-copy">
                       <h2>{notice.title}</h2>

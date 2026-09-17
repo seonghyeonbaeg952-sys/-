@@ -4,6 +4,7 @@ import { homeRichCopySourceKeys } from '../../content/homeRichCopyKeys'
 import { projectHomeCopyRuns, type HomeCopyPart } from '../../lib/homeCopySlices'
 import { resolveTextRuns } from '../../lib/siteEditorTextStyles'
 import { FormattedCopy, TextRunContent } from '../site-editor/FormattedCopy'
+import { CanvasCopy, type CanvasCopyPart } from '../site-editor/CanvasCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 
 type HomeCopyProps = {
@@ -30,8 +31,15 @@ export function HomeCopy({ sourceKey, text, fullText, offset, children, parts }:
         ? resolveTextRuns(documents.home, device, partKey, source) : []
       return projectHomeCopyRuns(part, runs)
     })
-    if (projected.map(part => part.text).join('') !== text || !projected.some(part => part.runs.length)) return children ?? text
-    return createElement('smyc-text', { className: 'site-copy-text' }, projected.map((part, index) => <TextRunContent key={index} text={part.text} runs={part.runs} />))
+    const matches = projected.map(part => part.text).join('') === text
+    const content = matches && projected.some(part => part.runs.length)
+      ? createElement('smyc-text', { className: 'site-copy-text' }, projected.map((part, index) => <TextRunContent key={index} text={part.text} runs={part.runs} />))
+      : children ?? text
+    const canvasParts: CanvasCopyPart[] = matches ? parts.map(part => ({
+      key: part.sourceKey && homeRichCopySourceKeys[device].has(part.sourceKey) ? homeFieldKeys.get(`${device}:${part.sourceKey}`) : undefined,
+      text: part.text, fullText: part.fullText, offset: part.offset, collapseWhitespace: part.collapseWhitespace,
+    })) : [{ text }]
+    return <CanvasCopy page="home" id={canvasParts.find(part => part.key)?.key ?? ''} text={text} parts={canvasParts}>{content}</CanvasCopy>
   }
   const id = homeFieldKeys.get(`${device}:${sourceKey}`)
   if (!id || !homeRichCopySourceKeys[device].has(sourceKey)) return children ?? text

@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { HomeCopy } from './HomeCopy'
 import { splitHomeCopyLines } from '../../lib/homeCopySlices'
@@ -1066,10 +1067,10 @@ export function ArchivePageStack({
                       <b>
                         {String(index + 1).padStart(2, '0')} /{' '}
                         {placement === 'photo'
-                          ? '사진'
+                          ? <FormattedCopy page="home" id="home.fixed.ArchivePageStack.1f872b5045" text={copyText("home", "home.fixed.ArchivePageStack.1f872b5045", "사진")}>{copyText("home", "home.fixed.ArchivePageStack.1f872b5045", "사진")}</FormattedCopy>
                           : placement === 'poster'
-                            ? '포스터'
-                            : '영상'}
+                            ? <FormattedCopy page="home" id="home.fixed.ArchivePageStack.6386eae70b" text={copyText("home", "home.fixed.ArchivePageStack.6386eae70b", "포스터")}>{copyText("home", "home.fixed.ArchivePageStack.6386eae70b", "포스터")}</FormattedCopy>
+                            : <FormattedCopy page="home" id="home.fixed.ArchivePageStack.be562142ef" text={copyText("home", "home.fixed.ArchivePageStack.be562142ef", "영상")}>{copyText("home", "home.fixed.ArchivePageStack.be562142ef", "영상")}</FormattedCopy>}
                       </b>
                       <small>{item.title}</small>
                     </span>

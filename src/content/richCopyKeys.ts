@@ -1,3 +1,7 @@
+import { commonRichCopyKeys } from './siteCopyCommonCatalog'
+import { computedRichCopyKeys } from './siteCopyOptionsCatalog'
+import { conditionalRichCopyKeys } from './siteCopyConditionalCatalog'
+import { displayRichCopyKeys } from './siteCopyDisplayCatalog'
 // Generated from explicit, statically keyed rendered leaves by scripts/nonhome-rich-copy.mjs.
 // Presence means at least one rich rendered leaf exists, not that every use of a key is styled.
 export const NONHOME_RICH_COPY_KEYS: ReadonlySet<string> = new Set([
@@ -401,7 +405,7 @@ export const NONHOME_RICH_COPY_KEYS: ReadonlySet<string> = new Set([
   "spirit.valuesSection.text6",
 ])
 
-export const richCopyKeys = NONHOME_RICH_COPY_KEYS
+export const richCopyKeys: ReadonlySet<string> = new Set([...NONHOME_RICH_COPY_KEYS, ...commonRichCopyKeys, ...computedRichCopyKeys, ...conditionalRichCopyKeys, ...displayRichCopyKeys])
 
 export const RICH_COPY_LIMITATIONS = [
   'HTML attributes, metadata, alternative text, placeholders and native option values stay plain strings.',

@@ -65,7 +65,7 @@ export function MapPreview({
                   {resolvedPlaceName}
                 </p>
                 <p className="mt-1 break-keep text-sm leading-6 text-text-muted">
-                  {resolvedAddress || '지도 정보 준비 중'}
+                  {resolvedAddress || <FormattedCopy page="common" id="common.fixed.MapPreview.24fe562acf" text={copyText("common", "common.fixed.MapPreview.24fe562acf", "지도 정보 준비 중")}>{copyText("common", "common.fixed.MapPreview.24fe562acf", "지도 정보 준비 중")}</FormattedCopy>}
                 </p>
               </div>
             </div>
@@ -86,7 +86,7 @@ export function MapPreview({
                 target="_blank"
                 variant="secondary"
               >
-                {button.label}
+                <FormattedCopy page="common" id={`common.map.${button.provider}`} text={copyText('common', `common.map.${button.provider}`, button.label)}>{copyText('common', `common.map.${button.provider}`, button.label)}</FormattedCopy>
               </Button>
             ))}
           </div>

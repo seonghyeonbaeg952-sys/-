@@ -41,6 +41,15 @@ test('home copy adapters and unused range metadata preserve default JSX while ke
   assert.notEqual(publicMarkupFingerprint(adapted.replace('summary={summary}', 'summary={otherSummary}'), 'example.tsx'), expected)
 })
 
+test('explicit navigation label identities and footer source metadata preserve default children without masking link changes', () => {
+  const original = 'function A() { return <nav><a href={link.href}>{copy("common", navigationCopyKey(link.href), link.label)}</a><FooterLinkGroup title={title} links={links} /></nav> }'
+  const adapted = 'function A() { return <nav><a href={link.href}>{copy("common", navigationLabelKey(link.href, link.label), link.label)}</a><FooterLinkGroup title={title} links={links} titleCopyKey="common.footer.explore" /></nav> }'
+  const expected = publicMarkupFingerprint(original, 'example.tsx')
+  assert.equal(publicMarkupFingerprint(adapted, 'example.tsx'), expected)
+  assert.notEqual(publicMarkupFingerprint(adapted.replace('href={link.href}', 'href="/other"'), 'example.tsx'), expected)
+  assert.notEqual(publicMarkupFingerprint(adapted.replace(', link.label)}</a>', ', otherLabel)}</a>'), 'example.tsx'), expected)
+})
+
 test('public render dependency graph does not eagerly include the CMS catalogue or admin layout', () => {
   assert.equal(seen.has('src/content/siteCopyCatalog.ts'), false, 'Visitors do not need the editor catalogue')
   const app = ts.createSourceFile('App.tsx', readFileSync('src/App.tsx', 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)

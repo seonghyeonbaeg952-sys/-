@@ -56,10 +56,10 @@ function MediaFigure({ item, poster = false, lead = false, priority = false, onO
           src={item.image_url}
           transform={{ quality: 84, resize: 'contain', width: lead ? 1600 : 980, widths: [420, 760, 980, 1600] }}
         />
-        <span className="gallery-journal__category">{'category' in item ? getGalleryCategoryLabel(item.category) : '포스터'}</span>
+        <span className="gallery-journal__category">{'category' in item ? <FormattedCopy page="gallery" id={`gallery.category.${item.category.trim() || 'archive'}`} text={copyText('gallery', `gallery.category.${item.category.trim() || 'archive'}`, getGalleryCategoryLabel(item.category))}>{copyText('gallery', `gallery.category.${item.category.trim() || 'archive'}`, getGalleryCategoryLabel(item.category))}</FormattedCopy> : <FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.6386eae70b" text={copyText("gallery", "gallery.fixed.GalleryPage.6386eae70b", "포스터")}>{copyText("gallery", "gallery.fixed.GalleryPage.6386eae70b", "포스터")}</FormattedCopy>}</span>
         <h2 className="gallery-journal__media-title">{item.title}</h2>
         {date ? <span className="gallery-journal__date">{formatKoreanDate(date)}</span> : null}
-        <span className="gallery-journal__media-action">{poster ? '포스터' : '사진'}{<FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.f62132629c" text={copyText("gallery", "gallery.fixed.GalleryPage.f62132629c", " 크게 보기 ")}>{copyText("gallery", "gallery.fixed.GalleryPage.f62132629c", " 크게 보기 ")}</FormattedCopy>}<span aria-hidden="true">↗</span></span>
+        <span className="gallery-journal__media-action">{poster ? <FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.6386eae70b" text={copyText("gallery", "gallery.fixed.GalleryPage.6386eae70b", "포스터")}>{copyText("gallery", "gallery.fixed.GalleryPage.6386eae70b", "포스터")}</FormattedCopy> : <FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.1f872b5045" text={copyText("gallery", "gallery.fixed.GalleryPage.1f872b5045", "사진")}>{copyText("gallery", "gallery.fixed.GalleryPage.1f872b5045", "사진")}</FormattedCopy>}{<FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.f62132629c" text={copyText("gallery", "gallery.fixed.GalleryPage.f62132629c", " 크게 보기 ")}>{copyText("gallery", "gallery.fixed.GalleryPage.f62132629c", " 크게 보기 ")}</FormattedCopy>}<span aria-hidden="true">↗</span></span>
       </button>
     </article>
   )
@@ -112,9 +112,9 @@ export function GalleryPage() {
   const selectedItem = items.find(item => item.id === mediaId)
   const selectedIndex = items.findIndex(item => item.id === mediaId)
   const selectedIsPlayable = selectedItem && ('video_url' in selectedItem ? Boolean(getGalleryVideoLinks(selectedItem.video_url)) : true)
-  const categoryOptions = [{ value: 'all', label: '전체 분류' }, ...view.categories]
+  const categoryOptions = [{ value: 'all', label: copyText('gallery', 'gallery.options.all', '전체 분류') }, ...view.categories.map(item => ({ ...item, label: copyText('gallery', `gallery.category.${item.value.trim() || 'archive'}`, item.label) }))]
   if (category !== 'all' && !categoryOptions.some(option => option.value === category)) {
-    categoryOptions.push({ value: category, label: getGalleryCategoryLabel(category) + ' (결과 없음)' })
+    categoryOptions.push({ value: category, label: copyText('gallery', `gallery.category.${category.trim() || 'archive'}`, getGalleryCategoryLabel(category)) + copyText('gallery', 'gallery.options.noResultsSuffix', ' (결과 없음)') })
   }
 
   const closeDetail = useCallback(() => {
@@ -168,7 +168,7 @@ export function GalleryPage() {
           <div className="gallery-journal__filter-row">
             {tab === 'photos' ? (
               <FilterSelect className="gallery-journal__select" label={t('category')} onChange={changeCategory} options={categoryOptions} value={category} />
-            ) : <span className="gallery-journal__collection-label">{<FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.5e1c40e141" text={copyText("gallery", "gallery.fixed.GalleryPage.5e1c40e141", "전체 ")}>{copyText("gallery", "gallery.fixed.GalleryPage.5e1c40e141", "전체 ")}</FormattedCopy>}{tab === 'videos' ? '영상' : '포스터'}</span>}
+            ) : <span className="gallery-journal__collection-label">{<FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.5e1c40e141" text={copyText("gallery", "gallery.fixed.GalleryPage.5e1c40e141", "전체 ")}>{copyText("gallery", "gallery.fixed.GalleryPage.5e1c40e141", "전체 ")}</FormattedCopy>}{tab === 'videos' ? <FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.be562142ef" text={copyText("gallery", "gallery.fixed.GalleryPage.be562142ef", "영상")}>{copyText("gallery", "gallery.fixed.GalleryPage.be562142ef", "영상")}</FormattedCopy> : <FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.6386eae70b" text={copyText("gallery", "gallery.fixed.GalleryPage.6386eae70b", "포스터")}>{copyText("gallery", "gallery.fixed.GalleryPage.6386eae70b", "포스터")}</FormattedCopy>}</span>}
             <p className="gallery-journal__hint">{tab === 'videos' ? <FormattedCopy page="gallery" id="gallery.videoHint" text={t('videoHint')}>{t('videoHint')}</FormattedCopy> : tab === 'posters' ? <FormattedCopy page="gallery" id="gallery.posterHint" text={t('posterHint')}>{t('posterHint')}</FormattedCopy> : <FormattedCopy page="gallery" id="gallery.photoHint" text={t('photoHint')}>{t('photoHint')}</FormattedCopy>}</p>
           </div>
         </div>

@@ -240,3 +240,40 @@ test('unmount clears pending retry work and all mounted handlers without leaving
   assert.equal([...f.document.listeners.values()].every(group => group.size === 0), true)
   assert.equal(Object.hasOwn(f.document.body.dataset, 'canvasEditMode'), false)
 })
+
+test('a normalized target registers its exact raw source slice and commits only the parent-authorized untrimmed text', t => {
+  const f = fixture(t)
+  const target = f.document.createElement('smyc-edit-target')
+  target.textContent = '함께 노래'; f.document.body.append(target)
+  const text = '앞| \t함께\t\t노래  |뒤'
+  f.runtime.registry.register({ instanceId: 'normalized', ownerPage: 'notices', key: 'notices.title', text: '함께 노래', fullText: text, offset: 2, element: target,
+    parts: [{ key: 'notices.title', text: ' \t함께\t\t노래  ', fullText: text, offset: 2, collapseWhitespace: true }] })
+  f.receive({ type: 'canvas-mode', operationId: 'mode', mode: 'edit', scope: 'desktop', device: 'desktop' })
+  const block = f.latest('canvas-register').blocks.find(item => item.id === 'normalized')
+  assert.ok(block, 'normalized source is registered rather than discarded as a mismatched exact slice')
+  assert.deepEqual(block.segments, [{ source: { ownerPage: 'notices', scope: 'desktop', key: 'notices.title', text }, sourceStart: 2, sourceEnd: 12, visibleStart: 0, visibleEnd: 5, transform: 'collapse-whitespace' }])
+  f.receive({ type: 'canvas-begin', operationId: 'begin', blockId: block.id, blockRevision: block.revision })
+  f.receive({ type: 'canvas-editgrant', requestId: f.latest('canvas-editbegin').requestId, accepted: true,
+    grant: { editId: 'edit-1', blockId: block.id, blockRevision: block.revision, ownerPage: 'notices', scope: 'desktop', device: 'desktop', baseDraftSequence: 1,
+      fields: [{ source: { ownerPage: 'notices', scope: 'desktop', key: 'notices.title' }, fieldVersion: 'field-1', text, runs: [], ranges: [{ start: 4, end: 10 }] }] } })
+  const editor = f.editor(); assert.ok(editor)
+  f.nativeSelection.setBaseAndExtent(editor.childNodes[0], 3, editor.childNodes[0], 5)
+  f.input('함께 합창'); f.action('finish')
+  assert.deepEqual(f.latest('canvas-commit').changes[0].edits, [{ start: 4, end: 10, text: '함께\t\t합창', runs: [] }])
+})
+
+test('multiple explicit sources show a list-editing fallback without requesting a grant or changing the page', t => {
+  const f = fixture(t)
+  const target = f.document.createElement('smyc-edit-target'); target.textContent = '함께\n노래'; f.document.body.append(target)
+  f.runtime.registry.register({ instanceId: 'combined', ownerPage: 'notices', key: 'notices.title', text: '함께\n노래', fullText: '함께', offset: 0, element: target,
+    parts: [{ key: 'notices.title', text: '함께' }, { text: '\n' }, { key: 'notices.description', text: '노래' }] })
+  f.receive({ type: 'canvas-mode', operationId: 'mode', mode: 'edit', scope: 'desktop', device: 'desktop' })
+  const block = f.latest('canvas-register').blocks.find(item => item.id === 'combined')
+  assert.ok(block)
+  assert.deepEqual(block.capabilities, { format: false, replaceText: false })
+  f.receive({ type: 'canvas-begin', operationId: 'begin', blockId: block.id, blockRevision: block.revision })
+  assert.equal(f.messages('canvas-editbegin').length, 0)
+  assert.equal(f.editor(), undefined)
+  assert.equal(target.textContent, '함께\n노래')
+  assert.match(f.document.body.textContent, /여러.*원문.*문구 목록/)
+})

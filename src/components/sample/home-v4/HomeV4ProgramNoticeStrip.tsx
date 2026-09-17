@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../../site-editor/FormattedCopy'
 import { useSiteEditor } from '../../site-editor/useSiteEditor'
 import { HomeCopy } from '../../home/HomeCopy'
 import type { Notice } from '../../../types/content'
@@ -81,8 +82,8 @@ export function HomeV4ProgramNoticeStrip({
                 <span className="home-v4-program-note__meta">
                   <span className="home-v4-program-note__category">
                     {notice.is_important
-                      ? '중요 안내'
-                      : categoryLabels[notice.category]}
+                      ? <FormattedCopy page="home" id="home.fixed.HomeV4ProgramNoticeStrip.f1d13e27f7" text={copyText("home", "home.fixed.HomeV4ProgramNoticeStrip.f1d13e27f7", "중요 안내")}>{copyText("home", "home.fixed.HomeV4ProgramNoticeStrip.f1d13e27f7", "중요 안내")}</FormattedCopy>
+                      : <FormattedCopy page="home" id={`home.noticeStripCategory.${notice.category}`} text={copyText('home', `home.noticeStripCategory.${notice.category}`, categoryLabels[notice.category])}>{copyText('home', `home.noticeStripCategory.${notice.category}`, categoryLabels[notice.category])}</FormattedCopy>}
                   </span>
                   <time dateTime={notice.created_at}>
                     {formatShortDate(notice.created_at)}

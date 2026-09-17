@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import type { Notice } from '../../types/content'
 import { getColorSampleHref } from '../../utils/colorSamplePath'
@@ -69,7 +70,7 @@ export function NoticeProgramNotes({
           >
             <span className="min-w-0">
               <span className="notice-note-meta">
-                {notice.is_important ? '중요 안내' : categoryLabels[notice.category]}
+                {notice.is_important ? <FormattedCopy page="home" id="home.fixed.NoticeProgramNotes.f1d13e27f7" text={copyText("home", "home.fixed.NoticeProgramNotes.f1d13e27f7", "중요 안내")}>{copyText("home", "home.fixed.NoticeProgramNotes.f1d13e27f7", "중요 안내")}</FormattedCopy> : <FormattedCopy page="home" id={`home.noticeNotesCategory.${notice.category}`} text={copyText('home', `home.noticeNotesCategory.${notice.category}`, categoryLabels[notice.category])}>{copyText('home', `home.noticeNotesCategory.${notice.category}`, categoryLabels[notice.category])}</FormattedCopy>}
                 <span aria-hidden="true"> · </span>
                 {formatShortDate(notice.created_at)}
               </span>

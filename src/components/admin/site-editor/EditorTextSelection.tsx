@@ -13,9 +13,10 @@ type Props = {
   maxLength?: number
   allowFormatting: boolean
   onChange: (text: string, runs: EditorTextRun[]) => void
+  onCompositionChange?: (active: boolean) => void
 }
 
-export function EditorTextSelection({ label, value, runs, maxLength = 10000, allowFormatting, onChange }: Props) {
+export function EditorTextSelection({ label, value, runs, maxLength = 10000, allowFormatting, onChange, onCompositionChange }: Props) {
   const id = useId()
   const input = useRef<HTMLTextAreaElement>(null)
   const composition = useRef<Snapshot | null>(null)
@@ -96,7 +97,7 @@ export function EditorTextSelection({ label, value, runs, maxLength = 10000, all
     </div> : null}
     {allowFormatting ? <p className="site-editor__selection-status" role="status">{selected ? <>선택: <strong>“{selectedText.length > 35 ? `${selectedText.slice(0, 35)}…` : selectedText}”</strong> · 이 글자에만 적용</> : '먼저 아래에서 바꿀 글자를 선택하세요.'}</p> : null}
     <textarea ref={input} id={`${id}-text`} className="site-editor__text-input" rows={Math.min(10, Math.max(4, value.split('\n').length + 1))} aria-describedby={`${id}-help${error ? ` ${id}-error` : ''}`} aria-invalid={Boolean(error)} maxLength={maxLength} value={value}
-      onCompositionStart={() => { composition.current = { text: value, runs } }}
+      onCompositionStart={() => { composition.current = { text: value, runs }; onCompositionChange?.(true) }}
       onCompositionEnd={event => {
         const before = composition.current
         composition.current = null
@@ -110,6 +111,7 @@ export function EditorTextSelection({ label, value, runs, maxLength = 10000, all
             if (text !== value) onChange(next.text, next.runs)
           }
         } catch (cause) { setError(cause instanceof Error ? cause.message : '입력 내용을 확인해 주세요.') }
+        finally { onCompositionChange?.(false) }
       }}
       onSelect={event => setSelection(snapTextSelection(event.currentTarget.value, event.currentTarget.selectionStart, event.currentTarget.selectionEnd))}
       onChange={event => {

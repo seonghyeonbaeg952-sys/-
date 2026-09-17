@@ -82,7 +82,7 @@ export function JoinGuide({ activeSection, applicationHref, faqs, getSectionHref
     <div className="join-guide">
       <section aria-labelledby="join-guide-title" className="join-guide__intro join-guide__container">
         <div className="join-guide__invitation">
-          <p className="join-guide__eyebrow">{joinInfo.title?.trim() || '입단 안내'}</p>
+          <p className="join-guide__eyebrow">{joinInfo.title?.trim() || <FormattedCopy page="join" id="join.fixed.JoinGuide.bcacfc4004" text={copyText("join", "join.fixed.JoinGuide.bcacfc4004", "입단 안내")}>{copyText("join", "join.fixed.JoinGuide.bcacfc4004", "입단 안내")}</FormattedCopy>}</p>
           <h1 id="join-guide-title"><FormattedCopy page="join" id="join.guideTitle" text={t('guideTitle')} lineBreaks><CopyLines text={t('guideTitle')} /></FormattedCopy></h1>
           <p className="join-guide__description">
             {publicCopy(joinInfo.description, '모집 대상과 오디션, 연습 안내를 확인하고 지원서를 작성해 주세요.')}

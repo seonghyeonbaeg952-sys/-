@@ -5,7 +5,7 @@ import { mockSiteSettings } from '../../constants/mockData'
 import { useContactData } from '../../hooks/usePublicData'
 import { BrandLogo } from '../common/BrandLogo'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
-import { navigationCopyKey } from '../../content/siteCopyCommonCatalog'
+import { navigationCopyKey, navigationLabelKey } from '../../content/siteCopyCommonCatalog'
 import '../../styles/footer-utility.css'
 
 type FooterLink = {
@@ -84,10 +84,12 @@ function FooterLinkGroup({
   className,
   links,
   title,
+  titleCopyKey,
 }: {
   className?: string
   links: FooterLink[]
   title: string
+  titleCopyKey: string
 }) {
   const { copy } = useSiteEditor()
   return (
@@ -97,11 +99,11 @@ function FooterLinkGroup({
         .filter(Boolean)
         .join(' ')}
     >
-      <p className="footer-utility__group-title">{title}</p>
+      <p className="footer-utility__group-title"><FormattedCopy page="common" id={titleCopyKey} text={title}>{title}</FormattedCopy></p>
       <div className="footer-utility__link-list">
         {links.map((link) => (
           <NavLink className="footer-utility__link" key={link.href} to={link.href}>
-            <span>{copy('common', navigationCopyKey(link.href), link.label)}</span>
+            <span><FormattedCopy page="common" id={navigationLabelKey(link.href, link.label)} text={copy('common', navigationLabelKey(link.href, link.label), link.label)}>{copy('common', navigationLabelKey(link.href, link.label), link.label)}</FormattedCopy></span>
             <span aria-hidden="true" className="footer-utility__link-arrow">
               ↗
             </span>
@@ -153,14 +155,14 @@ export function Footer() {
               className="footer-utility__action footer-utility__action--primary"
               to="/join"
             >
-              <span>{copy('common', navigationCopyKey('/join'), '입단 안내')}</span>
+              <span><FormattedCopy page="common" id={navigationLabelKey('/join', '입단 안내')} text={copy('common', navigationLabelKey('/join', '입단 안내'), '입단 안내')}>{copy('common', navigationLabelKey('/join', '입단 안내'), '입단 안내')}</FormattedCopy></span>
               <span aria-hidden="true">↗</span>
             </NavLink>
             <NavLink
               className="footer-utility__action footer-utility__action--secondary"
               to="/contact?section=support"
             >
-              <span>{copy('common', navigationCopyKey('/contact'), '후원·문의')}</span>
+              <span><FormattedCopy page="common" id={navigationCopyKey('/contact')} text={copy('common', navigationCopyKey('/contact'), '후원·문의')}>{copy('common', navigationCopyKey('/contact'), '후원·문의')}</FormattedCopy></span>
               <span aria-hidden="true">↗</span>
             </NavLink>
           </nav>
@@ -171,15 +173,15 @@ export function Footer() {
         <div className="footer-utility__body">
           <section className="footer-utility__contact" aria-labelledby="footer-contact-title">
             <p className="footer-utility__group-title" id="footer-contact-title">
-              {copy('common', 'common.footer.contact', 'CONTACT')}
+              <FormattedCopy page="common" id="common.footer.contact" text={copy('common', 'common.footer.contact', 'CONTACT')}>{copy('common', 'common.footer.contact', 'CONTACT')}</FormattedCopy>
             </p>
             <address className="footer-utility__contact-list">
               <div>
-                <p className="footer-utility__contact-label">{copy('common', 'common.footer.address', '주소')}</p>
+                <p className="footer-utility__contact-label"><FormattedCopy page="common" id="common.footer.address" text={copy('common', 'common.footer.address', '주소')}>{copy('common', 'common.footer.address', '주소')}</FormattedCopy></p>
                 <p className="footer-utility__contact-value">{address}</p>
               </div>
               <div>
-                <p className="footer-utility__contact-label">{copy('common', 'common.footer.phone', '전화')}</p>
+                <p className="footer-utility__contact-label"><FormattedCopy page="common" id="common.footer.phone" text={copy('common', 'common.footer.phone', '전화')}>{copy('common', 'common.footer.phone', '전화')}</FormattedCopy></p>
                 <a
                   className="footer-utility__contact-value footer-utility__contact-link"
                   href={getTelephoneHref(phone)}
@@ -189,7 +191,7 @@ export function Footer() {
               </div>
               {email ? (
                 <div>
-                  <p className="footer-utility__contact-label">{copy('common', 'common.footer.email', '이메일')}</p>
+                  <p className="footer-utility__contact-label"><FormattedCopy page="common" id="common.footer.email" text={copy('common', 'common.footer.email', '이메일')}>{copy('common', 'common.footer.email', '이메일')}</FormattedCopy></p>
                   <p className="footer-utility__contact-value footer-utility__contact-email">
                     {email}
                   </p>
@@ -202,30 +204,32 @@ export function Footer() {
             className="footer-utility__explore"
             links={EXPLORE_LINKS}
             title={copy('common', 'common.footer.explore', 'EXPLORE')}
+            titleCopyKey="common.footer.explore"
           />
           <FooterLinkGroup
             className="footer-utility__participate"
             links={PARTICIPATION_LINKS}
             title={copy('common', 'common.footer.participate', 'TAKE PART')}
+            titleCopyKey="common.footer.participate"
           />
 
           <nav
             aria-label={copyText("common", "common.fixed.Footer.ee6bcbc10b", "공식 소셜 채널")}
             className="footer-utility__link-group footer-utility__social"
           >
-            <p className="footer-utility__group-title">{copy('common', 'common.footer.connect', 'CONNECT')}</p>
+            <p className="footer-utility__group-title"><FormattedCopy page="common" id="common.footer.connect" text={copy('common', 'common.footer.connect', 'CONNECT')}>{copy('common', 'common.footer.connect', 'CONNECT')}</FormattedCopy></p>
             {socialLinks.length > 0 ? (
               <div className="footer-utility__link-list">
                 {socialLinks.map((link) => (
                   <a
-                    aria-label={`${link.label} 새 창으로 열기`}
+                    aria-label={`${copyText('common', `common.footer.social.${link.label}`, link.label)} 새 창으로 열기`}
                     className="footer-utility__link"
                     href={link.href}
                     key={link.label}
                     rel="noreferrer noopener"
                     target="_blank"
                   >
-                    <span>{link.label}</span>
+                    <span><FormattedCopy page="common" id={`common.footer.social.${link.label}`} text={copyText('common', `common.footer.social.${link.label}`, link.label)}>{copyText('common', `common.footer.social.${link.label}`, link.label)}</FormattedCopy></span>
                     <span aria-hidden="true" className="footer-utility__link-arrow">
                       ↗
                     </span>
@@ -233,7 +237,7 @@ export function Footer() {
                 ))}
               </div>
             ) : (
-              <p className="footer-utility__empty">{copy('common', 'common.footer.empty', '공식 채널 준비 중')}</p>
+              <p className="footer-utility__empty"><FormattedCopy page="common" id="common.footer.empty" text={copy('common', 'common.footer.empty', '공식 채널 준비 중')}>{copy('common', 'common.footer.empty', '공식 채널 준비 중')}</FormattedCopy></p>
             )}
           </nav>
         </div>
@@ -243,7 +247,7 @@ export function Footer() {
         <div className="footer-utility__legal">
           <p>© {currentYear}{<FormattedCopy page="common" id="common.fixed.Footer.189e34321f" text={copyText("common", "common.fixed.Footer.189e34321f", " Seoul Motet Youth Choir. All rights reserved.")}>{copyText("common", "common.fixed.Footer.189e34321f", " Seoul Motet Youth Choir. All rights reserved.")}</FormattedCopy>}</p>
           <NavLink className="footer-utility__admin-link" to="/admin/login">
-            {copy('common', 'common.footer.admin', '관리자 로그인')}
+            <FormattedCopy page="common" id="common.footer.admin" text={copy('common', 'common.footer.admin', '관리자 로그인')}>{copy('common', 'common.footer.admin', '관리자 로그인')}</FormattedCopy>
           </NavLink>
           <button
             aria-label={copyText("common", "common.fixed.Footer.f3f317ea45", "페이지 맨 위로 이동")}
@@ -251,7 +255,7 @@ export function Footer() {
             onClick={scrollToPageTop}
             type="button"
           >
-            <span>{copy('common', 'common.footer.top', 'TOP')}</span>
+            <span><FormattedCopy page="common" id="common.footer.top" text={copy('common', 'common.footer.top', 'TOP')}>{copy('common', 'common.footer.top', 'TOP')}</FormattedCopy></span>
             <span aria-hidden="true">↑</span>
           </button>
         </div>

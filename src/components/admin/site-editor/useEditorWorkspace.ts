@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { loadEditorPage, loadEditorRevisions, publishEditorPage, restoreEditorRevision, saveEditorDraft } from '../../../lib/siteEditorApi'
-import { validateSiteEditorDocument } from '../../../lib/siteEditorModel'
+import { EDITOR_PAGE_IDS, validateSiteEditorDocument } from '../../../lib/siteEditorModel'
 import { siteCopyDefinitions } from '../../../content/siteCopyCatalog'
 import type { EditorPageId, SiteEditorPageRecord, SiteEditorRevision } from '../../../types/siteEditor'
 import { acceptEditorRestore, acceptEditorSave, createEditorSession, getEditorStatus, reconcileEditorSession, validateEditorCopyFields, type EditorSession } from './editorSessionModel'
@@ -91,6 +91,17 @@ export function useEditorWorkspace(page: EditorPageId) {
     setMessages((current) => ({ ...current, [target]: null }))
   }, [updateSession])
 
+  // Explicit, read-only search indexing. Existing unsaved sessions are never
+  // replaced; only pages not yet loaded are fetched, in bounded batches.
+  const loadForSearch = useCallback(async () => {
+    const missing = EDITOR_PAGE_IDS.filter(id => !sessionsRef.current[id])
+    for (let offset = 0; offset < missing.length; offset += 3) {
+      if (!mounted.current) break
+      await Promise.all(missing.slice(offset, offset + 3).map(id => refresh(id)))
+    }
+    return EDITOR_PAGE_IDS.filter(id => !sessionsRef.current[id])
+  }, [refresh])
+
   const run = useCallback(async (target: EditorPageId, kind: NonNullable<Action>['kind'], revision?: SiteEditorRevision) => {
     const current = sessionsRef.current[target]
     if (!current || busyRef.current) return false
@@ -135,7 +146,7 @@ export function useEditorWorkspace(page: EditorPageId) {
 
   return {
     sessions, session: sessions[page], loading: loading[page] ?? (!sessions[page] && !errors[page]), error: errors[page] ?? null,
-    message: messages[page] ?? null, action, edit,
+    message: messages[page] ?? null, action, edit, loadForSearch,
     refresh: () => { setLoading((current) => ({ ...current, [page]: true })); return refresh(page) },
     save: () => run(page, 'save'), publish: () => run(page, 'publish'), restore: (revision: SiteEditorRevision) => run(page, 'restore', revision),
     revisions: histories[page] ?? [], historyLoading: historyLoading[page] ?? (!histories[page] && !historyErrors[page]), historyError: historyErrors[page] ?? null,

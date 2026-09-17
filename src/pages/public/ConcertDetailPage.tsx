@@ -50,6 +50,7 @@ function buildConcertStructuredData(concert: Concert) {
 }
 
 function ConcertInformation({ concert }: { concert: Concert }) {
+  const { copy: copyText } = useSiteEditor()
   const t = usePageCopy('concert-detail')
   const dateLabel = getConcertDateLabel(concert.date)
   const today = getSeoulDateString()
@@ -62,11 +63,12 @@ function ConcertInformation({ concert }: { concert: Concert }) {
     statusLabel = '접수·예매 마감'
   }
   if (concert.status === 'cancelled') statusLabel = '공연 취소'
+  const statusKey = `concert-detail.status.${concert.status === 'cancelled' ? 'cancelled' : concert.status === 'closed' && (dateLabel === '날짜 미정' || concert.date.trim() >= today) ? 'closed' : period === 'past' ? 'past' : 'upcoming'}`
 
   return (
     <article className={`concert-detail__article${posterUrl ? ' concert-detail__article--with-poster' : ''}`}>
       <div className="concert-detail__summary">
-        <p className="concert-detail__status">{statusLabel}</p>
+        <p className="concert-detail__status"><FormattedCopy page="concert-detail" id={statusKey} text={copyText('concert-detail', statusKey, statusLabel)}>{copyText('concert-detail', statusKey, statusLabel)}</FormattedCopy></p>
         <h1>{concert.title}</h1>
         <time className="concert-detail__date" dateTime={dateLabel === '날짜 미정' ? undefined : concert.date}>
           {dateLabel}

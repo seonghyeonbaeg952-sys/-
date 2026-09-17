@@ -253,21 +253,24 @@ export function SupportPledgeForm({
   const contactItems = [
     {
       label: '문의 전화',
+      copyKey: 'contact.supportContact.phone',
       value: normalizeSupportDisplayText(
         settings.contact_phone || siteSettings.phone,
       ),
     },
     {
       label: '문의 이메일',
+      copyKey: 'contact.supportContact.email',
       value: normalizeSupportDisplayText(
         settings.contact_email || siteSettings.email,
       ),
     },
     {
       label: '홈페이지',
+      copyKey: 'contact.supportContact.website',
       value: normalizeSupportDisplayText(settings.homepage_url),
     },
-  ].filter((item): item is { label: string; value: string } =>
+  ].filter((item): item is { label: string; value: string; copyKey: string } =>
     Boolean(item.value),
   )
 
@@ -608,7 +611,7 @@ export function SupportPledgeForm({
           <dl className="support-pledge__contacts">
             {contactItems.map((item) => (
               <div key={item.label}>
-                <dt>{item.label}</dt>
+                <dt><FormattedCopy page="contact" id={item.copyKey} text={copyText('contact', item.copyKey, item.label)}>{copyText('contact', item.copyKey, item.label)}</FormattedCopy></dt>
                 <dd>{item.value}</dd>
               </div>
             ))}
@@ -642,7 +645,7 @@ export function SupportPledgeForm({
                 <dl>
                   <div><dt>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.8ccb1fb226" text={copyText("contact", "contact.fixed.SupportPledgeForm.8ccb1fb226", "후원 구분")}>{copyText("contact", "contact.fixed.SupportPledgeForm.8ccb1fb226", "후원 구분")}</FormattedCopy>}</dt><dd>{memberTypeLabel}</dd></div>
                   <div><dt>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.f44dd0ef78" text={copyText("contact", "contact.fixed.SupportPledgeForm.f44dd0ef78", "약정 금액")}>{copyText("contact", "contact.fixed.SupportPledgeForm.f44dd0ef78", "약정 금액")}</FormattedCopy>}</dt><dd>{selectedAmountLabel}</dd></div>
-                  <div><dt>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.b5c634d8c3" text={copyText("contact", "contact.fixed.SupportPledgeForm.b5c634d8c3", "납입자명")}>{copyText("contact", "contact.fixed.SupportPledgeForm.b5c634d8c3", "납입자명")}</FormattedCopy>}</dt><dd>{values.depositor || values.name || '미작성'}</dd></div>
+                  <div><dt>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.b5c634d8c3" text={copyText("contact", "contact.fixed.SupportPledgeForm.b5c634d8c3", "납입자명")}>{copyText("contact", "contact.fixed.SupportPledgeForm.b5c634d8c3", "납입자명")}</FormattedCopy>}</dt><dd>{values.depositor || values.name || <FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.c93d0593b4" text={copyText("contact", "contact.fixed.SupportPledgeForm.c93d0593b4", "미작성")}>{copyText("contact", "contact.fixed.SupportPledgeForm.c93d0593b4", "미작성")}</FormattedCopy>}</dd></div>
                 </dl>
               </div>
               <div className="support-print-amount-controls support-pledge__type-options" role="group" aria-label={copyText("contact", "contact.fixed.SupportPledgeForm.8ccb1fb226", "후원 구분")}>
@@ -743,7 +746,7 @@ export function SupportPledgeForm({
                   <button className="support-print-hidden support-pledge__clear" onClick={clearSignatureDrawing} type="button">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.c8dbc399b9" text={copyText("contact", "contact.fixed.SupportPledgeForm.c8dbc399b9", "지우기")}>{copyText("contact", "contact.fixed.SupportPledgeForm.c8dbc399b9", "지우기")}</FormattedCopy>}</button>
                 </div>
                 <canvas aria-label={copyText("contact", "contact.fixed.SupportPledgeForm.ee44810cdb", "마우스 또는 터치로 그리는 인/서명 영역")} aria-describedby="support-signature-help" className="support-signature-canvas" height={220} onPointerCancel={finishSignatureDrawing} onPointerDown={handleSignaturePointerDown} onPointerLeave={finishSignatureDrawing} onPointerMove={handleSignaturePointerMove} onPointerUp={finishSignatureDrawing} ref={signatureCanvasRef} width={900} />
-                <p className="support-pledge__signer">{values.signature || values.name || '서명 이름'}</p>
+                <p className="support-pledge__signer">{values.signature || values.name || <FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.f7328d56bc" text={copyText("contact", "contact.fixed.SupportPledgeForm.f7328d56bc", "서명 이름")}>{copyText("contact", "contact.fixed.SupportPledgeForm.f7328d56bc", "서명 이름")}</FormattedCopy>}</p>
               </div>
             </fieldset>
             <div className="support-pledge__privacy">
@@ -773,7 +776,7 @@ export function SupportPledgeForm({
 
           <div className="support-pledge__document-footer">
             <dl className="support-pledge__contacts">
-              {contactItems.map(item => <div key={item.label}><dt>{item.label}</dt><dd>{item.value}</dd></div>)}
+              {contactItems.map(item => <div key={item.label}><dt><FormattedCopy page="contact" id={item.copyKey} text={copyText('contact', item.copyKey, item.label)}>{copyText('contact', item.copyKey, item.label)}</FormattedCopy></dt><dd>{item.value}</dd></div>)}
             </dl>
             {contactItems.length === 0 ? <p>{supportFallbackMessage}</p> : null}
             <p className="support-pledge__copy">{settings.footer_note}</p>
@@ -786,7 +789,7 @@ export function SupportPledgeForm({
           <div className="support-print-hidden support-pledge__actions">
             {settings.enable_online_submission && !submitSuccess ? (
               isReviewing ? <>
-                <Button className="support-pledge__button is-primary" aria-busy={isSubmitting} disabled={isSubmitting} onClick={handleConfirm} type="button" variant="primary">{isSubmitting ? '저장 중' : settings.submit_button_label}</Button>
+                <Button className="support-pledge__button is-primary" aria-busy={isSubmitting} disabled={isSubmitting} onClick={handleConfirm} type="button" variant="primary">{isSubmitting ? <FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.3a056462da" text={copyText("contact", "contact.fixed.SupportPledgeForm.3a056462da", "저장 중")}>{copyText("contact", "contact.fixed.SupportPledgeForm.3a056462da", "저장 중")}</FormattedCopy> : settings.submit_button_label}</Button>
                 <Button className="support-pledge__button" disabled={isSubmitting} onClick={() => { setIsReviewing(false); setSubmitError(null) }} type="button" variant="secondary">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.ae5b437795" text={copyText("contact", "contact.fixed.SupportPledgeForm.ae5b437795", "수정하기")}>{copyText("contact", "contact.fixed.SupportPledgeForm.ae5b437795", "수정하기")}</FormattedCopy>}</Button>
               </> : <Button className="support-pledge__button is-primary" type="submit" variant="primary">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.317302ecaa" text={copyText("contact", "contact.fixed.SupportPledgeForm.317302ecaa", "작성 내용 확인 ")}>{copyText("contact", "contact.fixed.SupportPledgeForm.317302ecaa", "작성 내용 확인 ")}</FormattedCopy>}<span aria-hidden="true">→</span></Button>
             ) : null}

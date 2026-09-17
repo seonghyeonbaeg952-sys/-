@@ -16,9 +16,10 @@ const { AboutPreview } = await vite.ssrLoadModule('/src/components/home/AboutPre
 const { ResponsiveJoinInvitation } = await vite.ssrLoadModule('/src/components/home/ResponsiveAboutJoin.tsx')
 const { HOME_CONTENT_DEFAULTS_V2 } = await vite.ssrLoadModule('/src/constants/homeContentV2.ts')
 
-function render(child, device, textStyles = {}) {
+function render(child, device, textStyles = {}, preview = false) {
   const value = { copy: (_page, _key, fallback) => fallback, device, isPreview: false,
     documents: { home: { schemaVersion: 1, copy: {}, deviceCopy: {}, appearance: {}, textStyles } } }
+  if (preview) Object.assign(value, { isPreview: true, canvas: { register: () => () => {}, subscribe: () => () => {}, getActiveId: () => null } })
   return renderToStaticMarkup(createElement(MemoryRouter, null,
     createElement(SiteEditorContext.Provider, { value }, child)))
 }
@@ -107,4 +108,27 @@ test('a changed visible projection never guesses which source characters should 
   assert.equal(render(child, 'desktop', { shared: {
     'home.current.about.paragraphs.1': { text: '원문', runs: [{ start: 0, end: 2, style: { fontSize: 28 } }] },
   } }), '다른 표시')
+})
+
+test('single normalized HomeCopy parts expose an explicit preview target without changing public DOM', () => {
+  const child = createElement(HomeCopy, { sourceKey: 'home.current.about.paragraphs.1', text: '함께 노래',
+    parts: [{ sourceKey: 'home.current.about.paragraphs.1', text: ' \t함께\t노래 ', collapseWhitespace: true }] })
+  assert.match(render(child, 'desktop', {}, true), /^<smyc-edit-target[^>]*data-canvas-target=[^>]*>함께 노래<\/smyc-edit-target>$/)
+  assert.equal(render(child, 'desktop'), '함께 노래')
+})
+
+test('multi-source HomeCopy parts remain selectable for fallback guidance instead of silently disappearing from preview editing', () => {
+  const child = createElement(HomeCopy, { sourceKey: 'home.current.join.description', text: '함께\n노래', parts: [
+    { sourceKey: 'home.current.join.description', text: '함께' }, { text: '\n' }, { sourceKey: 'home.current.join.compactDescription', text: '노래' },
+  ] })
+  assert.match(render(child, 'tablet', {}, true), /^<smyc-edit-target[^>]*>함께\n노래<\/smyc-edit-target>$/)
+  assert.equal(render(child, 'tablet'), '함께\n노래')
+})
+
+test('normalized adjacent colors retain their independent source styles', () => {
+  const child = createElement(HomeCopy, { sourceKey: 'home.current.about.paragraphs.1', text: '함께',
+    parts: [{ sourceKey: 'home.current.about.paragraphs.1', text: '함께', collapseWhitespace: true }] })
+  assert.match(render(child, 'desktop', { shared: { 'home.current.about.paragraphs.1': { text: '함께', runs: [
+    { start: 0, end: 1, style: { color: '#123456' } }, { start: 1, end: 2, style: { color: '#abcdef' } },
+  ] } } }), /color:#123456[^>]*>함<\/smyc-copy><smyc-copy[^>]*color:#abcdef[^>]*>께<\/smyc-copy>/)
 })

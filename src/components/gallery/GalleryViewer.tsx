@@ -27,6 +27,7 @@ export function GalleryViewer({ item, index, count, onClose, onMove }: GalleryVi
   const date = 'taken_at' in item ? item.taken_at : 'concert_date' in item ? item.concert_date : undefined
   const description = 'description' in item ? item.description : ''
   const category = 'category' in item ? getGalleryCategoryLabel(item.category) : video ? '공연 영상' : '포스터'
+  const categoryKey = `gallery.category.${'category' in item ? item.category.trim() || 'archive' : video ? 'video' : 'poster'}`
 
   useEffect(() => {
     const dialog = dialogRef.current
@@ -108,7 +109,7 @@ export function GalleryViewer({ item, index, count, onClose, onMove }: GalleryVi
         ) : null}
         <div className="gallery-viewer__details">
           <p className="gallery-viewer__title">{item.title}</p>
-          <p>{category}{date ? ` · ${formatKoreanDate(date)}` : ''}</p>
+          <p><FormattedCopy page="gallery" id={categoryKey} text={copyText('gallery', categoryKey, category)}>{copyText('gallery', categoryKey, category)}</FormattedCopy>{date ? ` · ${formatKoreanDate(date)}` : ''}</p>
           {description ? <p className="gallery-viewer__description">{description}</p> : null}
           {'concert_id' in item && item.concert_id ? <Link to={`/concerts/${encodeURIComponent(item.concert_id)}`}>{<FormattedCopy page="gallery" id="gallery.relatedConcert" text={t('relatedConcert')}>{t('relatedConcert')}</FormattedCopy>} <span aria-hidden="true">↗</span></Link> : null}
           {video ? <a href={video.external} rel="noreferrer noopener" target="_blank">{<FormattedCopy page="gallery" id="gallery.youtube" text={t('youtube')}>{t('youtube')}</FormattedCopy>} <span aria-hidden="true">↗</span></a> : null}

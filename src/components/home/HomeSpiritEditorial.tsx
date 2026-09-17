@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useMemo, useRef, useState } from 'react'
 import type { CSSProperties, KeyboardEvent } from 'react'
@@ -242,7 +243,7 @@ export function HomeSpiritEditorial({
                       tabIndex={isActive ? 0 : -1}
                       variant="secondary"
                     >
-                      {page.ctaLabel || '정신 자세히 보기'}
+                      {page.ctaLabel || <FormattedCopy page="home" id="home.fixed.HomeSpiritEditorial.20ed6698d9" text={copyText("home", "home.fixed.HomeSpiritEditorial.20ed6698d9", "정신 자세히 보기")}>{copyText("home", "home.fixed.HomeSpiritEditorial.20ed6698d9", "정신 자세히 보기")}</FormattedCopy>}
                     </Button>
                   </div>
                 )

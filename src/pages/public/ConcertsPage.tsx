@@ -137,7 +137,7 @@ function FeaturedStage({ concert, today }: { concert: Concert | null; today: str
       <div className="concerts-page__stage-wash" />
       <div aria-hidden="true" className="concerts-page__stage-orbit" />
       <div className="concerts-page__stage-copy">
-        <p>{period === 'upcoming' ? 'NEXT PERFORMANCE' : 'LATEST RECORD'}</p>
+        <p>{period === 'upcoming' ? <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.3548dbe981" text={copyText("concerts", "concerts.fixed.ConcertsPage.3548dbe981", "NEXT PERFORMANCE")}>{copyText("concerts", "concerts.fixed.ConcertsPage.3548dbe981", "NEXT PERFORMANCE")}</FormattedCopy> : <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.92a738581a" text={copyText("concerts", "concerts.fixed.ConcertsPage.92a738581a", "LATEST RECORD")}>{copyText("concerts", "concerts.fixed.ConcertsPage.92a738581a", "LATEST RECORD")}</FormattedCopy>}</p>
         <strong className="concerts-page__stage-date">{dateParts.monthDay}</strong>
         <h2>{concert.title}</h2>
         <span>
@@ -145,7 +145,7 @@ function FeaturedStage({ concert, today }: { concert: Concert | null; today: str
             .filter(Boolean)
             .join(' · ')}
           <br />
-          {concert.location.trim() || '장소 추후 안내'}
+          {concert.location.trim() || <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.660394603a" text={copyText("concerts", "concerts.fixed.ConcertsPage.660394603a", "장소 추후 안내")}>{copyText("concerts", "concerts.fixed.ConcertsPage.660394603a", "장소 추후 안내")}</FormattedCopy>}
         </span>
         <TransitionLink
           aria-label={`${concert.title} 공연 상세 보기`}
@@ -163,8 +163,10 @@ function FeaturedStage({ concert, today }: { concert: Concert | null; today: str
 }
 
 function ConcertRow({ concert, today }: { concert: Concert; today: string }) {
+  const { copy: copyText } = useSiteEditor()
   const fullDate = getConcertDateLabel(concert.date)
   const period = getConcertPeriod(concert, today)
+  const statusKey = `concerts.status.${concert.status === 'cancelled' ? 'cancelled' : period === 'past' ? 'past' : concert.status === 'open' ? 'open' : 'upcoming'}`
   const hasPoster = Boolean(getSafeHttpUrl(concert.poster_url))
 
   return (
@@ -179,7 +181,7 @@ function ConcertRow({ concert, today }: { concert: Concert; today: string }) {
           dateTime={fullDate === '날짜 미정' ? undefined : concert.date.trim()}
         >
           <strong>{fullDate}</strong>
-          <span>{concert.time.trim() || '시간 미정'}</span>
+          <span>{concert.time.trim() || <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.8b6b258c88" text={copyText("concerts", "concerts.fixed.ConcertsPage.8b6b258c88", "시간 미정")}>{copyText("concerts", "concerts.fixed.ConcertsPage.8b6b258c88", "시간 미정")}</FormattedCopy>}</span>
         </time>
 
         {hasPoster ? (
@@ -190,16 +192,16 @@ function ConcertRow({ concert, today }: { concert: Concert; today: string }) {
 
         <div className="concerts-page__event-copy">
           <p>
-            {getCategoryLabel(concert.category)} ·{' '}
-            {getConcertStatusLabel(concert.status, period)}
+            <FormattedCopy page="concerts" id={`concerts.category.${concert.category}`} text={copyText('concerts', `concerts.category.${concert.category}`, getCategoryLabel(concert.category))}>{copyText('concerts', `concerts.category.${concert.category}`, getCategoryLabel(concert.category))}</FormattedCopy> ·{' '}
+            <FormattedCopy page="concerts" id={statusKey} text={copyText('concerts', statusKey, getConcertStatusLabel(concert.status, period))}>{copyText('concerts', statusKey, getConcertStatusLabel(concert.status, period))}</FormattedCopy>
           </p>
           <h3>{concert.title}</h3>
-          <span>{concert.location.trim() || '장소 추후 안내'}</span>
+          <span>{concert.location.trim() || <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.660394603a" text={copyText("concerts", "concerts.fixed.ConcertsPage.660394603a", "장소 추후 안내")}>{copyText("concerts", "concerts.fixed.ConcertsPage.660394603a", "장소 추후 안내")}</FormattedCopy>}</span>
         </div>
 
         <span className="concerts-page__event-action">
           <span className="concerts-page__event-action-label">
-            {period === 'past' ? '기록 보기' : '공연 상세'}
+            {period === 'past' ? <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.d2276a8437" text={copyText("concerts", "concerts.fixed.ConcertsPage.d2276a8437", "기록 보기")}>{copyText("concerts", "concerts.fixed.ConcertsPage.d2276a8437", "기록 보기")}</FormattedCopy> : <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.c326892968" text={copyText("concerts", "concerts.fixed.ConcertsPage.c326892968", "공연 상세")}>{copyText("concerts", "concerts.fixed.ConcertsPage.c326892968", "공연 상세")}</FormattedCopy>}
           </span>
           <span aria-hidden="true">→</span>
         </span>
@@ -288,20 +290,20 @@ export function ConcertsPage() {
 
   const categoryOptions = useMemo(
     () => [
-      { label: '전체 유형', value: 'all' },
+      { label: copyText('concerts', 'concerts.options.allTypes', '전체 유형'), value: 'all' },
       ...categories.map((category) => ({
-        label: getCategoryLabel(category),
+        label: copyText('concerts', `concerts.category.${category}`, getCategoryLabel(category)),
         value: category,
       })),
     ],
-    [categories],
+    [categories, copyText],
   )
   const yearOptions = useMemo(
     () => [
-      { label: '날짜 전체', value: 'all' },
+      { label: copyText('concerts', 'concerts.options.allDates', '날짜 전체'), value: 'all' },
       ...years.map((year) => ({ label: `${year}년`, value: year })),
     ],
-    [years],
+    [years, copyText],
   )
 
   const concertListStructuredData = useMemo(
@@ -390,7 +392,7 @@ export function ConcertsPage() {
                     <span className="concerts-page__period-long">{label}</span>
                     <span className="concerts-page__period-short">
                       {value === 'all'
-                        ? '전체'
+                        ? <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.a4b69faf0c" text={copyText("concerts", "concerts.fixed.ConcertsPage.a4b69faf0c", "전체")}>{copyText("concerts", "concerts.fixed.ConcertsPage.a4b69faf0c", "전체")}</FormattedCopy>
                         : value === 'upcoming'
                           ? `예정 ${filteredSchedule.upcoming.length}`
                           : `지난 ${filteredSchedule.past.length}`}
@@ -443,12 +445,12 @@ export function ConcertsPage() {
 
             <p className="concerts-page__filter-summary">
               {periodFilter === 'all'
-                ? '전체 공연'
+                ? <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.0395af6295" text={copyText("concerts", "concerts.fixed.ConcertsPage.0395af6295", "전체 공연")}>{copyText("concerts", "concerts.fixed.ConcertsPage.0395af6295", "전체 공연")}</FormattedCopy>
                 : periodFilter === 'past'
-                  ? '지난 공연'
-                  : '예정 공연'}{' '}
-              · {categoryFilter === 'all' ? '전체 유형' : getCategoryLabel(categoryFilter)} ·{' '}
-              {yearFilter === 'all' ? '날짜 제한 없음' : `${yearFilter}년`}
+                  ? <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.1b32435851" text={copyText("concerts", "concerts.fixed.ConcertsPage.1b32435851", "지난 공연")}>{copyText("concerts", "concerts.fixed.ConcertsPage.1b32435851", "지난 공연")}</FormattedCopy>
+                  : <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.b89c609993" text={copyText("concerts", "concerts.fixed.ConcertsPage.b89c609993", "예정 공연")}>{copyText("concerts", "concerts.fixed.ConcertsPage.b89c609993", "예정 공연")}</FormattedCopy>}{' '}
+              · {categoryFilter === 'all' ? <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.52f8bd3b3e" text={copyText("concerts", "concerts.fixed.ConcertsPage.52f8bd3b3e", "전체 유형")}>{copyText("concerts", "concerts.fixed.ConcertsPage.52f8bd3b3e", "전체 유형")}</FormattedCopy> : <FormattedCopy page="concerts" id={`concerts.category.${categoryFilter}`} text={copyText('concerts', `concerts.category.${categoryFilter}`, getCategoryLabel(categoryFilter))}>{copyText('concerts', `concerts.category.${categoryFilter}`, getCategoryLabel(categoryFilter))}</FormattedCopy>} ·{' '}
+              {yearFilter === 'all' ? <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.2458d99325" text={copyText("concerts", "concerts.fixed.ConcertsPage.2458d99325", "날짜 제한 없음")}>{copyText("concerts", "concerts.fixed.ConcertsPage.2458d99325", "날짜 제한 없음")}</FormattedCopy> : `${yearFilter}년`}
             </p>
           </div>
         </section>
@@ -519,7 +521,7 @@ export function ConcertsPage() {
                   <div className="concerts-page__section-heading">
                     <h2 id="past-concerts-title">{<FormattedCopy page="concerts" id="concerts.archive" text={t('archive')}>{t('archive')}</FormattedCopy>}</h2>
                     <p>
-                      {activeArchiveYear ? `${activeArchiveYear}년` : '기록'} ·{' '}
+                      {activeArchiveYear ? `${activeArchiveYear}년` : <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.6e8b375a38" text={copyText("concerts", "concerts.fixed.ConcertsPage.6e8b375a38", "기록")}>{copyText("concerts", "concerts.fixed.ConcertsPage.6e8b375a38", "기록")}</FormattedCopy>} ·{' '}
                       {displayedArchiveRows.length}{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.a57ab05712" text={copyText("concerts", "concerts.fixed.ConcertsPage.a57ab05712", "개")}>{copyText("concerts", "concerts.fixed.ConcertsPage.a57ab05712", "개")}</FormattedCopy>}</p>
                   </div>
 

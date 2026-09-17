@@ -56,7 +56,7 @@ export function NoticeDetailPage() {
         ) : (
           <article className="notices-page__article">
             <div className="notices-page__meta">
-              <span>{notice.is_important ? '중요 공지' : getNoticeCategoryLabel(notice.category)}</span>
+              <span>{notice.is_important ? <FormattedCopy page="notice-detail" id="notice-detail.fixed.NoticeDetailPage.39b62d01a5" text={copyText("notice-detail", "notice-detail.fixed.NoticeDetailPage.39b62d01a5", "중요 공지")}>{copyText("notice-detail", "notice-detail.fixed.NoticeDetailPage.39b62d01a5", "중요 공지")}</FormattedCopy> : <FormattedCopy page="notice-detail" id={`notice-detail.category.${notice.category}`} text={copyText('notice-detail', `notice-detail.category.${notice.category}`, getNoticeCategoryLabel(notice.category))}>{copyText('notice-detail', `notice-detail.category.${notice.category}`, getNoticeCategoryLabel(notice.category))}</FormattedCopy>}</span>
               <span aria-hidden="true">·</span>
               <time dateTime={notice.created_at}>{formatNoticeDate(notice.created_at)}</time>
             </div>

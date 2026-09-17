@@ -3,7 +3,7 @@ import { isCanvasBlock, type CanvasBlock } from '../../lib/siteEditorCanvasModel
 import { applyCanvasBufferStyle, beginCanvasBufferComposition, createCanvasEditBuffer, endCanvasBufferComposition, getCanvasBufferChanges, getCanvasBufferSummary, moveCanvasBufferHistory, replaceCanvasBufferText, selectCanvasBuffer, type CanvasEditBuffer } from '../../lib/CanvasEditBuffer'
 import { captureCanvasSelection, paintCanvasText, readCanvasPlainText, restoreCanvasSelection } from './canvasDom'
 import type { EditorDevice, EditorPageId, EditorTextStyle } from '../../types/siteEditor'
-import type { CanvasCopyRegistry, CanvasCopyTarget } from './CanvasCopy'
+import type { CanvasCopyPart, CanvasCopyRegistry, CanvasCopyTarget } from './CanvasCopy'
 import { getCanvasOverlayBox } from './canvasLayout'
 
 type Payload = CanvasFrameMessage extends infer T ? T extends CanvasFrameMessage ? Omit<T, keyof CanvasEnvelope> : never : never
@@ -59,8 +59,24 @@ export function createCanvasRuntime(config: Config) {
     emitSelection(); position()
   }
   const schedule = () => { window.clearTimeout(timer); timer = window.setTimeout(registerNow, 40) }
-  const makeBlock = (target: CanvasCopyTarget): CanvasBlock => ({ id: target.instanceId, label: target.text.slice(0, 100) || '빈 문구', visibleText: target.text, revision: ++revision,
-    capabilities: { format: true, replaceText: true }, segments: [{ source: { ownerPage: target.ownerPage, key: target.key, scope, text: target.fullText }, sourceStart: target.offset, sourceEnd: target.offset + target.text.length, visibleStart: 0, visibleEnd: target.text.length, transform: target.fullText === target.text ? 'exact' : 'slice' }] })
+  const makeBlock = (target: CanvasCopyTarget): CanvasBlock => {
+    const parts: readonly CanvasCopyPart[] = target.parts ?? [{ key: target.key, text: target.text, fullText: target.fullText, offset: target.offset }]
+    const editable = parts.length === 1 && Boolean(parts[0].key)
+    let cursor = 0
+    const segments: CanvasBlock['segments'] = parts.map(part => {
+      const text = part.collapseWhitespace ? part.text.replace(/\s+/g, ' ').trim() : part.text
+      const fullText = part.fullText ?? part.text, offset = part.offset ?? 0, visibleStart = cursor
+      cursor += text.length
+      return { source: part.key ? { ownerPage: target.ownerPage, key: part.key, scope, text: fullText } : null,
+        sourceStart: part.key ? offset : 0, sourceEnd: part.key ? offset + part.text.length : 0, visibleStart, visibleEnd: cursor,
+        transform: !part.key ? 'literal' : part.collapseWhitespace ? 'collapse-whitespace' : fullText === part.text ? 'exact' : 'slice' }
+    })
+    return { id: target.instanceId, label: target.text.slice(0, 100) || '빈 문구', visibleText: target.text, revision: ++revision,
+      capabilities: { format: editable, replaceText: editable }, segments }
+  }
+  const explainFallback = (block: CanvasBlock) => say(block.segments.length > 1
+    ? '여러 원문을 합친 문구입니다. 문구 목록에서 각 원문을 편집해 주세요.'
+    : '이 문구는 표시된 글자와 원문의 범위를 확인할 수 없습니다. 문구 목록에서 편집해 주세요.')
   const registry: CanvasCopyRegistry = {
     register(target) {
       const block = makeBlock(target)
@@ -134,6 +150,7 @@ export function createCanvasRuntime(config: Config) {
     if (!mode || active || pending) return
     const entry = targets.get(id)
     if (!entry?.target.element.isConnected) return
+    if (!entry.block.capabilities.replaceText && !entry.block.capabilities.format) { explainFallback(entry.block); return }
     const box = rect(entry.target.element)
     if (box.top < 72 || box.bottom > window.innerHeight) entry.target.element.parentElement?.scrollIntoView?.({ block: 'center', behavior: 'instant' })
     pending = { ...entry, requestId: uid() }
@@ -207,7 +224,10 @@ export function createCanvasRuntime(config: Config) {
     if (!id || !targets.has(id)) return
     event.preventDefault(); event.stopImmediatePropagation()
     if (active) { say('현재 문구의 편집을 먼저 마쳐 주세요.'); return }
-    selected = id; emitSelection(); position(); if (event.detail >= 2) begin(id)
+    selected = id; emitSelection(); position()
+    const block = targets.get(id)!.block
+    if (!block.capabilities.replaceText && !block.capabilities.format) explainFallback(block)
+    else if (event.detail >= 2) begin(id)
   }
   const keydown = (event: KeyboardEvent) => {
     if (!mode || event.isComposing || active?.buffer.composing || event.keyCode === 229) return

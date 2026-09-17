@@ -3,6 +3,7 @@ import { useLocation } from 'react-router'
 
 import { usePublicNavigation } from '../../site-editor/usePublicNavigation'
 import { useSiteEditor } from '../../site-editor/useSiteEditor'
+import { FormattedCopy } from '../../site-editor/FormattedCopy'
 import { HomeV4SampleMegaMenu } from './HomeV4SampleMegaMenu'
 import { HomeV4SampleMobileMenu } from './HomeV4SampleMobileMenu'
 import { HomeV4SampleImage } from './HomeV4SampleImage'
@@ -299,7 +300,7 @@ export function HomeV4SampleHeader({
                 }}
                 type="button"
               >
-                <span>{item.label}</span>
+                <span><FormattedCopy page="common" id={item.copyKey} text={item.label}>{item.label}</FormattedCopy></span>
               </button>
             )
           })}
@@ -310,7 +311,7 @@ export function HomeV4SampleHeader({
           href={joinApplicationHref}
           onClick={() => closeDesktopMenu(false)}
         >
-          {copy('common', 'common.header.apply', '입단신청')}
+          <FormattedCopy page="common" id="common.header.apply" text={copy('common', 'common.header.apply', '입단신청')}>{copy('common', 'common.header.apply', '입단신청')}</FormattedCopy>
         </a>
 
         <button

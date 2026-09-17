@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react'
+import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { FormattedCopy } from '../site-editor/FormattedCopy'
 
 import {
   BRANDS,
@@ -77,6 +79,7 @@ export function BrandLogo({
   variant = 'full',
   withSurface,
 }: BrandLogoProps) {
+  const { copy: copyText } = useSiteEditor()
   const [failedSources, setFailedSources] = useState<ReadonlySet<string>>(
     () => new Set(),
   )
@@ -100,14 +103,14 @@ export function BrandLogo({
           className,
         )}
       >
-        <span className="truncate font-bold">{brandConfig.name}</span>
+        <span className="truncate font-bold"><FormattedCopy page="common" id={`common.brand.${brand}.name`} text={copyText('common', `common.brand.${brand}.name`, brandConfig.name)}>{copyText('common', `common.brand.${brand}.name`, brandConfig.name)}</FormattedCopy></span>
         <span
           className={classNames(
             'mt-0.5 truncate text-[0.68em] font-semibold uppercase tracking-[0.16em]',
             theme === 'dark' ? 'text-gold-soft' : 'text-gold-ink',
           )}
         >
-          {brandConfig.nameEn}
+          <FormattedCopy page="common" id={`common.brand.${brand}.nameEn`} text={copyText('common', `common.brand.${brand}.nameEn`, brandConfig.nameEn)}>{copyText('common', `common.brand.${brand}.nameEn`, brandConfig.nameEn)}</FormattedCopy>
         </span>
       </span>
     )
@@ -125,7 +128,7 @@ export function BrandLogo({
       )}
     >
       <img
-        alt={brandConfig.alt}
+        alt={copyText('common', `common.brand.${brand}.alt`, brandConfig.alt)}
         className={classNames(
           'block max-w-full w-auto object-contain',
           variant === 'symbol'

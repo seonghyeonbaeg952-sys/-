@@ -12,6 +12,8 @@ declare module 'react' {
   }
 }
 
+export type CanvasCopyPart = { key?: string; text: string; fullText?: string; offset?: number; collapseWhitespace?: boolean }
+
 export type CanvasCopyTarget = {
   instanceId: string
   ownerPage: EditorPageId
@@ -19,6 +21,7 @@ export type CanvasCopyTarget = {
   text: string
   fullText: string
   offset: number
+  parts?: readonly CanvasCopyPart[]
   element: HTMLElement
 }
 
@@ -32,8 +35,8 @@ const subscribeNone = () => () => {}
 const getNoSelection = () => null
 
 /** Only a connected administrator preview registers explicit source identities. */
-export function CanvasCopy({ page, id, text, fullText = text, offset = 0, children }: {
-  page: EditorPageId; id: string; text: string; fullText?: string; offset?: number; children: ReactNode
+export function CanvasCopy({ page, id, text, fullText = text, offset = 0, parts, children }: {
+  page: EditorPageId; id: string; text: string; fullText?: string; offset?: number; parts?: readonly CanvasCopyPart[]; children: ReactNode
 }) {
   const context = useSiteEditor()
   const registry = context.isPreview ? context.canvas : undefined
@@ -48,8 +51,8 @@ export function CanvasCopy({ page, id, text, fullText = text, offset = 0, childr
   useEffect(() => {
     const node = element.current
     if (!registry || !node || active) return
-    return registry.register({ instanceId, ownerPage: page, key: id, text, fullText, offset, element: node })
-  }, [registry, instanceId, page, id, text, fullText, offset, active])
+    return registry.register({ instanceId, ownerPage: page, key: id, text, fullText, offset, ...(parts ? { parts } : {}), element: node })
+  }, [registry, instanceId, page, id, text, fullText, offset, parts, active])
 
   if (!registry) return children
   return <smyc-edit-target ref={element} data-canvas-target={instanceId}>{active ? snapshot.children : children}</smyc-edit-target>

@@ -54,3 +54,26 @@
 .site-editor__canvas-find>summary{min-height:44px;padding:10px 0;font-size:13px;cursor:pointer;color:var(--editor-muted)}
 .site-editor__canvas-find label{display:grid;gap:8px;font-size:13px;margin-bottom:16px}
 .site-editor__canvas-find select{max-width:100%;min-width:0;padding:8px;border:1px solid var(--editor-line);background:var(--editor-paper)}
+
+/* Copy utilities are scoped to the CMS; public typography and layout stay intact. */
+.copy-tools details,.copy-tools__options{border-top:1px solid var(--editor-line);margin-top:12px}
+.copy-tools summary,.copy-tools__options summary,.copy-tools__global summary{cursor:pointer;min-height:44px;padding:12px 0;font-size:14px;font-weight:600}
+.copy-tools summary:focus-visible,.copy-tools__options summary:focus-visible{outline:2px solid var(--editor-accent);outline-offset:3px}
+.copy-tools__checks{display:flex;flex-wrap:wrap;gap:8px 20px}.copy-tools__checks label,.copy-tools__review article>label{display:flex;align-items:center;gap:10px;min-height:44px;font-size:14px;cursor:pointer}
+.copy-tools input[type=checkbox],.copy-tools__checks input,.copy-tools__review input[type=checkbox]{width:20px;height:20px;min-height:20px;accent-color:var(--editor-accent);flex-shrink:0}
+.copy-tools__label{display:grid;gap:8px;font-size:14px;margin:16px 0;min-width:0}.copy-tools__label>span{font-size:12px;color:var(--editor-muted)}
+.copy-tools__label input,.copy-tools__label select{width:100%;min-width:0;padding:10px 12px;min-height:44px;border:1px solid var(--editor-line);border-radius:4px;background:#fff;color:var(--editor-ink)}
+.copy-tools__label input:focus-visible,.copy-tools__label select:focus-visible{outline:2px solid var(--editor-accent);outline-offset:2px}
+.copy-tools__comparison{margin:0;font-size:14px;display:grid;grid-template-columns:140px minmax(0,1fr);gap:12px;padding:16px;background:#fff;border:1px solid var(--editor-line)}
+.copy-tools__comparison>div{display:contents}.copy-tools__comparison dt{font-weight:600;color:var(--editor-muted)}.copy-tools__comparison dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.copy-tools__match{padding:12px;background:#fff;border:1px solid var(--editor-line);white-space:pre-wrap;overflow-wrap:anywhere}
+.site-editor mark{background:#f4e2b6;color:#302c25;border-radius:2px}
+.copy-tools__review{padding-bottom:0}.copy-tools__review article{border-top:1px solid var(--editor-line);padding:16px 0}.copy-tools__review label span{margin-left:auto;font-size:12px}
+.copy-tools__review dl{display:grid;grid-template-columns:70px minmax(0,1fr);gap:10px;font-size:14px;margin:12px 0}.copy-tools__review dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;max-height:200px;overflow:auto;padding:8px;background:#fff}.copy-tools__review dt{font-weight:600;padding:8px 0}
+.copy-tools__modal-footer{padding-bottom:0}.copy-tools__modal-footer>p{font-size:13px;margin:0 0 8px;color:var(--editor-muted)}
+.copy-tools__global{padding-bottom:0}.copy-tools__global-filters{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.copy-tools__global-results{display:grid;gap:0;border-top:1px solid var(--editor-line)}.copy-tools__global-results button{display:grid;gap:8px;text-align:left;background:transparent;border:0;border-bottom:1px solid var(--editor-line);padding:16px 12px;min-width:0}
+.copy-tools__global-results button:hover{background:#f0e6e9}.copy-tools__global-results span{font-size:14px;overflow-wrap:anywhere}.copy-tools__global-results small{color:var(--editor-muted)}
+.copy-tools__sources>div{display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-top:1px solid var(--editor-line);padding:10px 0}.copy-tools__sources strong{font-size:13px;min-width:125px}
+@media(min-width:768px){.site-editor__copy>.site-editor__filters{grid-template-columns:2fr 1fr 1fr}}
+@media(max-width:600px){.copy-tools__comparison{grid-template-columns:1fr;gap:6px}.copy-tools__comparison dd{margin-bottom:12px}.copy-tools__global-filters{grid-template-columns:1fr;gap:0}.site-editor__field-actions{flex-wrap:wrap}.copy-tools__review dl{grid-template-columns:1fr}.copy-tools__review dt{padding-bottom:0}}

@@ -1,3 +1,4 @@
+import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
@@ -46,16 +47,16 @@ export function JoinCTA({
     .join(' · ')
   const summaryItems = [
     {
-      label: joinSummary[0].label,
-      value: joinInfo?.target?.trim() || joinSummary[0].value,
+      label: copyText('home', 'home.joinSummary.targetLabel', joinSummary[0].label),
+      value: joinInfo?.target?.trim() || copyText('home', 'home.joinSummary.targetFallback', joinSummary[0].value),
     },
     {
-      label: joinSummary[1].label,
-      value: rehearsalSummary || joinSummary[1].value,
+      label: copyText('home', 'home.joinSummary.rehearsalLabel', joinSummary[1].label),
+      value: rehearsalSummary || copyText('home', 'home.joinSummary.rehearsalFallback', joinSummary[1].value),
     },
     {
-      label: joinSummary[2].label,
-      value: joinInfo?.audition_process?.trim() || joinSummary[2].value,
+      label: copyText('home', 'home.joinSummary.processLabel', joinSummary[2].label),
+      value: joinInfo?.audition_process?.trim() || copyText('home', 'home.joinSummary.processFallback', joinSummary[2].value),
     },
   ]
 
@@ -80,15 +81,15 @@ export function JoinCTA({
             />
             <div className="relative min-w-0">
               <StaffSectionLabel className="max-w-xs">
-                {kicker || 'JOIN'}
+                {kicker || <FormattedCopy page="home" id="home.fixed.JoinCTA.a9e153ee4b" text={copyText("home", "home.fixed.JoinCTA.a9e153ee4b", "JOIN")}>{copyText("home", "home.fixed.JoinCTA.a9e153ee4b", "JOIN")}</FormattedCopy>}
               </StaffSectionLabel>
               <h2 className="mt-4 max-w-3xl whitespace-pre-line break-keep text-[clamp(2rem,3.6vw,2.9rem)] font-semibold leading-[1.16] text-navy-deep">
                 {title ||
-                  '입단 대상과 지원 절차를 안내합니다'}
+                  <FormattedCopy page="home" id="home.fixed.JoinCTA.5a9231788b" text={copyText("home", "home.fixed.JoinCTA.5a9231788b", "입단 대상과 지원 절차를 안내합니다")}>{copyText("home", "home.fixed.JoinCTA.5a9231788b", "입단 대상과 지원 절차를 안내합니다")}</FormattedCopy>}
               </h2>
               <p className="mt-4 max-w-3xl whitespace-pre-line break-keep text-base leading-8 text-text-muted">
                 {text ||
-                  '모집 대상, 연습 일정, 오디션 절차를 확인한 뒤 입단지원서를 제출할 수 있습니다. 제출 후 담당자가 보호자 연락처로 안내합니다.'}
+                  <FormattedCopy page="home" id="home.fixed.JoinCTA.3f2b0e1aef" text={copyText("home", "home.fixed.JoinCTA.3f2b0e1aef", "모집 대상, 연습 일정, 오디션 절차를 확인한 뒤 입단지원서를 제출할 수 있습니다. 제출 후 담당자가 보호자 연락처로 안내합니다.")}>{copyText("home", "home.fixed.JoinCTA.3f2b0e1aef", "모집 대상, 연습 일정, 오디션 절차를 확인한 뒤 입단지원서를 제출할 수 있습니다. 제출 후 담당자가 보호자 연락처로 안내합니다.")}</FormattedCopy>}
               </p>
               <dl className="mt-6 grid gap-3 sm:grid-cols-3">
                 {summaryItems.map((item) => (
@@ -112,7 +113,7 @@ export function JoinCTA({
               size="lg"
               variant="primary"
             >
-              {buttonLabel || '입단 안내 보기'}
+              {buttonLabel || <FormattedCopy page="home" id="home.fixed.JoinCTA.277e5754e8" text={copyText("home", "home.fixed.JoinCTA.277e5754e8", "입단 안내 보기")}>{copyText("home", "home.fixed.JoinCTA.277e5754e8", "입단 안내 보기")}</FormattedCopy>}
             </Button>
           </div>
         </Reveal>

@@ -2,7 +2,8 @@ import type { MouseEventHandler } from 'react'
 
 import type { PublicNavigationItem } from '../../../constants/navigation'
 import { useSiteEditor } from '../../site-editor/useSiteEditor'
-import { navigationCopyKey } from '../../../content/siteCopyCommonCatalog'
+import { megaGroupCopyKey, navigationLabelKey } from '../../../content/siteCopyCommonCatalog'
+import { FormattedCopy } from '../../site-editor/FormattedCopy'
 
 type HomeV4SampleMegaMenuProps = {
   id: string
@@ -16,6 +17,7 @@ type HomeV4SampleMegaMenuProps = {
 type MegaMenuLink = {
   href: string
   label: string
+  copyKey?: string
 }
 
 type MegaMenuGroup = {
@@ -116,7 +118,7 @@ export function HomeV4SampleMegaMenu({
       (link, index, source) =>
         source.findIndex((candidate) => candidate.href === link.href) === index,
     )
-    .map((link) => ({ href: link.href, label: link.label }))
+    .map((link) => ({ href: link.href, label: link.label, copyKey: 'copyKey' in link && typeof link.copyKey === 'string' ? link.copyKey : undefined }))
   const baseGroupSize = Math.floor(links.length / 3)
   const remainder = links.length % 3
   const groupSizes = [
@@ -170,7 +172,7 @@ export function HomeV4SampleMegaMenu({
                 className="home-v4-mega-menu__title"
                 id={`${id}-group-${group.code}`}
               >
-                {group.label}
+                <FormattedCopy page="common" id={megaGroupCopyKey(item.href, group.code)} text={copy('common', megaGroupCopyKey(item.href, group.code), group.label)}>{copy('common', megaGroupCopyKey(item.href, group.code), group.label)}</FormattedCopy>
               </h2>
             </div>
             {group.description ? (
@@ -190,7 +192,7 @@ export function HomeV4SampleMegaMenu({
                     href={toRouteHref(link.href, routePrefix)}
                     onClick={onNavigate}
                   >
-                    <span>{copy('common', navigationCopyKey(link.href), link.label)}</span>
+                    <span><FormattedCopy page="common" id={link.copyKey ?? navigationLabelKey(link.href, link.label)} text={copy('common', link.copyKey ?? navigationLabelKey(link.href, link.label), link.label)}>{copy('common', link.copyKey ?? navigationLabelKey(link.href, link.label), link.label)}</FormattedCopy></span>
                     <span aria-hidden="true" className="home-v4-mega-menu__arrow">
                       →
                     </span>

@@ -33,6 +33,13 @@ export function publicMarkupSource(source, file) {
           && ts.isJsxSelfClosingElement(node.parent.parent) && node.parent.parent.tagName.getText(tree) === 'HomeDisplayTitleText') return undefined
         if (ts.isJsxAttribute(node) && node.name.getText(tree) === 'sourceParagraphs'
           && ts.isJsxSelfClosingElement(node.parent.parent) && node.parent.parent.tagName.getText(tree) === 'CollectivePortrait') return undefined
+        if (ts.isJsxAttribute(node) && node.name.getText(tree) === 'titleCopyKey'
+          && ts.isJsxSelfClosingElement(node.parent.parent) && node.parent.parent.tagName.getText(tree) === 'FooterLinkGroup') return undefined
+        // Explicit menu identities affect edited values, not the unchanged fallback.
+        // Byte-identical default SSR is additionally verified for all menu surfaces.
+        if (ts.isCallExpression(node) && node.expression.getText(tree) === 'navigationLabelKey' && node.arguments.length === 2) {
+          return ts.factory.createCallExpression(ts.factory.createIdentifier('navigationCopyKey'), undefined, [visit(node.arguments[0])])
+        }
         if (ts.isArrowFunction(node) && /<(?:HomeCopy|HomeDisplayTitleText)\b/.test(node.getText(tree))) {
           const normalized = ts.visitEachChild(node, visit, context)
           const used = new Set()

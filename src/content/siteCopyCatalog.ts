@@ -5,10 +5,13 @@ import { pageCopyDefinitions } from './siteCopyPagesCatalog'
 import { pledgeCopyDefinitions } from './siteCopyPledgeCatalog'
 import { aboutCopyDefinitions } from './siteCopyAboutCatalog'
 import { fixedCopyDefinitions } from './siteCopyFixedCatalog'
+import { optionCopyDefinitions } from './siteCopyOptionsCatalog'
+import { conditionalCopyDefinitions } from './siteCopyConditionalCatalog'
+import { displayCopyDefinitions } from './siteCopyDisplayCatalog'
 import type { HomeContentFlatRecord } from '../types/homeContent'
 import type { SiteCopyDefinition } from '../types/siteEditor'
 
-export const siteCopyDefinitions: SiteCopyDefinition[] = [...commonCopyDefinitions, ...pageCopyDefinitions, ...pledgeCopyDefinitions, ...aboutCopyDefinitions, ...fixedCopyDefinitions, ...homeAllEditorFields.map(field => ({
+export const siteCopyDefinitions: SiteCopyDefinition[] = [...commonCopyDefinitions, ...pageCopyDefinitions, ...pledgeCopyDefinitions, ...aboutCopyDefinitions, ...fixedCopyDefinitions, ...optionCopyDefinitions, ...conditionalCopyDefinitions, ...displayCopyDefinitions, ...homeAllEditorFields.map(field => ({
   key: field.key, page: 'home', section: homeContentSectionDefinitions.find(section => section.id === field.sectionId)?.title ?? field.sectionId, label: field.label,
   defaultValue: field.defaultValue, multiline: field.inputType === 'textarea', inputType: field.inputType,
   sourceKey: field.sourceKey, sourceDevice: field.device, min: field.min, max: field.max, maxLength: field.maxLength,

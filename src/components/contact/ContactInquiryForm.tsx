@@ -5,7 +5,7 @@ import { Link } from 'react-router'
 import { createContactMessage, type ContactMessageInput } from '../../lib/publicData'
 import { createIntakeSubmissionTracker } from '../../lib/intakeModel'
 import { FilterSelect } from '../common/FilterSelect'
-import { buildContactMessageInput, inquiryTypes, validateContactForm, type ContactFieldErrors, type ContactFormValues } from './contactFormModel'
+import { buildContactMessageInput, inquiryTypes as defaultInquiryTypes, validateContactForm, type ContactFieldErrors, type ContactFormValues } from './contactFormModel'
 import { usePageCopy } from '../site-editor/usePageCopy'
 import { CopyLines } from '../site-editor/SiteCopy'
 
@@ -19,6 +19,7 @@ const fields = [
 export function ContactInquiryForm({ initialType, hidden = false }: { initialType: ContactMessageInput['type']; hidden?: boolean }) {
   const { copy: copyText } = useSiteEditor()
   const t = usePageCopy('contact')
+  const inquiryTypes = defaultInquiryTypes.map(item => ({ ...item, label: copyText('contact', `contact.options.${item.value}`, item.label) }))
   const [stored, setStored] = useState<ContactFormValues & { preset: ContactMessageInput['type'] }>(() => ({
     name: '', email: '', phone: '', title: '', message: '', type: initialType, privacy_agreed: false, website: '', preset: initialType,
   }))
@@ -101,7 +102,7 @@ export function ContactInquiryForm({ initialType, hidden = false }: { initialTyp
           <div className="contact-atelier__field-row">
             {fields.map(field => (
               <div className="contact-atelier__field" key={field.name}>
-                <label htmlFor={`contact-${field.name}`}>{t(`${field.name}Label`)} ({field.required ? <FormattedCopy page="contact" id="contact.required" text={t('required')}>{t('required')}</FormattedCopy> : <FormattedCopy page="contact" id="contact.optional" text={t('optional')}>{t('optional')}</FormattedCopy>})</label>
+                <label htmlFor={`contact-${field.name}`}><FormattedCopy page="contact" id={`contact.${field.name}Label`} text={t(`${field.name}Label`)}>{t(`${field.name}Label`)}</FormattedCopy> ({field.required ? <FormattedCopy page="contact" id="contact.required" text={t('required')}>{t('required')}</FormattedCopy> : <FormattedCopy page="contact" id="contact.optional" text={t('optional')}>{t('optional')}</FormattedCopy>})</label>
                 <input id={`contact-${field.name}`} name={field.name} type={field.type} autoComplete={field.autoComplete} required={field.required} placeholder={t(`${field.name}Placeholder`)} disabled={submitting} value={values[field.name]} onChange={e => setValue(field.name, e.target.value)} aria-invalid={Boolean(errors[field.name])} aria-describedby={errors[field.name] ? `contact-${field.name}-error` : undefined} />
                 {errors[field.name] ? <p className="contact-atelier__field-error" id={`contact-${field.name}-error`}>{errors[field.name]}</p> : null}
               </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useSiteEditor } from '../../site-editor/useSiteEditor'
-import { navigationCopyKey } from '../../../content/siteCopyCommonCatalog'
+import { navigationCopyKey, navigationLabelKey } from '../../../content/siteCopyCommonCatalog'
+import { FormattedCopy } from '../../site-editor/FormattedCopy'
 
 type HomeV4SampleMobileMenuProps = {
   id: string
@@ -114,7 +115,7 @@ export function HomeV4SampleMobileMenu({
           href={routePrefix ? `${routePrefix}/home-v4` : '/'}
           onClick={onNavigate}
         >
-          <span>{copy('common', navigationCopyKey('/'), '홈')}</span>
+          <span><FormattedCopy page="common" id={navigationCopyKey('/')} text={copy('common', navigationCopyKey('/'), '홈')}>{copy('common', navigationCopyKey('/'), '홈')}</FormattedCopy></span>
           <span aria-hidden="true">→</span>
         </a>
 
@@ -131,7 +132,7 @@ export function HomeV4SampleMobileMenu({
                 onClick={() => toggleSection(section.id)}
                 type="button"
               >
-                <span>{copy('common', navigationCopyKey(`/${section.id}`), section.label)}</span>
+                <span><FormattedCopy page="common" id={navigationLabelKey(`/${section.id}`, section.label)} text={copy('common', navigationLabelKey(`/${section.id}`, section.label), section.label)}>{copy('common', navigationLabelKey(`/${section.id}`, section.label), section.label)}</FormattedCopy></span>
                 <span
                   aria-hidden="true"
                   className="home-v4-mobile-menu__indicator"
@@ -150,7 +151,7 @@ export function HomeV4SampleMobileMenu({
                     key={link.href}
                     onClick={onNavigate}
                   >
-                    {copy('common', navigationCopyKey(link.href), link.label)}
+                    <FormattedCopy page="common" id={navigationLabelKey(link.href, link.label)} text={copy('common', navigationLabelKey(link.href, link.label), link.label)}>{copy('common', navigationLabelKey(link.href, link.label), link.label)}</FormattedCopy>
                   </a>
                 ))}
               </div>

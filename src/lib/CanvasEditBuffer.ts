@@ -1,42 +1,75 @@
-import { isCanvasBlock, type CanvasBlock } from './siteEditorCanvasModel'
+import { applyCanvasTextEdit, getCanvasProjectionAtoms, getCanvasReplacementRange, isCanvasBlock, mapCanvasRange, type CanvasBlock } from './siteEditorCanvasModel'
 import type { CanvasEditGrant, CanvasSelectionSummary, CanvasSourcePatch } from './siteEditorCanvasProtocol'
 import { applyTextStyle, canonicalTextStyle, snapTextSelection, supportsTextSegmentation, validateTextStyles } from './siteEditorTextStyles'
 import type { EditorTextRun, EditorTextStyle } from '../types/siteEditor'
 
 type Selection = { start: number; end: number }
-type Snapshot = { text: string; runs: EditorTextRun[]; selection: Selection }
+type SourceProjection = { text: string; runs: EditorTextRun[] }
+type Snapshot = { text: string; runs: EditorTextRun[]; selection: Selection; projection?: SourceProjection }
 export type CanvasEditBuffer = Snapshot & {
   block: CanvasBlock; grant: CanvasEditGrant; sourceRange: Selection
   original: Snapshot; past: Snapshot[]; future: Snapshot[]
   localRevision: number; composing: boolean; compositionStart: Snapshot | null; compositionRange: Selection | null
 }
 type Result = { ok: true; buffer: CanvasEditBuffer } | { ok: false; buffer: CanvasEditBuffer; reason: string }
-const snapshot = (buffer: Snapshot): Snapshot => structuredClone({ text: buffer.text, runs: buffer.runs, selection: buffer.selection })
-const equal = (a: Snapshot, b: Snapshot) => a.text === b.text && JSON.stringify(a.runs) === JSON.stringify(b.runs)
+const snapshot = (buffer: Snapshot): Snapshot => structuredClone({ text: buffer.text, runs: buffer.runs, selection: buffer.selection, ...(buffer.projection ? { projection: buffer.projection } : {}) })
+const equal = (a: Snapshot, b: Snapshot) => a.text === b.text && JSON.stringify(a.runs) === JSON.stringify(b.runs) && JSON.stringify(a.projection) === JSON.stringify(b.projection)
 const fail = (buffer: CanvasEditBuffer, reason: string): Result => ({ ok: false, buffer, reason })
 
-/** Reverse only a single explicit exact/slice projection. No guessed DOM matches. */
+/** The hidden source slice belongs to the same history snapshot as its visible projection. */
+function projectionBlock(block: CanvasBlock, projection: SourceProjection): CanvasBlock {
+  const source = block.segments[0].source!
+  return { ...block, visibleText: projection.text.replace(/\s+/g, ' ').trim(), segments: [{
+    source: { ...source, text: projection.text }, sourceStart: 0, sourceEnd: projection.text.length,
+    visibleStart: 0, visibleEnd: projection.text.replace(/\s+/g, ' ').trim().length, transform: 'collapse-whitespace',
+  }] }
+}
+
+function projectRuns(block: CanvasBlock, runs: EditorTextRun[]): EditorTextRun[] {
+  const atoms = getCanvasProjectionAtoms(block)
+  if (!atoms) throw new RangeError()
+  const projected: EditorTextRun[] = []
+  for (const atom of atoms) {
+    for (const run of runs) {
+      const start = Math.max(atom.sourceStart, run.start), end = Math.min(atom.sourceEnd, run.end)
+      if (start >= end || (atom.transform === 'whitespace' && run.start > atom.sourceStart)) continue
+      const next = { start: atom.transform === 'whitespace' ? atom.visibleStart : atom.visibleStart + start - atom.sourceStart,
+        end: atom.transform === 'whitespace' ? atom.visibleEnd : atom.visibleStart + end - atom.sourceStart, style: canonicalTextStyle(run.style) }
+      const previous = projected.at(-1)
+      if (previous?.end === next.start && JSON.stringify(previous.style) === JSON.stringify(next.style)) previous.end = next.end
+      else projected.push(next)
+    }
+  }
+  return projected
+}
+
+/** Reverse a single explicitly mapped source. No guessed DOM matches or multi-key writes. */
 export function createCanvasEditBuffer(block: CanvasBlock, grant: CanvasEditGrant): { ok: true; buffer: CanvasEditBuffer } | { ok: false; reason: string } {
   if (!isCanvasBlock(block) || block.segments.length !== 1 || grant.fields.length !== 1
     || grant.blockId !== block.id || grant.blockRevision !== block.revision) return { ok: false, reason: '이 문구는 목록에서 편집해 주세요.' }
   const segment = block.segments[0], field = grant.fields[0]
-  if (!segment.source || !['exact', 'slice'].includes(segment.transform)
+  const raw = segment.source?.text.slice(segment.sourceStart, segment.sourceEnd) ?? ''
+  const sourceStart = segment.sourceStart + (segment.transform === 'collapse-whitespace' ? raw.length - raw.trimStart().length : 0)
+  const sourceEnd = segment.sourceEnd - (segment.transform === 'collapse-whitespace' ? raw.length - raw.trimEnd().length : 0)
+  if (!segment.source || !['exact', 'slice', 'collapse-whitespace'].includes(segment.transform)
     || segment.source.text !== field.text || segment.source.ownerPage !== field.source.ownerPage
     || segment.source.scope !== field.source.scope || segment.source.key !== field.source.key
-    || !field.ranges.some(range => range.start <= segment.sourceStart && range.end >= segment.sourceEnd)
+    || sourceEnd < sourceStart || !field.ranges.some(range => range.start <= sourceStart && range.end >= sourceEnd)
     || validateTextStyles({ shared: { text: { text: field.text, runs: field.runs } } })) return { ok: false, reason: '문구 원문을 다시 확인해 주세요.' }
   const runs = field.runs.flatMap(run => {
-    const start = Math.max(segment.sourceStart, run.start), end = Math.min(segment.sourceEnd, run.end)
-    return start < end ? [{ start: start - segment.sourceStart, end: end - segment.sourceStart, style: { ...run.style } }] : []
+    const start = Math.max(sourceStart, run.start), end = Math.min(sourceEnd, run.end)
+    return start < end ? [{ start: start - sourceStart, end: end - sourceStart, style: { ...run.style } }] : []
   })
-  const original = { text: block.visibleText, runs, selection: { start: 0, end: block.visibleText.length } }
+  const projection = segment.transform === 'collapse-whitespace' ? { text: field.text.slice(sourceStart, sourceEnd), runs } : undefined
+  const original = { text: block.visibleText, runs: projection ? projectRuns(projectionBlock(block, projection), runs) : runs,
+    selection: { start: 0, end: block.visibleText.length }, ...(projection ? { projection } : {}) }
   return { ok: true, buffer: { ...snapshot(original), block: structuredClone(block), grant: structuredClone(grant),
-    sourceRange: { start: segment.sourceStart, end: segment.sourceEnd }, original: snapshot(original), past: [], future: [],
+    sourceRange: { start: sourceStart, end: sourceEnd }, original: snapshot(original), past: [], future: [],
     localRevision: 0, composing: false, compositionStart: null, compositionRange: null } }
 }
 
 function update(buffer: CanvasEditBuffer, next: Snapshot): Result {
-  if (validateTextStyles({ shared: { text: { text: next.text, runs: next.runs } } })) return fail(buffer, '문구 또는 서식 범위를 확인해 주세요.')
+  if (validateTextStyles({ shared: { text: { text: next.text, runs: next.runs }, ...(next.projection ? { source: next.projection } : {}) } })) return fail(buffer, '문구 또는 서식 범위를 확인해 주세요.')
   const changed = !equal(buffer, next)
   return { ok: true, buffer: { ...buffer, ...next, localRevision: buffer.localRevision + 1,
     past: changed && !buffer.composing ? [...buffer.past, snapshot(buffer)].slice(-50) : buffer.past,
@@ -108,21 +141,37 @@ export function replaceCanvasBufferText(buffer: CanvasEditBuffer, text: string, 
     const selected = exactSelection(text, snapTextSelection(text, selection.start, selection.end))
     const base = next.composing && next.compositionStart ? next.compositionStart : next
     let runs: EditorTextRun[]
+    let projection = base.projection ? structuredClone(base.projection) : undefined
     // IME cancellation and redundant final input events must not erase original runs.
     if (text === base.text) runs = structuredClone(base.runs)
-    else if (text === buffer.text) runs = structuredClone(buffer.runs)
+    else if (text === buffer.text) { runs = structuredClone(buffer.runs); projection = buffer.projection ? structuredClone(buffer.projection) : undefined }
     else {
       const range = next.compositionRange ?? replacementRange(base.text, text, base.selection, selected)
       const inserted = replacementLength(base.text, text, range)
       if (next.composing) next = { ...next, compositionRange: range }
-      runs = spliceRuns(base.runs, range, inserted)
       // Word/HWP-style plain input follows the selected first character, or the
       // character immediately before a caret. No CSS/HTML is imported on paste.
       const stylePosition = range.start === range.end ? Math.max(0, range.start - 1) : range.start
       const typingStyle = base.runs.find(run => run.start <= stylePosition && run.end > stylePosition)?.style
-      if (inserted && typingStyle) runs = applyTextStyle(text, runs, range.start, range.start + inserted, typingStyle)
+      if (projection) {
+        const projectedBlock = projectionBlock(buffer.block, projection)
+        const mappedSelection = { ...range, blockId: projectedBlock.id, revision: projectedBlock.revision }
+        const sourceRange = getCanvasReplacementRange(projectedBlock, mappedSelection)
+        const edited = applyCanvasTextEdit(projectedBlock, mappedSelection, text.slice(range.start, range.start + inserted))
+        if (!sourceRange || !edited.ok || edited.changes.length !== 1) throw new RangeError()
+        let sourceRuns = spliceRuns(projection.runs, sourceRange, inserted)
+        const sourceText = edited.changes[0].nextText
+        if (inserted && typingStyle) sourceRuns = applyTextStyle(sourceText, sourceRuns, sourceRange.start, sourceRange.start + inserted, typingStyle)
+        projection = { text: sourceText, runs: sourceRuns }
+        const updatedBlock = projectionBlock(buffer.block, projection)
+        if (updatedBlock.visibleText !== text) return fail(buffer, '이 문구는 공백과 줄바꿈을 정리해 표시합니다. 추가 공백이나 줄바꿈은 문구 목록에서 편집해 주세요.')
+        runs = projectRuns(updatedBlock, sourceRuns)
+      } else {
+        runs = spliceRuns(base.runs, range, inserted)
+        if (inserted && typingStyle) runs = applyTextStyle(text, runs, range.start, range.start + inserted, typingStyle)
+      }
     }
-    const result = update(next, { text, runs, selection: selected })
+    const result = update(next, { text, runs, selection: selected, ...(projection ? { projection } : {}) })
     return result.ok ? result : fail(buffer, result.reason)
   } catch { return fail(buffer, '문구 또는 서식 범위를 확인해 주세요.') }
 }
@@ -131,6 +180,15 @@ export function applyCanvasBufferStyle(buffer: CanvasEditBuffer, selection: Sele
   if (buffer.composing) return fail(buffer, '한글 입력을 마친 뒤 서식을 바꿔 주세요.')
   try {
     const range = snapTextSelection(buffer.text, selection.start, selection.end)
+    if (buffer.projection) {
+      const block = projectionBlock(buffer.block, buffer.projection)
+      let runs = structuredClone(buffer.projection.runs)
+      for (const source of mapCanvasRange(block, { ...range, blockId: block.id, revision: block.revision })) {
+        runs = applyTextStyle(buffer.projection.text, runs, source.start, source.end, patch)
+      }
+      const projection = { text: buffer.projection.text, runs }
+      return update({ ...buffer, selection: range }, { text: buffer.text, selection: range, projection, runs: projectRuns(block, runs) })
+    }
     return update({ ...buffer, selection: range }, { text: buffer.text, selection: range, runs: applyTextStyle(buffer.text, buffer.runs, range.start, range.end, patch) })
   } catch { return fail(buffer, '선택한 서식의 값과 범위를 확인해 주세요.') }
 }
@@ -168,5 +226,5 @@ export function getCanvasBufferSummary(buffer: CanvasEditBuffer): CanvasSelectio
 export function getCanvasBufferChanges(buffer: CanvasEditBuffer): CanvasSourcePatch[] {
   const field = buffer.grant.fields[0]
   return [{ source: { ...field.source }, fieldVersion: field.fieldVersion,
-    edits: [{ ...buffer.sourceRange, text: buffer.text, runs: structuredClone(buffer.runs) }] }]
+    edits: [{ ...buffer.sourceRange, text: buffer.projection?.text ?? buffer.text, runs: structuredClone(buffer.projection?.runs ?? buffer.runs) }] }]
 }
