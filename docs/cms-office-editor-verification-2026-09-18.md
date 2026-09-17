@@ -73,3 +73,31 @@
 - 실기기 Windows IME·모바일 가상 키보드·Safari는 미실시. IAB에서 `Input.imeSetComposition`은 지원되지 않아 테스트했다고 기록하지 않았다. 조합 이벤트/버퍼/DOM identity는 자동 테스트로 확인했다.
 
 Figma 결과는 별도 원본 프레임에서 복제했고 원래 프레임을 삭제하지 않았다. 메인 에이전트가 영어 홈·입단 안내·스크롤바 확대 및 CMS 플로팅 desktop/mobile 스크린샷을 독립 확인했다.
+
+## Harness Review Report
+
+Invocation: harness review (사용자의 스킬 기반 재검증 요청).
+
+Reviewer mode: single-agent. 저장소 가이드와 최종 diff에 대한 Harness 판단은 메인 에이전트가 수행했다. 별도 코드 리뷰·결함 재현은 독립 에이전트로 보완했다.
+
+Findings:
+
+- P1 해결: selection 폭을 편집 폭으로 재사용하는 줄바꿈 변화. layout 회귀와 실제 glyph 비교 추가.
+- P1 해결: 반복 문자/IME 취소 시 서식 소실, pending paste 입력 유실, 조기 ACK unlock. 자동 회귀를 정상 테스트 게이트에 등록.
+- P2 남음: normalized/multipart 직접 편집 coverage는 기존 계획보다 좁다. 이를 숨기지 않고 명시적인 목록 편집 fallback과 남은 범위로 기록했다.
+
+Open Questions: 추가 사용자 권한 질문 없음. 영어·스크롤바는 기존 요구대로 승인 대기.
+
+Missing Checks Or Evidence: 실제 Windows IME·iOS/Safari·가상 키보드; 모든 동적 CMS 원문의 직접 편집 coverage. Figma의 전체 프로토타입 버튼 E2E도 별도 미실시.
+
+Overreach / Source-of-Truth Risks: 공개 기본 디자인·콘텐츠·인증/RLS는 유지. 연구 템플릿으로 기존 토큰이나 아키텍처를 교체하지 않음. 이전 수동 migration history를 일괄 repair하지 않음.
+
+Summary: 현재 exact/slice 직접 편집, 플로팅 서식, 저장/게시 경계를 검증했다. 원본 설계의 모든 확장 범위가 완료되었다는 판정은 아니다.
+
+Recommended Next Actions:
+
+1. 실제 OS IME와 모바일 키보드 검증.
+2. 복합 HomeCopy의 역변환·권한·기본 배치 보존을 증명한 뒤 직접 편집 coverage 확장.
+3. 승인받은 뒤에만 영어 및 스크롤바 홈페이지 구현.
+
+Task outcome evidence: 이 문서와 정상 `pnpm lint/test/build` 게이트에 기록. 작업용 5177 서버 종료로 이번 메모리 테스트 데이터가 정리됐고, 검증 탭 두 개를 닫았다. 공식 5175 서버는 종료하지 않았다.
