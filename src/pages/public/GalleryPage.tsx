@@ -1,3 +1,4 @@
+import { EditableLayout } from '../../components/site-editor/EditableLayout'
 import { FormattedCopy } from '../../components/site-editor/FormattedCopy'
 import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 import { useCallback, useMemo, useRef } from 'react'
@@ -158,8 +159,8 @@ export function GalleryPage() {
         <header className="gallery-journal__intro">
           <p className="gallery-journal__eyebrow">{<FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.f34c03131f" text={copyText("gallery", "gallery.fixed.GalleryPage.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}>{copyText("gallery", "gallery.fixed.GalleryPage.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</FormattedCopy>}</p>
           <div className="gallery-journal__intro-row">
-            <h1>{<FormattedCopy page="gallery" id="gallery.title" text={t('title')}>{t('title')}</FormattedCopy>}</h1>
-            <p className="gallery-journal__description"><FormattedCopy page="gallery" id="gallery.description" text={t('description')} lineBreaks><CopyLines text={t('description')} /></FormattedCopy></p>
+            <EditableLayout id="gallery.intro.title"><h1>{<FormattedCopy page="gallery" id="gallery.title" text={t('title')}>{t('title')}</FormattedCopy>}</h1></EditableLayout>
+            <EditableLayout id="gallery.intro.description"><p className="gallery-journal__description"><FormattedCopy page="gallery" id="gallery.description" text={t('description')} lineBreaks><CopyLines text={t('description')} /></FormattedCopy></p></EditableLayout>
           </div>
         </header>
 

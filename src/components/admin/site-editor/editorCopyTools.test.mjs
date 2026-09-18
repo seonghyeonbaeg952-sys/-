@@ -5,7 +5,8 @@ import ts from 'typescript'
 
 const url = source => `data:text/javascript;base64,${Buffer.from(ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText).toString('base64')}`
 const styles = url(await readFile(new URL('../../../lib/siteEditorTextStyles.ts', import.meta.url), 'utf8'))
-const documentModel = url((await readFile(new URL('../../../lib/siteEditorModel.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(styles)))
+const layoutUrl = url((await readFile(new URL('../../../lib/siteEditorLayout.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(styles)))
+const documentModel = url((await readFile(new URL('../../../lib/siteEditorModel.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(styles)).replaceAll("'./siteEditorLayout'", JSON.stringify(layoutUrl)))
 const tools = await import(url((await readFile(new URL('./editorCopyTools.ts', import.meta.url), 'utf8')).replaceAll("'../../../lib/siteEditorTextStyles'", JSON.stringify(styles)).replaceAll("'../../../lib/siteEditorModel'", JSON.stringify(documentModel))))
 const empty = () => ({ schemaVersion: 1, copy: {}, deviceCopy: {}, appearance: {} })
 const field = (key, value, extra = {}) => ({ key, page: 'join', section: '안내', label: key, defaultValue: value, ...extra })

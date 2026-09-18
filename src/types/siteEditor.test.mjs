@@ -7,13 +7,21 @@ import ts from 'typescript'
 test('editor consumers can express drafts, nullable publication, revisions and catalog metadata with strict page/device/font types', () => {
   const entry = fileURLToPath(new URL('./__site_editor_contract__.ts', import.meta.url))
   const source = `
-    import type { EditorDevice, EditorPageId, EditorFont, EditorAppearance, SiteEditorDocument,
+    import type { EditorDevice, EditorPageId, EditorFont, EditorAppearance, EditorTextLayout, SiteEditorDocument,
       SiteEditorDocuments, SiteEditorPageRecord, SiteEditorRevision, SiteCopyDefinition } from './siteEditor'
     const device: EditorDevice = 'mobile'
     const page: EditorPageId = 'concert-detail'
     const font: EditorFont = 'gothic-a1'
     const appearance: EditorAppearance = { fontFamily: font, h1Size: 48, headingColor: '#10233F' }
     const document: SiteEditorDocument = { schemaVersion: 1, copy: {}, deviceCopy: { [device]: {} }, appearance: { shared: appearance } }
+    const layout: EditorTextLayout = { offsetX: -12, offsetY: 0, width: 80, textAlign: 'center' }
+    document.textLayouts = { desktop: { 'home.hero.title': layout } }
+    // @ts-expect-error shared layout would leak positioning between device sizes
+    document.textLayouts = { shared: {} }
+    // @ts-expect-error automatic height is not a persisted layout property
+    const fixedHeight: EditorTextLayout = { height: 200 }
+    // @ts-expect-error free-form CSS alignment cannot cross the typed boundary
+    const badAlign: EditorTextLayout = { textAlign: 'justify' }
     const documents: SiteEditorDocuments = { [page]: document }
     const record: SiteEditorPageRecord = { page_key: page, draft: document, published: null, version: 0, updated_at: '', published_at: null }
     const revision: SiteEditorRevision = { id: 'revision', page_key: page, document, published_at: '2026-09-17T00:00:00Z' }
@@ -27,7 +35,7 @@ test('editor consumers can express drafts, nullable publication, revisions and c
     const badFont: EditorFont = 'https://external.invalid/font.css'
     // @ts-expect-error the document version is a literal protocol contract
     const badVersion: SiteEditorDocument = { schemaVersion: 2, copy: {}, deviceCopy: {}, appearance: {} }
-    void [documents, record, revision, field, badPage, badDevice, badFont, badVersion]
+    void [documents, record, revision, field, badPage, badDevice, badFont, badVersion, fixedHeight, badAlign]
   `
   const options = { strict: true, noEmit: true, skipLibCheck: true, target: ts.ScriptTarget.ES2022,
     module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.Bundler, types: [] }

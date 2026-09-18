@@ -1,3 +1,4 @@
+import { EditableLayout } from '../site-editor/EditableLayout'
 import { SiteCopy } from '../site-editor/SiteCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useMemo, useState } from 'react'
@@ -76,12 +77,12 @@ export function MembersArchiveExperience({
         <div className="members-archive__intro-inner">
           <div className="members-archive__intro-copy">
             <p className="members-archive__eyebrow"><SiteCopy page="members" id="members.membersArchiveExperience.english1" fallback={"MEMBER ARCHIVE / SEOUL"} /></p>
-            <Heading className="members-archive__title" id="members-archive-title">
+            <EditableLayout id="members.intro.title"><Heading className="members-archive__title" id="members-archive-title">
               <span><SiteCopy page="members" id="members.membersArchiveExperience.text1" fallback={"함께한 모든 이름이"} /></span>
               <span><SiteCopy page="members" id="members.membersArchiveExperience.text2" fallback={"지금의 합창단을 만듭니다."} /></span>
-            </Heading>
+            </Heading></EditableLayout>
             <span aria-hidden="true" className="members-archive__title-rule" />
-            <p className="members-archive__description"><SiteCopy page="members" id="members.membersArchiveExperience.text3" fallback={"2014년 창단 이후 서울모테트청소년합창단과 함께한 단원을 한 자리에서 소개합니다."} /><br /><SiteCopy page="members" id="members.membersArchiveExperience.text4" fallback={"현재 활동 중인 단원도 이 아카이브에 함께 기록됩니다."} /></p>
+            <EditableLayout id="members.intro.description"><p className="members-archive__description"><SiteCopy page="members" id="members.membersArchiveExperience.text3" fallback={"2014년 창단 이후 서울모테트청소년합창단과 함께한 단원을 한 자리에서 소개합니다."} /><br /><SiteCopy page="members" id="members.membersArchiveExperience.text4" fallback={"현재 활동 중인 단원도 이 아카이브에 함께 기록됩니다."} /></p></EditableLayout>
             <p className="members-archive__privacy-note"><SiteCopy page="members" id="members.membersArchiveExperience.text5" fallback={"이름은 공개 설정에 따라 전체·부분·비공개 방식으로 표시됩니다."} /></p>
           </div>
 

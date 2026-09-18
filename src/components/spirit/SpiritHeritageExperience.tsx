@@ -1,3 +1,4 @@
+import { EditableLayout } from '../site-editor/EditableLayout'
 import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { SiteCopy } from '../site-editor/SiteCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
@@ -346,14 +347,14 @@ function SpiritHero({ copy }: { copy: SpiritCopy }) {
 
       <div className="spirit-heritage__hero-inner">
         <div className="spirit-heritage__eyebrow spirit-heritage__eyebrow--hero">{<FormattedCopy page="spirit" id="spirit.fixed.SpiritHeritageExperience.12198036a1" text={copyText("spirit", "spirit.fixed.SpiritHeritageExperience.12198036a1", "SEOUL MOTET YOUTH CHOIR · ")}>{copyText("spirit", "spirit.fixed.SpiritHeritageExperience.12198036a1", "SEOUL MOTET YOUTH CHOIR · ")}</FormattedCopy>}<SiteCopy page="spirit" id="spirit.spiritHero.english1" fallback={"SPIRIT"} /></div>
-        <motion.h1
+        <EditableLayout id="spirit.intro.title" nativeTag="h1"><motion.h1
           className="spirit-heritage__display-title"
           data-node-id="45:2"
           id="spirit-heritage-title"
           initial={reducedMotion ? false : { opacity: 0, scale: 0.955, x: -150 }}
           animate={reducedMotion ? undefined : { opacity: 1, scale: 1, x: 0 }}
           transition={{ duration: 0.92, ease: EASE_OUT }}
-        ><SiteCopy page="spirit" id="spirit.spiritHero.english2" fallback={"SPIRIT"} /></motion.h1>
+        ><SiteCopy page="spirit" id="spirit.spiritHero.english2" fallback={"SPIRIT"} /></motion.h1></EditableLayout>
 
         <div className="spirit-heritage__hero-heading spirit-heritage__hero-heading--desktop">
           <motion.p
@@ -402,7 +403,7 @@ function SpiritHero({ copy }: { copy: SpiritCopy }) {
           <i />
         </div>
 
-        <motion.p
+        <EditableLayout id="spirit.intro.description" nativeTag="p"><motion.p
           className="spirit-heritage__hero-body"
           data-node-id="2:23"
           initial={reducedMotion ? false : { opacity: 0 }}
@@ -410,7 +411,7 @@ function SpiritHero({ copy }: { copy: SpiritCopy }) {
           transition={{ delay: 0.9, duration: 0.6, ease: EASE_OUT }}
         >
           {copy.body}
-        </motion.p>
+        </motion.p></EditableLayout>
 
         <motion.div
           className="spirit-heritage__origin-card spirit-heritage__open-frame"

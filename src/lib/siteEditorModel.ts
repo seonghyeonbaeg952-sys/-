@@ -2,6 +2,7 @@ import type {
   EditorAppearance, EditorDevice, EditorPageId, SiteEditorDocument, SiteEditorDocuments,
 } from '../types/siteEditor'
 import { EDITOR_FONTS, EDITOR_FONT_FAMILIES as fontFamilies, isEditorRecord as isPlainRecord, isEditorCopyKey as validCopyKey, isEditorCopyText as validCopyText, validateTextStyles } from './siteEditorTextStyles'
+import { validateTextLayouts } from './siteEditorLayout'
 export { EDITOR_FONTS } from './siteEditorTextStyles'
 
 export const EDITOR_PAGE_IDS: readonly EditorPageId[] = [
@@ -15,7 +16,7 @@ export const EDITOR_NUMBER_RANGES = {
 } as const
 
 const colors = ['textColor', 'headingColor', 'mutedColor', 'accentColor', 'backgroundColor'] as const
-const documentKeys = ['schemaVersion', 'copy', 'deviceCopy', 'appearance', 'textStyles']
+const documentKeys = ['schemaVersion', 'copy', 'deviceCopy', 'appearance', 'textStyles', 'textLayouts']
 const appearanceKeys = ['fontFamily', 'headingFontFamily', 'fontWeight', ...Object.keys(EDITOR_NUMBER_RANGES), ...colors]
 
 export function isEditorPageId(value: unknown): value is EditorPageId {
@@ -59,6 +60,10 @@ export function validateSiteEditorDocument(value: unknown): string | null {
     }
     if (Object.hasOwn(value, 'textStyles')) {
       const error = validateTextStyles(value.textStyles)
+      if (error) return error
+    }
+    if (Object.hasOwn(value, 'textLayouts')) {
+      const error = validateTextLayouts(value.textLayouts)
       if (error) return error
     }
     if (new TextEncoder().encode(JSON.stringify(value)).byteLength > 512 * 1024) {

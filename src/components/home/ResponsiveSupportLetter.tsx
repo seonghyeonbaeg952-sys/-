@@ -1,4 +1,5 @@
 import type { HomeContentV2 } from '../../types/homeContent'
+import { EditableLayout } from '../site-editor/EditableLayout'
 import { Button } from '../common/Button'
 import type { HomeResponsiveViewport } from './useHomeResponsiveViewport'
 import '../../styles/home-responsive-support.css'
@@ -30,8 +31,8 @@ export function ResponsiveSupportLetter({ content, viewport }: ResponsiveSupport
       <p className="home-responsive-support__eyebrow"><HomeCopy sourceKey={`home.supportLetter.${isTablet ? 'responsiveTabletEyebrow' : 'eyebrowEn'}`} text={isTablet ? content.responsiveTabletEyebrow : content.eyebrowEn} /></p>
       <div className="home-responsive-support__layout">
         <div className="home-responsive-support__invitation">
-          <h2 id="home-responsive-support-title"><HomeCopy sourceKey="home.supportLetter.responsiveTitle" text={content.responsiveTitle} /></h2>
-          <p className="home-responsive-support__description"><HomeCopy sourceKey={`home.supportLetter.${isTablet ? 'responsiveTabletDescription' : 'responsiveMobileDescription'}`} text={isTablet ? content.responsiveTabletDescription : content.responsiveMobileDescription} /></p>
+          <EditableLayout id="home.support.title"><h2 id="home-responsive-support-title"><HomeCopy sourceKey="home.supportLetter.responsiveTitle" text={content.responsiveTitle} /></h2></EditableLayout>
+          <EditableLayout id="home.support.description"><p className="home-responsive-support__description"><HomeCopy sourceKey={`home.supportLetter.${isTablet ? 'responsiveTabletDescription' : 'responsiveMobileDescription'}`} text={isTablet ? content.responsiveTabletDescription : content.responsiveMobileDescription} /></p></EditableLayout>
           <Button className="home-responsive-support__action" href="/contact?section=support#form" variant="gold">
             <HomeCopy sourceKey="home.supportLetter.primaryCtaLabel" text={content.primaryCtaLabel} />
           </Button>

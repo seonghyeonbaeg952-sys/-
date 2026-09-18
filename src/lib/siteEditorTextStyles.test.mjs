@@ -6,8 +6,9 @@ import ts from 'typescript'
 const compile = source => ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText
 const moduleUrl = source => `data:text/javascript;base64,${Buffer.from(compile(source)).toString('base64')}`
 const stylesUrl = moduleUrl(await readFile(new URL('./siteEditorTextStyles.ts', import.meta.url), 'utf8'))
+const layoutUrl = moduleUrl((await readFile(new URL('./siteEditorLayout.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl)))
 const model = await import(stylesUrl)
-const documentModel = await import(moduleUrl((await readFile(new URL('./siteEditorModel.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl))))
+const documentModel = await import(moduleUrl((await readFile(new URL('./siteEditorModel.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl)).replaceAll("'./siteEditorLayout'", JSON.stringify(layoutUrl))))
 const empty = () => ({ schemaVersion: 1, copy: {}, deviceCopy: {}, appearance: {} })
 const size = (start, end, fontSize = 24) => ({ start, end, style: { fontSize } })
 
@@ -94,8 +95,9 @@ test('browsers without Intl.Segmenter still load defaults and edit plain copy wh
     Intl.Segmenter = undefined
     const unavailableUrl = moduleUrl(`${await readFile(new URL('./siteEditorTextStyles.ts', import.meta.url), 'utf8')}\n// Browser without grapheme segmentation`)
     legacyStyles = await import(unavailableUrl)
-    legacyDocument = await import(moduleUrl((await readFile(new URL('./siteEditorModel.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(unavailableUrl))))
-    legacySession = await import(moduleUrl((await readFile(new URL('../components/admin/site-editor/editorSessionModel.ts', import.meta.url), 'utf8')).replaceAll("'../../../lib/siteEditorTextStyles'", JSON.stringify(unavailableUrl))))
+    const unavailableLayoutUrl = moduleUrl((await readFile(new URL('./siteEditorLayout.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(unavailableUrl)))
+    legacyDocument = await import(moduleUrl((await readFile(new URL('./siteEditorModel.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(unavailableUrl)).replaceAll("'./siteEditorLayout'", JSON.stringify(unavailableLayoutUrl))))
+    legacySession = await import(moduleUrl((await readFile(new URL('../components/admin/site-editor/editorSessionModel.ts', import.meta.url), 'utf8')).replaceAll("'../../../lib/siteEditorTextStyles'", JSON.stringify(unavailableUrl)).replaceAll("'../../../lib/siteEditorLayout'", JSON.stringify(unavailableLayoutUrl))))
   } finally { Intl.Segmenter = original }
   assert.equal(legacyStyles.supportsTextSegmentation, false)
   assert.equal(legacyDocument.validateSiteEditorDocument(empty()), null)

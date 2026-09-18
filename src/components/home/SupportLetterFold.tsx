@@ -1,4 +1,5 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { EditableLayout } from '../site-editor/EditableLayout'
 import { HomeCopy } from './HomeCopy'
 import { legacyLocationSeed } from '../../constants/legacyContent'
 import type { SiteSettings } from '../../types/content'
@@ -75,12 +76,12 @@ export function SupportLetterFold({
         <div className="support-letter-layout">
           <div className="support-pledge-copy">
             <p className="support-pledge-eyebrow"><HomeCopy sourceKey="home.supportLetter.eyebrowEn" text={content.eyebrowEn} /></p>
-            <h2 id="home-support-title">
+            <EditableLayout id="home.support.title"><h2 id="home-support-title">
               <HomeCopy sourceKey="home.supportLetter.title" text={content.title || fallback.title} />
-            </h2>
-            <p className="support-pledge-description">
+            </h2></EditableLayout>
+            <EditableLayout id="home.support.description"><p className="support-pledge-description">
               <HomeCopy sourceKey="home.supportLetter.description" text={content.description || fallback.body} />
-            </p>
+            </p></EditableLayout>
             <p className="support-pledge-values">{copyText("home", "home.fixed.SupportLetterFold.97e1959dd9", "정직한 음악 ")}<span aria-hidden="true">·</span>{copyText("home", "home.fixed.SupportLetterFold.31e5f76d33", " 함께 부르는 공동체")}{' '}
               <span aria-hidden="true">·</span>{copyText("home", "home.fixed.SupportLetterFold.6a95b54c19", " 다음 세대 교육")}</p>
             <div className="support-pledge-actions">

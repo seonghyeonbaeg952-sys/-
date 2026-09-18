@@ -6,7 +6,8 @@ import ts from 'typescript'
 const compile = source => ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText
 const moduleUrl = source => `data:text/javascript;base64,${Buffer.from(source).toString('base64')}`
 const stylesUrl = moduleUrl(compile(await readFile(new URL('./siteEditorTextStyles.ts', import.meta.url), 'utf8')))
-const modelUrl = moduleUrl(compile(await readFile(new URL('./siteEditorModel.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl)))
+const layoutUrl = moduleUrl(compile(await readFile(new URL('./siteEditorLayout.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl)))
+const modelUrl = moduleUrl(compile(await readFile(new URL('./siteEditorModel.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl)).replaceAll("'./siteEditorLayout'", JSON.stringify(layoutUrl)))
 const transportKey = '__motet_site_editor_api_fixture__'
 const calls = []
 let response = { data: null, error: null }
@@ -243,4 +244,24 @@ test('malformed revision records cannot reach a restore history list', async () 
     const value = await api.loadEditorRevisions('contact')
     assert.equal(value.data, null); assert.ok(value.error)
   }
+})
+
+test('validated layout-only drafts survive save, publication, public loading and revision restoration without mutation', async () => {
+  const document = { ...empty(), textLayouts: { mobile: { 'contact.intro': { offsetX: 0, offsetY: -12, width: 80, textAlign: 'center' } } } }
+  const before = structuredClone(document)
+  reset({ data: row({ draft: document, version: 2 }), error: null })
+  const saved = await api.saveEditorDraft('contact', document, 1)
+  assert.equal(saved.error, null)
+  assert.deepEqual(calls[0].args[1].p_document, before)
+  assert.deepEqual(saved.data.draft, before)
+  assert.deepEqual(document, before)
+  response = { data: row({ draft: document, published: document, published_at: '2026-09-18T00:00:00Z', version: 3 }), error: null }
+  assert.deepEqual((await api.publishEditorPage('contact', 2)).data.published, before)
+  response = { data: [{ page_key: 'contact', document, published_at: '2026-09-18T00:00:00Z' }], error: null }
+  assert.deepEqual((await api.loadPublicEditorPages()).data[0].document, before)
+  response = { data: row({ draft: document, published: document, published_at: '2026-09-18T00:00:00Z', version: 4 }), error: null }
+  assert.deepEqual((await api.restoreEditorRevision(revisionId, 3)).data.draft, before)
+  reset({ data: null, error: null })
+  assert.ok((await api.saveEditorDraft('contact', { ...empty(), textLayouts: { shared: {} } }, 1)).error)
+  assert.equal(calls.length, 0, 'invalid layouts must fail before a transport write')
 })

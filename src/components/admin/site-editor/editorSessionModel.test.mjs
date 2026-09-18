@@ -6,7 +6,8 @@ import ts from 'typescript'
 const compile = source => ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText
 const moduleUrl = source => `data:text/javascript;base64,${Buffer.from(compile(source)).toString('base64')}`
 const stylesUrl = moduleUrl(await readFile(new URL('../../../lib/siteEditorTextStyles.ts', import.meta.url), 'utf8'))
-const model = await import(moduleUrl((await readFile(new URL('./editorSessionModel.ts', import.meta.url), 'utf8')).replaceAll("'../../../lib/siteEditorTextStyles'", JSON.stringify(stylesUrl))))
+const layoutUrl = moduleUrl((await readFile(new URL('../../../lib/siteEditorLayout.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl)))
+const model = await import(moduleUrl((await readFile(new URL('./editorSessionModel.ts', import.meta.url), 'utf8')).replaceAll("'../../../lib/siteEditorTextStyles'", JSON.stringify(stylesUrl)).replaceAll("'../../../lib/siteEditorLayout'", JSON.stringify(layoutUrl))))
 
 const empty = () => ({ schemaVersion: 1, copy: {}, deviceCopy: {}, appearance: {} })
 const record = (draft = empty(), version = 0) => ({ page_key: 'join', draft, published: null, version, updated_at: '', published_at: null })

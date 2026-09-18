@@ -1,4 +1,5 @@
 import type { EditorFont, EditorStyledCopy } from '../../../types/siteEditor'
+import { isEditorTextLayout } from '../../../lib/siteEditorLayout'
 
 export const editorFontOptions: Array<{ value: EditorFont; label: string }> = [
   { value: 'system', label: '기본 산세리프' }, { value: 'gothic-a1', label: '고딕 A1' },
@@ -20,6 +21,17 @@ export function formatEditorTime(value: string | null) {
 
 export function formatEditorChangeValue(kind: string, value: string | number | undefined): string {
   if (value === undefined) return '기존 원문·디자인 사용'
+  if (kind === 'textLayout') {
+    try {
+      const layout: unknown = JSON.parse(String(value))
+      if (!isEditorTextLayout(layout)) return '문구 상자 배치 변경'
+      return [layout.offsetX === undefined ? undefined : `가로 이동 ${layout.offsetX}px`,
+        layout.offsetY === undefined ? undefined : `세로 이동 ${layout.offsetY}px`,
+        layout.width === undefined ? undefined : `너비 ${layout.width}%`,
+        layout.textAlign === undefined ? undefined : ({ start: '시작 정렬', center: '가운데 정렬', end: '끝 정렬' }[layout.textAlign]),
+      ].filter(Boolean).join(' · ') || '기존 상자 배치 사용'
+    } catch { return '문구 상자 배치 변경' }
+  }
   if (kind !== 'textStyle') return String(value) || '(빈 문구)'
   try {
     const formatted = JSON.parse(String(value)) as EditorStyledCopy

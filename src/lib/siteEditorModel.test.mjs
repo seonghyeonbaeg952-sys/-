@@ -9,7 +9,10 @@ try {
   const styleSource = await readFile(new URL('./siteEditorTextStyles.ts', import.meta.url), 'utf8')
   const styles = ts.transpileModule(styleSource, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText
   const stylesUrl = `data:text/javascript;base64,${Buffer.from(styles).toString('base64')}`
-  const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText.replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl))
+  const layoutSource = await readFile(new URL('./siteEditorLayout.ts', import.meta.url), 'utf8')
+  const layoutCode = ts.transpileModule(layoutSource, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText.replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl))
+  const layoutUrl = `data:text/javascript;base64,${Buffer.from(layoutCode).toString('base64')}`
+  const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText.replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl)).replaceAll("'./siteEditorLayout'", JSON.stringify(layoutUrl))
   model = await import(`data:text/javascript;base64,${Buffer.from(compiled).toString('base64')}`)
 } catch (error) {
   if (error.code !== 'ENOENT') throw error

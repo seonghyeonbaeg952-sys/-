@@ -1,4 +1,5 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { EditableLayout } from '../site-editor/EditableLayout'
 import { HomeCopy } from './HomeCopy'
 import { splitHomeCopyLines } from '../../lib/homeCopySlices'
 import {
@@ -247,7 +248,7 @@ export function JoinOpenScoreCTA({
             >
               <HomeCopy sourceKey="home.current.join.eyebrowEn" text={content.eyebrowEn} />
             </p>
-            <h2
+            <EditableLayout id="home.join.title"><h2
               className="join-open-score__title join-open-score__reveal"
               id="join-open-score-title"
               style={getRevealStyle(200)}
@@ -270,8 +271,8 @@ export function JoinOpenScoreCTA({
                     />
                   </span>
                 ))}
-            </h2>
-            <p
+            </h2></EditableLayout>
+            <EditableLayout id="home.join.description"><p
               className="join-open-score__description join-open-score__reveal"
               style={getRevealStyle(300)}
             >
@@ -286,7 +287,7 @@ export function JoinOpenScoreCTA({
                   <HomeCopy sourceKey="home.current.join.compactDescription" text={content.compactDescription} />
                 </span>
               </span>
-            </p>
+            </p></EditableLayout>
 
             <div
               aria-label={copyText("home", "home.fixed.JoinOpenScoreCTA.74eb92b100", "입단 안내 바로가기")}

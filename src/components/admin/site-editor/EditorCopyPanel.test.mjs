@@ -8,7 +8,8 @@ import ts from 'typescript'
 const require = createRequire(import.meta.url)
 const compileUrl = source => `data:text/javascript;base64,${Buffer.from(ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText).toString('base64')}`
 const stylesUrl = compileUrl(await readFile(new URL('../../../lib/siteEditorTextStyles.ts', import.meta.url), 'utf8'))
-const documentUrl = compileUrl((await readFile(new URL('../../../lib/siteEditorModel.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl)))
+const layoutUrl = compileUrl((await readFile(new URL('../../../lib/siteEditorLayout.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl)))
+const documentUrl = compileUrl((await readFile(new URL('../../../lib/siteEditorModel.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl)).replaceAll("'./siteEditorLayout'", JSON.stringify(layoutUrl)))
 const copyTools = await import(compileUrl((await readFile(new URL('./editorCopyTools.ts', import.meta.url), 'utf8')).replaceAll("'../../../lib/siteEditorTextStyles'", JSON.stringify(stylesUrl)).replaceAll("'../../../lib/siteEditorModel'", JSON.stringify(documentUrl))))
 const code = ts.transpileModule(await readFile(new URL('./EditorCopyPanel.tsx', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },

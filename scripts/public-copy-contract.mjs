@@ -14,7 +14,7 @@ export function publicMarkupSource(source, file) {
   const normalized = roots.map(root => {
     const result = ts.transform(root, [context => {
       const visit = node => {
-        if (ts.isJsxElement(node) && ['FormattedCopy', 'HomeCopy'].includes(node.openingElement.tagName.getText(tree))) {
+        if (ts.isJsxElement(node) && ['FormattedCopy', 'HomeCopy', 'EditableLayout'].includes(node.openingElement.tagName.getText(tree))) {
           const children = node.children.filter(child => !ts.isJsxText(child) || cookJsx(source.slice(child.getFullStart(), child.end)))
           if (children.length === 1) {
             const child = children[0]

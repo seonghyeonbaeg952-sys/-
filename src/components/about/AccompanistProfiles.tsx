@@ -1,3 +1,4 @@
+import { EditableLayout } from '../site-editor/EditableLayout'
 import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { SiteCopy } from '../site-editor/SiteCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
@@ -32,8 +33,8 @@ export function AccompanistProfiles({
           <div className="accompanist-profile__intro-copy">
             <span aria-hidden="true" className="accompanist-profile__rail" />
             <p className="accompanist-profile__eyebrow"><SiteCopy page="accompanist" id="accompanist.accompanistProfiles.english1" fallback={"ACCOMPANIST PROFILE "} /><span aria-hidden="true">/</span>{<FormattedCopy page="accompanist" id="accompanist.fixed.AccompanistProfiles.59455c0edf" text={copyText("accompanist", "accompanist.fixed.AccompanistProfiles.59455c0edf", " SEOUL")}>{copyText("accompanist", "accompanist.fixed.AccompanistProfiles.59455c0edf", " SEOUL")}</FormattedCopy>}</p>
-            <Heading id="accompanist-profile-title"><SiteCopy page="accompanist" id="accompanist.accompanistProfiles.text1" fallback={"반주자 소개"} /></Heading>
-            <p className="accompanist-profile__summary"><SiteCopy page="accompanist" id="accompanist.accompanistProfiles.text2" fallback={"연습과 무대에서 합창단과 함께하는 두 반주자의 학력과 현재 활동을 소개합니다."} /></p>
+            <EditableLayout id="accompanist.intro.title"><Heading id="accompanist-profile-title"><SiteCopy page="accompanist" id="accompanist.accompanistProfiles.text1" fallback={"반주자 소개"} /></Heading></EditableLayout>
+            <EditableLayout id="accompanist.intro.description"><p className="accompanist-profile__summary"><SiteCopy page="accompanist" id="accompanist.accompanistProfiles.text2" fallback={"연습과 무대에서 합창단과 함께하는 두 반주자의 학력과 현재 활동을 소개합니다."} /></p></EditableLayout>
           </div>
           <p aria-hidden="true" className="accompanist-profile__display"><SiteCopy page="accompanist" id="accompanist.accompanistProfiles.english2" fallback={"Accompanists."} /></p>
         </header>

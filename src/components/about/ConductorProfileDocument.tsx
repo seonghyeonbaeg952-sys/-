@@ -1,3 +1,4 @@
+import { EditableLayout } from '../site-editor/EditableLayout'
 import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { SiteCopy } from '../site-editor/SiteCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
@@ -175,9 +176,9 @@ export function ConductorProfileDocument({ person }: { person?: PersonProfileRow
           <div>
             <p className="conductor-profile__eyebrow"><SiteCopy page="conductor" id="conductor.conductorProfileDocument.english1" fallback={"CONDUCTOR"} /></p>
             <span aria-hidden="true" className="conductor-profile__heading-rule" />
-            <h1 id="conductor-profile-title"><SiteCopy page="conductor" id="conductor.conductorProfileDocument.text1" fallback={"지휘자 소개"} /></h1>
+            <EditableLayout id="conductor.intro.title"><h1 id="conductor-profile-title"><SiteCopy page="conductor" id="conductor.conductorProfileDocument.text1" fallback={"지휘자 소개"} /></h1></EditableLayout>
           </div>
-          <p className="conductor-profile__organization">{<FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.f34c03131f" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</FormattedCopy>}</p>
+          <EditableLayout id="conductor.intro.organization"><p className="conductor-profile__organization">{<FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.f34c03131f" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</FormattedCopy>}</p></EditableLayout>
         </header>
 
         <section
@@ -218,16 +219,16 @@ export function ConductorProfileDocument({ person }: { person?: PersonProfileRow
               <p>{<FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.f34c03131f" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</FormattedCopy>}</p>
               <small><SiteCopy page="conductor" id="conductor.conductorProfileDocument.english2" fallback={"CONDUCTOR"} />{<FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.8a191edde4" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.8a191edde4", " · 2014 — PRESENT")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.8a191edde4", " · 2014 — PRESENT")}</FormattedCopy>}</small>
               <span aria-hidden="true" className="conductor-profile__identity-rule" />
-              <h2>{name}</h2>
+              <EditableLayout id="conductor.profile.name"><h2>{name}</h2></EditableLayout>
               <strong>{<FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.ab3fd80626" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.ab3fd80626", "KIM HYUNG-SU")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.ab3fd80626", "KIM HYUNG-SU")}</FormattedCopy>}</strong>
             </div>
 
             <div className="conductor-profile__copy">
-              <div className="conductor-profile__biography">
+              <EditableLayout id="conductor.profile.biography"><div className="conductor-profile__biography">
                 {biography.map((paragraph, index) => (
                   <p key={`${index}-${paragraph.slice(0, 24)}`}>{paragraph}</p>
                 ))}
-              </div>
+              </div></EditableLayout>
 
               <div className="conductor-profile__current">
                 <p><SiteCopy page="conductor" id="conductor.conductorProfileDocument.english3" fallback={"CURRENT"} /></p>

@@ -1,3 +1,4 @@
+import { EditableLayout } from '../../components/site-editor/EditableLayout'
 import { FormattedCopy } from '../../components/site-editor/FormattedCopy'
 import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 import { useMemo, useState } from 'react'
@@ -350,10 +351,10 @@ export function ConcertsPage() {
               <p>{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.b799293c64" text={copyText("concerts", "concerts.fixed.ConcertsPage.b799293c64", "CONCERT PROGRAM ·")}>{copyText("concerts", "concerts.fixed.ConcertsPage.b799293c64", "CONCERT PROGRAM ·")}</FormattedCopy>}{' '}
                 {getDateParts(rawSchedule.featured?.date ?? '').year || today.slice(0, 4)}{' '}{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.563c7ab915" text={copyText("concerts", "concerts.fixed.ConcertsPage.563c7ab915", "SEASON")}>{copyText("concerts", "concerts.fixed.ConcertsPage.563c7ab915", "SEASON")}</FormattedCopy>}</p>
               <i aria-hidden="true" />
-              <h1 id="concerts-page-title">
+              <EditableLayout id="concerts.intro.title"><h1 id="concerts-page-title">
                 <FormattedCopy page="concerts" id="concerts.title" text={t('title')} lineBreaks><CopyLines text={t('title')} /></FormattedCopy>
-              </h1>
-              <span>{<FormattedCopy page="concerts" id="concerts.description" text={t('description')}>{t('description')}</FormattedCopy>}</span>
+              </h1></EditableLayout>
+              <EditableLayout id="concerts.intro.description"><span>{<FormattedCopy page="concerts" id="concerts.description" text={t('description')}>{t('description')}</FormattedCopy>}</span></EditableLayout>
               <nav aria-label={copyText("concerts", "concerts.fixed.ConcertsPage.917033508b", "공연·소식 바로가기")} className="concerts-page__local-nav">
                 <a aria-current="page" href="#concert-discovery">
                   {<FormattedCopy page="concerts" id="concerts.schedule" text={t('schedule')}>{t('schedule')}</FormattedCopy>}

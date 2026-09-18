@@ -7,7 +7,8 @@ const moduleUrl = source => `data:text/javascript;base64,${Buffer.from(ts.transp
   compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
 }).outputText).toString('base64')}`
 const stylesUrl = moduleUrl(await readFile(new URL('./siteEditorTextStyles.ts', import.meta.url), 'utf8'))
-const documentUrl = moduleUrl((await readFile(new URL('./siteEditorModel.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl)))
+const layoutUrl = moduleUrl((await readFile(new URL('./siteEditorLayout.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl)))
+const documentUrl = moduleUrl((await readFile(new URL('./siteEditorModel.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl)).replaceAll("'./siteEditorLayout'", JSON.stringify(layoutUrl)))
 const canvasUrl = moduleUrl((await readFile(new URL('./siteEditorCanvasModel.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl)).replaceAll("'./siteEditorModel'", JSON.stringify(documentUrl)))
 const code = await readFile(new URL('./siteEditorCanvasProtocol.ts', import.meta.url), 'utf8').catch(error => { if (error.code === 'ENOENT') return 'export {}'; throw error })
 const protocol = await import(moduleUrl(code.replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl)).replaceAll("'./siteEditorModel'", JSON.stringify(documentUrl)).replaceAll("'./siteEditorCanvasModel'", JSON.stringify(canvasUrl))))

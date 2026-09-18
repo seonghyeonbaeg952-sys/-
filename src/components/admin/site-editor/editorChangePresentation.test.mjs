@@ -3,7 +3,10 @@ import { readFile } from 'node:fs/promises'
 import { test } from 'node:test'
 import ts from 'typescript'
 
-const code = ts.transpileModule(await readFile(new URL('./editorUiOptions.ts', import.meta.url), 'utf8'), { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText
+const compileUrl = source => `data:text/javascript;base64,${Buffer.from(ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText).toString('base64')}`
+const stylesUrl = compileUrl(await readFile(new URL('../../../lib/siteEditorTextStyles.ts', import.meta.url), 'utf8'))
+const layoutsUrl = compileUrl((await readFile(new URL('../../../lib/siteEditorLayout.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl)))
+const code = ts.transpileModule(await readFile(new URL('./editorUiOptions.ts', import.meta.url), 'utf8'), { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText.replaceAll("'../../../lib/siteEditorLayout'", JSON.stringify(layoutsUrl))
 const options = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`)
 test('publish and conflict summaries describe selected text and readable formatting, not internal JSON', () => {
   assert.equal(typeof options.formatEditorChangeValue, 'function')

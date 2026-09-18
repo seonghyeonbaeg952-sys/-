@@ -1,3 +1,4 @@
+import { EditableLayout } from '../../components/site-editor/EditableLayout'
 import { FormattedCopy } from '../../components/site-editor/FormattedCopy'
 import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 import { useMemo, useRef, useState, type FormEvent } from 'react'
@@ -84,10 +85,10 @@ export function NoticesPage() {
       <header className="notices-page__hero notices-page__shell">
         <div>
           <p className="notices-page__eyebrow">{<FormattedCopy page="notices" id="notices.fixed.NoticesPage.6441d0206e" text={copyText("notices", "notices.fixed.NoticesPage.6441d0206e", "NEWS & NOTICES")}>{copyText("notices", "notices.fixed.NoticesPage.6441d0206e", "NEWS & NOTICES")}</FormattedCopy>}</p>
-          <h1 className="notices-page__title">{<FormattedCopy page="notices" id="notices.title" text={t('title')}>{t('title')}</FormattedCopy>}</h1>
-          <p className="notices-page__description">
+          <EditableLayout id="notices.intro.title"><h1 className="notices-page__title">{<FormattedCopy page="notices" id="notices.title" text={t('title')}>{t('title')}</FormattedCopy>}</h1></EditableLayout>
+          <EditableLayout id="notices.intro.description"><p className="notices-page__description">
             <FormattedCopy page="notices" id="notices.description" text={t('description')} lineBreaks><CopyLines text={t('description')} /></FormattedCopy>
-          </p>
+          </p></EditableLayout>
         </div>
         <div aria-hidden="true" className="notices-page__signature">
           <i>{<FormattedCopy page="notices" id="notices.fixed.NoticesPage.10317061d0" text={copyText("notices", "notices.fixed.NoticesPage.10317061d0", "Notices.")}>{copyText("notices", "notices.fixed.NoticesPage.10317061d0", "Notices.")}</FormattedCopy>}</i>

@@ -1,4 +1,5 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { EditableLayout } from '../site-editor/EditableLayout'
 import { HomeCopy } from './HomeCopy'
 import { splitHomeCopyLines, splitHomeParagraphCopy } from '../../lib/homeCopySlices'
 import type { GalleryImage } from '../../types/content'
@@ -171,7 +172,7 @@ function CollectivePortrait({
               <p><HomeCopy sourceKey="home.current.about.eyebrowEn" text={kicker} /></p>
               <i aria-hidden="true" />
             </div>
-            <h2 id="home-about-portrait-title">
+            <EditableLayout id="home.about.title"><h2 id="home-about-portrait-title">
               {titleLines.map((line, index) => (
                 <span key={line}>
                   <HomeDisplayTitleText
@@ -183,7 +184,7 @@ function CollectivePortrait({
                   />
                 </span>
               ))}
-            </h2>
+            </h2></EditableLayout>
           </Reveal>
 
           <Reveal
@@ -191,14 +192,14 @@ function CollectivePortrait({
             delay={60}
             variant="fade-up"
           >
-            <p>
+            <EditableLayout id="home.about.description"><p>
               {summaryLines.map((line, index) => (
                 <span key={line}>
                   <HomeCopy sourceKey={summaryParts[index]?.sourceKey ?? ''} text={line} parts={summaryParts[index] ? [summaryParts[index]] : undefined} />
                   {index < summaryLines.length - 1 ? <br /> : null}
                 </span>
               ))}
-            </p>
+            </p></EditableLayout>
           </Reveal>
 
           <Reveal

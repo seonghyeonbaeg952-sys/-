@@ -1,10 +1,11 @@
-import type { EditorAppearance, EditorDevice, EditorStyledCopy, EditorTextRun, SiteCopyDefinition, SiteEditorDocument, SiteEditorPageRecord } from '../../../types/siteEditor'
+import type { EditorAppearance, EditorDevice, EditorStyledCopy, EditorTextLayout, EditorTextRun, SiteCopyDefinition, SiteEditorDocument, SiteEditorPageRecord } from '../../../types/siteEditor'
 import { canonicalTextStyle, isEditorCopyText, rebaseTextRuns, resolveTextRuns, supportsTextSegmentation, validateTextStyles } from '../../../lib/siteEditorTextStyles'
+import { canonicalTextLayout, validateTextLayouts } from '../../../lib/siteEditorLayout'
 
 export type EditorScope = 'shared' | EditorDevice
 export type EditorChange = {
   id: string
-  kind: 'copy' | 'appearance' | 'textStyle'
+  kind: 'copy' | 'appearance' | 'textStyle' | 'textLayout'
   scope: EditorScope
   key: string
   before: string | number | undefined
@@ -37,6 +38,11 @@ function documentFields(document: SiteEditorDocument) {
       runs: value.runs.map(run => ({ start: run.start, end: run.end, style: canonicalTextStyle(run.style) })),
     })])))
   }
+  for (const device of ['mobile', 'tablet', 'desktop'] as const) {
+    add('textLayout', device, Object.fromEntries(Object.entries(document.textLayouts?.[device] ?? {})
+      .filter(([, value]) => Object.keys(value).length > 0)
+      .map(([key, value]) => [key, JSON.stringify(canonicalTextLayout(value))])))
+  }
   return fields
 }
 
@@ -53,6 +59,10 @@ export function getEditorChanges(before: SiteEditorDocument, after: SiteEditorDo
 }
 
 function applyChange(document: SiteEditorDocument, change: EditorChange): SiteEditorDocument {
+  if (change.kind === 'textLayout') {
+    if (change.scope === 'shared') throw new RangeError('문구 상자는 기기별로 배치해 주세요.')
+    return setTextLayout(document, change.scope, change.key, change.after === undefined ? undefined : JSON.parse(String(change.after)) as EditorTextLayout)
+  }
   if (change.kind === 'textStyle') {
     return setStyledCopy(document, change.scope, change.key, change.after === undefined ? undefined : JSON.parse(String(change.after)) as EditorStyledCopy)
   }
@@ -84,12 +94,12 @@ function setStyledCopy(document: SiteEditorDocument, scope: EditorScope, key: st
 }
 
 function fieldGroup(field: Pick<EditorChange, 'kind' | 'scope' | 'key'>): string {
-  return JSON.stringify([field.kind === 'appearance' ? 'appearance' : 'text', field.scope, field.key])
+  return JSON.stringify([field.kind === 'appearance' ? 'appearance' : field.kind === 'textLayout' ? 'textLayout' : 'text', field.scope, field.key])
 }
 
 /** A copy and its offsets always travel together through refresh/restore/conflicts. */
 function transferChange(target: SiteEditorDocument, source: SiteEditorDocument, change: EditorChange): SiteEditorDocument {
-  if (change.kind === 'appearance') return applyChange(target, change)
+  if (change.kind === 'appearance' || change.kind === 'textLayout') return applyChange(target, change)
   const copy = change.scope === 'shared' ? source.copy[change.key] : source.deviceCopy[change.scope]?.[change.key]
   const next = applyChange(target, { ...change, kind: 'copy', after: copy })
   return setStyledCopy(next, change.scope, change.key, source.textStyles?.[change.scope]?.[change.key])
@@ -133,6 +143,27 @@ export function editSessionAppearance<K extends keyof EditorAppearance>(session:
   return replaceEditorDocument(session, applyChange(session.document, { id: JSON.stringify(['appearance', scope, key]), kind: 'appearance', scope, key, before: undefined, after: value }))
 }
 
+function setTextLayout(document: SiteEditorDocument, device: EditorDevice, layoutId: string, value: EditorTextLayout | undefined): SiteEditorDocument {
+  const error = validateTextLayouts({ [device]: { [layoutId]: value === undefined ? {} : value } })
+  if (error) throw new RangeError(error)
+  const entries = { ...document.textLayouts?.[device] }
+  if (value === undefined || Object.keys(value).length === 0) delete entries[layoutId]
+  else entries[layoutId] = canonicalTextLayout(value)
+  const textLayouts = { ...document.textLayouts, [device]: entries }
+  if (Object.keys(entries).length === 0) delete textLayouts[device]
+  const next: SiteEditorDocument = { ...document, textLayouts }
+  if (Object.keys(textLayouts).length === 0) delete next.textLayouts
+  else {
+    const invalid = validateTextLayouts(textLayouts)
+    if (invalid) throw new RangeError(invalid)
+  }
+  return next
+}
+
+export function editSessionTextLayout(session: EditorSession, device: EditorDevice, layoutId: string, value?: EditorTextLayout): EditorSession {
+  return replaceEditorDocument(session, setTextLayout(session.document, device, layoutId, value))
+}
+
 export function acceptEditorSave(session: EditorSession, record: SiteEditorPageRecord): EditorSession {
   if (record.version < session.record.version) return session
   return { ...session, record: structuredClone(record), baseline: structuredClone(record.draft), conflicts: [] }
@@ -174,6 +205,10 @@ export function resetEditorScope(session: EditorSession, scope: EditorScope): Ed
   if (document.textStyles) {
     delete document.textStyles[scope]
     if (Object.keys(document.textStyles).length === 0) delete document.textStyles
+  }
+  if (scope !== 'shared' && document.textLayouts) {
+    delete document.textLayouts[scope]
+    if (Object.keys(document.textLayouts).length === 0) delete document.textLayouts
   }
   return replaceEditorDocument(session, document)
 }

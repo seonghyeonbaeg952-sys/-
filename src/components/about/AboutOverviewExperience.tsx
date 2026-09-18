@@ -1,3 +1,4 @@
+import { EditableLayout } from '../site-editor/EditableLayout'
 import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { SiteCopy } from '../site-editor/SiteCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
@@ -150,7 +151,7 @@ function Introduction() {
             <EditorialLabel secondary={editorCopy("about", "about.introduction.english1", "MAKING VOICES MATTER")}><SiteCopy page="about" id="about.introduction.english2" fallback={"ABOUT SMYC"} /></EditorialLabel>
           </motion.div>
 
-          <h1 id="about-overview-title">
+          <EditableLayout id="about.intro.title"><h1 id="about-overview-title">
             <span className="about-overview__title-mask">
               <motion.span
                 animate={{ opacity: 1, y: 0 }}
@@ -174,14 +175,14 @@ function Introduction() {
                 <strong><SiteCopy page="about" id="about.introduction.text3" fallback={"이어"} /></strong> <em><SiteCopy page="about" id="about.introduction.text4" fallback={"갑니다."} /></em>
               </motion.span>
             </span>
-          </h1>
+          </h1></EditableLayout>
 
-          <motion.p
+          <EditableLayout id="about.intro.description" nativeTag="p"><motion.p
             animate={{ opacity: 1, y: 0 }}
             className="about-overview__intro-body"
             initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
             transition={{ delay: 0.3, duration: 0.66, ease: EASE_OUT }}
-          ><SiteCopy page="about" id="about.introduction.text5" fallback={"2014년 서울모테트합창단이 음악재단을 설립하며 청소년아카데미 산하에 창단했습니다. 정기연주회, 뮤직캠프, 초청·봉사연주, 해외 비전투어를 통해 음악적 역량과 공동체성, 세계시민의식을 함께 기릅니다."} /></motion.p>
+          ><SiteCopy page="about" id="about.introduction.text5" fallback={"2014년 서울모테트합창단이 음악재단을 설립하며 청소년아카데미 산하에 창단했습니다. 정기연주회, 뮤직캠프, 초청·봉사연주, 해외 비전투어를 통해 음악적 역량과 공동체성, 세계시민의식을 함께 기릅니다."} /></motion.p></EditableLayout>
 
           <motion.dl
             animate={{ opacity: 1, y: 0 }}

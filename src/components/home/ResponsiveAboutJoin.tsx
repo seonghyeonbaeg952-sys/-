@@ -1,4 +1,5 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { EditableLayout } from '../site-editor/EditableLayout'
 import { HomeCopy } from './HomeCopy'
 import { splitHomeCopyLines, type HomeCopyPart } from '../../lib/homeCopySlices'
 import type { JoinInfoRow } from '../../types/cms'
@@ -74,9 +75,9 @@ export function ResponsiveCollectivePortrait({
         <span aria-hidden="true">{tablet ? '01' : '01 /'}</span> <HomeCopy sourceKey="home.current.about.eyebrowEn" text={kicker} />
       </p>
       <div className="responsive-about__introduction">
-        <h2 id="home-responsive-about-title"><HomeCopy sourceKey="home.current.about.title" text={title} /></h2>
+        <EditableLayout id="home.about.title"><h2 id="home-responsive-about-title"><HomeCopy sourceKey="home.current.about.title" text={title} /></h2></EditableLayout>
         <div className="responsive-about__statement">
-          {description ? <p className="responsive-about__description"><HomeCopy sourceKey={`home.responsive.about.${tablet ? 'tabletDescription' : 'mobileDescription'}`} text={description} /></p> : null}
+          {description ? <EditableLayout id="home.about.description"><p className="responsive-about__description"><HomeCopy sourceKey={`home.responsive.about.${tablet ? 'tabletDescription' : 'mobileDescription'}`} text={description} /></p></EditableLayout> : null}
           {tablet ? action : null}
         </div>
       </div>
@@ -176,8 +177,8 @@ export function ResponsiveJoinInvitation({
         <span aria-hidden="true">{tablet ? '02' : '02 /'}</span> <HomeCopy sourceKey="home.current.join.eyebrowEn" text={content.eyebrowEn} />
       </p>
       <div className="responsive-join__invitation">
-        <h2 id="home-responsive-join-title"><HomeCopy sourceKey={tablet ? 'home.current.join.title' : 'home.responsive.join.mobileTitle'} text={title} /></h2>
-        {description ? <p className="responsive-join__description"><HomeCopy sourceKey={tablet ? 'home.current.join.description' : 'home.responsive.join.mobileDescription'} text={description} parts={tablet ? tabletDescriptionParts : undefined} /></p> : null}
+        <EditableLayout id="home.join.title"><h2 id="home-responsive-join-title"><HomeCopy sourceKey={tablet ? 'home.current.join.title' : 'home.responsive.join.mobileTitle'} text={title} /></h2></EditableLayout>
+        {description ? <EditableLayout id="home.join.description"><p className="responsive-join__description"><HomeCopy sourceKey={tablet ? 'home.current.join.description' : 'home.responsive.join.mobileDescription'} text={description} parts={tablet ? tabletDescriptionParts : undefined} /></p></EditableLayout> : null}
         {!tablet ? targetInfo : null}
         {primaryAction}
       </div>

@@ -56,3 +56,13 @@ test('public render dependency graph does not eagerly include the CMS catalogue 
   const adminImports = app.statements.filter(ts.isImportDeclaration).filter(node => node.moduleSpecifier.text.includes('/admin/'))
   assert.equal(adminImports.length, 0, 'CMS routes must cross a lazy boundary')
 })
+
+test('explicit layout registration preserves native children and motion props without masking real markup changes', () => {
+  const original = 'function A() { return <section><h1 id="title">One<br/>Two</h1><motion.p animate={{opacity:1}} style={{color:"red"}}>Body</motion.p></section> }'
+  const adapted = 'function A() { return <section><EditableLayout id="page.title"><h1 id="title">One<br/>Two</h1></EditableLayout><EditableLayout id="page.description" nativeTag="p"><motion.p animate={{opacity:1}} style={{color:"red"}}>Body</motion.p></EditableLayout></section> }'
+  const expected = publicMarkupFingerprint(original, 'fixture.tsx')
+  assert.equal(publicMarkupFingerprint(adapted, 'fixture.tsx'), expected)
+  for (const changed of [adapted.replace('id="title"', 'id="changed"'), adapted.replace('opacity:1', 'opacity:0'), adapted.replace('color:"red"', 'color:"blue"'), adapted.replace('One<br/>Two', 'One Two')]) {
+    assert.notEqual(publicMarkupFingerprint(changed, 'fixture.tsx'), expected)
+  }
+})

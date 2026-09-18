@@ -1,3 +1,4 @@
+import { EditableLayout } from '../../components/site-editor/EditableLayout'
 import { FormattedCopy } from '../../components/site-editor/FormattedCopy'
 import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 import { useEffect } from 'react'
@@ -66,8 +67,8 @@ function ContactContent() {
         {activeSection !== 'all' ? <Link className="contact-atelier__back" to="/contact">{<FormattedCopy page="contact" id="contact.back" text={t('back')}>{t('back')}</FormattedCopy>}</Link> : null}
         <p className="contact-atelier__eyebrow">{<FormattedCopy page="contact" id="contact.fixed.ContactPage.f34c03131f" text={copyText("contact", "contact.fixed.ContactPage.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}>{copyText("contact", "contact.fixed.ContactPage.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</FormattedCopy>}</p>
         <div className="contact-atelier__title-row">
-          <h1>{title}</h1>
-          <p>{activeSection === 'support' ? (supportSettings?.subtitle || <FormattedCopy page="contact" id="contact.fixed.ContactPage.3752940cdb" text={copyText("contact", "contact.fixed.ContactPage.3752940cdb", "후원 방식과 약정 내용을 확인해 주세요.")}>{copyText("contact", "contact.fixed.ContactPage.3752940cdb", "후원 방식과 약정 내용을 확인해 주세요.")}</FormattedCopy>) : <FormattedCopy page="contact" id="contact.description" text={t('description')} lineBreaks><CopyLines text={t('description')} /></FormattedCopy>}</p>
+          <EditableLayout id="contact.intro.title"><h1>{title}</h1></EditableLayout>
+          <EditableLayout id="contact.intro.description"><p>{activeSection === 'support' ? (supportSettings?.subtitle || <FormattedCopy page="contact" id="contact.fixed.ContactPage.3752940cdb" text={copyText("contact", "contact.fixed.ContactPage.3752940cdb", "후원 방식과 약정 내용을 확인해 주세요.")}>{copyText("contact", "contact.fixed.ContactPage.3752940cdb", "후원 방식과 약정 내용을 확인해 주세요.")}</FormattedCopy>) : <FormattedCopy page="contact" id="contact.description" text={t('description')} lineBreaks><CopyLines text={t('description')} /></FormattedCopy>}</p></EditableLayout>
         </div>
       </header>
       <nav className="contact-atelier__navigation contact-atelier__shell" aria-label={copyText("contact", "contact.fixed.ContactPage.29d1e6fdd4", "후원·문의 섹션 선택")}>

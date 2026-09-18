@@ -1,3 +1,4 @@
+import { EditableLayout } from '../site-editor/EditableLayout'
 import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { SiteCopy } from '../site-editor/SiteCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
@@ -98,8 +99,8 @@ export function HistoryCueSheetExperience({
       {compact ? (
         <header className="history-cue__compact-intro">
           <p className="history-cue__eyebrow"><SiteCopy page="history" id="history.historyCueSheetExperience.english1" fallback={"HISTORY / CUE SHEET"} /></p>
-          <Heading><SiteCopy page="history" id="history.historyCueSheetExperience.text2" fallback={"함께한 무대의 기록"} /></Heading>
-          <p><SiteCopy page="history" id="history.historyCueSheetExperience.text3" fallback={"연도를 고르고, 필요한 장면을 펼쳐보세요."} /></p>
+          <EditableLayout id="history.intro.title"><Heading><SiteCopy page="history" id="history.historyCueSheetExperience.text2" fallback={"함께한 무대의 기록"} /></Heading></EditableLayout>
+          <EditableLayout id="history.intro.description"><p><SiteCopy page="history" id="history.historyCueSheetExperience.text3" fallback={"연도를 고르고, 필요한 장면을 펼쳐보세요."} /></p></EditableLayout>
         </header>
       ) : (
         <header className="history-cue__hero">
@@ -109,8 +110,8 @@ export function HistoryCueSheetExperience({
             <div className="history-cue__hero-copy">
               <p className="history-cue__eyebrow"><SiteCopy page="history" id="history.historyCueSheetExperience.english2" fallback={"HISTORY / CUE SHEET"} /></p>
               <span aria-hidden="true" className="history-cue__accent-rule" />
-              <Heading><SiteCopy page="history" id="history.historyCueSheetExperience.text4" fallback={"한 줄의 기록이"} /><br /><SiteCopy page="history" id="history.historyCueSheetExperience.text5" fallback={"한 장면으로 펼쳐집니다."} /></Heading>
-              <p className="history-cue__hero-description"><SiteCopy page="history" id="history.historyCueSheetExperience.text6" fallback={"창단 이후의 무대와 배움, 그리고 함께한 목소리를 공연 기록지처럼 차례로 펼쳐봅니다."} /></p>
+              <EditableLayout id="history.intro.title"><Heading><SiteCopy page="history" id="history.historyCueSheetExperience.text4" fallback={"한 줄의 기록이"} /><br /><SiteCopy page="history" id="history.historyCueSheetExperience.text5" fallback={"한 장면으로 펼쳐집니다."} /></Heading></EditableLayout>
+              <EditableLayout id="history.intro.description"><p className="history-cue__hero-description"><SiteCopy page="history" id="history.historyCueSheetExperience.text6" fallback={"창단 이후의 무대와 배움, 그리고 함께한 목소리를 공연 기록지처럼 차례로 펼쳐봅니다."} /></p></EditableLayout>
               <p className="history-cue__range">
                 <em>{model.rangeLabel}</em>
                 <span aria-hidden="true">·</span>

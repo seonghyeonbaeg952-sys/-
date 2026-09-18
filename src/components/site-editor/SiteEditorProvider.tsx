@@ -13,6 +13,7 @@ import previewCss from './site-editor-public.css?inline'
 import editorFontFaces from './site-editor-fonts.css?inline'
 import textStyleCss from './site-editor-text-styles.css?inline'
 import type { createCanvasRuntime } from './canvasRuntime'
+import type { createCanvasPlacementRuntime } from './canvasPlacementRuntime'
 
 export function SiteEditorProvider({ children }: { children: ReactNode }) {
   const location = useLocation()
@@ -30,6 +31,7 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
   const queuedPreview = useRef<typeof preview>(null)
   const queuedPublished = useRef<SiteEditorDocuments | null>(null)
   const [canvas, setCanvas] = useState<ReturnType<typeof createCanvasRuntime> | null>(null)
+  const [placement, setPlacement] = useState<ReturnType<typeof createCanvasPlacementRuntime> | null>(null)
   const documents = useMemo(() => isPreview && preview?.nonce === nonce && preview.page === page
     ? { ...published, ...preview.documents } : published, [isPreview, nonce, page, preview, published])
   const copy = useCallback((target: Parameters<typeof resolveEditorCopy>[1], key: string, fallback: string) =>
@@ -42,18 +44,22 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
     if (!isPreview || !nonce || !page) return
     let disposed = false
     let cleanup: (() => void) | undefined
-    void Promise.all([import('./canvasRuntime'), import('./canvas-runtime.css')]).then(([{ createCanvasRuntime }]) => {
+    void Promise.all([import('./canvasRuntime'), import('./canvasPlacementRuntime'), import('./canvas-runtime.css')]).then(([{ createCanvasRuntime }, { createCanvasPlacementRuntime }]) => {
       if (disposed) return
-      const runtime = createCanvasRuntime({ nonce, page, getDraftSequence: () => appliedSequence.current,
-        freeze(active) {
+      const freeze = (active: boolean) => {
           frozen.current = active
           if (!active) {
             if (queuedPublished.current) { setPublished(queuedPublished.current); queuedPublished.current = null }
             if (queuedPreview.current) { setPreview(queuedPreview.current); queuedPreview.current = null }
           }
-        },
-      })
-      setCanvas(runtime); cleanup = runtime.mount()
+      }
+      const runtime = createCanvasRuntime({ nonce, page, getDraftSequence: () => appliedSequence.current, freeze })
+      const placementRuntime = createCanvasPlacementRuntime({ nonce, page, getAppliedSequence: () => appliedSequence.current, freeze })
+      setCanvas(runtime)
+      setPlacement(placementRuntime)
+      const unmountCanvas = runtime.mount()
+      const unmountPlacement = placementRuntime.mount()
+      cleanup = () => { unmountPlacement(); unmountCanvas() }
     }).catch(() => { if (!disposed) setNotice('화면 편집을 불러오지 못했습니다. 관리자 문구 목록을 이용하거나 미리보기를 새로고침해 주세요.') })
     return () => { disposed = true; cleanup?.(); frozen.current = false; queuedPreview.current = null; queuedPublished.current = null }
   }, [isPreview, nonce, page])
@@ -99,20 +105,21 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
       if (!message || message.type !== 'smyc-editor:draft') return
       sequence.current = message.sequence
       const next = { nonce, page, sequence: message.sequence, documents: message.documents }
-      if (frozen.current) { queuedPreview.current = next; canvas?.deferred(message.sequence) }
+      if (frozen.current) { queuedPreview.current = next; canvas?.deferred(message.sequence); placement?.deferred(message.sequence) }
       else setPreview(next)
     }
     window.addEventListener('message', receive)
     window.parent.postMessage({ type: 'smyc-editor:ready', version: SITE_EDITOR_PROTOCOL_VERSION, nonce, page }, window.location.origin)
     return () => window.removeEventListener('message', receive)
-  }, [isPreview, nonce, page, canvas])
+  }, [isPreview, nonce, page, canvas, placement])
 
   useEffect(() => {
     if (!isPreview || !preview || preview.nonce !== nonce || preview.page !== page) return
     appliedSequence.current = preview.sequence
     window.parent.postMessage({ type: 'smyc-editor:applied', version: SITE_EDITOR_PROTOCOL_VERSION, nonce, page, sequence: preview.sequence }, window.location.origin)
     canvas?.refreshed()
-  }, [isPreview, nonce, page, preview, canvas])
+    placement?.refreshed()
+  }, [isPreview, nonce, page, preview, canvas, placement])
 
   useEffect(() => {
     if (!page || !css) return

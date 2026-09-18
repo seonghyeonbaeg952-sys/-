@@ -19,6 +19,14 @@ export type EditorTextStyle = {
 export type EditorTextRun = { start: number; end: number; style: EditorTextStyle }
 export type EditorStyledCopy = { text: string; runs: EditorTextRun[] }
 
+/** Explicit block layout: offsets are CSS px, width is a percentage; height is always automatic. */
+export type EditorTextLayout = {
+  offsetX?: number
+  offsetY?: number
+  width?: number
+  textAlign?: 'start' | 'center' | 'end'
+}
+
 export type EditorAppearance = {
   fontFamily?: EditorFont
   headingFontFamily?: EditorFont
@@ -43,6 +51,7 @@ export type SiteEditorDocument = {
   deviceCopy: Partial<Record<EditorDevice, Record<string, string>>>
   appearance: Partial<Record<'shared' | EditorDevice, EditorAppearance>>
   textStyles?: Partial<Record<'shared' | EditorDevice, Record<string, EditorStyledCopy>>>
+  textLayouts?: Partial<Record<EditorDevice, Record<string, EditorTextLayout>>>
 }
 
 export type SiteEditorDocuments = Partial<Record<EditorPageId, SiteEditorDocument>>

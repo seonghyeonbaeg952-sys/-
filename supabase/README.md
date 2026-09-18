@@ -2,6 +2,10 @@
 
 이 디렉터리는 서울모테트청소년합창단 홈페이지의 Database, Auth, Storage, RLS 설정을 관리합니다. 실제 계정 정보, 비밀번호, Supabase 키는 SQL이나 문서에 기록하지 않습니다.
 
+## 2026-09-18 문구 상자 배치 검증 적용
+
+`20260918022232_add_site_editor_text_layouts.sql`은 운영 프로젝트에 같은 이름/버전으로 적용 및 검증했다. optional 기기별 배치 validator만 추가했으며 실제 CMS 데이터·Auth·RLS·기존 RPC 권한은 바꾸지 않았다. 신규 배치 계약과 기존 글자 서식 계약, 기존 문서 유효성 및 데이터/권한 불변 확인은 [배포 기록](../docs/deployments/2026-09-18-site-editor-layout-validator.md)에 있다. 이 한 건의 원격 이력이 존재한다고 해서 아래의 과거 수동 적용분 이력까지 정리되었다는 뜻은 아니다. 미확인 pending 마이그레이션을 일괄 push하지 않는다.
+
 ## 2026-09-17 CMS 보완 적용 기록
 
 운영 프로젝트에는 다음 5개 변경을 SQL Editor에서 검증 후 적용했다. **같은 운영 DB에 전체 schema/seed/migration을 다시 실행하지 않는다.** 코드 Git 복구점은 DB 백업이 아니다.
