@@ -53,6 +53,15 @@
 .site-editor--canvas .site-editor__preview{padding:0;border:0}
 .site-editor__canvas-find>summary{min-height:44px;padding:10px 0;font-size:13px;cursor:pointer;color:var(--editor-muted)}
 .site-editor__canvas-find label{display:grid;gap:8px;font-size:13px;margin-bottom:16px}
+.site-editor__added-box-tools{margin:12px 0;padding:12px 14px;border:1px solid var(--editor-line);border-radius:4px;background:var(--editor-paper)}
+.site-editor__added-box-tools>button{min-height:44px;padding:9px 12px;border:1px solid var(--editor-line);border-radius:4px;background:#fff;color:var(--editor-ink);font-size:13px;font-weight:700}
+.site-editor__added-box-tools>button:disabled{opacity:.5;cursor:default}
+.site-editor__added-box-tools form{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) auto;align-items:end;gap:10px;margin-top:12px}
+.site-editor__added-box-tools label{display:grid;gap:6px;min-width:0;font-size:12px;font-weight:600}
+.site-editor__added-box-tools input,.site-editor__added-box-tools select{width:100%;min-height:44px;padding:8px 10px;border:1px solid var(--editor-line);border-radius:4px;background:#fff;color:var(--editor-ink);font-size:14px}
+.site-editor__added-box-tools :is(input,select,button):focus-visible{outline:2px solid var(--editor-accent);outline-offset:2px}
+.site-editor__added-box-tools p{margin:8px 0 0;color:var(--editor-muted);font-size:12px;line-height:1.6}
+@media(max-width:767px){.site-editor__added-box-tools form{grid-template-columns:minmax(0,1fr)}}
 .site-editor__canvas-find select{max-width:100%;min-width:0;padding:8px;border:1px solid var(--editor-line);background:var(--editor-paper)}
 
 /* Copy utilities are scoped to the CMS; public typography and layout stay intact. */

@@ -1,4 +1,4 @@
-import { isEditorPageId, validateSiteEditorDocument } from './siteEditorModel'
+import { isEditorBoxAnchor, isEditorPageId, validateSiteEditorDocument } from './siteEditorModel'
 import type { EditorPageId, SiteEditorDocuments } from '../types/siteEditor'
 
 export const SITE_EDITOR_PROTOCOL_VERSION = 1 as const
@@ -9,6 +9,7 @@ export type SiteEditorPreviewMessage = MessageBase & (
   | { type: 'smyc-editor:ready' }
   | { type: 'smyc-editor:draft'; sequence: number; documents: SiteEditorDocuments }
   | { type: 'smyc-editor:applied'; sequence: number }
+  | { type: 'smyc-editor:anchors'; sequence: number; anchors: { id: string; label: string }[] }
 )
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
@@ -62,10 +63,24 @@ export function parseSiteEditorMessage(value: unknown): SiteEditorPreviewMessage
   if (value.type === 'smyc-editor:ready') {
     return Object.keys(value).every(key => common.includes(key)) ? value as SiteEditorPreviewMessage : null
   }
-  if (value.type !== 'smyc-editor:draft' && value.type !== 'smyc-editor:applied') return null
+  if (value.type !== 'smyc-editor:draft' && value.type !== 'smyc-editor:applied' && value.type !== 'smyc-editor:anchors') return null
   if (!Number.isSafeInteger(value.sequence) || Number(value.sequence) < 1) return null
   if (value.type === 'smyc-editor:applied') {
     return Object.keys(value).every(key => [...common, 'sequence'].includes(key)) ? value as SiteEditorPreviewMessage : null
+  }
+  if (value.type === 'smyc-editor:anchors') {
+    if (Object.keys(value).some(key => ![...common, 'sequence', 'anchors'].includes(key))
+      || !Array.isArray(value.anchors) || value.anchors.length > 32) return null
+    const seen = new Set<string>()
+    for (const entry of value.anchors) {
+      if (!isRecord(entry) || Object.keys(entry).some(key => !['id', 'label'].includes(key))
+        || typeof entry.id !== 'string' || !isEditorBoxAnchor(entry.id) || seen.has(entry.id)
+        || typeof entry.label !== 'string' || !entry.label.trim() || entry.label.length > 80
+        || entry.label.includes('<') || entry.label.includes('>')
+        || [...entry.label].some(character => character.charCodeAt(0) < 32)) return null
+      seen.add(entry.id)
+    }
+    return value as SiteEditorPreviewMessage
   }
   if (Object.keys(value).some(key => ![...common, 'sequence', 'documents'].includes(key)) || !isRecord(value.documents)) return null
   if (Object.entries(value.documents).some(([page, document]) => !isEditorPageId(page) || validateSiteEditorDocument(document))) return null

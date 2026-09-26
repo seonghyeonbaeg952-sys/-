@@ -1,5 +1,17 @@
 type ParentBox = { left: number; top: number; width: number; paddingLeft: number; paddingRight: number; paddingTop: number; borderLeft: number; borderRight: number; borderTop: number }
 type Box = { left: number; top: number; width: number; height: number }
+/** DOM rectangles are visual pixels; a scaled page still lays out children in CSS pixels. */
+export function getCanvasScaleMetrics(visual: { width: number; height: number }, layout: { width: number; height: number }) {
+  const ratio = (visible: number, original: number) => original > 0 && Number.isFinite(visible / original) && visible > 0 ? visible / original : 1
+  return { x: ratio(visual.width, layout.width), y: ratio(visual.height, layout.height) }
+}
+export function toCanvasLayoutPixels(visualPixels: number, scale: number) {
+  return visualPixels / scale
+}
+/** A title that is visually one line should not acquire an artificial column break on selection. */
+export function shouldAutoExpandCanvasLine(text: string, glyphHeight: number, lineHeight: number): boolean {
+  return !/[\r\n]/.test(text) && lineHeight > 0 && glyphHeight <= lineHeight * 1.55
+}
 /** A selection outline never participates in layout. Editing reuses the line box. */
 export function getCanvasOverlayBox(parent: ParentBox, glyph: { left: number; top: number; right: number }, entireLine: boolean, inline?: { naturalWidth: number; alignment: 'left' | 'center' | 'right' }) {
   if (!entireLine && inline) {

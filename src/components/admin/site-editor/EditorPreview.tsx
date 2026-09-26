@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { isEditorPageId, validateSiteEditorDocument } from '../../../lib/siteEditorModel'
 import { SITE_EDITOR_PROTOCOL_VERSION } from '../../../lib/siteEditorPreview'
 import { siteCopyDefinitions } from '../../../content/siteCopyCatalog'
-import type { EditorDevice, EditorPageId, EditorTextLayout, SiteEditorDocuments } from '../../../types/siteEditor'
+import type { EditorDevice, EditorPageId, EditorTextLayout, SiteEditorDocument, SiteEditorDocuments } from '../../../types/siteEditor'
 import { Button } from '../../common/Button'
 import { readEditorPreviewReply } from './editorPreviewModel'
 import { editorViewports } from './editorUiOptions'
@@ -22,9 +22,11 @@ type Props = {
   loadingPath?: boolean
   onDeviceChange: (device: EditorDevice) => void
   onLayoutChange: (id: string, next: EditorTextLayout | undefined, before: EditorTextLayout, device: EditorDevice) => PlacementChangeResult
+  onBoxAdd: (anchor: string, text: string) => { ok: true; id: string } | { ok: false; message: string }
+  onBoxRemove: (id: string) => { ok: true; document: SiteEditorDocument } | { ok: false; message: string }
 } & CanvasBridgeOptions & { locked: boolean }
 
-function PreviewFrame({ page, label, path, device, documents, fit, context, onCommit, onActiveChange, onSave, onLayoutChange }: Omit<Props, 'onDeviceChange'> & { path: string; fit: boolean }) {
+function PreviewFrame({ page, label, path, device, documents, fit, context, onCommit, onActiveChange, onSave, onLayoutChange, onBoxAdd, onBoxRemove }: Omit<Props, 'onDeviceChange'> & { path: string; fit: boolean }) {
   const [nonce] = useState(() => crypto.randomUUID())
   const frame = useRef<HTMLIFrameElement>(null)
   const holder = useRef<HTMLDivElement>(null)
@@ -41,11 +43,29 @@ function PreviewFrame({ page, label, path, device, documents, fit, context, onCo
   const canvas = useCanvasBridge({ frame, nonce, draftSequence: sequence, context, onCommit, onActiveChange: setTextActive, onSave, onCommitted: forceRefresh })
   const placementLocked = canvas.active || !context.defaultsTrusted || context.scope === 'shared' || page === 'common'
   const placement = usePlacementBridge({ frame, nonce, draftSequence: sequence, context: { ...context, locked: placementLocked || placementInputDirty }, onChange: onLayoutChange, onActiveChange: setPlacementActive, onCommitted: forceRefresh })
+  const { blocks: placementBlocks, select: selectPlacement, connected: placementConnected, mode: placementMode, setMode: setPlacementMode } = placement
   const [placementError, setPlacementError] = useState('')
   const [placementStatus, setPlacementStatus] = useState('')
+  const [addingBox, setAddingBox] = useState(false)
+  const [newBoxText, setNewBoxText] = useState('')
+  const [boxAnchor, setBoxAnchor] = useState('')
+  const [boxAnchors, setBoxAnchors] = useState<Array<{ id: string; label: string }>>([])
+  const [boxFeedback, setBoxFeedback] = useState('')
+  const [newBoxId, setNewBoxId] = useState('')
   const placementBusy = placement.active || placementLocked || !applied || pending !== applied
   const editing = textActive || placementActive || placementInputDirty
   useEffect(() => { onActiveChange(editing); return () => onActiveChange(false) }, [editing, onActiveChange])
+  useEffect(() => {
+    if (!newBoxId || !placementBlocks.some(block => block.id === newBoxId) || placementBusy) return
+    const frameId = window.requestAnimationFrame(() => {
+      selectPlacement(newBoxId)
+      setNewBoxId(current => current === newBoxId ? '' : current)
+    })
+    return () => window.cancelAnimationFrame(frameId)
+  }, [newBoxId, placementBlocks, selectPlacement, placementBusy])
+  useEffect(() => {
+    if (canvas.mode === 'edit' && canvas.connected && placementConnected && placementMode === 'off' && !placementLocked) setPlacementMode('place')
+  }, [canvas.mode, canvas.connected, placementConnected, placementMode, setPlacementMode, placementLocked])
   const overlapping = placement.selected ? placement.blocks.filter(peer => {
     const selected = placement.selected!
     return peer.id !== selected.id && peer.group === selected.group
@@ -79,7 +99,11 @@ function PreviewFrame({ page, label, path, device, documents, fit, context, onCo
       if (reply.type === 'smyc-editor:ready') {
         setReadyCount((value) => value + 1)
         setFailure(null)
-      } else if (reply.sequence === sequence.current) {
+      } else if (reply.type === 'smyc-editor:anchors' && reply.sequence <= sequence.current) {
+        const available = reply.anchors.length ? reply.anchors : [{ id: 'main-content', label: '본문 아래' }]
+        setBoxAnchors(available)
+        setBoxAnchor(current => available.some(section => section.id === current) ? current : available[0].id)
+      } else if (reply.type === 'smyc-editor:applied' && reply.sequence === sequence.current) {
         setApplied(reply.sequence)
         setFailure(null)
       }
@@ -117,7 +141,7 @@ function PreviewFrame({ page, label, path, device, documents, fit, context, onCo
     const result = onLayoutChange(block.id, value, block.value, device)
     setPlacementError(result.ok ? '' : result.message)
     if (result.ok) {
-      setPlacementStatus(limited ? '화면과 섹션 안에 보이도록 이동 범위를 조절했습니다.' : '배치를 초안에 적용했습니다. 실행 취소로 되돌릴 수 있습니다.')
+      setPlacementStatus(limited ? '화면과 섹션 안에 보이도록 위치·너비를 조절했습니다.' : '배치를 초안에 적용했습니다. 실행 취소로 되돌릴 수 있습니다.')
       const nextSequence = ++sequence.current
       setPending(nextSequence)
       frame.current?.contentWindow?.postMessage({ type: 'smyc-editor:draft', version: SITE_EDITOR_PROTOCOL_VERSION, nonce, page: previewPage,
@@ -133,15 +157,40 @@ function PreviewFrame({ page, label, path, device, documents, fit, context, onCo
 
   return <>
     <div className="site-editor__preview-tools" role="group" aria-label="화면에서 편집 또는 둘러보기">
-      <button type="button" disabled={editing} aria-pressed={canvas.mode === 'edit' && placement.mode === 'off'} onClick={() => { placement.setMode('off'); canvas.setMode('edit') }}>화면에서 편집</button>
-      <button type="button" disabled={placementBusy || !placement.connected} aria-pressed={placement.mode === 'place'} onClick={() => { canvas.setMode('preview'); placement.setMode('place') }}>배치 조정</button>
+      <button type="button" disabled={editing} aria-pressed={canvas.mode === 'edit'} onClick={() => { canvas.setMode('edit'); if (!placementLocked) placement.setMode('place') }}>문구 편집 · 상자 배치</button>
       <button type="button" disabled={editing} aria-pressed={canvas.mode === 'preview' && placement.mode === 'off'} onClick={() => { placement.setMode('off'); canvas.setMode('preview') }}>둘러보기</button>
     </div>
+    {page !== 'common' ? <section className="site-editor__added-box-tools" aria-label="문구 상자 추가">
+      <button type="button" disabled={editing || !context.defaultsTrusted || !boxAnchors.length} aria-expanded={addingBox} onClick={() => setAddingBox(value => !value)}>＋ 문구 상자 추가</button>
+      {addingBox ? <form onSubmit={event => {
+        event.preventDefault()
+        if (!newBoxText.trim() || !boxAnchor || editing) { setBoxFeedback('문구와 배치할 영역을 선택해 주세요.'); return }
+        const result = onBoxAdd(boxAnchor, newBoxText)
+        if (!result.ok) { setBoxFeedback(result.message); return }
+        setNewBoxId(result.id); setNewBoxText(''); setAddingBox(false); setBoxFeedback('')
+      }}>
+        <label>새 상자 문구<input value={newBoxText} maxLength={1000} required onChange={event => setNewBoxText(event.target.value)} placeholder="표시할 문구를 입력하세요" /></label>
+        <label>배치할 영역<select value={boxAnchor} required onChange={event => setBoxAnchor(event.target.value)}>{boxAnchors.map(anchor => <option key={anchor.id} value={anchor.id}>{anchor.label}</option>)}</select></label>
+        <Button type="submit" size="sm" disabled={!newBoxText.trim() || !boxAnchor || editing}>상자 만들기</Button>
+      </form> : null}
+      {boxFeedback ? <p role="status">{boxFeedback}</p> : null}
+      {!boxAnchors.length && applied ? <p role="status">이 화면에서 배치할 영역을 찾지 못했습니다. 미리보기를 새로고침해 주세요.</p> : null}
+    </section> : null}
     {context.scope === 'shared' || page === 'common' ? <p className="site-editor__help">배치 조정은 개별 화면과 모바일·태블릿·데스크톱 중 한 기기를 선택해 사용하세요.</p> : null}
     <div className={`site-editor__editing-surface${placement.mode === 'place' ? ' site-editor__editing-surface--placing' : ''}`}>
     {placement.mode === 'place' ? <EditorPlacementToolbar key={`${page}:${device}`} selected={placement.selected} blocks={placement.blocks} value={placement.selected?.value}
       disabled={placementBusy} onSelect={placement.select} onChange={changeLayout} onAlign={alignLayout}
+      onEditText={placement.selected && canvas.canEditSource(placement.selected.id) ? () => canvas.editSource(placement.selected!.id) : undefined}
       onDirtyChange={setPlacementInputDirty}
+      onDelete={id => {
+        const result = onBoxRemove(id)
+        if (!result.ok) { setPlacementError(result.message); return }
+        setPlacementError(''); setPlacementStatus('문구 상자를 초안에서 삭제했습니다. 실행 취소로 되돌릴 수 있습니다.')
+        const nextSequence = ++sequence.current
+        setPending(nextSequence)
+        frame.current?.contentWindow?.postMessage({ type: 'smyc-editor:draft', version: SITE_EDITOR_PROTOCOL_VERSION, nonce, page: previewPage,
+          sequence: nextSequence, documents: { ...documents, [page]: result.document } }, window.location.origin)
+      }}
       onFinish={() => { placement.setMode('off'); canvas.setMode('preview') }} error={placementError || placement.error || undefined}
       status={overlapping.length ? `다음 문구와 박스가 겹칩니다: ${overlapping.map(item => item.label).join(', ')}. 위치를 조절하거나 실행 취소하세요.` : placementStatus} /> : null}
     {canvas.mode === 'edit' ? <EditorCanvasToolbar blockLabel={canvas.blockLabel} selection={canvas.selection} summary={canvas.summary} active={canvas.active} busy={false} onBegin={canvas.begin} onFormat={canvas.format} onAction={canvas.action} /> : null}

@@ -1,0 +1,15 @@
+/* Manual sizing is an explicit opt-in. Original line/block elements stay intact. */
+[data-site-manual-width] {
+  min-width: 0 !important;
+  height: auto !important;
+  flex-shrink: 0;
+  flex-wrap: wrap !important;
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere !important;
+}
+[data-site-manual-width] :is(span, em, strong, b, i, smyc-text, smyc-copy, smyc-edit-target) {
+  min-width: 0 !important;
+  max-width: 100%;
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere !important;
+}

@@ -37,7 +37,7 @@ test('the document accepts bounded pixel offsets and percent widths only in expl
   for (const device of ['mobile', 'tablet', 'desktop']) for (const value of [
     {}, { offsetX: -2000, offsetY: 2000, width: 10, textAlign: 'start' },
     { offsetX: 2000, offsetY: -2000, width: 100, textAlign: 'end' },
-    { offsetX: 0, offsetY: 0, width: 50.5, textAlign: 'center' }, { offsetX: 0.25, offsetY: -0.25 },
+    { offsetX: 0, offsetY: 0, width: 50.5, textAlign: 'center' }, { offsetX: 0.25, offsetY: -0.25 }, { width: 150 }, { width: 400 },
   ]) {
     const doc = entry(value, device), before = structuredClone(doc)
     assert.equal(model.validateSiteEditorDocument(doc), null)
@@ -49,7 +49,7 @@ test('the document accepts bounded pixel offsets and percent widths only in expl
 test('layout validation rejects arbitrary CSS, invalid bounds, unsupported devices, arrays and unsafe IDs', () => {
   assert.equal(typeof layout.validateTextLayouts, 'function')
   for (const value of [null, [], 'center', { height: 10 }, { position: 'fixed' }, { transform: 'none' }, { offsetX: '10' }, { offsetX: null },
-    { offsetX: NaN }, { offsetY: Infinity }, { offsetX: -2000.01 }, { offsetY: 2000.01 }, { width: 9.99 }, { width: 100.01 },
+    { offsetX: NaN }, { offsetY: Infinity }, { offsetX: -2000.01 }, { offsetY: 2000.01 }, { width: 9.99 }, { width: 400.01 },
     { textAlign: 'left' }, { textAlign: 'justify' }, { textAlign: 'center;display:none' }, { width: 30, html: '<b>x</b>' }, { width: undefined },
   ]) assert.notEqual(layout.validateTextLayouts({ desktop: { box: value } }), null, JSON.stringify(value))
   for (const value of [null, [], { shared: {} }, { phone: {} }, { desktop: null }, { desktop: [] },
@@ -154,7 +154,7 @@ test('reset is device-specific and removing the final entry restores the legacy 
 
 test('invalid edits fail without mutating the current document', () => {
   const current = start(), before = structuredClone(current)
-  for (const [device, id, value] of [['shared', 'box', {}], ['desktop', '__proto__', {}], ['mobile', 'box', { height: 40 }], ['tablet', 'box', { width: 101 }], ['desktop', 'box', null]]) {
+  for (const [device, id, value] of [['shared', 'box', {}], ['desktop', '__proto__', {}], ['mobile', 'box', { height: 40 }], ['tablet', 'box', { width: 401 }], ['desktop', 'box', null]]) {
     assert.throws(() => edit(current, device, id, value), RangeError)
     assert.deepEqual(current, before)
   }

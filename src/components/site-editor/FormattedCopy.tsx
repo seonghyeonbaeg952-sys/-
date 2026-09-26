@@ -12,6 +12,7 @@ type Props = {
   offset?: number
   children?: ReactNode
   lineBreaks?: boolean
+  inheritedRuns?: EditorTextRun[]
 }
 
 function lines(text: string, enabled: boolean) {
@@ -52,9 +53,9 @@ export function TextRunContent({ text, runs, offset = 0, lineBreaks = false }: {
   return <>{children}</>
 }
 
-export function FormattedCopy({ page, id, text, fullText = text, offset = 0, children, lineBreaks }: Props) {
+export function FormattedCopy({ page, id, text, fullText = text, offset = 0, children, lineBreaks, inheritedRuns }: Props) {
   const { documents, device } = useSiteEditor()
-  const runs = resolveTextRuns(documents[page], device, id, fullText)
+  const runs = inheritedRuns ?? resolveTextRuns(documents[page], device, id, fullText)
   // Existing accents, literal whitespace and element structure remain untouched
   // until the administrator explicitly formats this exact text.
   const canFormat = runs.some(run => run.start < offset + text.length && run.end > offset) && fullText.slice(offset, offset + text.length) === text

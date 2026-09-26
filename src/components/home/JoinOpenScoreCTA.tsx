@@ -1,6 +1,7 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { EditableLayout } from '../site-editor/EditableLayout'
 import { HomeCopy } from './HomeCopy'
+import { useHomeTitleCanvasTarget } from './useHomeTitleCanvasTarget'
 import { splitHomeCopyLines } from '../../lib/homeCopySlices'
 import {
   useEffect,
@@ -162,6 +163,7 @@ export function JoinOpenScoreCTA({
   presentation = 'default',
 }: JoinOpenScoreCTAProps) {
   const { copy: copyText } = useSiteEditor()
+  useHomeTitleCanvasTarget('home.current.join.title', content.title, 'join-open-score-title')
   const { isVisible, ref } = useOpenScoreReveal()
   const viewport = useHomeResponsiveViewport()
   const isFigmaPresentation = presentation === 'figma-open-score'

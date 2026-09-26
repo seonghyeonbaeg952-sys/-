@@ -6,7 +6,7 @@ import { isEditorTextLayout } from './siteEditorLayout'
 export const PLACEMENT_PROTOCOL_CHANNEL = 'smyc-placement' as const
 export const PLACEMENT_PROTOCOL_VERSION = 1 as const
 export type PlacementRect = { left: number; top: number; width: number; height: number }
-export type PlacementBlock = { id: string; label: string; group: string; value: EditorTextLayout; rect: PlacementRect; bounds: PlacementRect; renderedOffsets?: { x: number; y: number } }
+export type PlacementBlock = { id: string; label: string; group: string; value: EditorTextLayout; rect: PlacementRect; bounds: PlacementRect; widthBasis?: number; renderedOffsets?: { x: number; y: number } }
 export type PlacementGrant = { editId: string; id: string; device: EditorDevice; baseDraftSequence: number; before: EditorTextLayout }
 export type PlacementReason = 'stale' | 'invalid' | 'busy' | 'unsupported'
 export type PlacementEnvelope = { channel: 'smyc-placement'; version: 1; nonce: string; previewPage: EditorPageId; sequence: number }
@@ -45,9 +45,10 @@ function rect(value: unknown): value is PlacementRect {
     && Math.abs(item) <= 100000 && (!['width', 'height'].includes(key) || item >= 0))
 }
 function block(value: unknown): value is PlacementBlock {
-  return keys(value, ['id', 'label', 'group', 'value', 'rect', 'bounds'], ['renderedOffsets']) && token(value.id) && token(value.group)
+  return keys(value, ['id', 'label', 'group', 'value', 'rect', 'bounds'], ['renderedOffsets', 'widthBasis']) && token(value.id) && token(value.group)
     && typeof value.label === 'string' && value.label.length > 0 && value.label.length <= 240
     && isEditorTextLayout(value.value) && rect(value.rect) && rect(value.bounds)
+    && (!Object.hasOwn(value, 'widthBasis') || typeof value.widthBasis === 'number' && Number.isFinite(value.widthBasis) && value.widthBasis > 0 && value.widthBasis <= 100000)
     && (!Object.hasOwn(value, 'renderedOffsets') || keys(value.renderedOffsets, ['x', 'y'])
       && Object.values(value.renderedOffsets).every(item => typeof item === 'number' && Number.isFinite(item) && Math.abs(item) <= 2000))
 }

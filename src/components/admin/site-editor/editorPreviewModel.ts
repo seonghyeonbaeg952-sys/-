@@ -8,5 +8,5 @@ export function readEditorPreviewReply(
   expected: { source: Window; origin: string; nonce: string; page: EditorPageId },
 ): Reply | null {
   const message = acceptSiteEditorMessage(event, expected)
-  return message?.type === 'smyc-editor:ready' || message?.type === 'smyc-editor:applied' ? message : null
+  return message?.type === 'smyc-editor:ready' || message?.type === 'smyc-editor:applied' || message?.type === 'smyc-editor:anchors' ? message : null
 }

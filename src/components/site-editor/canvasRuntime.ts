@@ -4,11 +4,11 @@ import { applyCanvasBufferStyle, beginCanvasBufferComposition, createCanvasEditB
 import { captureCanvasSelection, paintCanvasText, readCanvasPlainText, restoreCanvasSelection } from './canvasDom'
 import type { EditorDevice, EditorPageId, EditorTextStyle } from '../../types/siteEditor'
 import type { CanvasCopyPart, CanvasCopyRegistry, CanvasCopyTarget } from './CanvasCopy'
-import { getCanvasLiveBounds, getCanvasOverlayBox } from './canvasLayout'
+import { getCanvasLiveBounds, getCanvasOverlayBox, getCanvasScaleMetrics, shouldAutoExpandCanvasLine, toCanvasLayoutPixels } from './canvasLayout'
 
 type Payload = CanvasFrameMessage extends infer T ? T extends CanvasFrameMessage ? Omit<T, keyof CanvasEnvelope> : never : never
 type Config = { nonce: string; page: EditorPageId; getDraftSequence: () => number; freeze: (active: boolean) => void }
-type Active = { target: CanvasCopyTarget; buffer: CanvasEditBuffer; editor: HTMLDivElement; operation: string | null; visibility: string; resumeSequence: number | null; resizeObserver: ResizeObserver | null; measuredWidth: number; measuredHeight: number }
+type Active = { target: CanvasCopyTarget; buffer: CanvasEditBuffer; editor: HTMLDivElement; operation: string | null; visibility: string; overflowAnchor: string; flowStyle: { display: string; width: string; minHeight: string }; resumeSequence: number | null; resizeObserver: ResizeObserver | null; measuredWidth: number; measuredHeight: number; autoExpandLine: boolean }
 
 /** Exists only inside the nonce-bound administrator iframe, never on public pages. */
 export function createCanvasRuntime(config: Config) {
@@ -41,18 +41,30 @@ export function createCanvasRuntime(config: Config) {
     if (!outline) { outline = document.createElement('div'); outline.className = 'canvas-editor-outline'; document.body.append(outline) }
     let liveBox = { left: box.left, top: box.top, width: box.width, height: box.height }
     if (active && target.element.parentElement) {
-      let parent = target.element.parentElement
-      while (parent.parentElement && ['inline', 'contents', 'inline-block', 'inline-flex', 'inline-grid'].includes(getComputedStyle(parent).display)) parent = parent.parentElement
+      const wholeHeading = /^H[1-6]$/.test(target.element.tagName || target.element.nodeName) && target.text === target.fullText
+      const manualWidth = target.element.getAttribute('data-site-manual-width') !== null
+      let parent = wholeHeading || manualWidth ? target.element : target.element.parentElement
+      while (!wholeHeading && !manualWidth && parent.parentElement && ['inline', 'contents', 'inline-block', 'inline-flex', 'inline-grid'].includes(getComputedStyle(parent).display)) parent = parent.parentElement
       const parentRect = parent.getBoundingClientRect(), style = getComputedStyle(parent), targetStyle = getComputedStyle(target.element)
+      const scale = getCanvasScaleMetrics(parentRect, { width: parent.offsetWidth, height: parent.offsetHeight })
       const inset = (property: string) => Number.parseFloat(style.getPropertyValue(property)) || 0
-      const entireLine = readCanvasPlainText(parent) === target.text && !['inline', 'contents'].includes(style.display)
+      const entireLine = wholeHeading || manualWidth || readCanvasPlainText(parent) === target.text && !['inline', 'contents'].includes(style.display)
       const textAlign = entireLine ? style.textAlign : targetStyle.textAlign
       const alignment = textAlign === 'center' ? 'center' : textAlign === 'right' || (textAlign === 'end' && targetStyle.direction !== 'rtl') || (textAlign === 'start' && targetStyle.direction === 'rtl') ? 'right' : 'left'
-      const container = { left: parentRect.left, top: parentRect.top, width: parentRect.width, paddingLeft: inset('padding-left'), paddingRight: inset('padding-right'), paddingTop: inset('padding-top'), borderLeft: inset('border-left-width'), borderRight: inset('border-right-width'), borderTop: inset('border-top-width') }
+      const naturalWidth = wholeHeading && !manualWidth ? Math.max(parentRect.width, Math.min((parent.scrollWidth || 0) * scale.x, Math.max(44, (window.innerWidth ?? Infinity) - 32))) : parentRect.width
+      const extraWidth = naturalWidth - parentRect.width
+      const container = { left: parentRect.left - (alignment === 'center' ? extraWidth / 2 : alignment === 'right' ? extraWidth : 0),
+        top: parentRect.top, width: naturalWidth, paddingLeft: inset('padding-left') * scale.x, paddingRight: inset('padding-right') * scale.x, paddingTop: inset('padding-top') * scale.y, borderLeft: inset('border-left-width') * scale.x, borderRight: inset('border-right-width') * scale.x, borderTop: inset('border-top-width') * scale.y }
       let flow = getCanvasOverlayBox(container, box, entireLine, { naturalWidth: Infinity, alignment })
       const editorStyle = getComputedStyle(active.editor)
       const minimumHeight = Number.parseFloat(editorStyle.getPropertyValue('line-height')) || Number.parseFloat(editorStyle.getPropertyValue('font-size')) || 16
-      Object.assign(active.editor.style, { left: `${flow.left + window.scrollX}px`, top: `${flow.top + window.scrollY}px`, width: entireLine ? `${flow.width}px` : 'max-content', maxWidth: `${flow.width}px`, minWidth: '44px', minHeight: `${minimumHeight}px`, textAlign })
+      const autoWidth = active.autoExpandLine && !manualWidth && !/[\r\n]/.test(active.editor.textContent ?? '')
+      const viewportRoom = window.innerWidth ? Math.max(44, window.innerWidth - flow.left - 16) : Infinity
+      Object.assign(active.editor.style, { left: `${flow.left + window.scrollX}px`, top: `${flow.top + window.scrollY}px`,
+        width: autoWidth ? 'max-content' : entireLine ? `${toCanvasLayoutPixels(flow.width, scale.x)}px` : 'max-content',
+        maxWidth: autoWidth ? Number.isFinite(viewportRoom) ? `${toCanvasLayoutPixels(viewportRoom, scale.x)}px` : 'none' : `${toCanvasLayoutPixels(flow.width, scale.x)}px`,
+        minWidth: autoWidth && entireLine ? `${toCanvasLayoutPixels(Math.min(flow.width, viewportRoom), scale.x)}px` : `${toCanvasLayoutPixels(44, scale.x)}px`,
+        minHeight: `${minimumHeight}px`, scale: `${scale.x} ${scale.y}`, transformOrigin: 'top left', textAlign, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' })
       if (!entireLine) {
         flow = getCanvasOverlayBox(container, box, false, { naturalWidth: active.editor.getBoundingClientRect().width, alignment })
         active.editor.style.left = `${flow.left + window.scrollX}px`
@@ -63,10 +75,16 @@ export function createCanvasRuntime(config: Config) {
       }
       const editorBox = active.editor.getBoundingClientRect(), glyph = active.editor.textContent ? rect(active.editor) : null
       // Reset the minimum each pass, so a large formatted run can shrink again.
-      active.editor.style.minHeight = `${Math.max(minimumHeight, glyph ? glyph.top + glyph.height - editorBox.top : 0)}px`
+      active.editor.style.minHeight = `${Math.max(minimumHeight, glyph ? toCanvasLayoutPixels(glyph.top + glyph.height - editorBox.top, scale.y) : 0)}px`
       const measured = active.editor.getBoundingClientRect()
       active.measuredWidth = measured.width; active.measuredHeight = measured.height
-      liveBox = getCanvasLiveBounds(measured, glyph, minimumHeight)
+      // A hidden, in-flow spacer moves neighbouring words as the editor grows.
+      if (target.element.nodeName === 'SMYC-EDIT-TARGET') {
+        target.element.style.display = 'inline-block'
+        target.element.style.width = `${toCanvasLayoutPixels(measured.width, scale.x)}px`
+        target.element.style.minHeight = `${toCanvasLayoutPixels(measured.height, scale.y)}px`
+      } else if (wholeHeading) target.element.style.minHeight = `${toCanvasLayoutPixels(measured.height, scale.y)}px`
+      liveBox = getCanvasLiveBounds(measured, glyph, minimumHeight * scale.y)
     }
     outline.hidden = !mode || liveBox.width === 0
     Object.assign(outline.style, { left: `${liveBox.left + window.scrollX}px`, top: `${liveBox.top + window.scrollY}px`, width: `${liveBox.width}px`, height: `${liveBox.height}px` })
@@ -131,6 +149,8 @@ export function createCanvasRuntime(config: Config) {
     const finishedId = active.target.instanceId
     active.resizeObserver?.disconnect()
     active.target.element.style.visibility = active.visibility
+    document.documentElement.style.overflowAnchor = active.overflowAnchor
+    Object.assign(active.target.element.style, active.flowStyle)
     active.editor.remove(); active = null; selected = null; commitPayload = null; window.clearTimeout(retryTimer)
     config.freeze(false); notify(); say(''); emitSelection()
     selected = finishedId; schedule()
@@ -173,11 +193,13 @@ export function createCanvasRuntime(config: Config) {
     const box = rect(entry.target.element)
     if (box.top < 72 || box.bottom > window.innerHeight) entry.target.element.parentElement?.scrollIntoView?.({ block: 'center', behavior: 'instant' })
     pending = { ...entry, requestId: uid() }
+    document.body.dataset.canvasEditPending = 'true'
     send({ type: 'canvas-editbegin', requestId: pending.requestId, blockId: id, blockRevision: entry.block.revision, appliedDraftSequence: config.getDraftSequence() })
   }
   const activate = (message: Extract<CanvasParentMessage, { type: 'canvas-editgrant' }>) => {
     if (!pending || message.requestId !== pending.requestId) return
     const entry = pending; pending = null
+    delete document.body.dataset.canvasEditPending
     if (!message.accepted) { say('이 문구는 현재 범위에서 바로 편집할 수 없습니다. 문구 목록 또는 연결된 콘텐츠 관리를 이용해 주세요.'); return }
     const result = createCanvasEditBuffer(entry.block, message.grant)
     if (!result.ok || !entry.target.element.isConnected) { say(result.ok ? '문구를 다시 선택해 주세요.' : result.reason); return }
@@ -186,8 +208,13 @@ export function createCanvasRuntime(config: Config) {
     const computed = getComputedStyle(entry.target.element)
     for (const key of ['font-family', 'font-size', 'font-weight', 'font-style', 'font-kerning', 'font-feature-settings', 'font-variation-settings', 'font-variant', 'line-height', 'letter-spacing', 'word-spacing', 'word-break', 'overflow-wrap', 'white-space', 'text-wrap', 'text-indent', 'text-transform', 'color', 'text-align']) editor.style.setProperty(key, computed.getPropertyValue(key))
     editor.style.whiteSpace = 'pre-wrap'; editor.style.overflowWrap = 'anywhere'
-    active = { target: entry.target, buffer: result.buffer, editor, operation: null, visibility: entry.target.element.style.visibility, resumeSequence: null, resizeObserver: null, measuredWidth: 0, measuredHeight: 0 }
-    config.freeze(true); notify(); entry.target.element.style.visibility = 'hidden'; document.body.append(editor)
+    const lineHeight = Number.parseFloat(computed.lineHeight) || Number.parseFloat(computed.fontSize) || 16
+    active = { target: entry.target, buffer: result.buffer, editor, operation: null, visibility: entry.target.element.style.visibility,
+      overflowAnchor: document.documentElement.style.overflowAnchor,
+      flowStyle: { display: entry.target.element.style.display, width: entry.target.element.style.width, minHeight: entry.target.element.style.minHeight },
+      resumeSequence: null, resizeObserver: null, measuredWidth: 0, measuredHeight: 0,
+      autoExpandLine: entry.target.element.getAttribute('data-site-manual-width') === null && shouldAutoExpandCanvasLine(entry.target.text, rect(entry.target.element).height, lineHeight) }
+    config.freeze(true); notify(); document.documentElement.style.overflowAnchor = 'none'; entry.target.element.style.visibility = 'hidden'; document.body.append(editor)
     editor.addEventListener('input', input)
     editor.addEventListener('compositionstart', () => { if (active && !active.operation) { syncSelection(); active.buffer = beginCanvasBufferComposition(active.buffer); emitSelection() } })
     editor.addEventListener('compositionend', () => { if (active && !active.operation) { input(); active.buffer = endCanvasBufferComposition(active.buffer); paint() } })
@@ -251,10 +278,18 @@ export function createCanvasRuntime(config: Config) {
     if (!mode || active?.editor.contains(event.target as Node)) return
     const element = event.target instanceof Element ? event.target : null
     const children = element?.querySelectorAll('[data-canvas-target]')
-    const id = element?.closest('[data-canvas-target]')?.getAttribute('data-canvas-target')
+    let id = element?.closest('[data-canvas-target]')?.getAttribute('data-canvas-target')
       ?? (children?.length === 1 ? children[0].getAttribute('data-canvas-target') : null)
     if (!id || !targets.has(id)) return
-    event.preventDefault(); event.stopImmediatePropagation()
+    const chosen = targets.get(id)!.target
+    let ancestor = chosen.element.parentElement?.closest('[data-canvas-target]')
+    while (ancestor) {
+      const candidateId = ancestor.getAttribute('data-canvas-target')
+      const candidate = candidateId ? targets.get(candidateId)?.target : undefined
+      if (candidateId && candidate && candidate.key === chosen.key && candidate.text === candidate.fullText && candidate.text.length > chosen.text.length) id = candidateId
+      ancestor = ancestor.parentElement?.closest('[data-canvas-target]')
+    }
+    event.preventDefault(); event.stopPropagation()
     if (active) { say('현재 문구의 편집을 먼저 마쳐 주세요.'); return }
     selected = id; emitSelection(); position()
     const block = targets.get(id)!.block
@@ -284,6 +319,11 @@ export function createCanvasRuntime(config: Config) {
   }
   return {
     registry,
+    finishForPlacement() {
+      if (!active || active.operation || active.buffer.composing) return false
+      finish()
+      return true
+    },
     deferred(sequence: number) { if (active) send({ type: 'canvas-draft-status', editId: active.buffer.grant.editId, draftSequence: sequence, status: 'deferred' }) },
     refreshed() { if (active?.resumeSequence !== null && active?.resumeSequence !== undefined && config.getDraftSequence() >= active.resumeSequence) close(); schedule() },
     mount() {
@@ -292,8 +332,8 @@ export function createCanvasRuntime(config: Config) {
       send({ type: 'canvas-ready' })
       return () => {
         mounted = false; window.clearTimeout(timer); window.clearTimeout(retryTimer); window.removeEventListener('message', receive); document.removeEventListener('click', click, true); document.removeEventListener('keydown', keydown, true); document.removeEventListener('selectionchange', syncSelection); window.removeEventListener('scroll', position, true); window.removeEventListener('resize', position)
-        if (active) { active.resizeObserver?.disconnect(); active.target.element.style.visibility = active.visibility; active.editor.remove() }
-        active = null; outline?.remove(); status?.remove(); delete document.body.dataset.canvasEditMode
+        if (active) { active.resizeObserver?.disconnect(); active.target.element.style.visibility = active.visibility; document.documentElement.style.overflowAnchor = active.overflowAnchor; Object.assign(active.target.element.style, active.flowStyle); active.editor.remove() }
+        active = null; outline?.remove(); status?.remove(); delete document.body.dataset.canvasEditMode; delete document.body.dataset.canvasEditPending
       }
     },
   }

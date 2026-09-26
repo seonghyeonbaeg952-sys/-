@@ -18,6 +18,38 @@ export const EDITOR_NUMBER_RANGES = {
 const colors = ['textColor', 'headingColor', 'mutedColor', 'accentColor', 'backgroundColor'] as const
 const documentKeys = ['schemaVersion', 'copy', 'deviceCopy', 'appearance', 'textStyles', 'textLayouts']
 const appearanceKeys = ['fontFamily', 'headingFontFamily', 'fontWeight', ...Object.keys(EDITOR_NUMBER_RANGES), ...colors]
+const editorBoxUid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+const editorBoxAnchor = /^[A-Za-z][A-Za-z0-9_-]{0,79}$/
+const editorBoxKey = /^([a-z][a-z-]*)\.box\.([0-9a-f-]{36})\.(text|anchor)$/
+
+export function parseEditorBoxKey(key: string): { page: string; uid: string; kind: 'text' | 'anchor' } | null {
+  const match = editorBoxKey.exec(key)
+  return match && editorBoxUid.test(match[2]) ? { page: match[1], uid: match[2], kind: match[3] as 'text' | 'anchor' } : null
+}
+
+export function isEditorBoxAnchor(value: string): boolean { return editorBoxAnchor.test(value) }
+export function getEditorBoxKey(page: EditorPageId, uid: string): string {
+  if (!isEditorPageId(page) || !editorBoxUid.test(uid)) throw new RangeError('문구 상자 식별자를 확인해 주세요.')
+  return `${page}.box.${uid}.text`
+}
+export function isEditorAddedBoxId(id: string): boolean { return parseEditorBoxKey(id)?.kind === 'text' }
+
+export function validateEditorAddedBoxes(document: SiteEditorDocument): string | null {
+  const counts = new Map<string, number>()
+  for (const [key, value] of Object.entries(document.copy)) {
+    if (!key.includes('.box.')) continue
+    const parsed = parseEditorBoxKey(key)
+    if (!parsed || !isEditorPageId(parsed.page)) return '새 문구 상자의 식별자를 확인해 주세요.'
+    const stem = `${parsed.page}.box.${parsed.uid}`
+    const text = document.copy[`${stem}.text`], anchor = document.copy[`${stem}.anchor`]
+    if (!validCopyText(text) || !text.trim() || text.length > 1000 || typeof anchor !== 'string' || !isEditorBoxAnchor(anchor)) return '새 문구와 배치 영역을 확인해 주세요.'
+    if (parsed.kind === 'text') counts.set(parsed.page, (counts.get(parsed.page) ?? 0) + 1)
+    if (parsed.kind === 'anchor' && value !== anchor) return '문구 상자 영역을 확인해 주세요.'
+  }
+  if ([...counts.values()].some(count => count > 50)) return '한 화면의 새 문구 상자는 50개 이내로 추가해 주세요.'
+  for (const values of Object.values(document.deviceCopy)) if (Object.keys(values ?? {}).some(key => key.includes('.box.') && key.endsWith('.anchor'))) return '배치 영역은 모든 기기에서 동일하게 유지해 주세요.'
+  return null
+}
 
 export function isEditorPageId(value: unknown): value is EditorPageId {
   return typeof value === 'string' && EDITOR_PAGE_IDS.some(page => page === value)
@@ -66,6 +98,8 @@ export function validateSiteEditorDocument(value: unknown): string | null {
       const error = validateTextLayouts(value.textLayouts)
       if (error) return error
     }
+    const boxError = validateEditorAddedBoxes(value as SiteEditorDocument)
+    if (boxError) return boxError
     if (new TextEncoder().encode(JSON.stringify(value)).byteLength > 512 * 1024) {
       return '편집 문서는 512KB 이내로 저장해 주세요.'
     }

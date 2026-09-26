@@ -3340,7 +3340,7 @@
     left: 50%;
     width: 1440px;
     max-width: none !important;
-    height: 1350px;
+    height: calc(1350px + var(--home-about-body-shift, 0px));
     padding-inline: 0;
     scale: 0.9;
     transform-origin: top center;
@@ -3350,14 +3350,14 @@
 
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-about-portrait {
-    min-height: 1215px;
-    height: 1215px;
+    min-height: calc(1215px + var(--home-about-section-extra, 0px));
+    height: calc(1215px + var(--home-about-section-extra, 0px));
   }
 
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-about-portrait__stage {
     display: block;
-    min-height: 1350px;
+    min-height: calc(1350px + var(--home-about-body-shift, 0px));
     padding: 0;
   }
 
@@ -3367,7 +3367,7 @@
     bottom: auto;
     left: 52px;
     width: 2px;
-    height: 1180px;
+    height: calc(1180px + var(--home-about-body-shift, 0px));
     background: #f4b89f;
   }
 
@@ -3433,7 +3433,7 @@
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-about-portrait__copy {
     position: absolute;
-    top: 348px;
+    top: calc(348px + var(--home-about-copy-shift, 0px));
     left: 300px;
     display: block;
     width: 840px;
@@ -3454,7 +3454,7 @@
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-about-portrait__visual {
     position: absolute;
-    top: 466px;
+    top: calc(466px + var(--home-about-body-shift, 0px));
     right: 64px;
     left: 64px;
     width: auto;
@@ -3598,7 +3598,7 @@
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-about-portrait__facts {
     position: absolute;
-    top: 1124px;
+    top: calc(1124px + var(--home-about-body-shift, 0px));
     right: 100px;
     left: 64px;
     width: auto;
@@ -3653,7 +3653,7 @@
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-about-portrait__cta {
     position: absolute;
-    top: 1230px;
+    top: calc(1230px + var(--home-about-body-shift, 0px));
     left: 64px;
     display: flex;
     align-items: center;

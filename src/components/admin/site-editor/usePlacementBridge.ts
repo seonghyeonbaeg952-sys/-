@@ -31,8 +31,8 @@ export function usePlacementBridge({ frame, nonce, draftSequence, context, onCha
   }, [nonce, context.previewPage, frame])
   const setMode = useCallback((next: 'off' | 'place') => { if (!active && (next === 'off' || !context.locked)) { setModeValue(next); setError(null) } }, [active, context.locked])
   useEffect(() => {
-    if (connected && !active) send({ type: 'placement-mode', operationId: crypto.randomUUID(), mode, device: context.device })
-  }, [connected, active, mode, context.device, send])
+    if (connected && !active && !context.locked) send({ type: 'placement-mode', operationId: crypto.randomUUID(), mode, device: context.device })
+  }, [connected, active, mode, context.device, context.locked, send])
   useEffect(() => {
     const receive = (event: MessageEvent) => {
       if (!frame.current?.contentWindow) return
@@ -45,7 +45,7 @@ export function usePlacementBridge({ frame, nonce, draftSequence, context, onCha
         const safe = message.blocks.flatMap(block => {
           const definition = getTextLayoutDefinition(block.id)
           return definition?.page === context.editorPage && definition.group === block.group && context.loadedOwners.has(definition.page) && context.documents[definition.page]
-            ? [{ ...block, label: definition.label, group: definition.group }] : []
+            ? [{ ...block, label: definition.label === '문구' ? block.label : definition.label, group: definition.group }] : []
         })
         registry.current = new Map(safe.map(block => [block.id, block])); setRegistered(safe)
       } else if (message.type === 'placement-selection') {

@@ -54,6 +54,8 @@ function toolbar(overrides = {}) {
     if (name === 'react/jsx-runtime') return require(name)
     if (name.endsWith('.css')) return {}
     const component = name.split('/').at(-1)
+    if (component === 'siteEditorAddedBoxes') return { isEditorAddedBoxId: id => /^[a-z][a-z-]*\.box\.[0-9a-f-]{36}\.text$/i.test(id) }
+    if (component === 'siteEditorLayout') return { EDITOR_TEXT_WIDTH_MIN: 10, EDITOR_TEXT_WIDTH_MAX: 400 }
     if (['AdminFormField', 'AdminSelect', 'Button'].includes(component)) return { [component]: component }
     throw new Error(`Unexpected dependency: ${name}`)
   } })
@@ -97,13 +99,18 @@ test('empty, nonfinite, and out-of-range position inputs preserve the draft and 
   }
 })
 
-test('manual width is bounded to 10–100 and zero offsets remain valid', () => {
-  for (const value of ['', '9', '101', 'Infinity']) {
+test('manual width is bounded to 10–400 and zero offsets remain valid', () => {
+  for (const value of ['', '9', '401', 'Infinity']) {
     const t = toolbar({ value: { width: 50 } }); t.edit('박스 너비 (%)', value); t.apply()
     assert.deepEqual(t.events, []); assert.ok(t.field('박스 너비 (%)').props.error)
   }
   const t = toolbar({ value: { offsetX: 5 } }); t.edit('가로 이동 X (px)', '0'); t.apply()
   assert.deepEqual(t.events, [['change', undefined]])
+})
+test('manual numeric width accepts expansion beyond the original box', () => {
+  const t = toolbar({ value: { width: 100 } })
+  t.edit('박스 너비 (%)', '150'); t.apply()
+  assert.deepEqual(t.events, [['change', { width: 150 }]])
 })
 
 test('direction clicks immediately use valid local values and Shift moves ten pixels', () => {
@@ -122,7 +129,7 @@ test('nudge refuses invalid local input or stepping outside the allowed position
 
 test('automatic width removes only width while preserving positioning and text alignment', () => {
   const t = toolbar({ value: { offsetX: 12, offsetY: -4, width: 50, textAlign: 'end' } })
-  t.click('너비 자동')
+  t.click('원래 너비')
   assert.deepEqual(t.events, [['change', { offsetX: 12, offsetY: -4, textAlign: 'end' }]])
 })
 
@@ -237,7 +244,7 @@ test('text alignment does not silently apply unrelated pending coordinates', () 
 })
 
 test('automatic width never commits unrelated pending coordinates', () => {
-  const t = toolbar({ value: { width: 50 } }); t.edit('가로 이동 X (px)', '50'); t.click('너비 자동')
+  const t = toolbar({ value: { width: 50 } }); t.edit('가로 이동 X (px)', '50'); t.click('원래 너비')
   assert.deepEqual(t.events, [])
 })
 

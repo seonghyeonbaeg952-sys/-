@@ -5,6 +5,7 @@ import { createServer } from 'vite'
 const vite = await createServer({ configFile: false, appType: 'custom', logLevel: 'silent', server: { middlewareMode: true } })
 after(() => vite.close())
 const { createCanvasRuntime } = await vite.ssrLoadModule('/src/components/site-editor/canvasRuntime.ts')
+const { readCanvasPlainText } = await vite.ssrLoadModule('/src/components/site-editor/canvasDom.ts')
 const { CANVAS_PROTOCOL_CHANNEL, CANVAS_PROTOCOL_VERSION, parseCanvasMessage } = await vite.ssrLoadModule('/src/lib/siteEditorCanvasProtocol.ts')
 
 // Controlled native boundaries only: production runtime, buffer, protocol, DOM
@@ -19,7 +20,7 @@ function fixture(t) {
     addEventListener(type, listener) { const group = this.listeners.get(type) ?? new Set(); group.add(listener); this.listeners.set(type, group) }
     removeEventListener(type, listener) { this.listeners.get(type)?.delete(listener) }
     dispatch(type, detail = {}) {
-      const event = { target: this, defaultPrevented: false, stopped: false, preventDefault() { this.defaultPrevented = true }, stopImmediatePropagation() { this.stopped = true }, ...detail }
+      const event = { target: this, defaultPrevented: false, stopped: false, preventDefault() { this.defaultPrevented = true }, stopPropagation() {}, stopImmediatePropagation() { this.stopped = true }, ...detail }
       for (const listener of this.listeners.get(type) ?? []) { listener(event); if (event.stopped) break }
       return event
     }
@@ -31,6 +32,8 @@ function fixture(t) {
       this.attributes = new Map(); this.dataset = {}; this.style = { visibility: '', setProperty(key, next) { this[key] = next } }
     }
     get parentElement() { return this.parentNode?.nodeType === 1 ? this.parentNode : null }
+    closest(selector) { return selector === '[data-canvas-target]' && this.getAttribute('data-canvas-target') ? this : this.parentElement?.closest(selector) ?? null }
+    querySelectorAll(selector) { return selector === '[data-canvas-target]' ? this.childNodes.flatMap(child => [ ...(child.getAttribute?.('data-canvas-target') ? [child] : []), ...(child.querySelectorAll?.(selector) ?? []) ]) : [] }
     get textContent() { return this.nodeType === 3 ? this.value : this.childNodes.map(child => child.textContent).join('') }
     set textContent(value) { if (this.nodeType === 3) this.value = value; else this.replaceChildren(document.createTextNode(value)) }
     setAttribute(key, value) { this.attributes.set(key, value) }
@@ -54,6 +57,7 @@ function fixture(t) {
     getSelection: () => nativeSelection,
     createRange: () => ({ node: null, selectNodeContents(node) { this.node = node }, getBoundingClientRect() { return this.node.glyphBox ?? this.node.getBoundingClientRect() } }),
   })
+  document.documentElement = { style: { overflowAnchor: 'auto' } }
   document.body = document.createElement('body'); document.body.isConnected = true
   const window = Object.assign(new Events(), {
     location: { origin }, scrollX: 0, scrollY: 0,
@@ -123,6 +127,16 @@ function fixture(t) {
     resize(node) { observers.filter(observer => observer.targets.has(node)).forEach(observer => observer.callback([])) },
     applied(sequence) { appliedSequence = sequence; runtime.refreshed() } }
 }
+test('a manually sized source keeps its own box width during text editing instead of expanding to its parent', t => {
+  const f = fixture(t)
+  f.target.setAttribute('data-site-manual-width', '')
+  f.target.box = { left: 80, top: 180, right: 280, bottom: 220, width: 200, height: 40 }
+  f.target.computed = { display: 'inline-block', lineHeight: '40px', fontSize: '20px' }
+  const editor = f.open()
+  assert.equal(editor.style.width, '200px')
+  assert.equal(editor.style.maxWidth, '200px')
+  assert.equal(editor.style.whiteSpace, 'pre-wrap')
+})
 
 test('registration requires a parent grant and formatting stays local until one explicit commit', t => {
   const f = fixture(t), editor = f.open()
@@ -137,6 +151,84 @@ test('registration requires a parent grant and formatting stays local until one 
   assert.deepEqual(commit.changes, [{ source: { ownerPage: 'notices', scope: 'desktop', key: 'notices.title' }, fieldVersion: 'field-1',
     edits: [{ start: 0, end: 4, text: '공지사항', runs: [{ start: 0, end: 4, style: { color: '#68233a', fontWeight: 700 } }] }] }])
   assert.equal(editor.contentEditable, 'false')
+})
+test('selecting and lengthening a one-line title does not impose the old parent width or insert a line break', t => {
+  const f = fixture(t)
+  f.target.computed = { lineHeight: '40px' }
+  const editor = f.open()
+  assert.equal(editor.style.width, 'max-content')
+  assert.equal(editor.style.maxWidth, 'none')
+  assert.equal(editor.style.whiteSpace, 'pre-wrap')
+  f.input('공지를 선택해도 한 줄로 계속 이어지는 아주 긴 제목입니다')
+  assert.equal(editor.style.maxWidth, 'none')
+  assert.equal(editor.textContent.includes('\n'), false)
+})
+test('clicking an accented fragment selects its parent whole-title source box', t => {
+  const f = fixture(t)
+  const wrapper = f.document.createElement('h2')
+  const fragment = f.document.createElement('smyc-edit-target')
+  wrapper.setAttribute('data-canvas-target', 'whole'); fragment.setAttribute('data-canvas-target', 'piece')
+  fragment.textContent = '함께'; wrapper.append(fragment); f.target.parentElement.append(wrapper)
+  f.runtime.registry.register({ instanceId: 'whole', ownerPage: 'notices', key: 'notices.title', text: '함께 노래', fullText: '함께 노래', offset: 0, element: wrapper })
+  f.runtime.registry.register({ instanceId: 'piece', ownerPage: 'notices', key: 'notices.title', text: '함께', fullText: '함께 노래', offset: 0, element: fragment })
+  f.receive({ type: 'canvas-mode', operationId: 'mode', mode: 'edit', scope: 'desktop', device: 'desktop' })
+  f.document.dispatch('click', { target: fragment, detail: 1 })
+  assert.equal(f.latest('canvas-selection').selection.blockId, 'whole')
+})
+test('one click selects a box and a second click begins text editing', t => {
+  const f = fixture(t)
+  f.target.setAttribute('data-canvas-target', 'title')
+  f.receive({ type: 'canvas-mode', operationId: 'mode', mode: 'edit', scope: 'desktop', device: 'desktop' })
+  f.document.dispatch('click', { target: f.target, detail: 1 })
+  assert.equal(f.latest('canvas-selection').selection.blockId, 'title')
+  assert.equal(f.latest('canvas-editbegin'), undefined)
+  f.document.dispatch('click', { target: f.target, detail: 2 })
+  assert.equal(f.latest('canvas-editbegin').blockId, 'title')
+})
+test('F2 enters editing for the selected box without changing its text', t => {
+  const f = fixture(t)
+  f.target.setAttribute('data-canvas-target', 'title')
+  f.receive({ type: 'canvas-mode', operationId: 'mode', mode: 'edit', scope: 'desktop', device: 'desktop' })
+  f.document.dispatch('click', { target: f.target, detail: 1 })
+  f.document.dispatch('keydown', { key: 'F2' })
+  assert.equal(f.latest('canvas-editbegin').blockId, 'title')
+  assert.equal(f.target.textContent, '공지사항')
+})
+test('a native two-line heading opens a full-width editor without replacing its line elements', t => {
+  const f = fixture(t)
+  const heading = f.document.createElement('h2'), first = f.document.createElement('span'), second = f.document.createElement('span')
+  first.textContent = '첫째 줄'; second.textContent = '둘째 줄'; heading.append(first, second); f.document.body.append(heading)
+  heading.box = { left: 100, top: 240, width: 620, height: 100 }
+  heading.scrollWidth = 700
+  heading.computed = { textAlign: 'center' }
+  heading.setAttribute('data-canvas-target', 'whole-title')
+  f.runtime.registry.register({ instanceId: 'whole-title', ownerPage: 'notices', key: 'notices.title', text: '첫째 줄\n둘째 줄', fullText: '첫째 줄\n둘째 줄', offset: 0, element: heading })
+  f.receive({ type: 'canvas-mode', operationId: 'mode', mode: 'edit', scope: 'desktop', device: 'desktop' })
+  const block = f.latest('canvas-register').blocks.find(item => item.id === 'whole-title')
+  f.receive({ type: 'canvas-begin', operationId: 'begin-title', blockId: block.id, blockRevision: block.revision })
+  f.receive({ type: 'canvas-editgrant', requestId: f.latest('canvas-editbegin').requestId, accepted: true,
+    grant: { editId: 'whole-edit', blockId: block.id, blockRevision: block.revision, ownerPage: 'notices', scope: 'desktop', device: 'desktop', baseDraftSequence: 1,
+      fields: [{ source: { ownerPage: 'notices', scope: 'desktop', key: 'notices.title' }, fieldVersion: 'field-1', text: '첫째 줄\n둘째 줄', runs: [], ranges: [{ start: 0, end: 9 }] }] } })
+  assert.equal(f.editor().style.width, '700px')
+  assert.equal(readCanvasPlainText(f.editor()), '첫째 줄\n둘째 줄')
+  assert.equal(heading.childNodes[0], first)
+  assert.equal(heading.childNodes[1], second)
+  f.editor().box = { left: 100, top: 240, width: 700, height: 210 }
+  f.input('첫째 줄\n길어진 둘째 줄\n새 줄')
+  assert.equal(heading.style.minHeight, '210px', 'the heading must reserve the editor height to protect following content')
+})
+test('the active text box reserves its growing width in document flow so neighbouring words can reflow', t => {
+  const f = fixture(t); f.target.computed = { lineHeight: '40px' }
+  const editor = f.open()
+  editor.box = { left: 80, top: 180, width: 820, height: 45 }
+  f.input('옆 문구를 밀어야 하는 긴 제목')
+  assert.equal(f.target.style.display, 'inline-block')
+  assert.equal(f.target.style.width, '820px')
+  f.action('cancel')
+  const commit = f.latest('canvas-commit')
+  f.acknowledge(commit, { status: 'cancelled', resumeDraftSequence: 1 })
+  assert.equal(f.target.style.display, undefined)
+  assert.equal(f.target.style.width, undefined)
 })
 
 test('pending commit blocks paste, native beforeinput, composition and repeated finish without altering its text', t => {
@@ -168,6 +260,26 @@ test('a matching acknowledgement keeps the same overlay until its resume draft w
   assert.equal(f.editor(), undefined); assert.equal(f.target.style.visibility, '')
   assert.equal(f.latest('canvas-selection').editId, null)
   assert.equal(f.latest('canvas-selection').selection, null)
+})
+test('a move-handle handoff finishes active text once and keeps its changes for the draft', t => {
+  const f = fixture(t)
+  assert.equal(f.runtime.finishForPlacement(), false)
+  f.open()
+  f.input('공지사항 새 문구')
+  assert.equal(f.runtime.finishForPlacement(), true)
+  const commit = f.latest('canvas-commit')
+  assert.equal(commit.outcome, 'apply')
+  assert.equal(commit.changes[0].edits[0].text, '공지사항 새 문구')
+  assert.equal(f.runtime.finishForPlacement(), false)
+})
+test('text editing suspends automatic scroll anchoring so the move handle does not jump after typing', t => {
+  const f = fixture(t)
+  f.open()
+  assert.equal(f.document.documentElement.style.overflowAnchor, 'none')
+  f.action('finish')
+  f.acknowledge(f.latest('canvas-commit'))
+  f.applied(2)
+  assert.equal(f.document.documentElement.style.overflowAnchor, 'auto')
 })
 
 test('a rejected commit retains native selection and input in the same editable node', t => {

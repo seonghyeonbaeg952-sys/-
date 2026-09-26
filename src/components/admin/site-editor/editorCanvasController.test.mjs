@@ -10,6 +10,7 @@ const exists = await readFile(new URL('./editorCanvasController.ts', import.meta
   throw error
 })
 const api = exists ? await vite.ssrLoadModule('/src/components/admin/site-editor/editorCanvasController.ts') : {}
+const { addEditorTextBox } = await vite.ssrLoadModule('/src/lib/siteEditorAddedBoxes.ts')
 const empty = () => ({ schemaVersion: 1, copy: {}, deviceCopy: {}, appearance: {} })
 const context = (overrides = {}) => ({
   editorPage: 'notices', previewPage: 'notices', device: 'desktop', scope: 'desktop', documents: { notices: empty() },
@@ -40,6 +41,18 @@ test('plain copy edits do not invent an empty formatting override or a second ch
   assert.equal(result.document.deviceCopy.desktop['notices.title'], '합창 소식')
   assert.equal(result.document.textStyles, undefined)
 })
+test('accompanist role labels are independently editable and inherit legacy text before their first edit', () => {
+  const key = 'accompanist.profile.11111111-1111-4111-8111-111111111111.role'
+  const other = 'accompanist.profile.22222222-2222-4222-8222-222222222222.role'
+  const ctx = context({ editorPage: 'accompanist', previewPage: 'accompanist', loadedOwners: new Set(['accompanist']),
+    documents: { accompanist: { ...empty(), copy: { 'accompanist.accompanistProfiles.english3': '반주자 역할' } } }, defaults: {} })
+  const issued = issue(ctx, block(source('반주자 역할', key, 'accompanist')))
+  const result = commit(ctx, issued, [patch(issued, [replacement(0, 6, '위쪽 역할')])])
+  assert.equal(result.ok, true)
+  assert.equal(result.document.deviceCopy.desktop[key], '위쪽 역할')
+  assert.equal(result.document.deviceCopy.desktop[other], undefined)
+  assert.equal(result.document.copy['accompanist.accompanistProfiles.english3'], '반주자 역할')
+})
 
 test('the parent issues only its resolved catalog source and keeps the ledger outside the wire grant', () => {
   const issued = issue()
@@ -69,6 +82,16 @@ test('unknown keys, metadata-only copy and home fields for another device are re
   const home = context({ editorPage: 'home', previewPage: 'home', device: 'mobile', scope: 'mobile', loadedOwners: new Set(['home']), documents: { home: empty() }, defaults: { 'home.current.about.title': '원문' } })
   assert.equal(make(home, block(source('원문', 'home.current.about.title', 'home', 'mobile'))).ok, false)
   assert.equal(make(context({ device: 'mobile', scope: 'desktop' }), block()).ok, false)
+})
+test('a newly added box is editable only when its text and section anchor exist in the owning page document', () => {
+  const uid = '11111111-1111-4111-8111-111111111111'
+  const created = addEditorTextBox(empty(), 'notices', 'notices-list', '새 공지 안내', uid)
+  const ctx = context({ documents: { notices: created.document }, defaults: {} })
+  const issued = issue(ctx, block(source('새 공지 안내', created.id)))
+  const result = commit(ctx, issued, [patch(issued, [replacement(0, 7, '수정한 안내')])])
+  assert.equal(result.ok, true)
+  assert.equal(result.document.deviceCopy.desktop[created.id], '수정한 안내')
+  assert.equal(make(context({ defaults: {}, documents: { notices: empty() } }), block(source('새 공지 안내', created.id))).ok, false)
 })
 
 test('common copy can be edited from the home preview only with a parent-trusted matching fallback', () => {

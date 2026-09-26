@@ -36,6 +36,18 @@ test('preview rejects unsupported message versions, unknown fields and invalid d
   for (const value of [null, [], { ...draft(), version: 2 }, { ...draft(), page: 'admin' }, { ...draft(), nonce: '1' }, { ...draft(), sequence: -1 }, { ...draft(), sequence: 2.1 }, { ...draft(), unexpected: true }, { ...draft(), documents: { admin: empty() } }, { ...draft(), documents: { home: { ...empty(), copy: { title: '<script>x</script>' } } } }]) assert.equal(preview.parseSiteEditorMessage(value), null)
 })
 
+test('preview section anchors are bounded, plain and authenticated like draft messages', () => {
+  const anchors = { type: 'smyc-editor:anchors', version: 1, nonce, page: 'home', sequence: 2,
+    anchors: [{ id: 'main-content', label: '본문 아래' }, { id: 'class-home-about-portrait', label: '합창단 소개' }] }
+  assert.deepEqual(preview.parseSiteEditorMessage(anchors), anchors)
+  for (const candidate of [
+    { ...anchors, anchors: [{ id: '../admin', label: '관리자' }] },
+    { ...anchors, anchors: [{ id: 'main-content', label: '<script>' }] },
+    { ...anchors, anchors: Array.from({ length: 33 }, (_, index) => ({ id: `section-${index}`, label: '섹션' })) },
+    { ...anchors, extra: true },
+  ]) assert.equal(preview.parseSiteEditorMessage(candidate), null)
+})
+
 test('receiver binds origin, source, nonce, page and monotonically increasing sequence', () => {
   assert.equal(typeof preview.acceptSiteEditorMessage, 'function')
   const source = {}

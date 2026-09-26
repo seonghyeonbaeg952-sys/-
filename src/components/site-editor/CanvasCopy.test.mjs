@@ -25,3 +25,13 @@ test('only an explicitly connected preview registry exposes an inert selectable 
   assert.doesNotMatch(html, /contenteditable|textarea/)
   assert.equal(render({ ...value, canvas: registry }), '<h1><em>공지사항</em></h1>')
 })
+test('each source-owned text box can be selected for layout without changing an unedited public page', () => {
+  const registry = { register: () => () => {}, subscribe: () => () => {}, getActiveId: () => null }
+  const preview = render({ ...value, isPreview: true, canvas: registry })
+  assert.match(preview, /data-site-layout="notices.title"/)
+  assert.match(preview, /data-site-layout-group="notices.copy"/)
+  assert.equal(render(value), '<h1><em>공지사항</em></h1>')
+  const changed = render({ ...value, documents: { notices: { schemaVersion: 1, copy: {}, deviceCopy: {}, appearance: {}, textLayouts: { desktop: { 'notices.title': { offsetX: 24, width: 60 } } } } } })
+  assert.match(changed, /<smyc-edit-target[^>]*style="[^"]*translate:24px 0px/)
+  assert.match(changed, /width:60%/)
+})

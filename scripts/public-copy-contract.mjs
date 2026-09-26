@@ -29,6 +29,17 @@ export function publicMarkupSource(source, file) {
               ? ts.factory.createJsxExpression(undefined, visit(text.expression)) : visit(text.expression)
           }
         }
+        // Per-profile source identities change editing scope, not published defaults.
+        // Default output and legacy formatting are also verified with real SSR.
+        if (ts.isJsxSelfClosingElement(node) && node.tagName.getText(tree) === 'AccompanistProfileCopy') {
+          const kind = node.attributes.properties.find(attr => ts.isJsxAttribute(attr) && attr.name.getText(tree) === 'kind')?.initializer
+          const spec = kind && ts.isStringLiteral(kind) ? ({ role: ['english3', 'ACCOMPANIST'], roleEn: ['english4', 'Piano Accompanist'], current: ['english5', 'CURRENT'] })[kind.text] : null
+          if (spec) return ts.factory.createJsxSelfClosingElement(ts.factory.createIdentifier('SiteCopy'), undefined, ts.factory.createJsxAttributes([
+            ts.factory.createJsxAttribute(ts.factory.createIdentifier('page'), ts.factory.createStringLiteral('accompanist')),
+            ts.factory.createJsxAttribute(ts.factory.createIdentifier('id'), ts.factory.createStringLiteral(`accompanist.accompanistProfiles.${spec[0]}`)),
+            ts.factory.createJsxAttribute(ts.factory.createIdentifier('fallback'), ts.factory.createJsxExpression(undefined, ts.factory.createStringLiteral(spec[1]))),
+          ]))
+        }
         if (ts.isJsxAttribute(node) && ['sourceKey', 'fullText', 'offset'].includes(node.name.getText(tree))
           && ts.isJsxSelfClosingElement(node.parent.parent) && node.parent.parent.tagName.getText(tree) === 'HomeDisplayTitleText') return undefined
         if (ts.isJsxAttribute(node) && node.name.getText(tree) === 'sourceParagraphs'

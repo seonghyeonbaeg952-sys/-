@@ -8,6 +8,7 @@ import { ImageTile } from '../home/ImageTile'
 import type { PersonProfileRow } from '../../types/cms'
 import '../../styles/accompanist-profiles.css'
 import { buildAccompanistProfileModel } from './accompanistProfileModel'
+import { AccompanistProfileCopy } from './AccompanistProfileCopy'
 
 type AccompanistProfilesProps = {
   headingLevel?: 'h1' | 'h2'
@@ -72,9 +73,9 @@ export function AccompanistProfiles({
                     </figure>
 
                     <div className="accompanist-profile__copy">
-                      <p className="accompanist-profile__role"><SiteCopy page="accompanist" id="accompanist.accompanistProfiles.english3" fallback={"ACCOMPANIST"} /></p>
+                      <p className="accompanist-profile__role"><AccompanistProfileCopy profileId={person.id} kind="role" /></p>
                       <h2>{name}</h2>
-                      <p className="accompanist-profile__role-en"><SiteCopy page="accompanist" id="accompanist.accompanistProfiles.english4" fallback={"Piano Accompanist"} /></p>
+                      <p className="accompanist-profile__role-en"><AccompanistProfileCopy profileId={person.id} kind="roleEn" /></p>
                       <div aria-hidden="true" className="accompanist-profile__copy-divider" />
 
                       {person.description ? (
@@ -91,7 +92,7 @@ export function AccompanistProfiles({
 
                       {model.current.length > 0 ? (
                         <div className="accompanist-profile__current">
-                          <p><SiteCopy page="accompanist" id="accompanist.accompanistProfiles.english5" fallback={"CURRENT"} /></p>
+                          <p><AccompanistProfileCopy profileId={person.id} kind="current" /></p>
                           <ul aria-label={`${name} ${editorCopy('accompanist', 'accompanist.currentLabel', '현재 활동')}`}>
                             {model.current.map((item, itemIndex) => (
                               <li key={`${person.id}-current-${itemIndex}`}>{item}</li>

@@ -216,3 +216,12 @@ test('effect rerenders replace their listener and unmount removes it instead of 
   assert.equal(f.commits.length, 1)
   f.dispose(); assert.equal(f.listeners.size, 0)
 })
+test('a selected layout source can open text formatting without selecting the hidden text chooser', t => {
+  const f = fixture(t)
+  f.receive({ type: 'canvas-ready' })
+  f.receive({ type: 'canvas-register', appliedDraftSequence: 1, blocks: [structuredClone(block)] })
+  assert.equal(f.state.canEditSource('notices.title'), true)
+  assert.equal(f.state.canEditSource('notices.unknown'), false)
+  f.state.editSource('notices.title')
+  assert.equal(f.latest('canvas-begin').blockId, block.id)
+})

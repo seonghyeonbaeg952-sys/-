@@ -21,3 +21,8 @@ test('reset stays a removal and reference alignment cannot cross groups or self-
   assert.equal(alignLayoutToBlock(block, block, 'x'), null)
   assert.equal(alignLayoutToBlock(block, { ...block, id: 'other', group: 'elsewhere' }, 'x'), null)
 })
+test('numeric widening uses the measured content-width basis and stops at the section edge', () => {
+  const measured = { ...block, value: {}, widthBasis: 100, rect: { ...block.rect, left: 100, width: 100 } }
+  assert.deepEqual(constrainLayoutInput(measured, { width: 150 }), { value: { width: 150 }, limited: false })
+  assert.deepEqual(constrainLayoutInput(measured, { width: 400 }), { value: { width: 340 }, limited: true })
+})

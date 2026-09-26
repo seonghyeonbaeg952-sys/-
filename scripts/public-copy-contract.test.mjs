@@ -40,7 +40,6 @@ test('home copy adapters and unused range metadata preserve default JSX while ke
   assert.notEqual(publicMarkupFingerprint(adapted.replace('text={line}', 'text={otherLine}'), 'example.tsx'), expected)
   assert.notEqual(publicMarkupFingerprint(adapted.replace('summary={summary}', 'summary={otherSummary}'), 'example.tsx'), expected)
 })
-
 test('explicit navigation label identities and footer source metadata preserve default children without masking link changes', () => {
   const original = 'function A() { return <nav><a href={link.href}>{copy("common", navigationCopyKey(link.href), link.label)}</a><FooterLinkGroup title={title} links={links} /></nav> }'
   const adapted = 'function A() { return <nav><a href={link.href}>{copy("common", navigationLabelKey(link.href, link.label), link.label)}</a><FooterLinkGroup title={title} links={links} titleCopyKey="common.footer.explore" /></nav> }'

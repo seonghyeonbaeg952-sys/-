@@ -1,6 +1,8 @@
+import { useLayoutEffect } from 'react'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { EditableLayout } from '../site-editor/EditableLayout'
 import { HomeCopy } from './HomeCopy'
+import { useHomeTitleCanvasTarget } from './useHomeTitleCanvasTarget'
 import { splitHomeCopyLines, splitHomeParagraphCopy } from '../../lib/homeCopySlices'
 import type { GalleryImage } from '../../types/content'
 import type { SiteSettings } from '../../types/content'
@@ -21,6 +23,7 @@ import { ImageTile } from './ImageTile'
 import { ResponsiveCollectivePortrait } from './ResponsiveAboutJoin'
 import type { AboutResponsiveCopy } from './ResponsiveAboutJoin'
 import { useHomeResponsiveViewport } from './useHomeResponsiveViewport'
+import { getAboutPortraitFlow } from './aboutPortraitFlow'
 
 type AboutPreviewProps = {
   presentation?: AboutPreviewPresentation
@@ -131,6 +134,25 @@ function CollectivePortrait({
   title = '함께 빚어가는 화음,\n다음 세대의 노래',
 }: CollectivePortraitProps) {
   const { copy: copyText } = useSiteEditor()
+  useHomeTitleCanvasTarget('home.current.about.title', title, 'home-about-portrait-title')
+  useLayoutEffect(() => {
+    const section = document.getElementById('home-about-portrait-title')?.closest<HTMLElement>('.home-about-portrait')
+    const intro = section?.querySelector<HTMLElement>('.home-about-portrait__intro')
+    const copy = section?.querySelector<HTMLElement>('.home-about-portrait__copy')
+    if (!section || !intro || !copy) return
+    const update = () => {
+      const flow = getAboutPortraitFlow(intro.offsetHeight, copy.offsetHeight)
+      section.style.setProperty('--home-about-copy-shift', `${flow.copyShift}px`)
+      section.style.setProperty('--home-about-body-shift', `${flow.bodyShift}px`)
+      section.style.setProperty('--home-about-section-extra', `${flow.sectionExtra}px`)
+    }
+    update()
+    if (typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(update)
+    observer.observe(intro)
+    observer.observe(copy)
+    return () => observer.disconnect()
+  }, [])
   const portraitImage = collectivePortraitImage ?? {
     alt: '서울모테트청소년합창단 공연 무대',
     caption: 'SEOUL MOTET YOUTH CHOIR · PERFORMANCE',

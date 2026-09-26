@@ -172,7 +172,7 @@ export function EditorCanvasToolbar({ blockLabel, selection, summary, active, bu
 
   if (!active) return <section className="canvas-toolbar" aria-label="화면 글자 편집" aria-busy={busy}>
     <div className="canvas-toolbar__intro"><strong>{blockLabel ?? '홈페이지에서 문구를 선택하세요'}</strong>
-      <p>{blockLabel ? '선택한 문구를 그 자리에서 고칠 수 있어요.' : '제목이나 본문을 클릭하면 글자 편집을 시작할 수 있어요.'}</p></div>
+      <p>{blockLabel ? '글자 편집 버튼을 누르거나 문구를 두 번 눌러 글자·글꼴을 고치세요.' : '문구를 두 번 누르면 글자 편집과 글꼴 창이 열립니다. 상자 선택 후 글자·글꼴 편집 버튼도 사용할 수 있어요.'}</p></div>
     {blockLabel ? <Button size="sm" disabled={busy} onClick={onBegin}>글자 편집</Button> : null}
   </section>
 

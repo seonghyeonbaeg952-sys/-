@@ -97,11 +97,15 @@ export function useCanvasBridge({ context, onCommit, onActiveChange, onSave, fra
     const block = blocks.current.get(id)
     if (block && !active) send({ type: 'canvas-begin', operationId: crypto.randomUUID(), blockId: block.id, blockRevision: block.revision })
   }
+  const sourceBlock = (key: string) => [...blocks.current.values()].find(block => block.capabilities.format
+    && block.segments.length === 1 && block.segments[0].source?.ownerPage === context.editorPage && block.segments[0].source?.key === key)
+  const canEditSource = (key: string) => Boolean(sourceBlock(key))
+  const editSource = (key: string) => { const block = sourceBlock(key); if (block && !active) choose(block.id) }
   const format = (patch: EditorTextStyle | null) => {
     if (issued.current && selection) send({ type: 'canvas-format', editId: issued.current.grant.editId, operationId: crypto.randomUUID(), expectedLocalRevision: localRevision.current, selection, patch })
   }
   const action = (value: CanvasAction) => {
     if (issued.current) send({ type: 'canvas-action', editId: issued.current.grant.editId, operationId: crypto.randomUUID(), expectedLocalRevision: localRevision.current, action: value })
   }
-  return { connected, mode, setMode, active, error, selection, summary, blockLabel, begin, format, action, choices, choose }
+  return { connected, mode, setMode, active, error, selection, summary, blockLabel, begin, format, action, choices, choose, canEditSource, editSource }
 }

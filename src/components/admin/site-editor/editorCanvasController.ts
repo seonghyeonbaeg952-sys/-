@@ -1,4 +1,5 @@
 import { siteCopyDefinitions } from '../../../content/siteCopyCatalog'
+import { listEditorTextBoxes } from '../../../lib/siteEditorAddedBoxes'
 import { richCopyKeys } from '../../../content/richCopyKeys'
 import { homeRichCopySourceKeys } from '../../../content/homeRichCopyKeys'
 import { isCanvasBlock, type CanvasBlock, type CanvasSourceIdentity } from '../../../lib/siteEditorCanvasModel'
@@ -7,6 +8,7 @@ import { EDITOR_DEVICES, isEditorPageId, resolveEditorCopy, validateSiteEditorDo
 import { canonicalTextStyle, isEditorCopyText, isEditorRecord, rebaseTextRuns, resolveTextRuns, snapTextSelection, supportsTextSegmentation, validateTextStyles } from '../../../lib/siteEditorTextStyles'
 import type { EditorDevice, EditorPageId, EditorTextRun, SiteCopyDefinition, SiteEditorDocument, SiteEditorDocuments } from '../../../types/siteEditor'
 import { validateEditorCopyFields } from './editorSessionModel'
+import { accompanistCopyFallback, accompanistCopyRuns, getAccompanistCopyDefinition } from '../../../lib/accompanistProfileCopy'
 
 export type CanvasGrantContext = {
   editorPage: EditorPageId
@@ -79,6 +81,12 @@ function contextReady(context: CanvasGrantContext): boolean {
 }
 
 function authorizedField(context: CanvasGrantContext, source: CanvasSourceIdentity): SiteCopyDefinition | null {
+  if (source.ownerPage === context.editorPage && source.scope === context.scope) {
+    const profile = source.ownerPage === 'accompanist' ? getAccompanistCopyDefinition(source.key) : null
+    if (profile) return profile
+    const box = listEditorTextBoxes(context.documents[source.ownerPage], source.ownerPage).find(item => item.id === source.key)
+    if (box) return { key: box.id, page: source.ownerPage, section: '추가한 문구 상자', label: box.text.slice(0, 80) || '문구 상자', defaultValue: box.text, multiline: true }
+  }
   const field = definitions.get(source.key)
   if (!field || source.ownerPage !== context.editorPage || field.page !== source.ownerPage || source.scope !== context.scope
     || (field.inputType && !['text', 'textarea'].includes(field.inputType))) return null
@@ -89,10 +97,11 @@ function authorizedField(context: CanvasGrantContext, source: CanvasSourceIdenti
 
 function fieldSnapshot(context: CanvasGrantContext, source: CanvasSourceIdentity, field: SiteCopyDefinition) {
   const document = context.documents[source.ownerPage]!
-  const fallback = context.defaults[field.key] ?? field.defaultValue
+  const profile = source.ownerPage === 'accompanist' && getAccompanistCopyDefinition(source.key)
+  const fallback = profile ? accompanistCopyFallback(context.documents, context.device, source.key, context.defaults) : context.defaults[field.key] ?? field.defaultValue
   if (!validText(fallback)) return null
   const text = resolveEditorCopy(context.documents, source.ownerPage, field.key, fallback, context.device)
-  const runs = resolveTextRuns(document, context.device, field.key, text)
+  const runs = profile ? accompanistCopyRuns(document, context.device, field.key, text) : resolveTextRuns(document, context.device, field.key, text)
   const entry = (values: object | undefined) => values && Object.hasOwn(values, field.key)
     ? { present: true, value: (values as Record<string, unknown>)[field.key] } : { present: false }
   const snapshot = canonical({ source, fallback: { ...entry(context.defaults), resolved: fallback },

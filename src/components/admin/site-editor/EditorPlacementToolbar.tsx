@@ -4,6 +4,8 @@ import { Button } from '../../common/Button'
 import { AdminFormField } from '../AdminFormField'
 import { AdminSelect } from '../AdminSelect'
 import './editor-placement-toolbar.css'
+import { isEditorAddedBoxId } from '../../../lib/siteEditorAddedBoxes'
+import { EDITOR_TEXT_WIDTH_MIN, EDITOR_TEXT_WIDTH_MAX } from '../../../lib/siteEditorLayout'
 
 export type EditorPlacementBlock = {
   id: string
@@ -22,6 +24,8 @@ export type EditorPlacementToolbarProps = {
   onAlign: (referenceId: string, axis: 'x' | 'y') => void
   onCancel?: () => void
   onFinish?: () => void
+  onDelete?: (id: string) => void
+  onEditText?: () => void
   onDirtyChange?: (dirty: boolean) => void
   error?: string
   status?: string
@@ -46,9 +50,9 @@ function layoutFromDraft(draft: PlacementDraft): { value: EditorTextLayout | und
   for (const field of ['x', 'y', 'width'] as const) {
     if (field === 'width' && draft.automaticWidth) continue
     const number = Number(draft[field])
-    const min = field === 'width' ? 10 : -2000, max = field === 'width' ? 100 : 2000
+    const min = field === 'width' ? EDITOR_TEXT_WIDTH_MIN : -2000, max = field === 'width' ? EDITOR_TEXT_WIDTH_MAX : 2000
     if (!draft[field].trim() || !Number.isFinite(number) || number < min || number > max) {
-      return { error: { field, message: field === 'width' ? '박스 너비는 10–100% 사이로 입력하세요.' : `${field === 'x' ? '가로' : '세로'} 이동은 −2000–2000px 사이로 입력하세요.` } }
+      return { error: { field, message: field === 'width' ? '박스 너비는 10–400% 사이로 입력하세요.' : `${field === 'x' ? '가로' : '세로'} 이동은 −2000–2000px 사이로 입력하세요.` } }
     }
     values[field] = number
   }
@@ -60,7 +64,7 @@ function layoutFromDraft(draft: PlacementDraft): { value: EditorTextLayout | und
   return { value: Object.keys(value).length ? value : undefined }
 }
 
-export function EditorPlacementToolbar({ selected, blocks, value, disabled = false, onSelect, onChange, onAlign, onCancel, onFinish, onDirtyChange, error, status }: EditorPlacementToolbarProps) {
+export function EditorPlacementToolbar({ selected, blocks, value, disabled = false, onSelect, onChange, onAlign, onCancel, onFinish, onDelete, onEditText, onDirtyChange, error, status }: EditorPlacementToolbarProps) {
   const id = useId()
   const baseline = draftFromLayout(value)
   const key = JSON.stringify([selected?.id, baseline])
@@ -68,6 +72,7 @@ export function EditorPlacementToolbar({ selected, blocks, value, disabled = fal
   const [problem, setProblem] = useState<{ key: string; error: PlacementError } | null>(null)
   const [feedback, setFeedback] = useState<{ key: string; message: string } | null>(null)
   const [reference, setReference] = useState({ selectedId: '', id: '' })
+  const [confirmDeleteId, setConfirmDeleteId] = useState('')
   const [observedKey, setObservedKey] = useState(key)
   // Reset on acknowledged value/selection changes, not only when looking up the
   // draft: otherwise Undo or returning to a block can resurrect an old input.
@@ -151,7 +156,8 @@ export function EditorPlacementToolbar({ selected, blocks, value, disabled = fal
         onSelect(event.target.value)
       }} />
     {!selected ? <p className="placement-toolbar__note" role="status">홈페이지에서 배치할 문구를 선택하세요. 글자 편집과 문구 이동은 별도 작업입니다.</p> : <>
-      <p className="placement-toolbar__note">문구의 이동 손잡이를 끌거나 아래 버튼으로 이동하세요. 본문을 드래그하면 글자를 선택합니다.</p>
+      {onEditText ? <Button size="sm" disabled={locked} onClick={() => { if (!locked && requireApplied()) onEditText() }}>글자·글꼴 편집</Button> : null}
+      <p className="placement-toolbar__note">화면에서 문구 상자 테두리를 끌어 이동하고, 오른쪽 ↔ 손잡이로 너비를 조절하세요. 숫자 입력과 방향키도 사용할 수 있습니다.</p>
       <form noValidate aria-label="문구 위치와 너비" onSubmit={event => { event.preventDefault(); commit() }}
         onKeyDown={event => { if (event.key === 'Enter' && event.nativeEvent.isComposing) { event.preventDefault(); event.stopPropagation() } }}>
         <div className="placement-toolbar__coordinates">
@@ -173,13 +179,13 @@ export function EditorPlacementToolbar({ selected, blocks, value, disabled = fal
           <Button size="sm" variant="ghost" disabled={locked} aria-pressed={draft.automaticWidth} onClick={() => {
             if (draft.x !== baseline.x || draft.y !== baseline.y) { if (!locked) requireApplied(); return }
             commit({ ...draft, automaticWidth: true })
-          }}>너비 자동</Button>
+          }}>원래 너비</Button>
           <Button size="sm" variant="ghost" disabled={locked} aria-pressed={!draft.automaticWidth} onClick={() => edit({ automaticWidth: false })}>너비 직접 설정</Button>
         </div>
-        <AdminFormField id={`${id}-width`} label="박스 너비 (%)" type="number" inputMode="decimal" min={10} max={100} step="any"
-          value={draft.width} disabled={locked || draft.automaticWidth} description={draft.automaticWidth ? '원래 반응형 너비를 사용합니다.' : '문구가 속한 영역 너비의 10–100%로 설정합니다.'}
+        <AdminFormField id={`${id}-width`} label="박스 너비 (%)" type="number" inputMode="decimal" min={EDITOR_TEXT_WIDTH_MIN} max={EDITOR_TEXT_WIDTH_MAX} step="any"
+          value={draft.width} disabled={locked || draft.automaticWidth} description={draft.automaticWidth ? '홈페이지의 원래 반응형 너비를 유지합니다.' : '100%는 기준 영역의 너비입니다. 더 넓힐 수 있으며 화면·섹션 경계에서 멈춥니다.'}
           error={localError?.field === 'width' ? localError.message : undefined} onChange={event => edit({ width: event.target.value })} />
-        <p className="placement-toolbar__note">높이는 글자에 맞춰 늘어납니다. 글꼴 크기는 바꾸지 않습니다.</p>
+        <p className="placement-toolbar__note">너비를 줄이면 자동으로 줄바꿈하고 높이가 늘어납니다. 글꼴 크기는 바꾸지 않습니다.</p>
         <Button type="submit" size="sm" disabled={locked || !dirty}>위치·너비 적용</Button>
       </form>
       <div className="placement-toolbar__section">
@@ -214,6 +220,12 @@ export function EditorPlacementToolbar({ selected, blocks, value, disabled = fal
         <Button size="sm" variant="ghost" disabled={locked} onClick={cancel}>입력 취소</Button>
         {onFinish ? <Button size="sm" disabled={locked} onClick={() => { if (!locked && requireApplied()) onFinish() }}>배치 마침</Button> : null}
       </div>
+      {onDelete && isEditorAddedBoxId(selected.id) ? <div className="placement-toolbar__section">
+        {!confirmDeleteId || confirmDeleteId !== selected.id ? <Button size="sm" variant="ghost" disabled={locked} onClick={() => { if (requireApplied()) setConfirmDeleteId(selected.id) }}>이 상자 삭제</Button>
+          : <div role="group" aria-label="새 문구 상자 삭제 확인"><p>이 상자를 초안에서 삭제할까요? 실행 취소로 되돌릴 수 있습니다.</p>
+            <Button size="sm" variant="ghost" onClick={() => setConfirmDeleteId('')}>취소</Button>
+            <Button size="sm" disabled={locked} onClick={() => { onDelete(selected.id); setConfirmDeleteId('') }}>초안에서 삭제</Button></div>}
+      </div> : null}
     </>}
   </section>
 }

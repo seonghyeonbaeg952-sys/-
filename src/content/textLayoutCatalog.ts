@@ -1,4 +1,5 @@
 import type { EditorPageId } from '../types/siteEditor'
+import { isEditorCopyKey } from '../lib/siteEditorTextStyles'
 
 export type TextLayoutDefinition = { id: string; page: EditorPageId; label: string; group: string }
 /** Stable semantic blocks, not React instance IDs, text values or DOM paths. */
@@ -18,4 +19,11 @@ export const TEXT_LAYOUT_CATALOG: readonly TextLayoutDefinition[] = [
 ]
 
 const definitions = new Map(TEXT_LAYOUT_CATALOG.map(block => [block.id, block]))
-export function getTextLayoutDefinition(id: string): TextLayoutDefinition | undefined { return definitions.get(id) }
+const copyPages: readonly EditorPageId[] = ['common', 'home', 'about', 'spirit', 'conductor', 'accompanist', 'members', 'history', 'concerts', 'concert-detail', 'notices', 'notice-detail', 'gallery', 'join', 'contact']
+export function getTextLayoutDefinition(id: string): TextLayoutDefinition | undefined {
+  const fixed = definitions.get(id)
+  if (fixed) return fixed
+  if (!isEditorCopyKey(id)) return undefined
+  const page = copyPages.find(candidate => id.startsWith(`${candidate}.`))
+  return page ? { id, page, label: '문구', group: `${page}.copy` } : undefined
+}

@@ -9,6 +9,8 @@ import type { Concert } from '../../../types/content'
 import { HomeCopy } from '../../home/HomeCopy'
 import { formatKoreanDate } from '../../../utils/formatDate'
 import { Button } from '../../common/Button'
+import { Container } from '../../common/Container'
+import { EmptyState } from '../../common/EmptyState'
 import './HomeV4PerformanceCarousel.css'
 
 type HomeV4PerformanceCarouselProps = {
@@ -52,63 +54,6 @@ function getConcertSummary(concert: Concert) {
 
   return '서울모테트청소년합창단의 무대를 안내합니다.'
 }
-
-const V4_FALLBACK_CONCERTS: Concert[] = [
-  {
-    id: 'v4-performance-11',
-    title: '제11회 정기연주회',
-    category: 'regular',
-    date: '2026-05-16',
-    time: '17:00',
-    location: '세라믹팔레스홀',
-    poster_url: '',
-    description: '정통 합창음악과 교회음악의 깊이를 청소년의 맑은 목소리로 전합니다.',
-    program: ['정통 합창 작품', '한국 합창 작품', '교회음악 레퍼토리'],
-    performers: [],
-    ticket_url: '',
-    apply_url: '',
-    status: 'closed',
-    is_visible: true,
-    created_at: '2026-01-01T00:00:00.000Z',
-    updated_at: '2026-01-01T00:00:00.000Z',
-  },
-  {
-    id: 'v4-performance-12',
-    title: '제12회 정기연주회',
-    category: 'regular',
-    date: '2026-09-19',
-    time: '17:00',
-    location: '세라믹팔레스홀',
-    poster_url: '',
-    description: '서로 다른 목소리가 하나의 음악으로 이어지는 정기연주회입니다.',
-    program: ['W. A. Mozart', '한국 합창 작품', '현대 성가'],
-    performers: [],
-    ticket_url: '',
-    apply_url: '',
-    status: 'scheduled',
-    is_visible: true,
-    created_at: '2026-01-01T00:00:00.000Z',
-    updated_at: '2026-01-01T00:00:00.000Z',
-  },
-  {
-    id: 'v4-performance-13',
-    title: '제13회 정기연주회',
-    category: 'regular',
-    date: '2027-03-20',
-    time: '17:00',
-    location: '세라믹팔레스홀',
-    poster_url: '',
-    description: '다음 세대의 노래가 새로운 무대로 이어지는 공연입니다.',
-    program: ['고전 합창 작품', '한국 창작 합창', '교회음악 레퍼토리'],
-    performers: [],
-    ticket_url: '',
-    apply_url: '',
-    status: 'scheduled',
-    is_visible: true,
-    created_at: '2026-01-01T00:00:00.000Z',
-    updated_at: '2026-01-01T00:00:00.000Z',
-  },
-]
 
 function getTemplatePosition(
   itemIndex: number,
@@ -386,6 +331,9 @@ export function HomeV4PerformanceCarousel({
   concerts,
   description,
   detailButtonLabel,
+  emptyButtonLabel,
+  emptyDescription,
+  emptyTitle,
   title,
 }: HomeV4PerformanceCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0)
@@ -397,12 +345,13 @@ export function HomeV4PerformanceCarousel({
   )
   const carouselTimerRef = useRef<number | null>(null)
   const carouselTransitioningRef = useRef(false)
-  const visibleConcerts =
-    concerts.length > 0
-      ? [...concerts.slice(0, 3), ...V4_FALLBACK_CONCERTS].slice(0, 3)
-      : V4_FALLBACK_CONCERTS
+  const visibleConcerts = concerts
+    .filter((concert) => concert.is_visible)
+    .slice(0, 3)
 
-  const safeActiveIndex = activeIndex % visibleConcerts.length
+  const safeActiveIndex = visibleConcerts.length > 0
+    ? activeIndex % visibleConcerts.length
+    : 0
   const activeConcert = visibleConcerts[safeActiveIndex]
   const isCarouselTransitioning = repositioningIndex !== null
 
@@ -414,6 +363,30 @@ export function HomeV4PerformanceCarousel({
     },
     [],
   )
+
+  if (!activeConcert) {
+    return (
+      <Container className="py-16">
+        <div className="mb-8">
+          <h2 className="type-section-title">
+            <HomeCopy sourceKey="home.concertProgram.title" text={title} />
+          </h2>
+          <p className="mt-4 type-body text-text-muted">
+            <HomeCopy sourceKey="home.concertProgram.description" text={description} />
+          </p>
+        </div>
+        <EmptyState
+          action={
+            <Button href="/sample/concerts" variant="secondary">
+              <HomeCopy sourceKey="home.concertProgram.emptyConcertCtaLabel" text={emptyButtonLabel} />
+            </Button>
+          }
+          description={emptyDescription}
+          title={emptyTitle}
+        />
+      </Container>
+    )
+  }
 
   const selectConcert = (
     nextIndex: number,

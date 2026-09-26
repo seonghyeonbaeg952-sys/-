@@ -14,6 +14,9 @@ import editorFontFaces from './site-editor-fonts.css?inline'
 import textStyleCss from './site-editor-text-styles.css?inline'
 import type { createCanvasRuntime } from './canvasRuntime'
 import type { createCanvasPlacementRuntime } from './canvasPlacementRuntime'
+import { AddedTextBoxes } from './AddedTextBoxes'
+import { chooseEditorSectionAnchors } from '../../lib/siteEditorAddedBoxes'
+import { getEditorSectionLabel } from '../../lib/editorSectionLabel'
 
 export function SiteEditorProvider({ children }: { children: ReactNode }) {
   const location = useLocation()
@@ -54,7 +57,8 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
           }
       }
       const runtime = createCanvasRuntime({ nonce, page, getDraftSequence: () => appliedSequence.current, freeze })
-      const placementRuntime = createCanvasPlacementRuntime({ nonce, page, getAppliedSequence: () => appliedSequence.current, freeze })
+      const placementRuntime = createCanvasPlacementRuntime({ nonce, page, getAppliedSequence: () => appliedSequence.current, freeze,
+        finishTextEdit: () => runtime.finishForPlacement() })
       setCanvas(runtime)
       setPlacement(placementRuntime)
       const unmountCanvas = runtime.mount()
@@ -117,8 +121,28 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
     if (!isPreview || !preview || preview.nonce !== nonce || preview.page !== page) return
     appliedSequence.current = preview.sequence
     window.parent.postMessage({ type: 'smyc-editor:applied', version: SITE_EDITOR_PROTOCOL_VERSION, nonce, page, sequence: preview.sequence }, window.location.origin)
+    let observer: MutationObserver | null = null
+    let lastAnchorSignature = ''
+    const announceAnchors = () => {
+      const nodes = Array.from(document.querySelectorAll<HTMLElement>('main[id], main section'))
+        .filter(node => (node.tagName === 'MAIN' || node.id || node.classList.contains('flow-section') || node.parentElement?.tagName === 'MAIN')
+          && node.getBoundingClientRect().width > 0 && node.getBoundingClientRect().height > 0)
+      const ids = chooseEditorSectionAnchors(nodes.map(node => ({ id: node.id, classes: [...node.classList] })))
+    const anchors = nodes.flatMap((node, index) => ids[index] ? [{ id: ids[index], label: node.tagName === 'MAIN' ? '본문 아래'
+        : getEditorSectionLabel(node.querySelector<HTMLElement>('h1,h2,h3'), node.getAttribute('aria-label')) }] : []).slice(0, 32)
+      const signature = JSON.stringify(anchors)
+      if (signature !== lastAnchorSignature) {
+        lastAnchorSignature = signature
+        window.parent.postMessage({ type: 'smyc-editor:anchors', version: SITE_EDITOR_PROTOCOL_VERSION, nonce, page, sequence: preview.sequence, anchors }, window.location.origin)
+      }
+    }
+    observer = new MutationObserver(announceAnchors)
+    observer.observe(document.body, { childList: true, subtree: true })
+    announceAnchors()
+    const timeout = window.setTimeout(() => { announceAnchors(); observer?.disconnect() }, 3000)
     canvas?.refreshed()
     placement?.refreshed()
+    return () => { observer?.disconnect(); window.clearTimeout(timeout) }
   }, [isPreview, nonce, page, preview, canvas, placement])
 
   useEffect(() => {
@@ -169,6 +193,7 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
       {css || isPreview ? <style>{css.includes('"Gothic A1"') || hasTextStyles || isPreview ? editorFontFaces : ''}{isPreview ? previewCss : ''}{css}</style> : null}
       {isPreview ? <div className="site-editor-preview-banner" role="status">초안 미리보기 · 실제 접수는 차단됩니다.{notice ? <span>{notice}</span> : null}</div> : null}
       {children}
+      <AddedTextBoxes page={page} document={documents[page]} />
     </SiteEditorContext>
   )
 }

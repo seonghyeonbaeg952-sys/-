@@ -16,9 +16,15 @@ function load(code, dependencies) {
 }
 const styles = load(await compile('../../../lib/siteEditorTextStyles.ts'), {})
 const layouts = load(await compile('../../../lib/siteEditorLayout.ts'), { './siteEditorTextStyles': styles })
+const textLayoutCatalog = load(await compile('../../../content/textLayoutCatalog.ts'), { '../lib/siteEditorTextStyles': styles })
 const options = load(await compile('./editorUiOptions.ts'), { '../../../lib/siteEditorLayout': layouts })
 const context = load(await compile('../../site-editor/useSiteEditor.ts'), {})
-const canvasCopy = load(await compile('../../site-editor/CanvasCopy.tsx'), { './useSiteEditor': context })
+const canvasLayout = load(await compile('../../site-editor/canvasLayout.ts'), {})
+const textBoxGeometry = load(await compile('../../site-editor/textBoxGeometry.ts'), { './canvasLayout': canvasLayout })
+const textBoxLayout = load(await compile('../../site-editor/useTextBoxLayout.ts'), { './canvasLayout': canvasLayout, './textBoxGeometry': textBoxGeometry })
+const canvasCopy = load(await compile('../../site-editor/CanvasCopy.tsx'), { './useSiteEditor': context,
+  '../../content/textLayoutCatalog': textLayoutCatalog, '../../lib/siteEditorLayout': layouts,
+  './useTextBoxLayout': textBoxLayout, './site-editor-text-box.css': {} })
 const formatted = load(await compile('../../site-editor/FormattedCopy.tsx'), {
   '../../lib/siteEditorTextStyles': styles, './useSiteEditor': context, './CanvasCopy': canvasCopy,
 })

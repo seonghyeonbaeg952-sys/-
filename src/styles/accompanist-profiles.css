@@ -215,7 +215,7 @@
 }
 
 .accompanist-profile__portrait-photo {
-  filter: saturate(0.9) contrast(0.98);
+  filter: none;
 }
 
 .accompanist-profile__copy {

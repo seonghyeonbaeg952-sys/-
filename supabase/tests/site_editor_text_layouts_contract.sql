@@ -14,7 +14,7 @@ begin
       {}, {"offsetX":-2000,"offsetY":2000,"width":10,"textAlign":"start"},
       {"offsetX":2000,"offsetY":-2000,"width":100,"textAlign":"end"},
       {"offsetX":0,"offsetY":0,"width":50.5,"textAlign":"center"},
-      {"offsetX":0.25,"offsetY":-0.25}
+      {"offsetX":0.25,"offsetY":-0.25}, {"width":150}, {"width":400}
     ]'::jsonb) loop
       perform public.validate_site_editor_document(base || jsonb_build_object('textLayouts',jsonb_build_object(scope,jsonb_build_object('home.hero.title',layouts))));
     end loop;
@@ -27,7 +27,7 @@ begin
     {"desktop":{"box":{"height":10}}}, {"desktop":{"box":{"position":"fixed"}}},
     {"desktop":{"box":{"offsetX":"10"}}}, {"desktop":{"box":{"offsetX":null}}},
     {"desktop":{"box":{"offsetX":-2000.01}}}, {"desktop":{"box":{"offsetY":2000.01}}},
-    {"desktop":{"box":{"width":9.99}}}, {"desktop":{"box":{"width":100.01}}},
+    {"desktop":{"box":{"width":9.99}}}, {"desktop":{"box":{"width":400.01}}},
     {"desktop":{"box":{"textAlign":"left"}}}, {"desktop":{"box":{"textAlign":"justify"}}},
     {"desktop":{"box":{"textAlign":"center;display:none"}}},
     {"desktop":{"box":{"width":50,"css":"display:none"}}}

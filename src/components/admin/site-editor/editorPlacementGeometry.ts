@@ -1,11 +1,19 @@
 import type { PlacementBlock } from '../../../lib/siteEditorPlacementProtocol'
 import type { EditorTextLayout } from '../../../types/siteEditor'
+import { EDITOR_TEXT_WIDTH_MIN, EDITOR_TEXT_WIDTH_MAX } from '../../../lib/siteEditorLayout'
 
 /** Geometry is display-only; the controller separately validates IDs and saved-value CAS. */
 export function constrainLayoutInput(block: PlacementBlock, next: EditorTextLayout | undefined): { value: EditorTextLayout | undefined; limited: boolean } {
   const value = next ? { ...next } : undefined
   let limited = false
   if (value) {
+    if (value.width !== undefined && block.widthBasis) {
+      const available = Math.max(0, block.bounds.left + block.bounds.width - block.rect.left)
+      const maximum = Math.max(EDITOR_TEXT_WIDTH_MIN, Math.min(EDITOR_TEXT_WIDTH_MAX, available / block.widthBasis * 100))
+      const width = Math.max(EDITOR_TEXT_WIDTH_MIN, Math.min(maximum, value.width))
+      limited ||= width !== value.width
+      value.width = Math.floor(width * 10) / 10
+    }
     for (const [key, axis, size] of [['offsetX', 'left', 'width'], ['offsetY', 'top', 'height']] as const) {
       if (value[key] === undefined) continue
       const rendered = key === 'offsetX' ? block.renderedOffsets?.x : block.renderedOffsets?.y

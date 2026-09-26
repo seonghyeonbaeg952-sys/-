@@ -25,3 +25,12 @@ test('applied acknowledgements require a positive integer sequence', () => {
   assert.equal(model.readEditorPreviewReply({ source, origin: expected.origin, data }, expected)?.sequence, 2)
   for (const sequence of [undefined, 0, -1, 1.5, '2', Infinity]) assert.equal(model.readEditorPreviewReply({ source, origin: expected.origin, data: { ...data, sequence } }, expected), null)
 })
+
+test('the authenticated frame may report stable add-box sections without exposing DOM access', () => {
+  const source = {}
+  const expected = { source, origin: 'https://choir.example', nonce: '11111111-1111-4111-8111-111111111111', page: 'home' }
+  const data = { type: 'smyc-editor:anchors', version: 1, nonce: expected.nonce, page: 'home', sequence: 3,
+    anchors: [{ id: 'main-content', label: '본문 아래' }] }
+  assert.deepEqual(model.readEditorPreviewReply({ source, origin: expected.origin, data }, expected), data)
+  assert.equal(model.readEditorPreviewReply({ source: {}, origin: expected.origin, data }, expected), null)
+})

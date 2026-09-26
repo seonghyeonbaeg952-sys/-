@@ -39,3 +39,14 @@ test('catalog IDs are unique and every group is scoped to the owning page', () =
     assert.ok(block.group.startsWith(`${block.page}.`))
   }
 })
+test('source-owned text keys also have stable per-page box identities', () => {
+  assert.deepEqual(getTextLayoutDefinition('notices.title'), { id: 'notices.title', page: 'notices', label: '문구', group: 'notices.copy' })
+  assert.equal(getTextLayoutDefinition('notices.__proto__.title'), undefined)
+})
+test('manual width enables wrapping without a parent-width cap; an untouched title has no wrap marker', () => {
+  const html = render({ layout: { width: 150 } })
+  assert.match(html, /width:150%/)
+  assert.match(html, /data-site-manual-width/)
+  assert.doesNotMatch(html, /max-width:100%/)
+  assert.doesNotMatch(render({ layout: { offsetX: 5 } }), /data-site-manual-width/)
+})

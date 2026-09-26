@@ -25,7 +25,8 @@ import { useUnsavedChangesGuard } from '../../hooks/useUnsavedChangesGuard'
 import { getPublicConcerts, getPublicNotices, getPublicSiteTexts } from '../../lib/publicData'
 import { emptySiteEditorDocument, isEditorPageId, validateSiteEditorDocument } from '../../lib/siteEditorModel'
 import { resolveTextRuns } from '../../lib/siteEditorTextStyles'
-import type { EditorDevice, EditorPageId, EditorTextRun, EditorTextLayout, SiteEditorDocument, SiteEditorDocuments, SiteEditorRevision } from '../../types/siteEditor'
+import { addEditorTextBox, listEditorTextBoxes, removeEditorTextBox } from '../../lib/siteEditorAddedBoxes'
+import type { EditorDevice, EditorPageId, EditorTextRun, EditorTextLayout, SiteCopyDefinition, SiteEditorDocument, SiteEditorDocuments, SiteEditorRevision } from '../../types/siteEditor'
 import '../../styles/admin-site-editor.css'
 import '../../components/site-editor/site-editor-fonts.css'
 
@@ -69,10 +70,11 @@ export function AdminSiteEditorPage({ initialPage = 'home' }: { initialPage?: Ed
   const allDirty = Object.values(workspace.sessions).filter((item) => item && getEditorStatus(item).unsavedCount > 0).length
   const busy = workspace.action !== null
   const interactionLocked = canvasActive || busy || copyComposing
-  const validation = session ? validateSiteEditorDocument(session.document) || validateEditorCopyFields(session.document, siteCopyDefinitions.filter((field) => field.page === page)) : null
-  const definitions = useMemo(() => siteCopyDefinitions.filter((field) => field.page === page && (!field.sourceDevice || field.sourceDevice === scope)), [page, scope])
-  const allPageDefinitions = siteCopyDefinitions.filter((field) => field.page === page)
-  const changeLabel = (key: string) => allPageDefinitions.find((field) => field.key === key)?.label ?? getTextLayoutDefinition(key)?.label ?? appearanceLabels[key] ?? '문구 설정'
+  const boxDefinitions = useMemo<SiteCopyDefinition[]>(() => listEditorTextBoxes(session?.document, page).map(box => ({ key: box.id, page, section: '추가한 문구 상자', label: box.text.slice(0, 60) || '문구 상자', defaultValue: box.text, multiline: true, maxLength: 1000 })), [session?.document, page])
+  const allPageDefinitions = useMemo(() => [...siteCopyDefinitions.filter((field) => field.page === page), ...boxDefinitions], [page, boxDefinitions])
+  const definitions = useMemo(() => allPageDefinitions.filter(field => !field.sourceDevice || field.sourceDevice === scope), [allPageDefinitions, scope])
+  const validation = session ? validateSiteEditorDocument(session.document) || validateEditorCopyFields(session.document, allPageDefinitions) : null
+  const changeLabel = (key: string) => key.endsWith('.anchor') ? '문구 상자 배치 영역' : allPageDefinitions.find((field) => field.key === key)?.label ?? getTextLayoutDefinition(key)?.label ?? appearanceLabels[key] ?? '문구 설정'
   const documents = useMemo<SiteEditorDocuments>(() => Object.fromEntries(Object.entries(workspace.sessions).map(([key, value]) => [key, value?.document])), [workspace.sessions])
   const needsDetail = page === 'concert-detail' || page === 'notice-detail'
   const previewPath = needsDetail ? detailPaths[page] ?? null : pageDefinition.previewPath
@@ -214,6 +216,44 @@ export function AdminSiteEditorPage({ initialPage = 'home' }: { initialPage?: Ed
     })
     return result
   }
+  const addBox = (anchor: string, text: string) => {
+    let result: { ok: true; id: string } | { ok: false; message: string } = { ok: false, message: '새 문구 상자를 추가하지 못했습니다.' }
+    if (busy || copyComposition.current || canvasActive || page === 'common') return result
+    workspace.edit(page, current => {
+      try {
+        const next = addEditorTextBox(current.document, page, anchor, text, crypto.randomUUID())
+        const error = validateSiteEditorDocument(next.document)
+        if (error) { result = { ok: false, message: error }; return current }
+        const history = recordCanvasHistory(canvasHistory.current[page] ?? emptyCanvasHistory(), current.document, next.document)
+        canvasHistory.current[page] = history
+        setHistoryCounts(counts => ({ ...counts, [page]: { undo: history.past.length, redo: history.future.length } }))
+        result = { ok: true, id: next.id }
+        setCanvasNotice('새 문구 상자를 초안에 추가했습니다. 미리보기에서 위치를 조절한 뒤 임시저장하세요.')
+        return replaceEditorDocument(current, next.document)
+      } catch (error) {
+        result = { ok: false, message: error instanceof Error ? error.message : '문구와 배치 영역을 확인해 주세요.' }
+        return current
+      }
+    })
+    return result
+  }
+  const removeBox = (id: string): { ok: true; document: SiteEditorDocument } | { ok: false; message: string } => {
+    let result: { ok: true; document: SiteEditorDocument } | { ok: false; message: string } = { ok: false, message: '문구 상자를 삭제하지 못했습니다.' }
+    if (busy || copyComposition.current || canvasActive) return result
+    workspace.edit(page, current => {
+      try {
+        const document = removeEditorTextBox(current.document, page, id)
+        const error = validateSiteEditorDocument(document)
+        if (error) { result = { ok: false, message: error }; return current }
+        const history = recordCanvasHistory(canvasHistory.current[page] ?? emptyCanvasHistory(), current.document, document)
+        canvasHistory.current[page] = history
+        setHistoryCounts(counts => ({ ...counts, [page]: { undo: history.past.length, redo: history.future.length } }))
+        result = { ok: true, document }
+        return replaceEditorDocument(current, document)
+      } catch (error) { result = { ok: false, message: error instanceof Error ? error.message : '삭제할 상자를 확인해 주세요.' }; return current }
+    })
+    return result
+  }
   const moveDocumentHistory = (direction: 'undo' | 'redo') => {
     if (canvasActive || busy || copyComposition.current) return
     workspace.edit(page, current => {
@@ -289,7 +329,7 @@ export function AdminSiteEditorPage({ initialPage = 'home' }: { initialPage?: Ed
             <div className="site-editor__reset-actions"><Button size="sm" variant="ghost" disabled={busy || copyComposing} onClick={() => setConfirmation({ kind: 'reset-scope' })}>{scopeLabels[scope]} 편집값 초기화</Button><Button size="sm" variant="ghost" disabled={busy || copyComposing} onClick={() => setConfirmation({ kind: 'reset-page' })}>이 화면 전체 초기화</Button></div>
             </fieldset>
           </details>
-          <div className="site-editor__preview-pane" inert={copyComposing}>{detailErrors[page] ? <p role="alert" className="site-editor__error">{detailErrors[page]}</p> : null}<EditorPreview page={page} label={pageDefinition.label} path={previewPath} loadingPath={needsDetail && !Object.hasOwn(detailPaths, page)} device={device} documents={documents} locked={interactionLocked} context={canvasContext} onCommit={commitCanvas} onLayoutChange={changePlacement} onActiveChange={setCanvasActive} onSave={() => { if (!canvasActive && !busy && !copyComposition.current && status.unsavedCount && !validation && !session.conflicts.length) void workspace.save() }} onDeviceChange={(next) => { if (!canvasActive && !busy && !copyComposition.current) { setDevice(next); if (scope !== 'shared') setScope(next) } }} /></div>
+          <div className="site-editor__preview-pane" inert={copyComposing}>{detailErrors[page] ? <p role="alert" className="site-editor__error">{detailErrors[page]}</p> : null}<EditorPreview page={page} label={pageDefinition.label} path={previewPath} loadingPath={needsDetail && !Object.hasOwn(detailPaths, page)} device={device} documents={documents} locked={interactionLocked} context={canvasContext} onCommit={commitCanvas} onLayoutChange={changePlacement} onBoxAdd={addBox} onBoxRemove={removeBox} onActiveChange={setCanvasActive} onSave={() => { if (!canvasActive && !busy && !copyComposition.current && status.unsavedCount && !validation && !session.conflicts.length) void workspace.save() }} onDeviceChange={(next) => { if (!canvasActive && !busy && !copyComposition.current) { setDevice(next); if (scope !== 'shared') setScope(next) } }} /></div>
         </div> : !workspace.error ? <p role="status" className="site-editor__empty">안전하게 저장된 초안을 불러오고 있습니다.</p> : null}
         {pageDefinition.contentLinks.length ? <section className="site-editor__content-links"><h3>실제 내용은 여기에서 관리합니다</h3><p className="site-editor__help">공연·프로필·입단 안내·후원 원문과 사진은 기존 콘텐츠 관리가 원본입니다.</p><div>{pageDefinition.contentLinks.map((link) => <Button key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" variant="secondary" size="sm">{link.label} · 새 탭</Button>)}</div></section> : null}
       </div>

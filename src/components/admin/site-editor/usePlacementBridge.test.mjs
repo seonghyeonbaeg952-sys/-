@@ -58,6 +58,13 @@ test('parent grants only registered catalog blocks and exposes its own current l
   assert.deepEqual(f.output().selected.value, { offsetX: 99 })
   assert.equal(f.writes(), 0)
 })
+test('leaving text edit re-announces placement mode so a held drag can resume', t => {
+  const f = fixture(t); f.ready()
+  const before = f.sent.filter(message => message.type === 'placement-mode').length
+  f.update({ locked: true })
+  f.update({ locked: false })
+  assert.ok(f.sent.filter(message => message.type === 'placement-mode').length > before)
+})
 test('one pointerup commits once and duplicate operation retries do not create another write or undo step', t => {
   const f = fixture(t); f.ready(); const grant = f.begin().grant
   const commit = { type: 'placement-commit', editId: grant.editId, operationId: 'operation-1', baseDraftSequence: 1, outcome: 'apply', value: { offsetX: 20, offsetY: 10 } }
