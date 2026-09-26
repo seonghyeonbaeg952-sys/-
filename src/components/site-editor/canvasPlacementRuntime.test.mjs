@@ -26,6 +26,14 @@ test('a box can grow beyond its original column but never beyond the section edg
   assert.deepEqual(api.constrainPlacementWidth(column, 100, 200), { width: 150 })
   assert.deepEqual(api.constrainPlacementWidth(column, 1000, 200), { width: 350 })
 })
+test('choosing an off-screen text box reveals it without requiring repeated scrolling', t => {
+  const f = fixture(t)
+  f.target.rect = { ...block.rect, top: 1400 }
+  const calls = []
+  f.target.scrollIntoView = options => calls.push(options)
+  f.mode()
+  assert.deepEqual(calls, [{ block: 'center', inline: 'nearest', behavior: 'instant' }])
+})
 
 function fixture(t, initiallyLoaded = true) {
   const old = new Map(['window', 'document', 'Element', 'ResizeObserver', 'MutationObserver'].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]))

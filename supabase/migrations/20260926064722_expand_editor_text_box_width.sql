@@ -1,3 +1,4 @@
+-- Migration timestamp matches the applied Supabase migration history.
 -- Allow widening text boxes beyond their original column. Existing percent values,
 -- strict property allowlists, limits, invoker security and permissions are preserved.
 begin;

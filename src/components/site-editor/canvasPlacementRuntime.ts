@@ -365,7 +365,13 @@ export function createCanvasPlacementRuntime(config: Config) {
       if (!mode) handoff = null
       send({ type: 'placement-mode-result', operationId: message.operationId, accepted: true }); refreshRegistry(); resumeHandoff()
     } else if (message.type === 'placement-select' && !active && !pending && mode) {
-      selected = message.id && entries.has(message.id) ? message.id : null; selection(); position()
+      selected = message.id && entries.has(message.id) ? message.id : null
+      const entry = selected ? entries.get(selected) : undefined
+      const rect = entry ? measuredBox(entry.element) : null
+      if (rect && (rect.top < 72 || rect.top + rect.height > window.innerHeight)) {
+        entry!.element.scrollIntoView?.({ block: 'center', inline: 'nearest', behavior: 'instant' })
+      }
+      selection(); position()
     } else if (message.type === 'placement-grant' && pending?.requestId === message.requestId) {
       window.clearTimeout(beginTimer)
       const gesture = pending; pending = null

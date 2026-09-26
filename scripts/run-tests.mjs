@@ -27,6 +27,7 @@ const tests = [
   'src/components/about/HistoryCueSheetExperience.contract.test.mjs',
   'src/components/about/historyCueSheetModel.test.mjs',
   'src/components/about/accompanistProfileModel.test.mjs',
+  'src/components/about/AccompanistProfiles.test.mjs',
   'src/components/about/careerRoleSelection.test.mjs',
   'src/components/concerts/concertScheduleModel.test.mjs',
   'src/utils/memberArchive.test.mjs',

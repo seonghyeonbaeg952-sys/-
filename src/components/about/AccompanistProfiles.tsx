@@ -68,6 +68,7 @@ export function AccompanistProfiles({
                         priority={index === 0}
                         sizes="(min-width: 1180px) 320px, (min-width: 701px) 28vw, 260px"
                         src={person.photo_url ?? ''}
+                        transform={{ width: 960, quality: 100, resize: 'contain' }}
                         width={640}
                       />
                     </figure>

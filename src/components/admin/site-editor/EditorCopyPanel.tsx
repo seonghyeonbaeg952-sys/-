@@ -7,6 +7,8 @@ import type { EditorScope } from './editorSessionModel'
 import { EditorTextSelection } from './EditorTextSelection'
 import { resolveTextRuns, supportsTextSegmentation } from '../../../lib/siteEditorTextStyles'
 import { richCopyKeys } from '../../../content/richCopyKeys'
+import { isEditorAddedBoxId } from '../../../lib/siteEditorAddedBoxes'
+import { getAccompanistCopyDefinition } from '../../../lib/accompanistProfileCopy'
 import { homeRichCopySourceKeys } from '../../../content/homeRichCopyKeys'
 import { copyIsOverridden, copyValue, findCopyMatches, inspectCopyText, type CopyReplacementPlan, type CopySearchOptions } from './editorCopyTools'
 import { EditorCopyActions } from './EditorCopyActions'
@@ -65,7 +67,8 @@ export function EditorCopyPanel({ definitions, document, baseline, scope, defaul
   const field = filtered.find(item => item.key === selectedKey) ?? filtered[0]
   const value = field ? overrides[field.key] ?? fallback(field) : ''
   const canFormat = Boolean(supportsTextSegmentation && field && (!field.inputType || ['text', 'textarea'].includes(field.inputType)) &&
-    (richCopyKeys.has(field.key) || (field.sourceDevice && field.sourceKey && homeRichCopySourceKeys[field.sourceDevice].has(field.sourceKey))))
+    (richCopyKeys.has(field.key) || isEditorAddedBoxId(field.key) || getAccompanistCopyDefinition(field.key)
+      || (field.sourceDevice && field.sourceKey && homeRichCopySourceKeys[field.sourceDevice].has(field.sourceKey))))
   const isOverride = Boolean(field && (Object.hasOwn(overrides, field.key) || Object.hasOwn(document.textStyles?.[scope] ?? {}, field.key)))
   const fieldIndex = field ? filtered.indexOf(field) : -1
   const setViewFilter = (next: string, pins = favorites) => {

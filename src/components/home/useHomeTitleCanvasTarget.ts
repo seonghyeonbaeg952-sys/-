@@ -14,10 +14,16 @@ export function useHomeTitleCanvasTarget(sourceKey: string, text: string, elemen
     const element = document.getElementById(elementId)
     if (!element) return
     element.setAttribute('data-canvas-target', instanceId)
+    element.setAttribute('data-canvas-copy-key', key)
+    element.setAttribute('data-canvas-owner-page', 'home')
     const unregister = canvas.register({ instanceId, ownerPage: 'home', key, text, fullText: text, offset: 0, element })
     return () => {
       unregister()
-      if (element.getAttribute('data-canvas-target') === instanceId) element.removeAttribute('data-canvas-target')
+      if (element.getAttribute('data-canvas-target') === instanceId) {
+        element.removeAttribute('data-canvas-target')
+        element.removeAttribute('data-canvas-copy-key')
+        element.removeAttribute('data-canvas-owner-page')
+      }
     }
   }, [isPreview, canvas, key, device, sourceKey, text, elementId, instanceId])
 }

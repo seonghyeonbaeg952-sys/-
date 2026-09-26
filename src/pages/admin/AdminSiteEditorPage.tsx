@@ -26,6 +26,7 @@ import { getPublicConcerts, getPublicNotices, getPublicSiteTexts } from '../../l
 import { emptySiteEditorDocument, isEditorPageId, validateSiteEditorDocument } from '../../lib/siteEditorModel'
 import { resolveTextRuns } from '../../lib/siteEditorTextStyles'
 import { addEditorTextBox, listEditorTextBoxes, removeEditorTextBox } from '../../lib/siteEditorAddedBoxes'
+import { getAccompanistCopyDefinition } from '../../lib/accompanistProfileCopy'
 import type { EditorDevice, EditorPageId, EditorTextRun, EditorTextLayout, SiteCopyDefinition, SiteEditorDocument, SiteEditorDocuments, SiteEditorRevision } from '../../types/siteEditor'
 import '../../styles/admin-site-editor.css'
 import '../../components/site-editor/site-editor-fonts.css'
@@ -71,7 +72,10 @@ export function AdminSiteEditorPage({ initialPage = 'home' }: { initialPage?: Ed
   const busy = workspace.action !== null
   const interactionLocked = canvasActive || busy || copyComposing
   const boxDefinitions = useMemo<SiteCopyDefinition[]>(() => listEditorTextBoxes(session?.document, page).map(box => ({ key: box.id, page, section: '추가한 문구 상자', label: box.text.slice(0, 60) || '문구 상자', defaultValue: box.text, multiline: true, maxLength: 1000 })), [session?.document, page])
-  const allPageDefinitions = useMemo(() => [...siteCopyDefinitions.filter((field) => field.page === page), ...boxDefinitions], [page, boxDefinitions])
+  const profileDefinitions = useMemo<SiteCopyDefinition[]>(() => page === 'accompanist' ? [...new Set([
+    ...Object.keys(session?.document.copy ?? {}), ...Object.values(session?.document.deviceCopy ?? {}).flatMap(values => Object.keys(values ?? {})),
+  ])].flatMap(key => { const field = getAccompanistCopyDefinition(key); return field ? [field] : [] }) : [], [page, session?.document])
+  const allPageDefinitions = useMemo(() => [...siteCopyDefinitions.filter((field) => field.page === page), ...boxDefinitions, ...profileDefinitions], [page, boxDefinitions, profileDefinitions])
   const definitions = useMemo(() => allPageDefinitions.filter(field => !field.sourceDevice || field.sourceDevice === scope), [allPageDefinitions, scope])
   const validation = session ? validateSiteEditorDocument(session.document) || validateEditorCopyFields(session.document, allPageDefinitions) : null
   const changeLabel = (key: string) => key.endsWith('.anchor') ? '문구 상자 배치 영역' : allPageDefinitions.find((field) => field.key === key)?.label ?? getTextLayoutDefinition(key)?.label ?? appearanceLabels[key] ?? '문구 설정'

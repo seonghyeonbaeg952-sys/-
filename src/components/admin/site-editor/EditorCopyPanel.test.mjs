@@ -10,12 +10,14 @@ const compileUrl = source => `data:text/javascript;base64,${Buffer.from(ts.trans
 const stylesUrl = compileUrl(await readFile(new URL('../../../lib/siteEditorTextStyles.ts', import.meta.url), 'utf8'))
 const layoutUrl = compileUrl((await readFile(new URL('../../../lib/siteEditorLayout.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl)))
 const documentUrl = compileUrl((await readFile(new URL('../../../lib/siteEditorModel.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl)).replaceAll("'./siteEditorLayout'", JSON.stringify(layoutUrl)))
+const documentModel = await import(documentUrl)
+const profileCopy = await import(compileUrl((await readFile(new URL('../../../lib/accompanistProfileCopy.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorModel'", JSON.stringify(documentUrl)).replaceAll("'./siteEditorTextStyles'", JSON.stringify(stylesUrl))))
 const copyTools = await import(compileUrl((await readFile(new URL('./editorCopyTools.ts', import.meta.url), 'utf8')).replaceAll("'../../../lib/siteEditorTextStyles'", JSON.stringify(stylesUrl)).replaceAll("'../../../lib/siteEditorModel'", JSON.stringify(documentUrl))))
 const code = ts.transpileModule(await readFile(new URL('./EditorCopyPanel.tsx', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
 }).outputText
 
-function panel(definitions) {
+function panel(definitions, rich = true) {
   const slots = []
   let cursor = 0, tree
   const document = { schemaVersion: 1, copy: {}, deviceCopy: {}, appearance: {} }
@@ -32,7 +34,9 @@ function panel(definitions) {
     const component = name.split('/').at(-1)
     if (['AdminFormField', 'AdminSelect', 'AdminTextarea', 'Button', 'EditorTextSelection', 'EditorCopyActions'].includes(component)) return { [component]: component }
     if (component === 'editorCopyTools') return copyTools
-    if (component === 'richCopyKeys') return { richCopyKeys: new Set(definitions.map(d => d.key)) }
+    if (component === 'richCopyKeys') return { richCopyKeys: new Set(rich ? definitions.map(d => d.key) : []) }
+    if (component === 'siteEditorAddedBoxes') return documentModel
+    if (component === 'accompanistProfileCopy') return profileCopy
     if (component === 'homeRichCopyKeys') return { homeRichCopySourceKeys: { mobile: new Set(), tablet: new Set(), desktop: new Set() } }
     if (component === 'siteEditorTextStyles') return { resolveTextRuns: () => [], supportsTextSegmentation: true }
     throw new Error(name)
@@ -58,6 +62,12 @@ function panel(definitions) {
 }
 
 const definition = (n, value = `본문 ${n}`) => ({ key: `test.${n}`, page: 'join', section: n % 2 ? '신청' : '안내', label: `항목 ${n}`, defaultValue: value })
+test('added boxes and independent profile labels have working font controls outside the static rich catalogue', () => {
+  for (const key of ['join.box.11111111-1111-4111-8111-111111111111.text', 'accompanist.profile.11111111-1111-4111-8111-111111111111.role']) {
+    const p = panel([{ ...definition(1), key }], false)
+    assert.equal(p.find(node => node.type === 'EditorTextSelection')[0].props.allowFormatting, true)
+  }
+})
 
 test('editing a matched sentence does not remove its input when the search word is replaced', () => {
   const p = panel([definition(1, '반가운 합창단'), definition(2, '일정 안내')])
