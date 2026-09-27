@@ -1,0 +1,54 @@
+/* Approved Figma B (680:2739 / states 685:2776).
+   Keep the native viewport scrollbar: no wheel interception or scroll locks.
+   The existing preview banner excludes CMS iframe scrollbars. Admin routes do
+   not contain the public shell, so client-side navigation restores native UI. */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (forced-colors: none) {
+  html:has(.public-shell[data-public-theme='white-orange']):not(:has(.site-editor-preview-banner)) {
+    --public-scrollbar-track: #fcfaf5;
+    --public-scrollbar-thumb: #68665f;
+    --public-scrollbar-thumb-active: #17171a;
+  }
+
+  @supports selector(::-webkit-scrollbar) {
+    /* Blink does not enable custom rendering from scrollbar rules with only
+       pseudo-class modifiers. Bootstrap before :vertical can match. */
+    html:has(.public-shell[data-public-theme='white-orange']):not(:has(.site-editor-preview-banner))::-webkit-scrollbar {
+      background-color: var(--public-scrollbar-track);
+    }
+
+    html:has(.public-shell[data-public-theme='white-orange']):not(:has(.site-editor-preview-banner))::-webkit-scrollbar:vertical {
+      width: 12px;
+      background-color: var(--public-scrollbar-track);
+    }
+
+    html:has(.public-shell[data-public-theme='white-orange']):not(:has(.site-editor-preview-banner))::-webkit-scrollbar-track:vertical {
+      background-color: var(--public-scrollbar-track);
+    }
+
+    html:has(.public-shell[data-public-theme='white-orange']):not(:has(.site-editor-preview-banner))::-webkit-scrollbar-thumb:vertical {
+      background-color: var(--public-scrollbar-thumb);
+      background-clip: padding-box;
+      border: 2px solid var(--public-scrollbar-track);
+      border-radius: 999px;
+    }
+
+    html:has(.public-shell[data-public-theme='white-orange']):not(:has(.site-editor-preview-banner))::-webkit-scrollbar-thumb:vertical:hover,
+    html:has(.public-shell[data-public-theme='white-orange']):not(:has(.site-editor-preview-banner))::-webkit-scrollbar-thumb:vertical:active {
+      background-color: var(--public-scrollbar-thumb-active);
+    }
+  }
+
+  /* Non-WebKit engines keep the OS width/shape. Non-auto standard colors would
+     override WebKit pseudo-element styling, so the two paths stay exclusive. */
+  @supports not selector(::-webkit-scrollbar) {
+    html:has(.public-shell[data-public-theme='white-orange']):not(:has(.site-editor-preview-banner)) {
+      scrollbar-color: var(--public-scrollbar-thumb) var(--public-scrollbar-track);
+      scrollbar-width: auto;
+    }
+
+    /* scrollbar-color inherits; reset at body to preserve nested scroll areas. */
+    html:has(.public-shell[data-public-theme='white-orange']):not(:has(.site-editor-preview-banner)) > body {
+      scrollbar-color: auto;
+    }
+  }
+}

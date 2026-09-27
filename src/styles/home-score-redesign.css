@@ -36,6 +36,7 @@
   border-color: #e9c8b8;
   background: #fbf8f3;
   box-shadow: 0 34px 78px rgb(53 21 42 / 0.16), 0 8px 18px rgb(53 21 42 / 0.08);
+  opacity: var(--book-open, 0);
 }
 
 .motet-score-scroll-section .motet-score-page {

@@ -740,7 +740,8 @@ export function ArchivePageStack({
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
-      setProgress(reducedMotion ? 1 : 0)
+      // Re-synchronize new media without rewinding an already played exposure.
+      setProgress(reducedMotion ? 1 : progressRef.current)
     })
 
     return () => window.cancelAnimationFrame(frame)

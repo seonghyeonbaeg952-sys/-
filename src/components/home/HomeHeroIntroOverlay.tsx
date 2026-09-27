@@ -2,6 +2,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 const desktopIntroQuery =
   '(min-width: 1024px) and (prefers-reduced-motion: no-preference)'
+const introScrollTolerance = 8
+const introLockDeadline = 6000
 
 export function HomeHeroIntroOverlay() {
   const launchRef = useRef<HTMLDivElement>(null)
@@ -9,6 +11,10 @@ export function HomeHeroIntroOverlay() {
     typeof window === 'undefined' ? false : window.matchMedia(desktopIntroQuery).matches,
   )
   const [isAnimationReady, setIsAnimationReady] = useState(false)
+  const [isDismissed, setIsDismissed] = useState(() =>
+    typeof window !== 'undefined' && window.scrollY > introScrollTolerance,
+  )
+  const canShowIntro = shouldRenderIntro && !isDismissed
 
   useEffect(() => {
     const query = window.matchMedia(desktopIntroQuery)
@@ -19,6 +25,56 @@ export function HomeHeroIntroOverlay() {
 
     return () => query.removeEventListener('change', handleChange)
   }, [])
+
+  useLayoutEffect(() => {
+    const launch = launchRef.current
+    if (!canShowIntro || !launch) return undefined
+
+    const root = document.documentElement
+    const previousOverflow = root.style.overflow
+    const previousGutter = root.style.scrollbarGutter
+    const previousScrollBehavior = root.style.scrollBehavior
+    const currentGutter = window.getComputedStyle(root).scrollbarGutter
+    const lockedX = window.scrollX
+    const lockedY = window.scrollY
+    // Lock the root, not the body owned by home popups. Keep its scrollbar
+    // space so the title metrics do not move while fonts are preparing.
+    root.style.scrollbarGutter = currentGutter.includes('stable') ? currentGutter : 'stable'
+    root.style.overflow = 'hidden'
+    root.style.scrollBehavior = 'auto'
+
+    const finish = () => setIsDismissed(true)
+    const finishAnimation = (event: AnimationEvent) => {
+      if (event.animationName === 'home-intro-real-sweep') finish()
+    }
+    const escapeIntro = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') finish()
+    }
+    const keepPosition = () => {
+      if (window.scrollY !== lockedY || window.scrollX !== lockedX) {
+        window.scrollTo({ left: lockedX, top: lockedY, behavior: 'auto' })
+      }
+    }
+
+    // The real last animation releases the lock. The deadline is only a
+    // fail-safe for missing CSS, stalled font loading or an interrupted frame.
+    const deadline = window.setTimeout(finish, introLockDeadline)
+    launch.addEventListener('animationend', finishAnimation)
+    launch.addEventListener('animationcancel', finishAnimation)
+    window.addEventListener('keydown', escapeIntro)
+    window.addEventListener('scroll', keepPosition, { passive: true })
+
+    return () => {
+      window.clearTimeout(deadline)
+      launch.removeEventListener('animationend', finishAnimation)
+      launch.removeEventListener('animationcancel', finishAnimation)
+      window.removeEventListener('keydown', escapeIntro)
+      window.removeEventListener('scroll', keepPosition)
+      root.style.overflow = previousOverflow
+      root.style.scrollbarGutter = previousGutter
+      root.style.scrollBehavior = previousScrollBehavior
+    }
+  }, [canShowIntro])
 
   useLayoutEffect(() => {
     const launchElement = launchRef.current
@@ -37,7 +93,7 @@ export function HomeHeroIntroOverlay() {
     )
 
     if (
-      !shouldRenderIntro ||
+      !canShowIntro ||
       !launchElement ||
       !sampleRoot ||
       !wordmarkElement ||
@@ -246,9 +302,9 @@ export function HomeHeroIntroOverlay() {
       metricsObserver.disconnect()
       window.removeEventListener('resize', applyTitleMetrics)
     }
-  }, [shouldRenderIntro])
+  }, [canShowIntro])
 
-  if (!shouldRenderIntro) {
+  if (!canShowIntro) {
     return null
   }
 

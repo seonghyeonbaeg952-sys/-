@@ -1,0 +1,651 @@
+{
+  "date": "2026-09-28",
+  "fileKey": "nz8fKU1RqfasYhsIQEIVF5",
+  "status": "Restored after user approval; supersedes automatic-centering layout change",
+  "scope": "English desktop Home Join Figma component and its two instances only; no website, CMS, Korean page or deployment changes.",
+  "userApproved": "Restore the original design and minimally correct English text position/wrapping/clipping inside that design.",
+  "preflight": [
+    {
+      "id": "842:9170",
+      "type": "COMPONENT",
+      "x": 0,
+      "y": 2302.80029296875,
+      "w": 1536,
+      "h": 972,
+      "positioning": "AUTO",
+      "sizingH": "FIXED",
+      "sizingV": "FIXED",
+      "mode": "NONE",
+      "primary": "FIXED",
+      "counter": "FIXED",
+      "align": "MIN"
+    },
+    {
+      "id": "842:9179",
+      "type": "FRAME",
+      "x": 0.0000019073486328125,
+      "y": 143.99998474121094,
+      "w": 972,
+      "h": 124,
+      "positioning": "ABSOLUTE",
+      "sizingH": "FIXED",
+      "sizingV": "HUG",
+      "mode": "VERTICAL",
+      "primary": "AUTO",
+      "counter": "FIXED",
+      "align": "MIN"
+    },
+    {
+      "id": "842:9180",
+      "type": "FRAME",
+      "x": 0,
+      "y": 0,
+      "w": 972,
+      "h": 62,
+      "positioning": "AUTO",
+      "sizingH": "FIXED",
+      "sizingV": "HUG",
+      "mode": "VERTICAL",
+      "primary": "AUTO",
+      "counter": "FIXED",
+      "align": "CENTER"
+    },
+    {
+      "id": "842:9181",
+      "type": "TEXT",
+      "x": 36,
+      "y": 0,
+      "w": 900,
+      "h": 62,
+      "positioning": "AUTO",
+      "sizingH": "FIXED",
+      "sizingV": "HUG",
+      "copy": "We welcome new members",
+      "font": {
+        "family": "Hahmlet",
+        "style": "Light",
+        "variationSettings": {
+          "wght": 300
+        }
+      },
+      "textAutoResize": "HEIGHT"
+    },
+    {
+      "id": "842:9219",
+      "type": "FRAME",
+      "x": 0,
+      "y": 0,
+      "w": 237.59999084472656,
+      "h": 23,
+      "positioning": "AUTO",
+      "sizingH": "FIXED",
+      "sizingV": "HUG",
+      "mode": "VERTICAL",
+      "primary": "AUTO",
+      "counter": "FIXED",
+      "align": "CENTER"
+    },
+    {
+      "id": "842:9220",
+      "type": "FRAME",
+      "x": 0,
+      "y": 0,
+      "w": 237.59999084472656,
+      "h": 23,
+      "positioning": "AUTO",
+      "sizingH": "FILL",
+      "sizingV": "HUG",
+      "mode": "VERTICAL",
+      "primary": "AUTO",
+      "counter": "FIXED",
+      "align": "CENTER"
+    },
+    {
+      "id": "842:9231",
+      "type": "FRAME",
+      "x": 0,
+      "y": 0,
+      "w": 237.59999084472656,
+      "h": 23,
+      "positioning": "AUTO",
+      "sizingH": "FIXED",
+      "sizingV": "HUG",
+      "mode": "VERTICAL",
+      "primary": "AUTO",
+      "counter": "FIXED",
+      "align": "CENTER"
+    },
+    {
+      "id": "842:9232",
+      "type": "FRAME",
+      "x": 0,
+      "y": 0,
+      "w": 237.59999084472656,
+      "h": 23,
+      "positioning": "AUTO",
+      "sizingH": "FILL",
+      "sizingV": "HUG",
+      "mode": "VERTICAL",
+      "primary": "AUTO",
+      "counter": "FIXED",
+      "align": "CENTER"
+    },
+    {
+      "id": "842:9243",
+      "type": "FRAME",
+      "x": 0,
+      "y": 0,
+      "w": 237.59999084472656,
+      "h": 23,
+      "positioning": "AUTO",
+      "sizingH": "FIXED",
+      "sizingV": "HUG",
+      "mode": "VERTICAL",
+      "primary": "AUTO",
+      "counter": "FIXED",
+      "align": "CENTER"
+    },
+    {
+      "id": "842:9244",
+      "type": "FRAME",
+      "x": 0,
+      "y": 0,
+      "w": 237.59999084472656,
+      "h": 23,
+      "positioning": "AUTO",
+      "sizingH": "FILL",
+      "sizingV": "HUG",
+      "mode": "VERTICAL",
+      "primary": "AUTO",
+      "counter": "FIXED",
+      "align": "CENTER"
+    },
+    {
+      "id": "842:9255",
+      "type": "FRAME",
+      "x": 0,
+      "y": 0,
+      "w": 237.59999084472656,
+      "h": 23,
+      "positioning": "AUTO",
+      "sizingH": "FIXED",
+      "sizingV": "HUG",
+      "mode": "VERTICAL",
+      "primary": "AUTO",
+      "counter": "FIXED",
+      "align": "CENTER"
+    },
+    {
+      "id": "842:9256",
+      "type": "FRAME",
+      "x": 0,
+      "y": 0,
+      "w": 237.59999084472656,
+      "h": 23,
+      "positioning": "AUTO",
+      "sizingH": "FILL",
+      "sizingV": "HUG",
+      "mode": "VERTICAL",
+      "primary": "AUTO",
+      "counter": "FIXED",
+      "align": "CENTER"
+    }
+  ],
+  "restoration": {
+    "before": [
+      {
+        "id": "842:9170",
+        "x": 0,
+        "y": 2302.80029296875,
+        "w": 1536,
+        "h": 972,
+        "mode": "NONE",
+        "position": "AUTO"
+      },
+      {
+        "id": "842:9179",
+        "x": 0.0000019073486328125,
+        "y": 143.99998474121094,
+        "w": 972,
+        "h": 124,
+        "mode": "VERTICAL",
+        "position": "ABSOLUTE"
+      },
+      {
+        "id": "842:9180",
+        "x": 0,
+        "y": 0,
+        "w": 972,
+        "h": 62,
+        "mode": "VERTICAL",
+        "position": "AUTO"
+      },
+      {
+        "id": "842:9181",
+        "x": 36,
+        "y": 0,
+        "w": 900,
+        "h": 62,
+        "position": "AUTO"
+      },
+      {
+        "id": "842:9183",
+        "x": 36,
+        "y": 0,
+        "w": 900,
+        "h": 62,
+        "position": "AUTO"
+      },
+      {
+        "id": "842:9184",
+        "x": 0.0000019073486328125,
+        "y": 280.79998779296875,
+        "w": 972,
+        "h": 86,
+        "mode": "VERTICAL",
+        "position": "ABSOLUTE"
+      },
+      {
+        "id": "842:9219",
+        "x": 0,
+        "y": 0,
+        "w": 237.59999084472656,
+        "h": 23,
+        "mode": "VERTICAL",
+        "position": "AUTO"
+      },
+      {
+        "id": "842:9220",
+        "x": 0,
+        "y": 0,
+        "w": 237.59999084472656,
+        "h": 23,
+        "mode": "VERTICAL",
+        "position": "AUTO"
+      },
+      {
+        "id": "842:9231",
+        "x": 0,
+        "y": 0,
+        "w": 237.59999084472656,
+        "h": 23,
+        "mode": "VERTICAL",
+        "position": "AUTO"
+      },
+      {
+        "id": "842:9232",
+        "x": 0,
+        "y": 0,
+        "w": 237.59999084472656,
+        "h": 23,
+        "mode": "VERTICAL",
+        "position": "AUTO"
+      },
+      {
+        "id": "842:9243",
+        "x": 0,
+        "y": 0,
+        "w": 237.59999084472656,
+        "h": 23,
+        "mode": "VERTICAL",
+        "position": "AUTO"
+      },
+      {
+        "id": "842:9244",
+        "x": 0,
+        "y": 0,
+        "w": 237.59999084472656,
+        "h": 23,
+        "mode": "VERTICAL",
+        "position": "AUTO"
+      },
+      {
+        "id": "842:9255",
+        "x": 0,
+        "y": 0,
+        "w": 237.59999084472656,
+        "h": 23,
+        "mode": "VERTICAL",
+        "position": "AUTO"
+      },
+      {
+        "id": "842:9256",
+        "x": 0,
+        "y": 0,
+        "w": 237.59999084472656,
+        "h": 23,
+        "mode": "VERTICAL",
+        "position": "AUTO"
+      }
+    ],
+    "after": [
+      {
+        "id": "842:9170",
+        "x": 0,
+        "y": 2302.80029296875,
+        "w": 1536,
+        "h": 972,
+        "mode": "NONE",
+        "position": "AUTO"
+      },
+      {
+        "id": "842:9179",
+        "x": 0.0000019073486328125,
+        "y": 143.99998474121094,
+        "w": 972,
+        "h": 119.60009765625,
+        "mode": "VERTICAL",
+        "position": "ABSOLUTE"
+      },
+      {
+        "id": "842:9180",
+        "x": 0,
+        "y": 0,
+        "w": 972,
+        "h": 57.600093841552734,
+        "mode": "NONE",
+        "position": "AUTO"
+      },
+      {
+        "id": "842:9181",
+        "x": 36,
+        "y": -0.3601454496383667,
+        "w": 900,
+        "h": 62,
+        "position": "AUTO"
+      },
+      {
+        "id": "842:9183",
+        "x": 36,
+        "y": 0,
+        "w": 900,
+        "h": 62,
+        "position": "AUTO"
+      },
+      {
+        "id": "842:9184",
+        "x": 0.0000019073486328125,
+        "y": 280.79998779296875,
+        "w": 972,
+        "h": 86,
+        "mode": "VERTICAL",
+        "position": "ABSOLUTE"
+      },
+      {
+        "id": "842:9219",
+        "x": 46.79999542236328,
+        "y": 0,
+        "w": 144,
+        "h": 22.5,
+        "mode": "VERTICAL",
+        "position": "AUTO"
+      },
+      {
+        "id": "842:9220",
+        "x": 3.6015625,
+        "y": 0.0000526904987054877,
+        "w": 144,
+        "h": 22.5,
+        "mode": "VERTICAL",
+        "position": "ABSOLUTE"
+      },
+      {
+        "id": "842:9231",
+        "x": 46.79999542236328,
+        "y": 0,
+        "w": 144,
+        "h": 22.5,
+        "mode": "VERTICAL",
+        "position": "AUTO"
+      },
+      {
+        "id": "842:9232",
+        "x": 3.6015625,
+        "y": 0.0000526904987054877,
+        "w": 144,
+        "h": 23,
+        "mode": "VERTICAL",
+        "position": "ABSOLUTE"
+      },
+      {
+        "id": "842:9243",
+        "x": 46.79999542236328,
+        "y": 0,
+        "w": 144,
+        "h": 22.5,
+        "mode": "VERTICAL",
+        "position": "AUTO"
+      },
+      {
+        "id": "842:9244",
+        "x": -31.8984375,
+        "y": 0.0000526904987054877,
+        "w": 215,
+        "h": 23,
+        "mode": "VERTICAL",
+        "position": "ABSOLUTE"
+      },
+      {
+        "id": "842:9255",
+        "x": 46.79999542236328,
+        "y": 0,
+        "w": 144,
+        "h": 22.5,
+        "mode": "VERTICAL",
+        "position": "AUTO"
+      },
+      {
+        "id": "842:9256",
+        "x": 3.6015625,
+        "y": 0.0000526904987054877,
+        "w": 144,
+        "h": 23,
+        "mode": "VERTICAL",
+        "position": "ABSOLUTE"
+      }
+    ],
+    "metrics": {
+      "rowHeight": 57.600093841552734,
+      "titleHeight": 119.60009765625,
+      "paragraphGap": 17.19970703125,
+      "firstTextY": -0.3601454496383667,
+      "firstTextCenterOffset": 0,
+      "stepWrappers": [
+        {
+          "id": "842:9219",
+          "width": 144,
+          "height": 22.5,
+          "mode": "VERTICAL",
+          "position": "ABSOLUTE",
+          "captionWidth": 144,
+          "captionX": 3.6015625
+        },
+        {
+          "id": "842:9231",
+          "width": 144,
+          "height": 22.5,
+          "mode": "VERTICAL",
+          "position": "ABSOLUTE",
+          "captionWidth": 144,
+          "captionX": 3.6015625
+        },
+        {
+          "id": "842:9243",
+          "width": 144,
+          "height": 22.5,
+          "mode": "VERTICAL",
+          "position": "ABSOLUTE",
+          "captionWidth": 215,
+          "captionX": -31.8984375
+        },
+        {
+          "id": "842:9255",
+          "width": 144,
+          "height": 22.5,
+          "mode": "VERTICAL",
+          "position": "ABSOLUTE",
+          "captionWidth": 144,
+          "captionX": 3.6015625
+        }
+      ]
+    },
+    "unchangedContentErrors": [],
+    "verifiedContentNodes": 112,
+    "mutatedNodeIds": [
+      "842:9180",
+      "842:9181",
+      "842:9219",
+      "842:9220",
+      "842:9231",
+      "842:9232",
+      "842:9243",
+      "842:9244",
+      "842:9255",
+      "842:9256"
+    ],
+    "createdNodeIds": [],
+    "minimumHorizontalCorrections": [
+      {
+        "id": "842:9181",
+        "fromOriginalX": 223.59375,
+        "toX": 36
+      },
+      {
+        "id": "842:9244",
+        "fromOriginalX": 3.6015625,
+        "toX": -31.8984375
+      }
+    ]
+  },
+  "finalVerification": [
+    {
+      "root": "842:9276",
+      "rowMode": "NONE",
+      "rowHeight": 57.600093841552734,
+      "titleHeight": 119.60009765625,
+      "paragraphGap": 17.20068359375,
+      "firstY": -0.3601454496383667,
+      "firstCenterOffset": 0,
+      "steps": [
+        {
+          "text": "Apply",
+          "id": "I842:9276;842:9221",
+          "centerOffset": 3.6016159057617188,
+          "columnOverflow": 0,
+          "wrapperWidth": 144,
+          "wrapperHeight": 22.5,
+          "headingPositioning": "ABSOLUTE"
+        },
+        {
+          "text": "We contact you",
+          "id": "I842:9276;842:9233",
+          "centerOffset": 3.6016159057617188,
+          "columnOverflow": 0,
+          "wrapperWidth": 144,
+          "wrapperHeight": 22.5,
+          "headingPositioning": "ABSOLUTE"
+        },
+        {
+          "text": "Musicianship & vocal range",
+          "id": "I842:9276;842:9245",
+          "centerOffset": 3.6016159057617188,
+          "columnOverflow": 0,
+          "wrapperWidth": 144,
+          "wrapperHeight": 22.5,
+          "headingPositioning": "ABSOLUTE"
+        },
+        {
+          "text": "First rehearsal",
+          "id": "I842:9276;842:9257",
+          "centerOffset": 3.6015548706054688,
+          "columnOverflow": 0,
+          "wrapperWidth": 144,
+          "wrapperHeight": 22.5,
+          "headingPositioning": "ABSOLUTE"
+        }
+      ],
+      "missingFontCount": 0,
+      "errorCount": 0
+    },
+    {
+      "root": "1087:1984",
+      "rowMode": "NONE",
+      "rowHeight": 57.600093841552734,
+      "titleHeight": 119.60009765625,
+      "paragraphGap": 17.199951171875,
+      "firstY": -0.3601454496383667,
+      "firstCenterOffset": 0,
+      "steps": [
+        {
+          "text": "Apply",
+          "id": "I1087:1984;842:9221",
+          "centerOffset": 3.6015853881835938,
+          "columnOverflow": 0,
+          "wrapperWidth": 144,
+          "wrapperHeight": 22.5,
+          "headingPositioning": "ABSOLUTE"
+        },
+        {
+          "text": "We contact you",
+          "id": "I1087:1984;842:9233",
+          "centerOffset": 3.6015548706054688,
+          "columnOverflow": 0,
+          "wrapperWidth": 144,
+          "wrapperHeight": 22.5,
+          "headingPositioning": "ABSOLUTE"
+        },
+        {
+          "text": "Musicianship & vocal range",
+          "id": "I1087:1984;842:9245",
+          "centerOffset": 3.6015548706054688,
+          "columnOverflow": 0,
+          "wrapperWidth": 144,
+          "wrapperHeight": 22.5,
+          "headingPositioning": "ABSOLUTE"
+        },
+        {
+          "text": "First rehearsal",
+          "id": "I1087:1984;842:9257",
+          "centerOffset": 3.6016159057617188,
+          "columnOverflow": 0,
+          "wrapperWidth": 144,
+          "wrapperHeight": 22.5,
+          "headingPositioning": "ABSOLUTE"
+        }
+      ],
+      "missingFontCount": 0,
+      "errorCount": 0
+    }
+  ],
+  "pixelComparison": {
+    "width": 1536,
+    "height": 972,
+    "changedPixels": 10346,
+    "correctionMasks": [
+      {
+        "x": 317,
+        "y": 142,
+        "r": 1408,
+        "b": 207
+      },
+      {
+        "x": 708,
+        "y": 519,
+        "r": 965,
+        "b": 545
+      }
+    ],
+    "changedPixelsOutsideCorrections": 0,
+    "maximumOutsideChannelDifference": 0,
+    "bounds": null
+  },
+  "originalDesignReference": "C:/Users/seong/AppData/Local/Temp/smyc-join-align-before.png",
+  "restoredRender": "C:/Users/seong/AppData/Local/Temp/smyc-join-restored-design.png",
+  "minimalCorrections": "Only first headline line and long third-step English heading horizontal placement differ from the original pre-fix screenshot. Original layout modes, 57.60009px first-row height, 119.60010px title height, 17.2px title-to-body gap, 144x22.5px step wrappers, and original 3.60156px captured-transform offset are retained.",
+  "risks": [
+    "This is a targeted desktop Join section restoration, not a new audit of all 172 samples.",
+    "Tablet and mobile were not changed or rerendered in this restoration turn.",
+    "Original text bounding boxes overlap slightly due to preserved row spacing; native screenshot shows no glyph collision. Do not claim zero text-box overlap."
+  ],
+  "url": "https://www.figma.com/design/nz8fKU1RqfasYhsIQEIVF5?node-id=1087-1984"
+}

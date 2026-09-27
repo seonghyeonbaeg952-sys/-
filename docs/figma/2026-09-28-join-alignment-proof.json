@@ -1,0 +1,311 @@
+{
+  "date": "2026-09-28",
+  "fileKey": "nz8fKU1RqfasYhsIQEIVF5",
+  "scope": "Figma English Home Join only; no website code, CMS, Korean reference page or deployment changes",
+  "componentId": "842:9170",
+  "instances": [
+    "842:9276",
+    "1087:1984"
+  ],
+  "instancePages": [
+    "676:1777",
+    "1086:7082"
+  ],
+  "rootCause": "First heading row used layoutMode NONE and retained x=223.59375 for a CENTER-aligned 900px text box inside 972px parent; actual center offset 187.59375. Third step used 215px HUG heading inside 144px captured-transform wrapper, offset 39.10235 and overflow 27.80235.",
+  "titleBefore": {
+    "firstX": 223.59375,
+    "secondX": 36,
+    "firstCenterOffset": 187.59375,
+    "secondCenterOffset": 0,
+    "firstRowHeight": 57.600093841552734,
+    "textHeight": 62
+  },
+  "titleAfter": {
+    "firstX": 36,
+    "secondX": 36,
+    "firstRowHeight": 62,
+    "titleHeight": 124,
+    "centerOffsets": [
+      0,
+      0
+    ],
+    "paragraphGap": 12.800048828125
+  },
+  "steps": {
+    "before": [
+      {
+        "id": "842:9221",
+        "copy": "Apply",
+        "font": {
+          "family": "Hahmlet",
+          "style": "Regular",
+          "variationSettings": {
+            "wght": 400
+          }
+        },
+        "w": 47,
+        "h": 23,
+        "centerOffset": 3.6023483276367188,
+        "overflow": 0
+      },
+      {
+        "id": "842:9233",
+        "copy": "We contact you",
+        "font": {
+          "family": "Hahmlet",
+          "style": "Regular",
+          "variationSettings": {
+            "wght": 400
+          }
+        },
+        "w": 121,
+        "h": 23,
+        "centerOffset": 3.6023483276367188,
+        "overflow": 0
+      },
+      {
+        "id": "842:9245",
+        "copy": "Musicianship & vocal range",
+        "font": {
+          "family": "Hahmlet",
+          "style": "Regular",
+          "variationSettings": {
+            "wght": 400
+          }
+        },
+        "w": 215,
+        "h": 23,
+        "centerOffset": 39.10234832763672,
+        "overflow": 27.802352905273438
+      },
+      {
+        "id": "842:9257",
+        "copy": "First rehearsal",
+        "font": {
+          "family": "Hahmlet",
+          "style": "Regular",
+          "variationSettings": {
+            "wght": 400
+          }
+        },
+        "w": 113,
+        "h": 23,
+        "centerOffset": 3.6023483276367188,
+        "overflow": 0
+      }
+    ],
+    "after": [
+      {
+        "id": "842:9221",
+        "copy": "Apply",
+        "font": {
+          "family": "Hahmlet",
+          "style": "Regular",
+          "variationSettings": {
+            "wght": 400
+          }
+        },
+        "w": 47,
+        "h": 23,
+        "centerOffset": 0.00078582763671875,
+        "overflow": 0
+      },
+      {
+        "id": "842:9233",
+        "copy": "We contact you",
+        "font": {
+          "family": "Hahmlet",
+          "style": "Regular",
+          "variationSettings": {
+            "wght": 400
+          }
+        },
+        "w": 121,
+        "h": 23,
+        "centerOffset": 0.00078582763671875,
+        "overflow": 0
+      },
+      {
+        "id": "842:9245",
+        "copy": "Musicianship & vocal range",
+        "font": {
+          "family": "Hahmlet",
+          "style": "Regular",
+          "variationSettings": {
+            "wght": 400
+          }
+        },
+        "w": 215,
+        "h": 23,
+        "centerOffset": 0.00078582763671875,
+        "overflow": 0
+      },
+      {
+        "id": "842:9257",
+        "copy": "First rehearsal",
+        "font": {
+          "family": "Hahmlet",
+          "style": "Regular",
+          "variationSettings": {
+            "wght": 400
+          }
+        },
+        "w": 113,
+        "h": 23,
+        "centerOffset": 0.00078582763671875,
+        "overflow": 0
+      }
+    ],
+    "mutatedNodeIds": [
+      "842:9219",
+      "842:9220",
+      "842:9231",
+      "842:9232",
+      "842:9243",
+      "842:9244",
+      "842:9255",
+      "842:9256"
+    ],
+    "affectedLayoutNodeIds": [
+      "842:9221",
+      "842:9218",
+      "842:9217",
+      "842:9233",
+      "842:9230",
+      "842:9229",
+      "842:9245",
+      "842:9242",
+      "842:9241",
+      "842:9257",
+      "842:9254",
+      "842:9253"
+    ]
+  },
+  "finalAudit": {
+    "root": "1087:1984",
+    "title": [
+      {
+        "id": "I1087:1984;842:9181",
+        "text": "We welcome new members",
+        "centerOffset": 0,
+        "font": {
+          "family": "Hahmlet",
+          "style": "Light",
+          "variationSettings": {
+            "wght": 300
+          }
+        }
+      },
+      {
+        "id": "I1087:1984;842:9183",
+        "text": "to learn and sing together.",
+        "centerOffset": 0,
+        "font": {
+          "family": "Hahmlet",
+          "style": "Bold",
+          "variationSettings": {
+            "wght": 700
+          }
+        }
+      }
+    ],
+    "steps": [
+      {
+        "id": "I1087:1984;842:9221",
+        "text": "Apply",
+        "centerOffset": -0.00000762939453125,
+        "overflow": 0,
+        "font": {
+          "family": "Hahmlet",
+          "style": "Regular",
+          "variationSettings": {
+            "wght": 400
+          }
+        }
+      },
+      {
+        "id": "I1087:1984;842:9233",
+        "text": "We contact you",
+        "centerOffset": -0.00000762939453125,
+        "overflow": 0,
+        "font": {
+          "family": "Hahmlet",
+          "style": "Regular",
+          "variationSettings": {
+            "wght": 400
+          }
+        }
+      },
+      {
+        "id": "I1087:1984;842:9245",
+        "text": "Musicianship & vocal range",
+        "centerOffset": -0.00000762939453125,
+        "overflow": 0,
+        "font": {
+          "family": "Hahmlet",
+          "style": "Regular",
+          "variationSettings": {
+            "wght": 400
+          }
+        }
+      },
+      {
+        "id": "I1087:1984;842:9257",
+        "text": "First rehearsal",
+        "centerOffset": 0.00005340576171875,
+        "overflow": 0,
+        "font": {
+          "family": "Hahmlet",
+          "style": "Regular",
+          "variationSettings": {
+            "wght": 400
+          }
+        }
+      }
+    ],
+    "titleGap": 12.800048828125,
+    "visibleTextCount": 32,
+    "missingFonts": 0,
+    "collisions": [],
+    "errorCount": 0
+  },
+  "mutatedNodeIds": [
+    "842:9180",
+    "842:9181",
+    "842:9219",
+    "842:9220",
+    "842:9231",
+    "842:9232",
+    "842:9243",
+    "842:9244",
+    "842:9255",
+    "842:9256"
+  ],
+  "affectedLayoutNodeIds": [
+    "842:9179",
+    "842:9180",
+    "842:9181",
+    "842:9182",
+    "842:9221",
+    "842:9218",
+    "842:9217",
+    "842:9233",
+    "842:9230",
+    "842:9229",
+    "842:9245",
+    "842:9242",
+    "842:9241",
+    "842:9257",
+    "842:9254",
+    "842:9253"
+  ],
+  "copyAndFontChecks": "Title and four step strings/font families/weights unchanged in same-call before/after checks",
+  "screenshots": {
+    "before": "C:/Users/seong/AppData/Local/Temp/smyc-join-align-before.png",
+    "finalDesktop": "C:/Users/seong/AppData/Local/Temp/smyc-join-align-final.png",
+    "tablet": "C:/Users/seong/AppData/Local/Temp/smyc-join-1089-2428.png",
+    "mobile": "C:/Users/seong/AppData/Local/Temp/smyc-join-1089-3316.png"
+  },
+  "responsive": "Tablet and mobile Join sections rendered at natural resolution and visually checked; their intentional left alignment was retained.",
+  "limitations": "Not a fresh audit of all 172 samples. The 2026-09-27 zero-difference result proved cloning equivalence, not typography correctness."
+}

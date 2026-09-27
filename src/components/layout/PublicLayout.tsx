@@ -4,6 +4,7 @@ import { HomeV4SampleHeader } from '../sample/home-v4/HomeV4SampleHeader'
 import { Footer } from './Footer'
 import { SiteCopy } from '../site-editor/SiteCopy'
 import '../../styles/color-sample-theme.css'
+import '../../styles/public-scrollbar.css'
 
 export function PublicLayout() {
   const location = useLocation()
