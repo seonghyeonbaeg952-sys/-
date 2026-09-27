@@ -46,6 +46,18 @@ export function publicMarkupSource(source, file) {
           && ts.isJsxSelfClosingElement(node.parent.parent) && node.parent.parent.tagName.getText(tree) === 'CollectivePortrait') return undefined
         if (ts.isJsxAttribute(node) && node.name.getText(tree) === 'titleCopyKey'
           && ts.isJsxSelfClosingElement(node.parent.parent) && node.parent.parent.tagName.getText(tree) === 'FooterLinkGroup') return undefined
+        // Raster delivery resolution/quality is not page layout. Keep crop,
+        // objectFit, source URLs, intrinsic dimensions and all other props checked.
+        if (ts.isJsxAttribute(node) && node.name.getText(tree) === 'transform'
+          && ts.isJsxSelfClosingElement(node.parent.parent) && node.parent.parent.tagName.getText(tree) === 'ImageTile'
+          && node.initializer && ts.isJsxExpression(node.initializer) && node.initializer.expression
+          && ts.isObjectLiteralExpression(node.initializer.expression)) {
+          const hints = node.initializer.expression.properties
+          if (hints.length && hints.every(prop => ts.isPropertyAssignment(prop) && (
+            ['width', 'quality'].includes(prop.name.getText(tree)) && ts.isNumericLiteral(prop.initializer)
+            || prop.name.getText(tree) === 'resize' && ts.isStringLiteral(prop.initializer) && prop.initializer.text === 'contain'
+          ))) return undefined
+        }
         // Explicit menu identities affect edited values, not the unchanged fallback.
         // Byte-identical default SSR is additionally verified for all menu surfaces.
         if (ts.isCallExpression(node) && node.expression.getText(tree) === 'navigationLabelKey' && node.arguments.length === 2) {
@@ -64,9 +76,24 @@ export function publicMarkupSource(source, file) {
         if (ts.isJsxText(node)) return ts.factory.createJsxExpression(undefined, ts.factory.createStringLiteral(cookJsx(source.slice(node.getFullStart(), node.end))))
         if (ts.isJsxSelfClosingElement(node) && node.tagName.getText(tree) === 'SiteCopy') {
           const props = Object.fromEntries(node.attributes.properties.filter(ts.isJsxAttribute).map(attr => [attr.name.getText(tree), attr.initializer]))
+          const idExpression = props.id && ts.isJsxExpression(props.id) ? props.id.expression : props.id
+          const editorial = idExpression && (ts.isStringLiteral(idExpression) && (idExpression.text.includes('.content.') || idExpression.text === 'home.heroSupplement.fallbackDescription')
+            || ts.isTemplateExpression(idExpression) && idExpression.head.text.includes('.content.'))
+          if (editorial && props.fallback && ts.isJsxExpression(props.fallback)) {
+            const originalFallback = props.fallback.expression
+            const fallback = visit(ts.isBinaryExpression(originalFallback) && originalFallback.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken && ts.isStringLiteral(originalFallback.right) && originalFallback.right.text === '' ? originalFallback.left : originalFallback)
+            return ts.isJsxElement(node.parent) || ts.isJsxFragment(node.parent)
+              ? ts.factory.createJsxExpression(undefined, fallback) : fallback
+          }
           if (props.id && ts.isStringLiteral(props.id) && props.id.text.includes('.fixed.') && props.fallback && ts.isJsxExpression(props.fallback)) return ts.factory.createJsxExpression(undefined, props.fallback.expression)
         }
         if (ts.isCallExpression(node) && node.expression.getText(tree) === 'copyText' && node.arguments.length === 3) return node.arguments[2]
+        if (ts.isConditionalExpression(node)) {
+          const normalized = ts.visitEachChild(node, visit, context)
+          const printer = ts.createPrinter({ removeComments: true })
+          if (printer.printNode(ts.EmitHint.Unspecified, normalized.whenTrue, tree) === printer.printNode(ts.EmitHint.Unspecified, normalized.whenFalse, tree)) return normalized.whenTrue
+          return normalized
+        }
         return ts.visitEachChild(node, visit, context)
       }
       return node => ts.visitNode(node, visit)

@@ -4,6 +4,8 @@ import { applyCanvasBufferStyle, beginCanvasBufferComposition, createCanvasEditB
 import { captureCanvasSelection, paintCanvasText, readCanvasPlainText, restoreCanvasSelection } from './canvasDom'
 import type { EditorDevice, EditorPageId, EditorTextStyle } from '../../types/siteEditor'
 import type { CanvasCopyPart, CanvasCopyRegistry, CanvasCopyTarget } from './CanvasCopy'
+import { isEditorAddedBoxId } from '../../lib/siteEditorModel'
+import { isPreviewControlActivation } from './previewInteraction'
 import { getCanvasLiveBounds, getCanvasOverlayBox, getCanvasScaleMetrics, shouldAutoExpandCanvasLine, toCanvasLayoutPixels } from './canvasLayout'
 
 type Payload = CanvasFrameMessage extends infer T ? T extends CanvasFrameMessage ? Omit<T, keyof CanvasEnvelope> : never : never
@@ -48,7 +50,10 @@ export function createCanvasRuntime(config: Config) {
       const parentRect = parent.getBoundingClientRect(), style = getComputedStyle(parent), targetStyle = getComputedStyle(target.element)
       const scale = getCanvasScaleMetrics(parentRect, { width: parent.offsetWidth, height: parent.offsetHeight })
       const inset = (property: string) => Number.parseFloat(style.getPropertyValue(property)) || 0
-      const entireLine = wholeHeading || manualWidth || readCanvasPlainText(parent) === target.text && !['inline', 'contents'].includes(style.display)
+      // An added object is not a full paragraph, even when it is its only text.
+      // Otherwise entering edit mode stretches a short box to the parent's width.
+      const entireLine = wholeHeading || manualWidth || !isEditorAddedBoxId(target.key)
+        && readCanvasPlainText(parent) === target.text && !['inline', 'contents'].includes(style.display)
       const textAlign = entireLine ? style.textAlign : targetStyle.textAlign
       const alignment = textAlign === 'center' ? 'center' : textAlign === 'right' || (textAlign === 'end' && targetStyle.direction !== 'rtl') || (textAlign === 'start' && targetStyle.direction === 'rtl') ? 'right' : 'left'
       const naturalWidth = wholeHeading && !manualWidth ? Math.max(parentRect.width, Math.min((parent.scrollWidth || 0) * scale.x, Math.max(44, (window.innerWidth ?? Infinity) - 32))) : parentRect.width
@@ -276,6 +281,7 @@ export function createCanvasRuntime(config: Config) {
   }
   const click = (event: MouseEvent) => {
     if (!mode || active?.editor.contains(event.target as Node)) return
+    if (isPreviewControlActivation(event) && !active && !pending) return
     const element = event.target instanceof Element ? event.target : null
     const children = element?.querySelectorAll('[data-canvas-target]')
     let id = element?.closest('[data-canvas-target]')?.getAttribute('data-canvas-target')

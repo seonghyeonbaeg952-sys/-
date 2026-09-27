@@ -22,6 +22,15 @@ test('adding copy adapters preserves every existing JSX default in the captured 
   for (const [file, fingerprint] of Object.entries(baseline)) assert.equal(publicMarkupFingerprint(readFileSync(file, 'utf8'), file), fingerprint, file)
 })
 
+test('explicit editorial source adapters preserve expression fallbacks without masking real public changes', () => {
+  const original = 'function A() { return <p className="body">{value.body}</p> }'
+  const adapted = 'function A() { return <p className="body"><SiteCopy page="spirit" id={`spirit.content.values.${index}.description`} fallback={value.body} /></p> }'
+  const hash = publicMarkupFingerprint(original, 'fixture.tsx')
+  assert.equal(publicMarkupFingerprint(adapted, 'fixture.tsx'), hash)
+  assert.notEqual(publicMarkupFingerprint(adapted.replace('value.body', 'value.title'), 'fixture.tsx'), hash)
+  assert.notEqual(publicMarkupFingerprint(adapted.replace('className="body"', 'className="changed"'), 'fixture.tsx'), hash)
+})
+
 test('rich-copy adapters preserve the original child expression, elements and line-break component', () => {
   const original = 'function A() { return <section><h1>{t("title")}</h1><p><CopyLines text={t("description")} /></p><b>{ready ? t("yes") : t("no")}</b></section> }'
   const adapted = 'function A() { return <section><h1>{<FormattedCopy page="notices" id="notices.title" text={t("title")}>{t("title")}</FormattedCopy>}</h1><p><FormattedCopy page="notices" id="notices.description" text={t("description")} lineBreaks><CopyLines text={t("description")} /></FormattedCopy></p><b>{ready ? <FormattedCopy page="notices" id="notices.yes" text={t("yes")}>{t("yes")}</FormattedCopy> : t("no")}</b></section> }'
@@ -64,4 +73,13 @@ test('explicit layout registration preserves native children and motion props wi
   for (const changed of [adapted.replace('id="title"', 'id="changed"'), adapted.replace('opacity:1', 'opacity:0'), adapted.replace('color:"red"', 'color:"blue"'), adapted.replace('One<br/>Two', 'One Two')]) {
     assert.notEqual(publicMarkupFingerprint(changed, 'fixture.tsx'), expected)
   }
+})
+test('image delivery quality hints do not mask changes to layout, fit, source or cropping', () => {
+  const original = 'function A(){return <ImageTile src="/profile.jpg" width={640} height={800} objectFit="cover"/>}'
+  const delivered = original.replace('objectFit="cover"', 'objectFit="cover" transform={{width:960,quality:100,resize:"contain"}}')
+  const fingerprint = publicMarkupFingerprint(original, 'fixture.tsx')
+  assert.equal(publicMarkupFingerprint(delivered, 'fixture.tsx'), fingerprint)
+  for (const changed of [delivered.replace('width={640}', 'width={800}'), delivered.replace('/profile.jpg', '/other.jpg'),
+    delivered.replace('objectFit="cover"', 'objectFit="contain"'), delivered.replace('resize:"contain"', 'resize:"cover"'),
+    delivered.replace('quality:100', 'quality:100,height:400')]) assert.notEqual(publicMarkupFingerprint(changed, 'fixture.tsx'), fingerprint)
 })

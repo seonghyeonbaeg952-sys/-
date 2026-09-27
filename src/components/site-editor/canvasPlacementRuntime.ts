@@ -4,6 +4,7 @@ import { canonicalTextLayout, isEditorTextLayout, EDITOR_TEXT_WIDTH_MIN, EDITOR_
 import { acceptPlacementMessage, parsePlacementMessage, PLACEMENT_PROTOCOL_CHANNEL, PLACEMENT_PROTOCOL_VERSION, type PlacementBlock, type PlacementEnvelope, type PlacementFrameMessage, type PlacementGrant, type PlacementRect } from '../../lib/siteEditorPlacementProtocol'
 import { getCanvasScaleMetrics } from './canvasLayout'
 import { getTextBoxWidthBasis } from './textBoxGeometry'
+import { isPreviewControlActivation } from './previewInteraction'
 
 const same = (a: EditorTextLayout, b: EditorTextLayout) => JSON.stringify(canonicalTextLayout(a)) === JSON.stringify(canonicalTextLayout(b))
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(value, Math.max(min, max)))
@@ -438,6 +439,7 @@ export function createCanvasPlacementRuntime(config: Config) {
   }
   const click = (event: MouseEvent) => {
     if (!mode || blocked() || active || pending || !(event.target instanceof Element)) return
+    if (isPreviewControlActivation(event)) return
     let candidate = event.target.closest<HTMLElement>('[data-site-layout]')
     let element: HTMLElement | null = null
     while (candidate) {

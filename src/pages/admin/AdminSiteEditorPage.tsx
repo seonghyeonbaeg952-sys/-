@@ -63,6 +63,7 @@ export function AdminSiteEditorPage({ initialPage = 'home' }: { initialPage?: Ed
   const [defaultLoading, setDefaultLoading] = useState(true)
   const [defaultReload, setDefaultReload] = useState(0)
   const [detailPaths, setDetailPaths] = useState<Partial<Record<EditorPageId, string | null>>>({})
+  const [previewDestination, setPreviewDestination] = useState<{ page: EditorPageId; path: string } | null>(null)
   const [detailErrors, setDetailErrors] = useState<Partial<Record<EditorPageId, string | null>>>({})
   const session = workspace.session
   const status = session ? getEditorStatus(session) : { unsavedCount: 0, unpublishedCount: 0, canPublish: false }
@@ -81,7 +82,7 @@ export function AdminSiteEditorPage({ initialPage = 'home' }: { initialPage?: Ed
   const changeLabel = (key: string) => key.endsWith('.anchor') ? '문구 상자 배치 영역' : allPageDefinitions.find((field) => field.key === key)?.label ?? getTextLayoutDefinition(key)?.label ?? appearanceLabels[key] ?? '문구 설정'
   const documents = useMemo<SiteEditorDocuments>(() => Object.fromEntries(Object.entries(workspace.sessions).map(([key, value]) => [key, value?.document])), [workspace.sessions])
   const needsDetail = page === 'concert-detail' || page === 'notice-detail'
-  const previewPath = needsDetail ? detailPaths[page] ?? null : pageDefinition.previewPath
+  const previewPath = previewDestination?.page === page ? previewDestination.path : needsDetail ? detailPaths[page] ?? null : pageDefinition.previewPath
 
   useUnsavedChangesGuard(getEditorExitGuard(allDirty + Number(canvasActive || copyComposing), busy))
   const saveDraft = workspace.save
@@ -120,11 +121,12 @@ export function AdminSiteEditorPage({ initialPage = 'home' }: { initialPage?: Ed
     return () => { active = false }
   }, [page])
 
-  const choosePage = (id: EditorPageId) => {
+  const choosePage = (id: EditorPageId, path?: string) => {
     if (canvasActive || busy || copyComposition.current) return
     const next = new URLSearchParams(params)
     next.set('page', id)
     setParams(next, { replace: true })
+    setPreviewDestination(path ? { page: id, path } : null)
     setConfirmation(null)
   }
   const chooseScope = (next: EditorScope) => { if (canvasActive || busy || copyComposition.current) return; setScope(next); if (next !== 'shared') setDevice(next) }
@@ -333,7 +335,7 @@ export function AdminSiteEditorPage({ initialPage = 'home' }: { initialPage?: Ed
             <div className="site-editor__reset-actions"><Button size="sm" variant="ghost" disabled={busy || copyComposing} onClick={() => setConfirmation({ kind: 'reset-scope' })}>{scopeLabels[scope]} 편집값 초기화</Button><Button size="sm" variant="ghost" disabled={busy || copyComposing} onClick={() => setConfirmation({ kind: 'reset-page' })}>이 화면 전체 초기화</Button></div>
             </fieldset>
           </details>
-          <div className="site-editor__preview-pane" inert={copyComposing}>{detailErrors[page] ? <p role="alert" className="site-editor__error">{detailErrors[page]}</p> : null}<EditorPreview page={page} label={pageDefinition.label} path={previewPath} loadingPath={needsDetail && !Object.hasOwn(detailPaths, page)} device={device} documents={documents} locked={interactionLocked} context={canvasContext} onCommit={commitCanvas} onLayoutChange={changePlacement} onBoxAdd={addBox} onBoxRemove={removeBox} onActiveChange={setCanvasActive} onSave={() => { if (!canvasActive && !busy && !copyComposition.current && status.unsavedCount && !validation && !session.conflicts.length) void workspace.save() }} onDeviceChange={(next) => { if (!canvasActive && !busy && !copyComposition.current) { setDevice(next); if (scope !== 'shared') setScope(next) } }} /></div>
+<div className="site-editor__preview-pane" inert={copyComposing}>{detailErrors[page] ? <p role="alert" className="site-editor__error">{detailErrors[page]}</p> : null}<EditorPreview page={page} label={pageDefinition.label} path={previewPath} loadingPath={needsDetail && !Object.hasOwn(detailPaths, page)} device={device} documents={documents} onNavigate={(target) => choosePage(target.page, target.path)} locked={interactionLocked} context={canvasContext} onCommit={commitCanvas} onLayoutChange={changePlacement} onBoxAdd={addBox} onBoxRemove={removeBox} onActiveChange={setCanvasActive} onSave={() => { if (!canvasActive && !busy && !copyComposition.current && status.unsavedCount && !validation && !session.conflicts.length) void workspace.save() }} onDeviceChange={(next) => { if (!canvasActive && !busy && !copyComposition.current) { setDevice(next); if (scope !== 'shared') setScope(next) } }} /></div>
         </div> : !workspace.error ? <p role="status" className="site-editor__empty">안전하게 저장된 초안을 불러오고 있습니다.</p> : null}
         {pageDefinition.contentLinks.length ? <section className="site-editor__content-links"><h3>실제 내용은 여기에서 관리합니다</h3><p className="site-editor__help">공연·프로필·입단 안내·후원 원문과 사진은 기존 콘텐츠 관리가 원본입니다.</p><div>{pageDefinition.contentLinks.map((link) => <Button key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" variant="secondary" size="sm">{link.label} · 새 탭</Button>)}</div></section> : null}
       </div>

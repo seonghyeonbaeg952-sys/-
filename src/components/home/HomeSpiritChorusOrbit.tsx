@@ -1,5 +1,6 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { HomeCopy } from './HomeCopy'
+import { SiteCopy } from '../site-editor/SiteCopy'
 import { splitHomeCopyLines } from '../../lib/homeCopySlices'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
@@ -23,6 +24,10 @@ type HomeSpiritChorusOrbitProps = {
 
 type OrbitNodeStyle = CSSProperties & {
   '--orbit-node-delay': string
+}
+
+type OrbitHeadlineStyle = CSSProperties & {
+  '--orbit-line-delay': string
 }
 
 const desktopSpiritQuery = '(min-width: 1024px)'
@@ -284,7 +289,12 @@ function HomeSpiritChorusOrbitDesktop({
                 id="home-spirit-chorus-orbit-heading"
               >
                 {orbitHeadlineLines.map((line, index) => (
-                  <span key={line}><HomeCopy sourceKey="home.spiritWrapper.orbitHeadline" text={line} fullText={wrapper.orbitHeadline} offset={orbitHeadlineSlices[index].offset} /></span>
+                  <span
+                    key={line}
+                    style={{ '--orbit-line-delay': `${940 + index * 140}ms` } as OrbitHeadlineStyle}
+                  >
+                    <HomeCopy sourceKey="home.spiritWrapper.orbitHeadline" text={line} fullText={wrapper.orbitHeadline} offset={orbitHeadlineSlices[index].offset} />
+                  </span>
                 ))}
               </h2>
               <p className="home-spirit-chorus-orbit__signature">
@@ -306,10 +316,10 @@ function HomeSpiritChorusOrbitDesktop({
                     {activeNumber} · {activePage.eyebrow}
                   </p>
                   <h3 className="home-spirit-chorus-orbit__detail-title">
-                    {activePage.title}
+                    <SiteCopy page="home" id={`home.content.spirit.${homeSpiritBookletPages[activeIndex ?? 0].id}.title`} fallback={activePage.title} />
                   </h3>
                   <p className="home-spirit-chorus-orbit__detail-body">
-                    {activePage.body}
+                    <SiteCopy page="home" id={`home.content.spirit.${homeSpiritBookletPages[activeIndex ?? 0].id}.body`} fallback={activePage.body} />
                   </p>
                 </>
               ) : null}
@@ -335,7 +345,7 @@ function HomeSpiritChorusOrbitDesktop({
                 <button
                   aria-controls="home-spirit-chorus-orbit-detail"
                   aria-expanded={activeIndex === index}
-                  aria-label={`${movementLabels[index]}: ${page.title}`}
+                  aria-label={`${movementLabels[index]}: ${copyText('home', `home.content.spirit.${homeSpiritBookletPages[index].id}.title`, page.title)}`}
                   className="home-spirit-chorus-orbit__value-trigger"
                   onBlur={() => setFocusedIndex(null)}
                   onFocus={() => setFocusedIndex(index)}
@@ -349,7 +359,7 @@ function HomeSpiritChorusOrbitDesktop({
                   }}
                   onPointerEnter={() => showHoveredPage(index)}
                   onPointerLeave={queueHoverClose}
-                  title={page.title}
+                  title={copyText('home', `home.content.spirit.${homeSpiritBookletPages[index].id}.title`, page.title)}
                   type="button"
                 >
                   <span className="home-spirit-chorus-orbit__value-motion">

@@ -5,11 +5,13 @@ export const SITE_EDITOR_PROTOCOL_VERSION = 1 as const
 export const PREVIEW_SUBMISSION_MESSAGE = '미리보기에서는 접수할 수 없습니다. 실제 홈페이지에서 작성해 주세요.'
 type PreviewContext = { pathname: string; search: string; isEmbedded: boolean }
 type MessageBase = { version: 1; nonce: string; page: EditorPageId }
+export type PreviewPageIntent = { page: EditorPageId; path: string }
 export type SiteEditorPreviewMessage = MessageBase & (
   | { type: 'smyc-editor:ready' }
   | { type: 'smyc-editor:draft'; sequence: number; documents: SiteEditorDocuments }
   | { type: 'smyc-editor:applied'; sequence: number }
   | { type: 'smyc-editor:anchors'; sequence: number; anchors: { id: string; label: string }[] }
+  | { type: 'smyc-editor:navigate'; sequence: number; requestId: string; target: PreviewPageIntent }
 )
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
@@ -63,8 +65,16 @@ export function parseSiteEditorMessage(value: unknown): SiteEditorPreviewMessage
   if (value.type === 'smyc-editor:ready') {
     return Object.keys(value).every(key => common.includes(key)) ? value as SiteEditorPreviewMessage : null
   }
-  if (value.type !== 'smyc-editor:draft' && value.type !== 'smyc-editor:applied' && value.type !== 'smyc-editor:anchors') return null
+  if (value.type !== 'smyc-editor:draft' && value.type !== 'smyc-editor:applied' && value.type !== 'smyc-editor:anchors' && value.type !== 'smyc-editor:navigate') return null
   if (!Number.isSafeInteger(value.sequence) || Number(value.sequence) < 1) return null
+  if (value.type === 'smyc-editor:navigate') {
+    if (Object.keys(value).some(key => ![...common, 'sequence', 'requestId', 'target'].includes(key))
+      || typeof value.requestId !== 'string' || !uuid.test(value.requestId) || !isRecord(value.target)
+      || Object.keys(value.target).some(key => !['page', 'path'].includes(key)) || typeof value.target.path !== 'string'
+      || !value.target.path.startsWith('/') || value.target.path.startsWith('//') || value.target.path.length > 2048) return null
+    const target = getPreviewPageIntent(value.target.path, 'https://preview.invalid')
+    return target && target.page === value.target.page && target.path === value.target.path ? value as SiteEditorPreviewMessage : null
+  }
   if (value.type === 'smyc-editor:applied') {
     return Object.keys(value).every(key => [...common, 'sequence'].includes(key)) ? value as SiteEditorPreviewMessage : null
   }
@@ -110,4 +120,19 @@ export function getPreviewNavigationTarget(href: string, base: string, nonce: st
   } catch {
     return null
   }
+}
+
+/** Resolve a public destination for the parent CMS, never navigation out of the iframe. */
+export function getPreviewPageIntent(href: string, base: string): PreviewPageIntent | null {
+  try {
+    const current = new URL(base), next = new URL(href, current)
+    if (next.origin !== current.origin || !['http:', 'https:'].includes(next.protocol) || next.username || next.password) return null
+    // The existing home performance carousel still contains these legacy links.
+    // Resolve only its known public destinations; never allow arbitrary sample pages.
+    if (/^\/sample\/concerts(?:\/[^/]+)?\/?$/.test(next.pathname)) next.pathname = next.pathname.replace(/^\/sample/, '')
+    const page = getSiteEditorPage(next.pathname, next.search)
+    if (!page) return null
+    next.searchParams.delete('site-editor-preview')
+    return { page, path: `${next.pathname}${next.search}${next.hash}` }
+  } catch { return null }
 }

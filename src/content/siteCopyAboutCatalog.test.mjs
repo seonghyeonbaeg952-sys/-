@@ -58,7 +58,7 @@ test('catalog entries are unique and every observed consumer carries the origina
     const field = lookup.get(key)
     assert.ok(field, `missing catalog entry: ${key}`)
     assert.equal(field.page, page)
-    assert.equal(field.defaultValue, fallback)
+    if (!key.includes('.content.')) assert.equal(field.defaultValue, fallback)
     seen.add(key)
     return fallback
   }
@@ -77,7 +77,7 @@ test('copy overrides never replace domain CMS originals, private member names or
   assert.ok(history.includes('CMS 기록 본문')); assert.ok(!history.includes('EDITED:CMS 기록'))
   const spirit = render('spirit', { copy: changed })
   for (const text of ['CMS 첫 화면 본문', 'CMS 모테트 본문', 'CMS 인용 원문', 'CMS 문단1', 'CMS 가치', 'CMS 참여 본문']) assert.ok(spirit.includes(text))
-  assert.ok(!spirit.includes('EDITED:CMS'))
+  assert.ok(spirit.includes('EDITED:CMS 첫 화면 본문'), 'Explicit editorial fields now support draft overrides while their CMS source remains the fallback')
   assert.match(spirit, /href="\/join"/)
   assert.match(spirit, /href="\/contact\?section=support"/)
 })
@@ -122,4 +122,17 @@ test('English array captions and profile labels are editable while functional gr
   const conductor = render('conductor', { copy: (_page, _key, fallback) => `EDIT:${fallback}` })
   assert.ok(conductor.includes('2014 — PRESENT')); assert.ok(conductor.includes('KIM HYUNG-SU'))
   assert.ok(conductor.includes('EDIT:KIM HYUNG-SU'), 'The formerly hardcoded English profile label now has its own explicit editor key')
+})
+
+test('explicit spirit content keys edit CMS-provided paragraphs without changing unrelated values or destinations', () => {
+  const replacements = { 'spirit.content.hero.body': '교육 소개 교체', 'spirit.content.motet.body': '모테트 설명 교체',
+    'spirit.content.motet.quote': '인용 교체', 'spirit.content.manifesto.0.body': '첫 단계 교체',
+    'spirit.content.values.0.title': '가치 제목 교체', 'spirit.content.values.0.description': '가치 본문 교체',
+    'spirit.content.cta.body': '참여 설명 교체', 'spirit.content.cta.supportLabel': '후원 안내' }
+  const html = render('spirit', { copy: (_page, key, fallback) => replacements[key] ?? fallback })
+  for (const text of Object.values(replacements)) assert.ok(html.includes(text), `not rendered: ${text}`)
+  assert.ok(html.includes('CMS 문단2'))
+  assert.ok(html.includes('CMS 요약'))
+  assert.match(html, /href="\/join"/)
+  assert.match(html, /href="\/contact\?section=support"/)
 })

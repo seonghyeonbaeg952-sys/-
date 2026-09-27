@@ -14,6 +14,26 @@ const nonce = 'ec50cd93-7e23-4428-a4d6-9688109cd605'
 const empty = () => ({ schemaVersion: 1, copy: {}, deviceCopy: {}, appearance: {} })
 const draft = () => ({ type: 'smyc-editor:draft', version: 1, nonce, page: 'home', sequence: 2, documents: { home: empty() } })
 
+test('cross-page preview intents are public, same-origin routes without carrying preview credentials', () => {
+  assert.equal(typeof preview.getPreviewPageIntent, 'function')
+  const base = `https://choir.example/?site-editor-preview=${nonce}`
+  assert.deepEqual(preview.getPreviewPageIntent('/join?section=contact#application', base), { page: 'join', path: '/join?section=contact#application' })
+  assert.deepEqual(preview.getPreviewPageIntent(`/spirit?site-editor-preview=${nonce}`, base), { page: 'spirit', path: '/spirit' })
+  assert.deepEqual(preview.getPreviewPageIntent('/sample/concerts?filter=upcoming', base), { page: 'concerts', path: '/concerts?filter=upcoming' })
+  assert.deepEqual(preview.getPreviewPageIntent('/sample/concerts/real-id', base), { page: 'concert-detail', path: '/concerts/real-id' })
+  assert.equal(preview.getPreviewPageIntent('/sample/admin', base), null)
+  for (const path of ['/admin/editor', '//other.example/join', 'javascript:alert(1)', '/unknown']) assert.equal(preview.getPreviewPageIntent(path, base), null)
+})
+
+test('navigation requests bind origin, iframe, nonce, source page and a validated destination', () => {
+  const request = { type: 'smyc-editor:navigate', version: 1, nonce, page: 'home', sequence: 2,
+    requestId: '11111111-1111-4111-8111-111111111111', target: { page: 'join', path: '/join?section=contact#application' } }
+  assert.deepEqual(preview.parseSiteEditorMessage(request), request)
+  for (const target of [{page:'join',path:'/admin/editor'}, {page:'join',path:'//other.example/join'}, {page:'home',path:'/join'}, {page:'join',path:'/join?site-editor-preview=bad'}]) assert.equal(preview.parseSiteEditorMessage({...request,target}), null)
+  const source = {}
+  assert.equal(preview.acceptSiteEditorMessage({origin:'https://other.example',source,data:request}, {origin:'https://choir.example',source,nonce,page:'home'}), null)
+})
+
 test('preview resolves allowed routes and actual about sections without allowing administrator routes', () => {
   assert.equal(typeof preview.getSiteEditorPage, 'function')
   for (const [path, search, expected] of [['/', '', 'home'], ['/about', '?section=members', 'members'], ['/about', '?section=spirit', 'about'], ['/concerts/real-id', '', 'concert-detail'], ['/notices/real-id', '', 'notice-detail'], ['/contact', '?section=support', 'contact'], ['/admin/login', '', null], ['/unknown', '', null]]) {

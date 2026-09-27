@@ -10,7 +10,7 @@ const { CANVAS_PROTOCOL_CHANNEL, CANVAS_PROTOCOL_VERSION, parseCanvasMessage } =
 
 // Controlled native boundaries only: production runtime, buffer, protocol, DOM
 // mapping and style code all execute. No browser storage, network or real data.
-function fixture(t) {
+function fixture(t, key = 'notices.title') {
   const origin = 'https://canvas.example.invalid', nonce = '11111111-1111-4111-8111-111111111111'
   const originalGlobals = new Map(['window', 'document', 'Element', 'getComputedStyle', 'ResizeObserver'].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]))
   const sent = [], frozen = [], timers = new Map(), observers = []
@@ -32,7 +32,10 @@ function fixture(t) {
       this.attributes = new Map(); this.dataset = {}; this.style = { visibility: '', setProperty(key, next) { this[key] = next } }
     }
     get parentElement() { return this.parentNode?.nodeType === 1 ? this.parentNode : null }
-    closest(selector) { return selector === '[data-canvas-target]' && this.getAttribute('data-canvas-target') ? this : this.parentElement?.closest(selector) ?? null }
+    closest(selector) {
+      const tagMatches = selector.split(',').some(part => /^[a-z]+(?:\[href\])?$/.test(part) && part.split('[')[0].toUpperCase() === this.nodeName && (!part.includes('[href]') || this.getAttribute('href')))
+      return tagMatches || selector === '[data-canvas-target]' && this.getAttribute('data-canvas-target') ? this : this.parentElement?.closest(selector) ?? null
+    }
     querySelectorAll(selector) { return selector === '[data-canvas-target]' ? this.childNodes.flatMap(child => [ ...(child.getAttribute?.('data-canvas-target') ? [child] : []), ...(child.querySelectorAll?.(selector) ?? []) ]) : [] }
     get textContent() { return this.nodeType === 3 ? this.value : this.childNodes.map(child => child.textContent).join('') }
     set textContent(value) { if (this.nodeType === 3) this.value = value; else this.replaceChildren(document.createTextNode(value)) }
@@ -82,7 +85,7 @@ function fixture(t) {
   t.after(dispose)
   const target = document.createElement('smyc-edit-target'), paragraph = document.createElement('p')
   target.textContent = '공지사항'; paragraph.append(target); document.body.append(paragraph); target.isConnected = true
-  runtime.registry.register({ instanceId: 'title', ownerPage: 'notices', key: 'notices.title', text: '공지사항', fullText: '공지사항', offset: 0, element: target })
+  runtime.registry.register({ instanceId: 'title', ownerPage: 'notices', key, text: '공지사항', fullText: '공지사항', offset: 0, element: target })
   const messages = type => sent.filter(message => message.type === type)
   const latest = type => messages(type).at(-1)
   const receive = payload => {
@@ -98,7 +101,7 @@ function fixture(t) {
     assert.equal(editor(), undefined, 'registration and begin do not grant DOM editing')
     receive({ type: 'canvas-editgrant', requestId: latest('canvas-editbegin').requestId, accepted: true,
       grant: { editId: 'edit-1', blockId: block.id, blockRevision: block.revision, ownerPage: 'notices', scope: 'desktop', device: 'desktop', baseDraftSequence: 1,
-        fields: [{ source: { ownerPage: 'notices', scope: 'desktop', key: 'notices.title' }, fieldVersion: 'field-1', text: '공지사항', runs: [], ranges: [{ start: 0, end: 4 }] }] } })
+        fields: [{ source: { ownerPage: 'notices', scope: 'desktop', key }, fieldVersion: 'field-1', text: '공지사항', runs: [], ranges: [{ start: 0, end: 4 }] }] } })
     assert.ok(editor()); return editor()
   }
   const action = value => receive({ type: 'canvas-action', editId: 'edit-1', operationId: `action-${parentSequence}`, expectedLocalRevision: latest('canvas-selection').localRevision, action: value })
@@ -127,6 +130,46 @@ function fixture(t) {
     resize(node) { observers.filter(observer => observer.targets.has(node)).forEach(observer => observer.callback([])) },
     applied(sequence) { appliedSequence = sequence; runtime.refreshed() } }
 }
+
+test('opening a short added text box never stretches its minimum width to the full parent paragraph', t => {
+  const f = fixture(t, 'notices.box.11111111-1111-4111-8111-111111111111.text')
+  f.target.computed = { lineHeight: '40px', fontSize: '20px' }
+  f.target.glyphBox = { left: 80, top: 180, right: 160, bottom: 220, width: 80, height: 40 }
+  const editor = f.open()
+  assert.equal(editor.style.width, 'max-content')
+  assert.equal(editor.style.minWidth, '44px', 'the short object is not a paragraph-wide placeholder')
+  assert.equal(editor.style.whiteSpace, 'pre-wrap')
+  f.input('공지사항 추가')
+  assert.equal(editor.style.minWidth, '44px', 'typing cannot promote the object to a full paragraph')
+})
+
+test('normal button clicks remain native in edit mode while Alt click selects its editable label', t => {
+  const f = fixture(t)
+  f.target.parentElement.nodeName = 'BUTTON'
+  f.target.setAttribute('data-canvas-target', 'title')
+  f.receive({ type: 'canvas-mode', operationId: 'mode', mode: 'edit', scope: 'desktop', device: 'desktop' })
+  const before = f.latest('canvas-selection')
+  const normal = f.document.dispatch('click', { target: f.target, detail: 1, altKey: false })
+  assert.equal(normal.defaultPrevented, false)
+  assert.equal(f.latest('canvas-selection'), before)
+  const select = f.document.dispatch('click', { target: f.target, detail: 1, altKey: true })
+  assert.equal(select.defaultPrevented, true)
+  assert.equal(f.latest('canvas-selection').selection.blockId, 'title')
+})
+
+test('a manually resized added box retains its explicit width instead of switching back to intrinsic sizing', t => {
+  const f = fixture(t, 'notices.box.11111111-1111-4111-8111-111111111111.text')
+  f.target.setAttribute('data-site-manual-width', '')
+  f.target.box = { left: 80, top: 180, right: 280, bottom: 220, width: 200, height: 40 }
+  f.target.computed = { display: 'inline-block', lineHeight: '40px', fontSize: '20px' }
+  const editor = f.open()
+  assert.equal(editor.style.width, '200px')
+  assert.equal(editor.style.maxWidth, '200px')
+  f.input('늘어진 문구도 지정한 상자 안에서 줄바꿈해야 합니다')
+  assert.equal(editor.style.width, '200px')
+  assert.equal(editor.style.whiteSpace, 'pre-wrap')
+})
+
 test('a manually sized source keeps its own box width during text editing instead of expanding to its parent', t => {
   const f = fixture(t)
   f.target.setAttribute('data-site-manual-width', '')

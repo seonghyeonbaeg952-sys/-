@@ -26,6 +26,14 @@ test('applied acknowledgements require a positive integer sequence', () => {
   for (const sequence of [undefined, 0, -1, 1.5, '2', Infinity]) assert.equal(model.readEditorPreviewReply({ source, origin: expected.origin, data: { ...data, sequence } }, expected), null)
 })
 
+test('the current iframe can request a valid public editor destination', () => {
+  const source = {}, nonce = '11111111-1111-4111-8111-111111111111'
+  const expected = { source, origin: 'https://choir.example', nonce, page: 'home' }
+  const data = { type: 'smyc-editor:navigate', version: 1, nonce, page: 'home', sequence: 4, requestId: nonce, target: { page: 'spirit', path: '/spirit' } }
+  assert.deepEqual(model.readEditorPreviewReply({ source, origin: expected.origin, data }, expected), data)
+  assert.equal(model.readEditorPreviewReply({ source: {}, origin: expected.origin, data }, expected), null)
+})
+
 test('the authenticated frame may report stable add-box sections without exposing DOM access', () => {
   const source = {}
   const expected = { source, origin: 'https://choir.example', nonce: '11111111-1111-4111-8111-111111111111', page: 'home' }

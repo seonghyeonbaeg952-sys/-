@@ -472,7 +472,7 @@
   :is(
     .home-spirit-chorus-orbit__datum,
     .home-spirit-chorus-orbit__eyebrow,
-    .home-spirit-chorus-orbit__headline span,
+    .home-spirit-chorus-orbit__headline > span,
     .home-spirit-chorus-orbit__signature,
     .home-spirit-chorus-orbit__action,
     .home-spirit-chorus-orbit__value-motion
@@ -526,23 +526,9 @@
 }
 
 .home-spirit-chorus-orbit[data-orbit-motion='entered']
-  .home-spirit-chorus-orbit__headline span {
-  animation: spirit-orbit-copy-in 540ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.home-spirit-chorus-orbit[data-orbit-motion='entered']
-  .home-spirit-chorus-orbit__headline span:nth-child(1) {
-  animation-delay: 940ms;
-}
-
-.home-spirit-chorus-orbit[data-orbit-motion='entered']
-  .home-spirit-chorus-orbit__headline span:nth-child(2) {
-  animation-delay: 1080ms;
-}
-
-.home-spirit-chorus-orbit[data-orbit-motion='entered']
-  .home-spirit-chorus-orbit__headline span:nth-child(3) {
-  animation-delay: 1220ms;
+  .home-spirit-chorus-orbit__headline > span {
+  animation: spirit-orbit-copy-in 540ms cubic-bezier(0.22, 1, 0.36, 1)
+    var(--orbit-line-delay, 940ms) both;
 }
 
 .home-spirit-chorus-orbit[data-orbit-motion='entered']
@@ -848,7 +834,7 @@
       .home-spirit-chorus-orbit__breath,
       .home-spirit-chorus-orbit__watermark,
       .home-spirit-chorus-orbit__eyebrow,
-      .home-spirit-chorus-orbit__headline span,
+      .home-spirit-chorus-orbit__headline > span,
       .home-spirit-chorus-orbit__signature,
       .home-spirit-chorus-orbit__value-motion,
       .home-spirit-chorus-orbit__value-halo,

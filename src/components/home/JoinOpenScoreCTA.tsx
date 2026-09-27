@@ -1,6 +1,7 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { EditableLayout } from '../site-editor/EditableLayout'
 import { HomeCopy } from './HomeCopy'
+import { SiteCopy } from '../site-editor/SiteCopy'
 import { useHomeTitleCanvasTarget } from './useHomeTitleCanvasTarget'
 import { splitHomeCopyLines } from '../../lib/homeCopySlices'
 import {
@@ -158,11 +159,15 @@ function FactItem({
 
 export function JoinOpenScoreCTA({
   buttonLabel,
-  content = HOME_CONTENT_DEFAULTS_V2.joinLetter,
+  content: sourceContent = HOME_CONTENT_DEFAULTS_V2.joinLetter,
   joinInfo,
   presentation = 'default',
 }: JoinOpenScoreCTAProps) {
-  const { copy: copyText } = useSiteEditor()
+  const { copy: copyText, documents } = useSiteEditor()
+  const tabletDescriptionKey = 'home.tablet.current.join.description'
+  const tabletDescriptionEdited = Object.hasOwn(documents.home?.copy ?? {}, tabletDescriptionKey)
+    || Object.hasOwn(documents.home?.deviceCopy.tablet ?? {}, tabletDescriptionKey)
+  const content = tabletDescriptionEdited ? { ...sourceContent, compactDescription: '' } : sourceContent
   useHomeTitleCanvasTarget('home.current.join.title', content.title, 'join-open-score-title')
   const { isVisible, ref } = useOpenScoreReveal()
   const viewport = useHomeResponsiveViewport()
@@ -182,7 +187,7 @@ export function JoinOpenScoreCTA({
       : targetItems.length > 0
       ? targetItems.join(' · ')
       : '정기 연습에 참여할 수 있는 청소년'
-  const descriptionDivider = content.description.indexOf(',')
+  const descriptionDivider = tabletDescriptionEdited ? -1 : content.description.indexOf(',')
   const descriptionLead = descriptionDivider >= 0
     ? content.description.slice(0, descriptionDivider + 1)
     : content.description
@@ -364,13 +369,13 @@ export function JoinOpenScoreCTA({
                   <div>
                     <h4>
                       <span className="join-open-score__step-title--desktop">
-                        {step.title}
+                        <SiteCopy page="home" id={`home.content.join.steps.${index}.title`} fallback={step.title} />
                       </span>
                       <span className="join-open-score__step-title--mobile">
-                        {'mobileTitle' in step ? step.mobileTitle : step.title}
+                        <SiteCopy page="home" id={`home.content.join.steps.${index}.title`} fallback={'mobileTitle' in step ? step.mobileTitle : step.title} />
                       </span>
                     </h4>
-                    <p>{step.description}</p>
+                    <p><SiteCopy page="home" id={`home.content.join.steps.${index}.body`} fallback={step.description} /></p>
                   </div>
                 </li>
               ))}

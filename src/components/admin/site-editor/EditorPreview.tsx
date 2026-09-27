@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { isEditorPageId, validateSiteEditorDocument } from '../../../lib/siteEditorModel'
-import { SITE_EDITOR_PROTOCOL_VERSION } from '../../../lib/siteEditorPreview'
+import { SITE_EDITOR_PROTOCOL_VERSION, type PreviewPageIntent } from '../../../lib/siteEditorPreview'
 import { siteCopyDefinitions } from '../../../content/siteCopyCatalog'
 import type { EditorDevice, EditorPageId, EditorTextLayout, SiteEditorDocument, SiteEditorDocuments } from '../../../types/siteEditor'
 import { Button } from '../../common/Button'
@@ -11,6 +11,7 @@ import { useCanvasBridge, type CanvasBridgeOptions } from './useCanvasBridge'
 import { EditorCanvasToolbar } from './EditorCanvasToolbar'
 import { usePlacementBridge, type PlacementChangeResult } from './usePlacementBridge'
 import { EditorPlacementToolbar } from './EditorPlacementToolbar'
+import { EditorWorkSurface } from './EditorWorkSurface'
 import { alignLayoutToBlock, constrainLayoutInput } from './editorPlacementGeometry'
 
 type Props = {
@@ -21,12 +22,13 @@ type Props = {
   documents: SiteEditorDocuments
   loadingPath?: boolean
   onDeviceChange: (device: EditorDevice) => void
+  onNavigate?: (target: PreviewPageIntent) => void
   onLayoutChange: (id: string, next: EditorTextLayout | undefined, before: EditorTextLayout, device: EditorDevice) => PlacementChangeResult
   onBoxAdd: (anchor: string, text: string) => { ok: true; id: string } | { ok: false; message: string }
   onBoxRemove: (id: string) => { ok: true; document: SiteEditorDocument } | { ok: false; message: string }
 } & CanvasBridgeOptions & { locked: boolean }
 
-function PreviewFrame({ page, label, path, device, documents, fit, context, onCommit, onActiveChange, onSave, onLayoutChange, onBoxAdd, onBoxRemove }: Omit<Props, 'onDeviceChange'> & { path: string; fit: boolean }) {
+function PreviewFrame({ page, label, path, device, documents, fit, context, onCommit, onActiveChange, onSave, onLayoutChange, onBoxAdd, onBoxRemove, onNavigate }: Omit<Props, 'onDeviceChange'> & { path: string; fit: boolean }) {
   const [nonce] = useState(() => crypto.randomUUID())
   const frame = useRef<HTMLIFrameElement>(null)
   const holder = useRef<HTMLDivElement>(null)
@@ -39,6 +41,7 @@ function PreviewFrame({ page, label, path, device, documents, fit, context, onCo
   const [placementActive, setPlacementActive] = useState(false)
   const [placementInputDirty, setPlacementInputDirty] = useState(false)
   const sequence = useRef(0)
+  const lastNavigation = useRef('')
   const forceRefresh = useCallback(() => setReadyCount(value => value + 1), [])
   const canvas = useCanvasBridge({ frame, nonce, draftSequence: sequence, context, onCommit, onActiveChange: setTextActive, onSave, onCommitted: forceRefresh })
   const placementLocked = canvas.active || !context.defaultsTrusted || context.scope === 'shared' || page === 'common'
@@ -106,11 +109,15 @@ function PreviewFrame({ page, label, path, device, documents, fit, context, onCo
       } else if (reply.type === 'smyc-editor:applied' && reply.sequence === sequence.current) {
         setApplied(reply.sequence)
         setFailure(null)
+      } else if (reply.type === 'smyc-editor:navigate' && reply.sequence === sequence.current && reply.requestId !== lastNavigation.current) {
+        if (editing || pending !== applied || !applied) { setFailure('문구 편집과 초안 반영을 마친 뒤 이동하세요. 입력은 유지됩니다.'); return }
+        lastNavigation.current = reply.requestId
+        onNavigate?.(reply.target)
       }
     }
     window.addEventListener('message', receive)
     return () => window.removeEventListener('message', receive)
-  }, [nonce, previewPage])
+  }, [nonce, previewPage, editing, pending, applied, onNavigate])
 
   useEffect(() => {
     if (readyCount) return
@@ -177,8 +184,7 @@ function PreviewFrame({ page, label, path, device, documents, fit, context, onCo
       {!boxAnchors.length && applied ? <p role="status">이 화면에서 배치할 영역을 찾지 못했습니다. 미리보기를 새로고침해 주세요.</p> : null}
     </section> : null}
     {context.scope === 'shared' || page === 'common' ? <p className="site-editor__help">배치 조정은 개별 화면과 모바일·태블릿·데스크톱 중 한 기기를 선택해 사용하세요.</p> : null}
-    <div className={`site-editor__editing-surface${placement.mode === 'place' ? ' site-editor__editing-surface--placing' : ''}`}>
-    {placement.mode === 'place' ? <EditorPlacementToolbar key={`${page}:${device}`} selected={placement.selected} blocks={placement.blocks} value={placement.selected?.value}
+    <EditorWorkSurface placing={placement.mode === 'place'} panel={placement.mode === 'place' ? <EditorPlacementToolbar key={`${page}:${device}`} selected={placement.selected} blocks={placement.blocks} value={placement.selected?.value}
       disabled={placementBusy} onSelect={placement.select} onChange={changeLayout} onAlign={alignLayout}
       onEditText={placement.selected && canvas.canEditSource(placement.selected.id) ? () => canvas.editSource(placement.selected!.id) : undefined}
       onDirtyChange={setPlacementInputDirty}
@@ -192,8 +198,9 @@ function PreviewFrame({ page, label, path, device, documents, fit, context, onCo
           sequence: nextSequence, documents: { ...documents, [page]: result.document } }, window.location.origin)
       }}
       onFinish={() => { placement.setMode('off'); canvas.setMode('preview') }} error={placementError || placement.error || undefined}
-      status={overlapping.length ? `다음 문구와 박스가 겹칩니다: ${overlapping.map(item => item.label).join(', ')}. 위치를 조절하거나 실행 취소하세요.` : placementStatus} /> : null}
+      status={overlapping.length ? `다음 문구와 박스가 겹칩니다: ${overlapping.map(item => item.label).join(', ')}. 위치를 조절하거나 실행 취소하세요.` : placementStatus} /> : null}>
     {canvas.mode === 'edit' ? <EditorCanvasToolbar blockLabel={canvas.blockLabel} selection={canvas.selection} summary={canvas.summary} active={canvas.active} busy={false} onBegin={canvas.begin} onFormat={canvas.format} onAction={canvas.action} /> : null}
+    {canvas.mode === 'edit' && !canvas.active ? <p className="site-editor__help">버튼·탭은 클릭하면 동작합니다. 버튼 안 문구는 Alt+클릭으로 선택한 뒤 글자·글꼴 편집을 누르거나, 아래 문구 선택 목록을 이용하세요.</p> : null}
     {canvas.mode === 'edit' && !canvas.active ? <details className="site-editor__canvas-find"><summary>키보드로 문구 선택 · 화면에서 찾기</summary>
       <label>화면에 표시된 문구<select aria-label="화면에 표시된 문구" value="" disabled={!canvas.connected} onChange={event => canvas.choose(event.target.value)}><option value="">수정할 문구를 고르세요</option>{canvas.choices.map(choice => <option key={choice.id} value={choice.id}>{choice.label}</option>)}</select></label>
     </details> : null}
@@ -207,7 +214,7 @@ function PreviewFrame({ page, label, path, device, documents, fit, context, onCo
         {allowedUrl ? <iframe ref={frame} className="site-editor__frame" title={`${label} 초안 · ${viewport.label} ${viewport.width}px 미리보기`} src={url.pathname + url.search + url.hash} onError={() => setFailure('미리보기를 불러오지 못했습니다. 새로고침해 주세요.')} style={{ width: viewport.width, height: viewport.height, transform: `scale(${scale})` }} /> : <p role="alert">허용된 홈페이지 경로만 미리볼 수 있습니다.</p>}
       </div>
     </div>
-    </div>
+    </EditorWorkSurface>
   </>
 }
 

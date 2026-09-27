@@ -1,6 +1,7 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { EditableLayout } from '../site-editor/EditableLayout'
 import { HomeCopy } from './HomeCopy'
+import { SiteCopy } from '../site-editor/SiteCopy'
 import { splitHomeCopyLines, type HomeCopyPart } from '../../lib/homeCopySlices'
 import type { JoinInfoRow } from '../../types/cms'
 import type { HomeContentV2 } from '../../types/homeContent'
@@ -118,17 +119,23 @@ type ResponsiveJoinInvitationProps = {
 export function ResponsiveJoinInvitation({
   buttonLabel, content, fallbackGuardianNotes, fallbackSteps, joinInfo, tabletDescription, viewport,
 }: ResponsiveJoinInvitationProps) {
-  const { copy: copyText } = useSiteEditor()
+  const { copy: copyText, documents, device } = useSiteEditor()
   const tablet = viewport === 'tablet'
   const publicInfo = joinInfo?.is_visible ? joinInfo : null
   const target = contentLines(publicInfo?.target).join(' · ')
   const cmsSteps = contentLines(publicInfo?.audition_process).map((step) => step.replace(/^\d+[.)]\s*/, ''))
-  const steps = cmsSteps.length ? cmsSteps : fallbackSteps.map((step) => step.title)
+  const baseSteps = cmsSteps.length ? cmsSteps : fallbackSteps.map((step) => step.title)
+  const deviceCopy = documents.home?.deviceCopy[device] ?? {}
+  const lastEditedStep = [0, 1, 2, 3].filter(index => Object.hasOwn(deviceCopy, `home.content.join.steps.${index}.title`)
+    || Object.hasOwn(documents.home?.copy ?? {}, `home.content.join.steps.${index}.title`)).at(-1) ?? -1
+  const steps = Array.from({ length: Math.max(baseSteps.length, lastEditedStep + 1) }, (_, index) => baseSteps[index] ?? fallbackSteps[index]?.title ?? '')
   const title = tablet ? content.title : content.responsiveMobileTitle || content.title
   const description = tablet ? tabletDescription : content.responsiveMobileDescription || content.description
   const descriptionDivider = content.description.indexOf(',')
   const descriptionLead = descriptionDivider >= 0 ? content.description.slice(0, descriptionDivider + 1) : content.description
-  const tabletDescriptionParts: HomeCopyPart[] = [
+  const tabletDescriptionParts: HomeCopyPart[] = description === content.description ? [
+    { sourceKey: 'home.current.join.description', text: description, fullText: content.description },
+  ] : [
     { sourceKey: 'home.current.join.description', text: descriptionLead, fullText: content.description },
     { sourceKey: 'home.current.join.compactDescription', text: content.compactDescription },
   ].filter(part => Boolean(part.text)).flatMap((part, index) => index ? [{ text: '\n' }, part] : [part])
@@ -150,7 +157,7 @@ export function ResponsiveJoinInvitation({
         {steps.map((step, index) => (
           <li key={`${index}-${step}`}>
             <span aria-hidden="true" className="responsive-join__step-number">{String(index + 1).padStart(2, '0')}</span>
-            <span>{step}</span>
+            <span>{index < 4 ? <SiteCopy page="home" id={`home.content.join.steps.${index}.title`} fallback={step} /> : step}</span>
           </li>
         ))}
       </ol>

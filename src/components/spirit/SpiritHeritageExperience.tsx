@@ -410,7 +410,7 @@ function SpiritHero({ copy }: { copy: SpiritCopy }) {
           animate={reducedMotion ? undefined : { opacity: 1 }}
           transition={{ delay: 0.9, duration: 0.6, ease: EASE_OUT }}
         >
-          {copy.body}
+          <SiteCopy page="spirit" id="spirit.content.hero.body" fallback={copy.body} />
         </motion.p></EditableLayout>
 
         <motion.div
@@ -573,11 +573,11 @@ function MotetMeaning({ copy }: { copy: SpiritCopy }) {
             whileInView={{ opacity: 0.06, x: 0 }}
           ><SiteCopy page="spirit" id="spirit.motetMeaning.english3" fallback={"M"} /></motion.span>
           <Reveal className="spirit-heritage__calligraphic-note" x={42} y={0}><SiteCopy page="spirit" id="spirit.motetMeaning.english4" fallback={"many voices — one intention"} /></Reveal>
-          <p className="spirit-heritage__motet-body">{copy.body}</p>
+          <p className="spirit-heritage__motet-body"><SiteCopy page="spirit" id="spirit.content.motet.body" fallback={copy.body} /></p>
           <Reveal className="spirit-heritage__quote-card spirit-heritage__open-frame" scale={0.985} y={24}>
             <blockquote>
-              {copy.quote ||
-                editorCopy('spirit', 'spirit.motet.quoteFallback', '하나가 되기 위해 같아지는 것이 아니라, 다름을 들으며 정확히 맞춰 갑니다.')}
+              <SiteCopy page="spirit" id="spirit.content.motet.quote" fallback={copy.quote ||
+                editorCopy('spirit', 'spirit.motet.quoteFallback', '하나가 되기 위해 같아지는 것이 아니라, 다름을 들으며 정확히 맞춰 갑니다.')} />
             </blockquote>
           </Reveal>
         </Reveal>
@@ -624,7 +624,7 @@ function SpiritManifesto({ text }: { text: string }) {
                 {String(index + 1).padStart(2, '0')}
               </p>
               <h3>{editorCopy('spirit', `spirit.manifesto.label${index}`, manifestoStatementTitles[index])}</h3>
-              <p>{paragraph}</p>
+              <p><SiteCopy page="spirit" id={`spirit.content.manifesto.${index}.body`} fallback={paragraph} /></p>
             </Reveal>
           ))}
         </div>
@@ -723,7 +723,7 @@ function ValuesSection({ values }: { values: SpiritValue[] }) {
                 type="button"
               >
                 <span>{value.number}</span>
-                <strong>{value.title}</strong>
+                <strong><SiteCopy page="spirit" id={`spirit.content.values.${index}.title`} fallback={value.title} /></strong>
               </button>
             ))}
           </div>
@@ -743,9 +743,9 @@ function ValuesSection({ values }: { values: SpiritValue[] }) {
               transition={{ duration: 0.56, ease: EASE_OUT }}
             >
               <p className="spirit-heritage__value-number">{activeValue.number}</p>
-              <h3>{activeValue.title}</h3>
-              <strong>{activeValue.summary}</strong>
-              <p>{activeValue.description}</p>
+              <h3><SiteCopy page="spirit" id={`spirit.content.values.${activeIndex}.title`} fallback={activeValue.title} /></h3>
+              <strong><SiteCopy page="spirit" id={`spirit.content.values.${activeIndex}.summary`} fallback={activeValue.summary ?? ''} /></strong>
+              <p><SiteCopy page="spirit" id={`spirit.content.values.${activeIndex}.description`} fallback={activeValue.description} /></p>
             </motion.article>
           </AnimatePresence>
         </div>
@@ -905,7 +905,7 @@ function ClosingCta({ copy }: { copy: SpiritCopy }) {
             <span><SiteCopy page="spirit" id="spirit.closingCta.text3" fallback={"울림에"} /></span>
             <strong><SiteCopy page="spirit" id="spirit.closingCta.text4" fallback={"동참하세요."} /></strong>
           </h2>
-          <p>{copy.body}</p>
+          <p><SiteCopy page="spirit" id="spirit.content.cta.body" fallback={copy.body} /></p>
           <div className="spirit-heritage__closing-actions">
             <Link className="spirit-heritage__button spirit-heritage__button--primary" to={copy.ctaUrl || '/join'}>
               {copy.ctaLabel || editorCopy('spirit', 'spirit.action.joinFallback', '입단 안내')}
@@ -914,7 +914,7 @@ function ClosingCta({ copy }: { copy: SpiritCopy }) {
               className="spirit-heritage__button spirit-heritage__button--secondary"
               to={copy.secondaryCtaUrl || '/contact?section=support'}
             >
-              {copy.secondaryCtaLabel || editorCopy('spirit', 'spirit.action.supportFallback', '후원 참여')}
+              <SiteCopy page="spirit" id="spirit.content.cta.supportLabel" fallback={copy.secondaryCtaLabel || editorCopy('spirit', 'spirit.action.supportFallback', '후원 참여')} />
             </Link>
           </div>
         </div>

@@ -5,6 +5,7 @@ import { loadPublishedEditorDocuments } from '../../lib/siteEditorPublication'
 import { buildEditorCss, getEditorDevice, resolveEditorCopy } from '../../lib/siteEditorModel'
 import {
   acceptSiteEditorMessage, getActiveSiteEditorPreviewNonce, getPreviewNavigationTarget, getSiteEditorPage,
+  getPreviewPageIntent,
   PREVIEW_SUBMISSION_MESSAGE, SITE_EDITOR_PROTOCOL_VERSION,
 } from '../../lib/siteEditorPreview'
 import type { SiteEditorDocuments } from '../../types/siteEditor'
@@ -17,6 +18,7 @@ import type { createCanvasPlacementRuntime } from './canvasPlacementRuntime'
 import { AddedTextBoxes } from './AddedTextBoxes'
 import { chooseEditorSectionAnchors } from '../../lib/siteEditorAddedBoxes'
 import { getEditorSectionLabel } from '../../lib/editorSectionLabel'
+import { isPreviewControlActivation } from './previewInteraction'
 
 export function SiteEditorProvider({ children }: { children: ReactNode }) {
   const location = useLocation()
@@ -165,7 +167,11 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
     }
     const click = (event: MouseEvent) => {
       const element = event.target instanceof Element ? event.target : null
-      if (document.body.dataset.canvasEditMode === 'true' && element?.closest('[data-canvas-target]')) {
+      const nativeControl = isPreviewControlActivation(event)
+      if (nativeControl && (document.body.dataset.canvasEditPending === 'true' || document.querySelector('.canvas-editor-overlay'))) {
+        event.preventDefault(); event.stopImmediatePropagation(); setNotice('현재 문구의 편집을 마친 뒤 버튼을 사용하세요. 입력은 유지됩니다.'); return
+      }
+      if (document.body.dataset.canvasEditMode === 'true' && !nativeControl && element?.closest('[data-canvas-target]')) {
         event.preventDefault(); event.stopPropagation(); return
       }
       if (element?.closest('input[type="file"]')) {
@@ -176,7 +182,15 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
       event.preventDefault()
       const target = anchor.hasAttribute('download') ? null : getPreviewNavigationTarget(anchor.href, window.location.href, nonce, page)
       if (target) { navigate(target); setNotice('') }
-      else { event.stopPropagation(); setNotice('미리보기에서는 선택한 화면 안에서만 이동할 수 있습니다. 다른 화면은 편집기의 화면 선택을 이용해 주세요.') }
+      else {
+        event.stopPropagation()
+        const intent = !anchor.hasAttribute('download') ? getPreviewPageIntent(anchor.href, window.location.href) : null
+        if (intent && appliedSequence.current > 0) {
+          window.parent.postMessage({ type: 'smyc-editor:navigate', version: SITE_EDITOR_PROTOCOL_VERSION, nonce, page,
+            sequence: appliedSequence.current, requestId: crypto.randomUUID(), target: intent }, window.location.origin)
+          setNotice('선택한 화면을 편집기에서 여는 중입니다.')
+        } else setNotice('미리보기에서는 외부 링크와 다운로드를 실행하지 않습니다. 공개 홈페이지에서 확인하세요.')
+      }
     }
     document.addEventListener('submit', submit, true)
     document.addEventListener('click', click, true)

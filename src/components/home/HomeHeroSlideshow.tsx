@@ -1,5 +1,6 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { HomeCopy } from './HomeCopy'
+import { SiteCopy } from '../site-editor/SiteCopy'
 import { useEffect, useMemo, useState } from 'react'
 
 import { HOME_HERO_REFERENCE_COPY } from '../../constants/homeHeroReference'
@@ -427,7 +428,7 @@ export function HomeHeroSlideshow({
           </Reveal>
           <Reveal delayMs={150}>
             <p className="type-body mt-6 max-w-[560px] text-bg-ivory/88">
-              <HomeCopy sourceKey="home.heroSupplement.fallbackDescription" text={description} />
+              <SiteCopy page="home" id="home.heroSupplement.fallbackDescription" fallback={description} />
             </p>
           </Reveal>
           <Reveal delayMs={220}>
@@ -448,7 +449,7 @@ export function HomeHeroSlideshow({
                 size="lg"
                 variant="secondary"
               >
-                {HOME_HERO_REFERENCE_COPY.secondaryCta.label}
+                <SiteCopy page="home" id="home.content.hero.secondaryLabel" fallback={HOME_HERO_REFERENCE_COPY.secondaryCta.label} />
               </Button>
             </div>
           </Reveal>
