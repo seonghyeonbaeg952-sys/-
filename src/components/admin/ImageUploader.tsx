@@ -11,6 +11,7 @@ import { Button } from '../common/Button'
 import { OptimizedImage } from '../common/OptimizedImage'
 
 type ImageUploaderProps = {
+  commitHint?: string
   accept?: string
   allowManualUrl?: boolean
   allowSvg?: boolean
@@ -116,6 +117,7 @@ function ImageUploaderPreview({ alt, src }: ImagePreviewProps) {
 }
 
 export function ImageUploader({
+  commitHint = '업로드 후 저장 버튼을 눌러야 public 화면에 반영됩니다.',
   accept,
   allowManualUrl = true,
   allowSvg = false,
@@ -334,7 +336,7 @@ export function ImageUploader({
             {maxSizeMb ?? (allowSvg ? 2 : 5)}MB
           </span>
           <span className="mt-1 text-xs leading-5 text-text-muted">
-            업로드 후 저장 버튼을 눌러야 public 화면에 반영됩니다.
+            {commitHint}
           </span>
           <span className="mt-3 rounded-button bg-bg-ivory px-3 py-2 text-xs leading-5 text-text-muted">
             권장: {uploadGuide.ratio} · {uploadGuide.resolution} ·{' '}

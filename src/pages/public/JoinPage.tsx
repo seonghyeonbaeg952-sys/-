@@ -1,3 +1,4 @@
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
 import { useLocation, useSearchParams } from 'react-router'
 
 import { SeoHead } from '../../components/common/SeoHead'
@@ -21,6 +22,7 @@ function getJoinSection(value: string | null): JoinGuideSection | 'contact' | 'a
 }
 
 export function JoinPage() {
+  const { translate } = useSampleLanguage()
   const joinData = useJoinData()
   const [searchParams] = useSearchParams()
   const location = useLocation()
@@ -40,10 +42,10 @@ export function JoinPage() {
       <SeoHead
         description={
           joinInfo?.description ||
-          '서울모테트청소년합창단 입단 대상, 절차, 연습과 자주 묻는 질문을 안내합니다.'
+          translate('서울모테트청소년합창단 입단 대상, 절차, 연습과 자주 묻는 질문을 안내합니다.')
         }
         path="/join"
-        title={joinInfo?.title || '입단 안내'}
+        title={joinInfo?.title || translate('입단 안내')}
       />
       {!hasGuide ? (
         <JoinPageState

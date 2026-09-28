@@ -29,6 +29,7 @@ const { AdminJoinPage } = await import(await loadModule('./AdminJoinPage.tsx', i
 const props = AdminJoinPage().props.children.find(child => child.props?.table === 'join_info').props
 
 test('admin recruitment fields use local datetime controls explicitly formatted in Seoul time', () => {
+  assert.equal(props.englishResource, 'join_info')
   const start = props.fields.find(field => field.name === 'recruitment_starts_at')
   const end = props.fields.find(field => field.name === 'recruitment_ends_at')
   assert.ok(start && end, 'both period fields must be available')

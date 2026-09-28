@@ -1,0 +1,48 @@
+/* Sample-only presentation. Existing imagery, object geometry and motion stay
+   in their owning components. These rules accommodate English text length. */
+html[data-sample-language] .sample-language-switch {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  color: inherit;
+  font: 600 12px/1 var(--font-sans-kr);
+}
+html[data-sample-language] .sample-language-switch button {
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+html[data-sample-language] .sample-language-switch button[aria-pressed='true'] { color: #bd3e14; font-weight: 800; }
+html[data-sample-language] .sample-language-switch button:focus-visible { outline: 2px solid currentColor; outline-offset: -4px; border-radius: 4px; }
+html[data-sample-language='en'] .sample-language-switch__issue { position: fixed; right: 20px; bottom: 20px; z-index: 100; display: flex; align-items: center; gap: 12px; width: min(360px, calc(100vw - 40px)); padding: 14px; border: 1px solid #d8d2c7; border-radius: 8px; background: #fcfaf5; color: #38132f; font-size: 13px; line-height: 1.5; box-shadow: 0 8px 24px #38132f1a; }
+html[data-sample-language='en'] .sample-language-switch__issue p { margin: 0; }
+html[data-sample-language='en'] .sample-language-switch__issue button { flex-shrink: 0; border: 1px solid #d8d2c7; border-radius: 4px; }
+html[data-sample-language] .home-v4-sample-header[data-transparent='true'] .sample-language-switch { color: #fffdf8; }
+html[data-sample-language='en'] .public-shell :is(h1, h2, h3, p, label, dt, dd) { word-break: normal; overflow-wrap: break-word; }
+html[data-sample-language='en'] .public-shell :is(input, textarea, button, a) { word-break: normal; }
+html[data-sample-language='en'] .public-shell :is(.home-v4-desktop-nav__link, .home-v4-sample-header__cta) { letter-spacing: 0; }
+html[data-sample-language='en'] .home-v4-desktop-nav { gap: clamp(10px, 1.2vw, 22px); }
+html[data-sample-language='en'] .home-v4-desktop-nav__link { font-size: 13px; }
+html[data-sample-language='en'] .home-v4-brand__mobile-name { max-width: 150px; white-space: normal; line-height: 1.2; }
+html[data-sample-language='en'] .public-shell :is(.join-open-score__step-title--desktop, .join-open-score__step p) { max-width: 100%; width: auto; text-align: center; }
+html[data-sample-language='en'] .public-shell .join-open-score__cta { width: auto; min-width: 240px; white-space: normal; }
+html[data-sample-language='en'] .public-shell .join-open-score__title { text-wrap: balance; }
+html[data-sample-language='en'] .public-shell :is(.home-about-folio-heading__title, .archive-page-stack__title) { text-wrap: balance; }
+html[data-sample-language='en'] .public-shell .home-spirit-chorus-orbit__title { text-wrap: balance; }
+html[data-sample-language='en'] .public-shell :is(.filter-select__trigger, .animated-section-tab) { white-space: normal; }
+html[data-sample-language='en'] .sample-date-input { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.85fr) minmax(0, 1fr); gap: 8px; min-width: 0; margin: 0; padding: 0; border: 0; }
+html[data-sample-language='en'] .sample-date-input label { min-width: 0; }
+html[data-sample-language='en'] .sample-date-input label > span { display: block; margin-bottom: 4px; color: var(--color-text-muted, #68665f); font-size: 12px; }
+html[data-sample-language='en'] .sample-date-input :is(input, select) { min-width: 0; min-height: 44px; padding-inline: 10px; }
+html[data-sample-language='en'] .sample-date-input__clear { grid-column: 1 / -1; justify-self: start; min-height: 44px; padding: 8px 12px; border: 1px solid var(--color-line-default, #d9d1c4); border-radius: 4px; background: transparent; color: inherit; cursor: pointer; }
+html[data-sample-language='en'] .sample-date-input__clear:focus-visible { outline: 2px solid var(--color-gold-warm, #ad8741); outline-offset: 2px; }
+@media (max-width: 767px) {
+  html[data-sample-language] .home-v4-sample-header__bar { column-gap: 6px; }
+  html[data-sample-language] .sample-language-switch { margin-left: auto; font-size: 11px; }
+  html[data-sample-language] .sample-language-switch button { min-width: 44px; min-height: 44px; }
+  html[data-sample-language='en'] .home-v4-brand__mobile-name { max-width: 114px; }
+  html[data-sample-language='en'] .public-shell .join-open-score__cta { min-width: 0; }
+}

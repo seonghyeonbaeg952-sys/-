@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { loadEditorPage, loadEditorRevisions, publishEditorPage, restoreEditorRevision, saveEditorDraft } from '../../../lib/siteEditorApi'
+import type { EditorStorageScope } from '../../../lib/siteEditorApi'
 import { EDITOR_PAGE_IDS, validateSiteEditorDocument } from '../../../lib/siteEditorModel'
 import { siteCopyDefinitions } from '../../../content/siteCopyCatalog'
-import type { EditorPageId, SiteEditorPageRecord, SiteEditorRevision } from '../../../types/siteEditor'
+import type { EditorPageId, SiteCopyDefinition, SiteEditorPageRecord, SiteEditorRevision } from '../../../types/siteEditor'
 import { acceptEditorRestore, acceptEditorSave, createEditorSession, getEditorStatus, reconcileEditorSession, validateEditorCopyFields, type EditorSession } from './editorSessionModel'
 
 type Sessions = Partial<Record<EditorPageId, EditorSession>>
 type Action = { page: EditorPageId; kind: 'save' | 'publish' | 'restore' } | null
 
-export function useEditorWorkspace(page: EditorPageId) {
+export function useEditorWorkspace(page: EditorPageId, storageScope: EditorStorageScope = 'original', copyDefinitions: readonly SiteCopyDefinition[] = siteCopyDefinitions) {
   const [sessions, setSessions] = useState<Sessions>({})
   const sessionsRef = useRef<Sessions>({})
   const [loading, setLoading] = useState<Partial<Record<EditorPageId, boolean>>>({})
@@ -40,7 +41,7 @@ export function useEditorWorkspace(page: EditorPageId) {
     const sequence = (loads.current[target] ?? 0) + 1
     loads.current[target] = sequence
     try {
-      const result = await loadEditorPage(target)
+      const result = await loadEditorPage(target, storageScope)
       if (!mounted.current || loads.current[target] !== sequence) return
       if (!result.data || result.error) {
         setErrors((current) => ({ ...current, [target]: result.error || '저장된 초안을 확인하지 못했습니다. 다시 시도해 주세요.' }))
@@ -57,13 +58,13 @@ export function useEditorWorkspace(page: EditorPageId) {
     } finally {
       if (mounted.current && loads.current[target] === sequence) setLoading((current) => ({ ...current, [target]: false }))
     }
-  }, [])
+  }, [storageScope])
 
   const refreshHistory = useCallback(async (target: EditorPageId) => {
     const sequence = (historyLoads.current[target] ?? 0) + 1
     historyLoads.current[target] = sequence
     try {
-      const result = await loadEditorRevisions(target)
+      const result = await loadEditorRevisions(target, storageScope)
       if (!mounted.current || historyLoads.current[target] !== sequence) return
       setHistoryErrors((current) => ({ ...current, [target]: result.error }))
       if (result.data) setHistories((current) => ({ ...current, [target]: result.data ?? [] }))
@@ -72,7 +73,7 @@ export function useEditorWorkspace(page: EditorPageId) {
     } finally {
       if (mounted.current && historyLoads.current[target] === sequence) setHistoryLoading((current) => ({ ...current, [target]: false }))
     }
-  }, [])
+  }, [storageScope])
 
   useEffect(() => {
     let active = true
@@ -106,7 +107,7 @@ export function useEditorWorkspace(page: EditorPageId) {
     const current = sessionsRef.current[target]
     if (!current || busyRef.current) return false
     const status = getEditorStatus(current)
-    const validation = validateSiteEditorDocument(current.document) || validateEditorCopyFields(current.document, siteCopyDefinitions.filter((field) => field.page === target))
+    const validation = validateSiteEditorDocument(current.document) || validateEditorCopyFields(current.document, copyDefinitions.filter((field) => field.page === target))
     const error = validation || (current.conflicts.length ? '겹친 항목의 사용할 값을 먼저 선택해 주세요.' : null)
       || (kind !== 'save' && status.unsavedCount ? '미저장 변경사항을 먼저 임시저장해 주세요.' : null)
       || (kind === 'publish' && !status.canPublish ? '현재 초안과 게시본이 같습니다. 게시할 변경사항이 없습니다.' : null)
@@ -122,9 +123,9 @@ export function useEditorWorkspace(page: EditorPageId) {
     setErrors((previous) => ({ ...previous, [target]: null }))
     setMessages((previous) => ({ ...previous, [target]: null }))
     try {
-      const result = kind === 'save' ? await saveEditorDraft(target, snapshot, current.record.version)
-        : kind === 'publish' ? await publishEditorPage(target, current.record.version)
-          : await restoreEditorRevision(revision!.id, current.record.version)
+      const result = kind === 'save' ? await saveEditorDraft(target, snapshot, current.record.version, storageScope)
+        : kind === 'publish' ? await publishEditorPage(target, current.record.version, storageScope)
+          : await restoreEditorRevision(revision!.id, current.record.version, storageScope)
       if (!mounted.current) return false
       if (!result.data || result.error) {
         setErrors((previous) => ({ ...previous, [target]: result.error || '처리 결과를 확인하지 못했습니다. 입력은 유지됩니다.' }))
@@ -132,7 +133,14 @@ export function useEditorWorkspace(page: EditorPageId) {
       }
       const nextRecord: SiteEditorPageRecord = result.data
       updateSession(target, (latest) => kind === 'restore' ? acceptEditorRestore(latest, snapshot, nextRecord) : acceptEditorSave(latest, nextRecord))
-      setMessages((previous) => ({ ...previous, [target]: kind === 'save' ? '초안을 임시저장했습니다. 공개 홈페이지는 바뀌지 않았습니다.' : kind === 'publish' ? '이 화면을 홈페이지에 게시했습니다. 공개 창을 새로고침해 확인하세요.' : '이전 게시본을 초안으로 불러왔습니다. 확인 후 다시 게시해 주세요.' }))
+      const message = storageScope === 'sample-english'
+        ? kind === 'save' ? '영어 버전 초안을 임시저장했습니다. 게시 후 영어 버전 화면에 적용됩니다.'
+          : kind === 'publish' ? '이 화면을 영어 버전에 게시했습니다. 영어 버전 창을 새로고침해 확인하세요.'
+            : '이전 영어 버전 게시본을 초안으로 불러왔습니다. 확인 후 영어 버전에 게시해 주세요.'
+        : kind === 'save' ? '초안을 임시저장했습니다. 공개 홈페이지는 바뀌지 않았습니다.'
+          : kind === 'publish' ? '이 화면을 홈페이지에 게시했습니다. 공개 창을 새로고침해 확인하세요.'
+            : '이전 게시본을 초안으로 불러왔습니다. 확인 후 다시 게시해 주세요.'
+      setMessages((previous) => ({ ...previous, [target]: message }))
       if (kind !== 'save') void refreshHistory(target)
       return true
     } catch {
@@ -142,7 +150,7 @@ export function useEditorWorkspace(page: EditorPageId) {
       busyRef.current = false
       if (mounted.current) setAction(null)
     }
-  }, [refreshHistory, updateSession])
+  }, [refreshHistory, updateSession, storageScope, copyDefinitions])
 
   return {
     sessions, session: sessions[page], loading: loading[page] ?? (!sessions[page] && !errors[page]), error: errors[page] ?? null,

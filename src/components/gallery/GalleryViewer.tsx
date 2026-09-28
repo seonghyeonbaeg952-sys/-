@@ -1,3 +1,5 @@
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
+import { workflowCopy, workflowDate, workflowTextLanguage } from '../common/workflowCopy'
 import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useEffect, useId, useRef } from 'react'
@@ -20,6 +22,8 @@ type GalleryViewerProps = {
 export function GalleryViewer({ item, index, count, onClose, onMove }: GalleryViewerProps) {
   const { copy: copyText } = useSiteEditor()
   const t = usePageCopy('gallery')
+  const { enabled, language, translate } = useSampleLanguage()
+  const english = enabled && language === 'en'
   const dialogRef = useRef<HTMLDialogElement>(null)
   const backdropPress = useRef(false)
   const titleId = useId()
@@ -80,7 +84,7 @@ export function GalleryViewer({ item, index, count, onClose, onMove }: GalleryVi
     >
       <div className="gallery-viewer__layout">
         <header className="gallery-viewer__header">
-          <h2 id={titleId}>{item.title}</h2>
+          <h2 id={titleId} lang={workflowTextLanguage(item.title, english)}>{item.title}</h2>
           <button aria-label={t('closeViewer')} data-gallery-close onClick={onClose} type="button">{<FormattedCopy page="gallery" id="gallery.close" text={t('close')}>{t('close')}</FormattedCopy>} <span aria-hidden="true">×</span></button>
         </header>
         {video ? (
@@ -91,12 +95,12 @@ export function GalleryViewer({ item, index, count, onClose, onMove }: GalleryVi
               key={item.id}
               referrerPolicy="strict-origin-when-cross-origin"
               src={video.embed}
-              title={`${item.title} 영상`}
+              title={workflowCopy(translate, '{title} 영상', { title: item.title })}
             />
           </div>
         ) : 'image_url' in item ? (
           <OptimizedImage
-            alt={'image_alt' in item ? item.image_alt : `${item.title} 포스터`}
+            alt={'image_alt' in item ? item.image_alt : workflowCopy(translate, '{title} 포스터', { title: item.title })}
             className="gallery-viewer__image"
             fallbackLabel={copyText("gallery", "gallery.fixed.GalleryViewer.7f6db8b4d5", "이미지를 불러올 수 없습니다")}
             fallbackVariant="gallery"
@@ -108,9 +112,9 @@ export function GalleryViewer({ item, index, count, onClose, onMove }: GalleryVi
           />
         ) : null}
         <div className="gallery-viewer__details">
-          <p className="gallery-viewer__title">{item.title}</p>
-          <p><FormattedCopy page="gallery" id={categoryKey} text={copyText('gallery', categoryKey, category)}>{copyText('gallery', categoryKey, category)}</FormattedCopy>{date ? ` · ${formatKoreanDate(date)}` : ''}</p>
-          {description ? <p className="gallery-viewer__description">{description}</p> : null}
+          <p className="gallery-viewer__title" lang={workflowTextLanguage(item.title, english)}>{item.title}</p>
+          <p><FormattedCopy page="gallery" id={categoryKey} text={copyText('gallery', categoryKey, category)}>{copyText('gallery', categoryKey, category)}</FormattedCopy>{date ? ` · ${workflowDate(date, formatKoreanDate(date), english, true)}` : ''}</p>
+          {description ? <p className="gallery-viewer__description" lang={workflowTextLanguage(description, english)}>{description}</p> : null}
           {'concert_id' in item && item.concert_id ? <Link to={`/concerts/${encodeURIComponent(item.concert_id)}`}>{<FormattedCopy page="gallery" id="gallery.relatedConcert" text={t('relatedConcert')}>{t('relatedConcert')}</FormattedCopy>} <span aria-hidden="true">↗</span></Link> : null}
           {video ? <a href={video.external} rel="noreferrer noopener" target="_blank">{<FormattedCopy page="gallery" id="gallery.youtube" text={t('youtube')}>{t('youtube')}</FormattedCopy>} <span aria-hidden="true">↗</span></a> : null}
         </div>

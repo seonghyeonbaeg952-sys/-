@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 
 import { getRecordTitle } from '../../lib/cms'
@@ -24,6 +24,10 @@ import { AdminRecordForm, type AdminFieldConfig } from './AdminRecordForm'
 import { AdminTable, type AdminTableColumn } from './AdminTable'
 import { AdminToolbar, type AdminToolbarFilter } from './AdminToolbar'
 import { DeleteConfirmDialog } from './DeleteConfirmDialog'
+import { AdminEnglishContentForm } from './AdminEnglishContentForm'
+import { isSampleContentResource } from '../../features/sample-language/sampleContentModel'
+import { loadEnglishContentStates } from '../../features/sample-language/sampleContentApi'
+import { filterPageEnglishRows, getPageEnglishStatus, type PageEnglishFilter } from '../../features/sample-language/sampleContentGuidance'
 
 type ListFilterConfig<TTable extends CmsTableName> = {
   allLabel: string
@@ -50,6 +54,7 @@ type AdminCrudListPageProps<TTable extends CmsTableName> = {
   columns: Array<AdminTableColumn<CmsRowFor<TTable>>>
   defaultValues?: CmsMutationPayload
   deleteLabel?: string
+  editActionLabel?: string
   description?: string
   emptyMessage?: string
   fields: Array<AdminFieldConfig<CmsRowFor<TTable>>>
@@ -82,6 +87,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
   columns,
   defaultValues,
   deleteLabel,
+  editActionLabel,
   description,
   emptyMessage,
   fields,
@@ -109,6 +115,10 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
   const [isFormDirty, setIsFormDirty] = useState(false)
+  const [englishRow, setEnglishRow] = useState<CmsRowFor<TTable> | null>(null)
+  const [englishFilter, setEnglishFilter] = useState<PageEnglishFilter>('all')
+  const [englishReload, setEnglishReload] = useState(0)
+  const [englishStates, setEnglishStates] = useState<{ signature: string; statuses: Record<string, 'draft' | 'published'>; error: string | null }>({ signature: '', statuses: {}, error: null })
   const debouncedSearchValue = useDebouncedValue(searchValue.trim(), 300)
 
   const activeFilters = useMemo(() => {
@@ -176,6 +186,23 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
     () => (prepareRows ? prepareRows(crud.rows) : crud.rows),
     [crud.rows, prepareRows],
   )
+  const englishResource = isSampleContentResource(table) ? table : undefined
+  const englishIds = rows.map(row => row.id).sort().join(',')
+  const englishSignature = `${table}:${englishIds}:${englishReload}`
+  useEffect(() => {
+    if (!englishResource) return
+    let disposed = false
+    void loadEnglishContentStates(englishResource, englishIds ? englishIds.split(',') : []).then(result => {
+      if (!disposed) setEnglishStates({ signature: englishSignature, statuses: result.data ?? {}, error: result.error })
+    })
+    return () => { disposed = true }
+  }, [englishResource, englishIds, englishSignature])
+  const englishStatusesReady = englishStates.signature === englishSignature && !englishStates.error
+  const englishPageCounts = englishResource && englishStatusesReady ? getPageEnglishStatus(rows, englishStates.statuses) : null
+  const visibleRows = englishResource ? filterPageEnglishRows(rows, englishStatusesReady ? englishStates.statuses : null, englishFilter) : rows
+  const languageColumns: Array<AdminTableColumn<CmsRowFor<TTable>>> = englishResource ? [...columns, {
+    header: 'English', render: row => <span className="text-sm text-text-muted">{englishStates.signature !== englishSignature ? '확인 중' : englishStates.error ? '확인 불가' : englishStates.statuses[row.id] === 'published' ? '영문 게시본' : englishStates.statuses[row.id] === 'draft' ? '영문 초안' : '원본 사용'}</span>,
+  }] : columns
 
   const handleSubmit = async (payload: CmsMutationPayload) => {
     const preparedPayload = preparePayload
@@ -261,6 +288,16 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
           {info}
         </Card>
       ) : null}
+      {isSampleContentResource(table) ? <p className="rounded-button border border-line-default bg-bg-warm-white p-4 text-sm leading-6 text-text-muted">새 항목은 한국어와 공통정보를 먼저 등록하세요. 목록의 ‘English 작성·수정’에서 영문 문구와 영문 이미지를 따로 임시저장·게시할 수 있습니다.</p> : null}
+      {englishResource ? <div className="flex flex-wrap items-end justify-between gap-3 rounded-button border border-line-default bg-bg-warm-white p-4">
+        <div>
+          <label className="block text-sm font-semibold text-navy-deep" htmlFor="english-page-status-filter">현재 페이지 영문 상태</label>
+          <select aria-label="현재 페이지 영문 상태" className="mt-2 min-h-11 min-w-52 rounded-button border border-line-default bg-bg-warm-white px-3 text-sm focus:border-gold-warm focus:outline-none focus:ring-2 focus:ring-gold-soft/60 disabled:opacity-60" disabled={!englishStatusesReady} id="english-page-status-filter" onChange={event => setEnglishFilter(event.target.value as PageEnglishFilter)} value={englishFilter}>
+            <option value="all">전체</option><option value="missing">영문 버전 없음</option><option value="draft">영문 초안</option><option value="published">영문 게시본</option>
+          </select>
+        </div>
+        {englishPageCounts ? <p className="text-sm leading-6 text-text-muted" role="status">현재 페이지 {englishPageCounts.total}개 · 영문 없음 {englishPageCounts.missing} · 초안 {englishPageCounts.draft} · 게시 {englishPageCounts.published}</p> : englishStates.signature !== englishSignature ? <p className="text-sm text-text-muted" role="status">영문 상태를 확인하는 중입니다.</p> : <div className="flex flex-wrap items-center gap-2"><p className="text-sm text-state-error" role="alert">영문 상태를 불러오지 못해 전체 항목을 표시합니다.</p><Button onClick={() => setEnglishReload(value => value + 1)} size="sm" variant="secondary">다시 시도</Button></div>}
+      </div> : null}
 
       {(searchColumn || filters.length > 0 || toolbarFilters.length > 0) ? (
         <AdminToolbar
@@ -293,8 +330,9 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
       ) : null}
 
       <AdminTable
-        columns={columns}
-        emptyMessage={emptyMessage}
+        columns={languageColumns}
+        editActionLabel={editActionLabel}
+        emptyMessage={englishFilter !== 'all' && englishStatusesReady ? '현재 페이지에서 선택한 영문 상태의 항목이 없습니다. 다른 상태나 다음 페이지를 확인하세요.' : emptyMessage}
         error={crud.error}
         isDeleting={crud.isMutating}
         loading={crud.isLoading}
@@ -305,7 +343,8 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
           setIsFormDirty(false)
           setIsFormOpen(true)
         }}
-        rows={rows}
+        onEditEnglish={isSampleContentResource(table) ? setEnglishRow : undefined}
+        rows={visibleRows}
         showVisibility={showVisibility}
       />
 
@@ -313,7 +352,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
         footer={null}
         isOpen={isFormOpen}
         onClose={requestCloseForm}
-        title={editingRow ? `${title} 수정` : `${title} 추가`}
+        title={editingRow ? editActionLabel ? `${title} 상세·처리` : `${title} 수정` : `${title} 추가`}
       >
         {formError ? (
           <p className="mb-5 rounded-button bg-state-error/10 px-4 py-3 text-sm leading-6 text-state-error" role="alert">
@@ -336,6 +375,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
           validateFields={validateFields}
         />
       </AdminModal>
+      {englishRow && isSampleContentResource(table) ? <AdminEnglishContentForm key={`${table}:${englishRow.id}`} resource={table} row={englishRow} onClose={() => { setEnglishRow(null); setEnglishReload(value => value + 1) }} /> : null}
 
       <DeleteConfirmDialog
         error={deleteError}
@@ -351,9 +391,9 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
       />
 
       <nav className="flex flex-wrap items-center justify-between gap-3" aria-label="목록 페이지">
-        <p className="text-sm text-text-muted" role="status">{crud.isLoading ? '목록을 불러오는 중입니다.' : crud.error ? '목록을 확인할 수 없습니다.' : `${crud.pageIndex + 1}페이지 · ${rows.length}개 표시 · 한 번에 최대 25개`}</p>
+        <p className="text-sm text-text-muted" role="status">{crud.isLoading ? '목록을 불러오는 중입니다.' : crud.error ? '목록을 확인할 수 없습니다.' : `${crud.pageIndex + 1}페이지 · ${visibleRows.length}개 표시 · 한 번에 최대 25개`}</p>
         <div className="flex gap-2">
-          <Button variant="secondary" onClick={crud.reload} disabled={crud.isLoading || crud.isMutating}>목록 새로고침</Button>
+          <Button variant="secondary" onClick={() => { crud.reload(); setEnglishReload(value => value + 1) }} disabled={crud.isLoading || crud.isMutating}>목록 새로고침</Button>
           <Button variant="secondary" onClick={crud.previousPage} disabled={crud.isLoading || crud.isMutating || crud.pageIndex === 0}>이전</Button>
           <Button variant="secondary" onClick={crud.nextPage} disabled={crud.isLoading || crud.isMutating || !crud.hasNextPage}>다음</Button>
         </div>

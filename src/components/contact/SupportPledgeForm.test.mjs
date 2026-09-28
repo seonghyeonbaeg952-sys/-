@@ -9,6 +9,9 @@ import { createServer } from 'vite'
 const vite = await createServer({ configFile: false, appType: 'custom', logLevel: 'silent', server: { middlewareMode: true } })
 after(() => vite.close())
 const formattedCopy = await vite.ssrLoadModule('/src/components/site-editor/FormattedCopy.tsx')
+const workflowHelpers = await vite.ssrLoadModule('/src/components/common/workflowCopy.ts')
+const sampleSubmission = await vite.ssrLoadModule('/src/lib/sampleSubmissionGuard.ts')
+const { translateEnglish } = await vite.ssrLoadModule('/src/features/sample-language/englishRegistry.ts')
 
 const require = createRequire(import.meta.url)
 const intakeModule = ts.transpileModule(await readFile(new URL('../../lib/intakeModel.ts', import.meta.url), 'utf8'), { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText
@@ -23,7 +26,8 @@ const settings = {
   footer_note: '하단 안내 원문', is_visible: true, updated_at: '2026-09-16T00:00:00Z',
 }
 
-async function loadForm(overrides = {}, submit = async () => ({ data: true, error: null }), editorCopy = {}) {
+async function loadForm(overrides = {}, submit = async () => ({ data: true, error: null }), editorCopy = {}, languageState = { enabled: false, language: 'ko' }) {
+  const translate = (source, key) => languageState.enabled && languageState.language === 'en' ? translateEnglish(source, key) : source
   const slots = []
   let cursor = 0
   const writes = []
@@ -44,8 +48,12 @@ async function loadForm(overrides = {}, submit = async () => ({ data: true, erro
     react, 'react/jsx-runtime': require('react/jsx-runtime'),
     '../../lib/publicData': { createSupportPledge: async (payload, requestId, settingsId) => { writes.push(payload); requests.push({ requestId, settingsId }); return submit(payload) } },
     '../../lib/intakeModel': intakeModel,
+    '../../lib/sampleSubmissionGuard': sampleSubmission,
+    '../../features/sample-language/useSampleLanguage': { useSampleLanguage: () => ({ isSample: languageState.enabled, ...languageState, translate }) },
+    '../../features/sample-language/SampleDateInput': { SampleDateInput: 'sample-date-input' },
+    '../common/workflowCopy': workflowHelpers,
     '../../constants/spiritContent': { supportSpiritCopy: { title: '후원 제목', body: '후원 본문', notice: '후원 안내', eyebrow: 'SUPPORT' }, donorCareItems: [], supportMethodItems: [] },
-    '../site-editor/useSiteEditor': { useSiteEditor: () => ({ copy: (_page, key, fallback) => Object.hasOwn(editorCopy, key) ? editorCopy[key] : fallback }) },
+    '../site-editor/useSiteEditor': { useSiteEditor: () => ({ copy: (_page, key, fallback) => translate(Object.hasOwn(editorCopy, key) ? editorCopy[key] : fallback, key) }) },
     '../site-editor/FormattedCopy': formattedCopy,
     '../common/Button': { Button: 'button' }, '../common/StaffLines': { StaffLines: 'StaffLines' }, '../common/Spirit': { SpiritRibbon: 'SpiritRibbon' },
   }
@@ -71,7 +79,7 @@ async function loadForm(overrides = {}, submit = async () => ({ data: true, erro
     return readText(node.props?.children)
   }
   const text = (node = tree) => readText(node)
-  function field(id, value) { const node = find(n => n.props?.id === id)[0]; assert.ok(node, `missing input: ${id}`); node.props.onChange({ target: { value } }); render() }
+  function field(id, value) { const node = find(n => n.props?.id === id)[0]; assert.ok(node, `missing input: ${id}`); node.props.onChange(node.type === 'sample-date-input' ? value : { target: { value } }); render() }
   function consent(checked) { find(n => n.props?.type === 'checkbox')[0].props.onChange({ target: { checked } }); render() }
   function click(label) { const node = find(n => n.type === 'button' && text(n) === label)[0]; assert.ok(node, `missing action: ${label}`); const result = node.props.onClick?.(); render(); return result }
   async function submitForm() { await find(n => n.type === 'form')[0].props.onSubmit({ preventDefault() {} }); render() }
@@ -95,6 +103,40 @@ function fillRequired(form) {
   form.field('support-email', ' fixture@example.test ')
   form.consent(true)
 }
+
+test('changing sample language preserves donor answers, consent and the review stage without a write', async () => {
+  const languageState = { enabled: true, language: 'ko' }
+  const form = await loadForm({}, undefined, {}, languageState)
+  fillRequired(form)
+  form.field('support-address', '사용자가 쓴 주소')
+  form.field('support-signer-name', '원래 서명 이름')
+  await form.submitForm()
+  languageState.language = 'en'
+  form.render()
+  assert.ok(form.text().includes('Please review your details.'))
+  assert.ok(form.text().includes('KRW 10,000 per month'))
+  for (const value of ['김테스트', '사용자가 쓴 주소', '원래 서명 이름']) assert.ok(form.text().includes(value))
+  assert.equal(form.find(node => node.props?.id === 'support-name')[0].props.value, ' 김테스트 ')
+  assert.equal(form.find(node => node.props?.type === 'checkbox')[0].props.checked, true)
+  assert.equal(form.writes.length, 0)
+  languageState.language = 'ko'
+  form.render()
+  assert.ok(form.text().includes('작성 내용을 확인해 주세요.'))
+  assert.ok(form.text().includes('월 10,000원'))
+  assert.equal(form.writes.length, 0)
+})
+
+test('sample pledge confirmation keeps the review and donor details while refusing any write', async () => {
+  for (const language of ['ko', 'en']) {
+    const form = await loadForm({}, undefined, {}, { enabled: true, language })
+    fillRequired(form)
+    await form.submitForm()
+    await form.click('약정서 보내기')
+    assert.equal(form.writes.length, 0)
+    assert.ok(form.text().includes(language === 'en' ? 'This is a sample. No pledge is submitted.' : '샘플 화면입니다. 후원약정은 접수되지 않습니다.'))
+    assert.ok(form.text().includes('김테스트'))
+  }
+})
 
 test('first submit previews all original donor fields and never writes before explicit confirmation', async () => {
   const form = await loadForm()

@@ -1,3 +1,5 @@
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
+import { SAMPLE_SUBMISSION_MESSAGES } from '../../lib/sampleSubmissionGuard'
 import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useRef, useState, type FormEvent } from 'react'
@@ -19,6 +21,7 @@ const fields = [
 export function ContactInquiryForm({ initialType, hidden = false }: { initialType: ContactMessageInput['type']; hidden?: boolean }) {
   const { copy: copyText } = useSiteEditor()
   const t = usePageCopy('contact')
+  const { isSample, translate } = useSampleLanguage()
   const inquiryTypes = defaultInquiryTypes.map(item => ({ ...item, label: copyText('contact', `contact.options.${item.value}`, item.label) }))
   const [stored, setStored] = useState<ContactFormValues & { preset: ContactMessageInput['type'] }>(() => ({
     name: '', email: '', phone: '', title: '', message: '', type: initialType, privacy_agreed: false, website: '', preset: initialType,
@@ -49,6 +52,11 @@ export function ContactInquiryForm({ initialType, hidden = false }: { initialTyp
     const firstError = Object.keys(nextErrors)[0]
     if (firstError) {
       document.getElementById(`contact-${firstError}`)?.focus()
+      return
+    }
+    if (isSample) {
+      setSubmitError(SAMPLE_SUBMISSION_MESSAGES.enquiry)
+      requestAnimationFrame(() => feedbackRef.current?.focus())
       return
     }
     submittingRef.current = true
@@ -89,7 +97,7 @@ export function ContactInquiryForm({ initialType, hidden = false }: { initialTyp
         </div>
         <form className="contact-atelier__form" onSubmit={submit} noValidate aria-busy={submitting}>
           <div hidden aria-hidden="true">
-            <label htmlFor="contact-website">웹사이트</label>
+            <label htmlFor="contact-website">{translate('웹사이트')}</label>
             <input id="contact-website" name="website" autoComplete="off" tabIndex={-1} value={values.website} onChange={e => setValue('website', e.target.value)} />
           </div>
           <div className="contact-atelier__field">
@@ -104,24 +112,24 @@ export function ContactInquiryForm({ initialType, hidden = false }: { initialTyp
               <div className="contact-atelier__field" key={field.name}>
                 <label htmlFor={`contact-${field.name}`}><FormattedCopy page="contact" id={`contact.${field.name}Label`} text={t(`${field.name}Label`)}>{t(`${field.name}Label`)}</FormattedCopy> ({field.required ? <FormattedCopy page="contact" id="contact.required" text={t('required')}>{t('required')}</FormattedCopy> : <FormattedCopy page="contact" id="contact.optional" text={t('optional')}>{t('optional')}</FormattedCopy>})</label>
                 <input id={`contact-${field.name}`} name={field.name} type={field.type} autoComplete={field.autoComplete} required={field.required} placeholder={t(`${field.name}Placeholder`)} disabled={submitting} value={values[field.name]} onChange={e => setValue(field.name, e.target.value)} aria-invalid={Boolean(errors[field.name])} aria-describedby={errors[field.name] ? `contact-${field.name}-error` : undefined} />
-                {errors[field.name] ? <p className="contact-atelier__field-error" id={`contact-${field.name}-error`}>{errors[field.name]}</p> : null}
+                {errors[field.name] ? <p className="contact-atelier__field-error" id={`contact-${field.name}-error`}>{translate(errors[field.name] ?? '')}</p> : null}
               </div>
             ))}
           </div>
           <div className="contact-atelier__field">
             <label htmlFor="contact-message">{<FormattedCopy page="contact" id="contact.messageLabel" text={t('messageLabel')}>{t('messageLabel')}</FormattedCopy>}</label>
             <textarea id="contact-message" name="message" required placeholder={t('messagePlaceholder')} value={values.message} disabled={submitting} onChange={e => setValue('message', e.target.value)} aria-invalid={Boolean(errors.message)} aria-describedby={errors.message ? 'contact-message-error' : undefined} />
-            {errors.message ? <p className="contact-atelier__field-error" id="contact-message-error">{errors.message}</p> : null}
+            {errors.message ? <p className="contact-atelier__field-error" id="contact-message-error">{translate(errors.message)}</p> : null}
           </div>
           <div>
             <label className="contact-atelier__consent">
               <input id="contact-privacy_agreed" type="checkbox" required checked={values.privacy_agreed} disabled={submitting} onChange={e => setValue('privacy_agreed', e.target.checked)} aria-invalid={Boolean(errors.privacy_agreed)} aria-describedby={errors.privacy_agreed ? 'contact-privacy-error' : 'contact-privacy-notice'} />
-              <span>문의 접수를 위한 개인정보 수집 및 이용에 동의합니다. (필수)</span>
+              <span>{translate('문의 접수를 위한 개인정보 수집 및 이용에 동의합니다. (필수)')}</span>
             </label>
             <p className="contact-atelier__hint" id="contact-privacy-notice">{<FormattedCopy page="contact" id="contact.fixed.ContactInquiryForm.59fc2fb46e" text={copyText("contact", "contact.fixed.ContactInquiryForm.59fc2fb46e", "입력한 정보는 문의 확인 목적으로만 사용합니다.")}>{copyText("contact", "contact.fixed.ContactInquiryForm.59fc2fb46e", "입력한 정보는 문의 확인 목적으로만 사용합니다.")}</FormattedCopy>}</p>
-            {errors.privacy_agreed ? <p className="contact-atelier__field-error" id="contact-privacy-error">{errors.privacy_agreed}</p> : null}
+            {errors.privacy_agreed ? <p className="contact-atelier__field-error" id="contact-privacy-error">{translate(errors.privacy_agreed)}</p> : null}
           </div>
-          {submitError || success ? <p className="contact-atelier__feedback" ref={feedbackRef} tabIndex={-1} role={submitError ? 'alert' : 'status'}>{submitError || success}</p> : null}
+          {submitError || success ? <p className="contact-atelier__feedback" ref={feedbackRef} tabIndex={-1} role={submitError ? 'alert' : 'status'}>{translate(submitError || success || '')}</p> : null}
           <div className="contact-atelier__submit">
             <button className="contact-atelier__action contact-atelier__action--primary" type="submit" disabled={submitting}>{submitting ? <FormattedCopy page="contact" id="contact.sending" text={t('sending')}>{t('sending')}</FormattedCopy> : <FormattedCopy page="contact" id="contact.send" text={t('send')}>{t('send')}</FormattedCopy>} <span aria-hidden="true">→</span></button>
             <p className="contact-atelier__hint">{<FormattedCopy page="contact" id="contact.emailCheck" text={t('emailCheck')}>{t('emailCheck')}</FormattedCopy>}</p>

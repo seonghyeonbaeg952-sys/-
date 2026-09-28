@@ -1,3 +1,7 @@
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
+import { SAMPLE_SUBMISSION_MESSAGES } from '../../lib/sampleSubmissionGuard'
+import { SampleDateInput } from '../../features/sample-language/SampleDateInput'
+import { workflowRecruitmentPeriod } from '../common/workflowCopy'
 import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
@@ -35,17 +39,19 @@ const fieldIds: Partial<Record<keyof JoinApplicationValues, string>> = {
 }
 
 function ApplicationField({ id, label, error, children }: { id: string; label: string; error?: string; children: ReactNode }) {
+  const { translate } = useSampleLanguage()
   const { copy: copyText } = useSiteEditor()
   return (
     <div className="join-application__field">
       <label htmlFor={id}>{label} <span aria-hidden="true">*</span><span className="sr-only">{copyText("join", "join.fixed.JoinApplicationForm.82e405d221", " 필수")}</span></label>
       {children}
-      {error ? <p className="join-application__field-error" id={`${id}-error`}>{error}</p> : null}
+      {error ? <p className="join-application__field-error" id={`${id}-error`}>{translate(error)}</p> : null}
     </div>
   )
 }
 
 export function JoinApplicationForm({ joinInfo }: { joinInfo: JoinInfoRow }) {
+  const { isSample, translate } = useSampleLanguage()
   const { copy: copyText } = useSiteEditor()
   const t = usePageCopy('join')
   const [values, setValues] = useState<JoinApplicationValues>(createInitialJoinApplicationValues)
@@ -176,6 +182,10 @@ export function JoinApplicationForm({ joinInfo }: { joinInfo: JoinInfoRow }) {
 
   async function submit() {
     if (submitGuard.current || stage !== 'review') return
+    if (isSample) {
+      setSubmitError(SAMPLE_SUBMISSION_MESSAGES.application)
+      return
+    }
     const confirmingExistingRequest = attemptedSubmissionId.current !== null && attemptedSubmissionId.current === submissionId.current
     if (!canSubmitNow() && !confirmingExistingRequest) {
       setClock(performance.now())
@@ -215,7 +225,7 @@ export function JoinApplicationForm({ joinInfo }: { joinInfo: JoinInfoRow }) {
   const reviewRows = [
     [t('name'), values.applicant_name], [t('birth'), values.birth_date], [t('school'), values.school],
     [t('applicantPhone'), values.applicant_phone], [t('guardianPhone'), values.guardian_phone],
-    [t('desiredParts'), joinPartOptions.filter(part => values.desired_parts.includes(part.value)).map(part => part.label).join(' · ')],
+    [t('desiredParts'), joinPartOptions.filter(part => values.desired_parts.includes(part.value)).map(part => translate(part.label)).join(' · ')],
     [t('motivation'), values.motivation],
   ]
 
@@ -225,7 +235,7 @@ export function JoinApplicationForm({ joinInfo }: { joinInfo: JoinInfoRow }) {
         <p className="join-application__eyebrow">{<FormattedCopy page="join" id="join.fixed.JoinApplicationForm.9bb6e639c7" text={copyText("join", "join.fixed.JoinApplicationForm.9bb6e639c7", "서울모테트청소년합창단")}>{copyText("join", "join.fixed.JoinApplicationForm.9bb6e639c7", "서울모테트청소년합창단")}</FormattedCopy>}</p>
         <h1 id="join-application-title">{<FormattedCopy page="join" id="join.applicationTitle" text={t('applicationTitle')}>{t('applicationTitle')}</FormattedCopy>}</h1>
         <p>{<FormattedCopy page="join" id="join.applicationDescription" text={t('applicationDescription')}>{t('applicationDescription')}</FormattedCopy>}</p>
-        {recruitment?.periodLabel ? <p className="join-application__period"><strong>{recruitment.label}</strong><span>{recruitment.periodLabel}</span></p> : null}
+        {recruitment?.periodLabel ? <p className="join-application__period"><strong>{translate(recruitment.label)}</strong><span>{workflowRecruitmentPeriod(recruitment.periodLabel, translate)}</span></p> : null}
       </header>
 
       <div className="join-application__body join-application__container">
@@ -245,7 +255,7 @@ export function JoinApplicationForm({ joinInfo }: { joinInfo: JoinInfoRow }) {
           ) : configState.kind === 'error' ? (
             <div className="join-application__state" role="alert">
               <h2>{<FormattedCopy page="join" id="join.connectionError" text={t('connectionError')}>{t('connectionError')}</FormattedCopy>}</h2>
-              <p>{configState.message}</p>
+              <p>{translate(configState.message)}</p>
               <p>{<FormattedCopy page="join" id="join.fixed.JoinApplicationForm.575ae39474" text={copyText("join", "join.fixed.JoinApplicationForm.575ae39474", "서버 연결이 확인되기 전에는 지원서를 제출할 수 없습니다.")}>{copyText("join", "join.fixed.JoinApplicationForm.575ae39474", "서버 연결이 확인되기 전에는 지원서를 제출할 수 없습니다.")}</FormattedCopy>}</p>
               <button className="join-application__primary" onClick={refreshConfig} type="button">{<FormattedCopy page="join" id="join.retry" text={t('retry')}>{t('retry')}</FormattedCopy>}</button>
             </div>
@@ -254,16 +264,16 @@ export function JoinApplicationForm({ joinInfo }: { joinInfo: JoinInfoRow }) {
               <h2>{recruitment?.status === 'before' ? <FormattedCopy page="join" id="join.fixed.JoinApplicationForm.ed306ce8c4" text={copyText("join", "join.fixed.JoinApplicationForm.ed306ce8c4", "아직 모집이 시작되지 않았습니다.")}>{copyText("join", "join.fixed.JoinApplicationForm.ed306ce8c4", "아직 모집이 시작되지 않았습니다.")}</FormattedCopy> : recruitment?.status === 'closed' ? <FormattedCopy page="join" id="join.fixed.JoinApplicationForm.f0f5ccebf3" text={copyText("join", "join.fixed.JoinApplicationForm.f0f5ccebf3", "모집이 마감되었습니다.")}>{copyText("join", "join.fixed.JoinApplicationForm.f0f5ccebf3", "모집이 마감되었습니다.")}</FormattedCopy> : <FormattedCopy page="join" id="join.fixed.JoinApplicationForm.cea3d70866" text={copyText("join", "join.fixed.JoinApplicationForm.cea3d70866", "모집 일정을 확인해 주세요.")}>{copyText("join", "join.fixed.JoinApplicationForm.cea3d70866", "모집 일정을 확인해 주세요.")}</FormattedCopy>}</h2>
               <p>{recruitment?.periodLabel || <FormattedCopy page="join" id="join.fixed.JoinApplicationForm.2a9cfcef5c" text={copyText("join", "join.fixed.JoinApplicationForm.2a9cfcef5c", "모집 일정은 입단 문의를 통해 확인해 주세요.")}>{copyText("join", "join.fixed.JoinApplicationForm.2a9cfcef5c", "모집 일정은 입단 문의를 통해 확인해 주세요.")}</FormattedCopy>}</p>
               <p>{<FormattedCopy page="join" id="join.fixed.JoinApplicationForm.8c5a2d8937" text={copyText("join", "join.fixed.JoinApplicationForm.8c5a2d8937", "이미 작성한 내용은 이 화면에 유지됩니다.")}>{copyText("join", "join.fixed.JoinApplicationForm.8c5a2d8937", "이미 작성한 내용은 이 화면에 유지됩니다.")}</FormattedCopy>}</p>
-              {submitError ? <p className="join-application__error" role="alert">{submitError}</p> : null}
+              {submitError ? <p className="join-application__error" role="alert">{translate(submitError)}</p> : null}
               <button className="join-application__secondary" onClick={refreshConfig} type="button">{<FormattedCopy page="join" id="join.fixed.JoinApplicationForm.c81c65009e" text={copyText("join", "join.fixed.JoinApplicationForm.c81c65009e", "모집 정보 다시 확인")}>{copyText("join", "join.fixed.JoinApplicationForm.c81c65009e", "모집 정보 다시 확인")}</FormattedCopy>}</button>
             </div>
           ) : stage === 'review' ? (
             <div className="join-application__review" aria-busy={submitting}>
               <h2 ref={reviewHeading} tabIndex={-1}>{<FormattedCopy page="join" id="join.reviewTitle" text={t('reviewTitle')}>{t('reviewTitle')}</FormattedCopy>}</h2>
               <dl>{reviewRows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
-              <p>개인정보 수집 및 이용에 동의했습니다.</p>
+              <p>{translate('개인정보 수집 및 이용에 동의했습니다.')}</p>
               {!recruitment?.canApply && canConfirmExistingRequest ? <p role="status">{<FormattedCopy page="join" id="join.fixed.JoinApplicationForm.b9f2d76803" text={copyText("join", "join.fixed.JoinApplicationForm.b9f2d76803", "모집 기간이 지나 이전 요청의 접수 결과만 확인할 수 있습니다. 새로운 내용으로는 제출할 수 없습니다.")}>{copyText("join", "join.fixed.JoinApplicationForm.b9f2d76803", "모집 기간이 지나 이전 요청의 접수 결과만 확인할 수 있습니다. 새로운 내용으로는 제출할 수 없습니다.")}</FormattedCopy>}</p> : null}
-              {submitError ? <p className="join-application__error" role="alert">{submitError}</p> : null}
+              {submitError ? <p className="join-application__error" role="alert">{translate(submitError)}</p> : null}
               <div className="join-application__actions">
                 <button className="join-application__secondary" disabled={submitting || !recruitment?.canApply} onClick={() => { setStage('edit'); setSubmitError(null) }} type="button">{<FormattedCopy page="join" id="join.edit" text={t('edit')}>{t('edit')}</FormattedCopy>}</button>
                 <button className="join-application__primary" disabled={submitting} onClick={() => void submit()} type="button">{submitting ? <FormattedCopy page="join" id="join.submitting" text={t('submitting')}>{t('submitting')}</FormattedCopy> : !recruitment?.canApply && canConfirmExistingRequest ? <FormattedCopy page="join" id="join.confirmPrevious" text={t('confirmPrevious')}>{t('confirmPrevious')}</FormattedCopy> : <FormattedCopy page="join" id="join.submit" text={t('submit')}>{t('submit')}</FormattedCopy>}</button>
@@ -271,13 +281,13 @@ export function JoinApplicationForm({ joinInfo }: { joinInfo: JoinInfoRow }) {
             </div>
           ) : (
             <form className="join-application__form" noValidate onSubmit={review}>
-              <div className="join-application__honeypot" aria-hidden="true"><label htmlFor="join-v2-website">웹사이트</label><input autoComplete="off" id="join-v2-website" onChange={event => changeValue('website', event.target.value)} tabIndex={-1} value={values.website} /></div>
+              <div className="join-application__honeypot" aria-hidden="true"><label htmlFor="join-v2-website">{translate('웹사이트')}</label><input autoComplete="off" id="join-v2-website" onChange={event => changeValue('website', event.target.value)} tabIndex={-1} value={values.website} /></div>
               {Object.values(errors).some(Boolean) ? <p className="join-application__error" role="alert">{<FormattedCopy page="join" id="join.fixed.JoinApplicationForm.a71c878907" text={copyText("join", "join.fixed.JoinApplicationForm.a71c878907", "입력 내용을 확인해 주세요. 표시된 항목을 수정한 뒤 다시 확인할 수 있습니다.")}>{copyText("join", "join.fixed.JoinApplicationForm.a71c878907", "입력 내용을 확인해 주세요. 표시된 항목을 수정한 뒤 다시 확인할 수 있습니다.")}</FormattedCopy>}</p> : null}
               <fieldset className="join-application__group">
                 <legend>{<FormattedCopy page="join" id="join.applicant" text={t('applicant')}>{t('applicant')}</FormattedCopy>}</legend>
                 <div className="join-application__field-grid">
                   <ApplicationField id="join-v2-name" label={t('name')} error={errors.applicant_name}><input {...inputState('applicant_name')} autoComplete="name" id="join-v2-name" onChange={event => changeValue('applicant_name', event.target.value)} placeholder={t('namePlaceholder')} required value={values.applicant_name} /></ApplicationField>
-                  <ApplicationField id="join-v2-birth-date" label={t('birth')} error={errors.birth_date}><input {...inputState('birth_date')} autoComplete="bday" id="join-v2-birth-date" onChange={event => changeValue('birth_date', event.target.value)} required type="date" value={values.birth_date} /></ApplicationField>
+                  <ApplicationField id="join-v2-birth-date" label={t('birth')} error={errors.birth_date}><SampleDateInput ariaDescribedBy={errors.birth_date ? 'join-v2-birth-date-error' : undefined} ariaInvalid={Boolean(errors.birth_date)} autoComplete="bday" className="join-application__date-control" id="join-v2-birth-date" label={t('birth')} onChange={value => changeValue('birth_date', value)} required value={values.birth_date} /></ApplicationField>
                 </div>
                 <ApplicationField id="join-v2-school" label={t('school')} error={errors.school}><input {...inputState('school')} autoComplete="organization" id="join-v2-school" onChange={event => changeValue('school', event.target.value)} placeholder={t('schoolPlaceholder')} required value={values.school} /></ApplicationField>
               </fieldset>
@@ -296,16 +306,16 @@ export function JoinApplicationForm({ joinInfo }: { joinInfo: JoinInfoRow }) {
                   <legend>{<FormattedCopy page="join" id="join.desiredParts" text={t('desiredParts')}>{t('desiredParts')}</FormattedCopy>} <span aria-hidden="true">*</span><span className="sr-only">{copyText("join", "join.fixed.JoinApplicationForm.82e405d221", " 필수")}</span>{<FormattedCopy page="join" id="join.fixed.JoinApplicationForm.a961ad9606" text={copyText("join", "join.fixed.JoinApplicationForm.a961ad9606", " · 복수 선택 가능")}>{copyText("join", "join.fixed.JoinApplicationForm.a961ad9606", " · 복수 선택 가능")}</FormattedCopy>}</legend>
                   <p id="join-v2-parts-help">{<FormattedCopy page="join" id="join.partsHelp" text={t('partsHelp')}>{t('partsHelp')}</FormattedCopy>}</p>
                   <div className="join-application__part-options">
-                    {joinPartOptions.map((part, index) => <label key={part.value}><input aria-describedby={partDescription} aria-invalid={Boolean(errors.desired_parts)} checked={values.desired_parts.includes(part.value)} id={index === 0 ? 'join-v2-parts' : `join-v2-parts-${part.value}`} onChange={event => changePart(part.value, event.target.checked)} type="checkbox" value={part.value} />{part.label}</label>)}
+                    {joinPartOptions.map((part, index) => <label key={part.value}><input aria-describedby={partDescription} aria-invalid={Boolean(errors.desired_parts)} checked={values.desired_parts.includes(part.value)} id={index === 0 ? 'join-v2-parts' : `join-v2-parts-${part.value}`} onChange={event => changePart(part.value, event.target.checked)} type="checkbox" value={part.value} />{translate(part.label)}</label>)}
                   </div>
-                  {errors.desired_parts ? <p className="join-application__field-error" id="join-v2-parts-error">{errors.desired_parts}</p> : null}
+                  {errors.desired_parts ? <p className="join-application__field-error" id="join-v2-parts-error">{translate(errors.desired_parts)}</p> : null}
                 </fieldset>
                 <ApplicationField id="join-v2-motivation" label={t('motivation')} error={errors.motivation}><textarea {...inputState('motivation')} id="join-v2-motivation" onChange={event => changeValue('motivation', event.target.value)} placeholder={t('motivationPlaceholder')} required rows={4} value={values.motivation} /></ApplicationField>
               </fieldset>
 
               <div className="join-application__privacy">
-                <label><input {...inputState('privacy_agreed')} checked={values.privacy_agreed} id="join-v2-privacy" onChange={event => changeValue('privacy_agreed', event.target.checked)} required type="checkbox" /><span><strong>개인정보 수집 및 이용 동의 (필수)</strong><br />입단지원서 접수를 위한 개인정보 수집 및 이용에 동의합니다. 입력하신 정보는 입단 절차 안내와 확인 목적으로만 사용됩니다.</span></label>
-                {errors.privacy_agreed ? <p className="join-application__field-error" id="join-v2-privacy-error">{errors.privacy_agreed}</p> : null}
+                <label><input {...inputState('privacy_agreed')} checked={values.privacy_agreed} id="join-v2-privacy" onChange={event => changeValue('privacy_agreed', event.target.checked)} required type="checkbox" /><span><strong>{translate('개인정보 수집 및 이용 동의 (필수)')}</strong><br />{translate('입단지원서 접수를 위한 개인정보 수집 및 이용에 동의합니다. 입력하신 정보는 입단 절차 안내와 확인 목적으로만 사용됩니다.')}</span></label>
+                {errors.privacy_agreed ? <p className="join-application__field-error" id="join-v2-privacy-error">{translate(errors.privacy_agreed)}</p> : null}
               </div>
               <button className="join-application__primary" type="submit">{<FormattedCopy page="join" id="join.review" text={t('review')}>{t('review')}</FormattedCopy>}</button>
             </form>

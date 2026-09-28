@@ -4,6 +4,7 @@ import type { PublicNavigationItem } from '../../../constants/navigation'
 import { useSiteEditor } from '../../site-editor/useSiteEditor'
 import { megaGroupCopyKey, navigationLabelKey } from '../../../content/siteCopyCommonCatalog'
 import { FormattedCopy } from '../../site-editor/FormattedCopy'
+import { useSampleLanguage } from '../../../features/sample-language/useSampleLanguage'
 
 type HomeV4SampleMegaMenuProps = {
   id: string
@@ -107,6 +108,8 @@ export function HomeV4SampleMegaMenu({
   routePrefix = '/sample',
 }: HomeV4SampleMegaMenuProps) {
   const { copy } = useSiteEditor()
+  const { enabled, language, href: sampleHref } = useSampleLanguage()
+  const isSampleEnglish = enabled && language === 'en'
   const hasMatchingChild = item.children?.some(
     (child) => child.href === item.href,
   )
@@ -153,7 +156,7 @@ export function HomeV4SampleMegaMenu({
 
   return (
     <nav
-      aria-label={`${item.label} 상세 메뉴`}
+      aria-label={isSampleEnglish ? `${item.label} menu` : `${item.label} 상세 메뉴`}
       className="home-v4-mega-menu"
       id={id}
       onMouseEnter={onMouseEnter}
@@ -189,7 +192,7 @@ export function HomeV4SampleMegaMenu({
                         ? 'true'
                         : undefined
                     }
-                    href={toRouteHref(link.href, routePrefix)}
+                    href={sampleHref(toRouteHref(link.href, routePrefix))}
                     onClick={onNavigate}
                   >
                     <span><FormattedCopy page="common" id={link.copyKey ?? navigationLabelKey(link.href, link.label)} text={copy('common', link.copyKey ?? navigationLabelKey(link.href, link.label), link.label)}>{copy('common', link.copyKey ?? navigationLabelKey(link.href, link.label), link.label)}</FormattedCopy></span>

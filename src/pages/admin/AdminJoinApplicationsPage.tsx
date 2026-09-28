@@ -563,6 +563,7 @@ export function AdminJoinApplicationsPage() {
       canDelete={false}
       columns={columns}
       description="입단지원서 제출 내용을 확인하고 처리 상태를 관리합니다."
+      editActionLabel="상세·인쇄"
       emptyMessage="접수된 입단지원서가 없습니다."
       fields={fields}
       filters={[

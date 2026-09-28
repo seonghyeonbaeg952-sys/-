@@ -1,3 +1,5 @@
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
+import { workflowCopy, workflowDate, workflowTextLanguage } from '../../components/common/workflowCopy'
 import { EditableLayout } from '../../components/site-editor/EditableLayout'
 import { FormattedCopy } from '../../components/site-editor/FormattedCopy'
 import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
@@ -36,18 +38,20 @@ function MediaFigure({ item, poster = false, lead = false, priority = false, onO
   priority?: boolean
   onOpen: OpenMedia
 }) {
+  const { enabled, language, translate } = useSampleLanguage()
+  const english = enabled && language === 'en'
   const { copy: copyText } = useSiteEditor()
   const date = 'taken_at' in item ? item.taken_at : 'concert_date' in item ? item.concert_date : undefined
   return (
     <article className={['gallery-journal__figure', lead ? 'gallery-journal__figure--lead' : '', poster ? 'gallery-journal__figure--poster' : ''].join(' ')}>
       <button
-        aria-label={item.title + (poster ? ' 포스터' : ' 사진') + ' 크게 보기'}
+        aria-label={workflowCopy(translate, poster ? '{title} 포스터 크게 보기' : '{title} 사진 크게 보기', { title: item.title })}
         className="gallery-journal__media-button"
         onClick={event => onOpen(item.id, event.currentTarget)}
         type="button"
       >
         <OptimizedImage
-          alt={'image_alt' in item ? item.image_alt : item.title + ' 포스터'}
+          alt={'image_alt' in item ? item.image_alt : workflowCopy(translate, '{title} 포스터', { title: item.title })}
           className={'gallery-journal__image ' + (poster ? 'gallery-journal__image--poster' : lead ? 'gallery-journal__image--wide' : 'gallery-journal__image--photo')}
           fallbackLabel={copyText("gallery", "gallery.fixed.GalleryPage.7f6db8b4d5", "이미지를 불러올 수 없습니다")}
           fallbackVariant={poster ? 'poster' : 'gallery'}
@@ -58,8 +62,8 @@ function MediaFigure({ item, poster = false, lead = false, priority = false, onO
           transform={{ quality: 84, resize: 'contain', width: lead ? 1600 : 980, widths: [420, 760, 980, 1600] }}
         />
         <span className="gallery-journal__category">{'category' in item ? <FormattedCopy page="gallery" id={`gallery.category.${item.category.trim() || 'archive'}`} text={copyText('gallery', `gallery.category.${item.category.trim() || 'archive'}`, getGalleryCategoryLabel(item.category))}>{copyText('gallery', `gallery.category.${item.category.trim() || 'archive'}`, getGalleryCategoryLabel(item.category))}</FormattedCopy> : <FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.6386eae70b" text={copyText("gallery", "gallery.fixed.GalleryPage.6386eae70b", "포스터")}>{copyText("gallery", "gallery.fixed.GalleryPage.6386eae70b", "포스터")}</FormattedCopy>}</span>
-        <h2 className="gallery-journal__media-title">{item.title}</h2>
-        {date ? <span className="gallery-journal__date">{formatKoreanDate(date)}</span> : null}
+        <h2 className="gallery-journal__media-title" lang={workflowTextLanguage(item.title, english)}>{item.title}</h2>
+        {date ? <span className="gallery-journal__date">{workflowDate(date, formatKoreanDate(date), english, true)}</span> : null}
         <span className="gallery-journal__media-action">{poster ? <FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.6386eae70b" text={copyText("gallery", "gallery.fixed.GalleryPage.6386eae70b", "포스터")}>{copyText("gallery", "gallery.fixed.GalleryPage.6386eae70b", "포스터")}</FormattedCopy> : <FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.1f872b5045" text={copyText("gallery", "gallery.fixed.GalleryPage.1f872b5045", "사진")}>{copyText("gallery", "gallery.fixed.GalleryPage.1f872b5045", "사진")}</FormattedCopy>}{<FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.f62132629c" text={copyText("gallery", "gallery.fixed.GalleryPage.f62132629c", " 크게 보기 ")}>{copyText("gallery", "gallery.fixed.GalleryPage.f62132629c", " 크게 보기 ")}</FormattedCopy>}<span aria-hidden="true">↗</span></span>
       </button>
     </article>
@@ -67,19 +71,21 @@ function MediaFigure({ item, poster = false, lead = false, priority = false, onO
 }
 
 function VideoFigure({ video, onOpen }: { video: VideoItem; onOpen: OpenMedia }) {
+  const { enabled, language, translate } = useSampleLanguage()
+  const english = enabled && language === 'en'
   const { copy: copyText } = useSiteEditor()
   const playable = Boolean(getGalleryVideoLinks(video.video_url))
   return (
     <article className="gallery-journal__video">
       <button
-        aria-label={video.title + ' 영상 보기'}
+        aria-label={workflowCopy(translate, '{title} 영상 보기', { title: video.title })}
         className="gallery-journal__video-thumbnail"
         disabled={!playable}
         onClick={event => onOpen(video.id, event.currentTarget)}
         type="button"
       >
         <OptimizedImage
-          alt={video.title + ' 영상 썸네일'}
+          alt={workflowCopy(translate, '{title} 영상 썸네일', { title: video.title })}
           className="gallery-journal__image gallery-journal__image--wide"
           fallbackLabel={copyText("gallery", "gallery.fixed.GalleryPage.9ca78e4ac4", "영상 썸네일을 불러올 수 없습니다")}
           fallbackSrcs={video.thumbnail_fallback_urls}
@@ -90,8 +96,8 @@ function VideoFigure({ video, onOpen }: { video: VideoItem; onOpen: OpenMedia })
       </button>
       <div className="gallery-journal__video-copy">
         <p className="gallery-journal__category">{<FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.c3c2ad668c" text={copyText("gallery", "gallery.fixed.GalleryPage.c3c2ad668c", "공연 영상")}>{copyText("gallery", "gallery.fixed.GalleryPage.c3c2ad668c", "공연 영상")}</FormattedCopy>}</p>
-        <h2 className="gallery-journal__media-title">{video.title}</h2>
-        {video.description ? <p className="gallery-journal__description">{video.description}</p> : null}
+        <h2 className="gallery-journal__media-title" lang={workflowTextLanguage(video.title, english)}>{video.title}</h2>
+        {video.description ? <p className="gallery-journal__description" lang={workflowTextLanguage(video.description, english)}>{video.description}</p> : null}
         {playable ? (
           <button className="gallery-journal__command" onClick={event => onOpen(video.id, event.currentTarget)} type="button">{<FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.5a541f5512" text={copyText("gallery", "gallery.fixed.GalleryPage.5a541f5512", "영상 보기 ")}>{copyText("gallery", "gallery.fixed.GalleryPage.5a541f5512", "영상 보기 ")}</FormattedCopy>}<span aria-hidden="true">↗</span></button>
         ) : <p className="gallery-journal__description">{<FormattedCopy page="gallery" id="gallery.fixed.GalleryPage.5c774429e7" text={copyText("gallery", "gallery.fixed.GalleryPage.5c774429e7", "영상 링크를 확인할 수 없습니다.")}>{copyText("gallery", "gallery.fixed.GalleryPage.5c774429e7", "영상 링크를 확인할 수 없습니다.")}</FormattedCopy>}</p>}

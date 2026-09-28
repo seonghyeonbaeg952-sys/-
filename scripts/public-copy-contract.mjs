@@ -1,9 +1,11 @@
 import ts from 'typescript'
 import { createHash } from 'node:crypto'
 import { cookJsx } from './public-copy-inventory.mjs'
+import { originalSampleSource } from './public-copy-sample-adapters.mjs'
 
 /** Compare emitted JSX, removing only newly added explicit copy adapters. No runtime DOM rewriting. */
 export function publicMarkupSource(source, file) {
+  source = originalSampleSource(source, file)
   const tree = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
   const roots = []
   const collect = node => {

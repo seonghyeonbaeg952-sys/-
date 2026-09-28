@@ -1,9 +1,10 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 
 import { AdminErrorState } from '../../components/admin/AdminErrorState'
 import { AdminLoadingState } from '../../components/admin/AdminLoadingState'
 import { AdminPageTitle } from '../../components/admin/AdminPageTitle'
+import { AdminEnglishContentForm } from '../../components/admin/AdminEnglishContentForm'
 import { AdminSwitch } from '../../components/admin/AdminSwitch'
 import { ImageUploader, type ImageUploadState } from '../../components/admin/ImageUploader'
 import { Button } from '../../components/common/Button'
@@ -70,6 +71,8 @@ function textareaClass() {
 
 export function AdminLocationPage() {
   const crud = useCrudItem('locations')
+  const [englishOpen, setEnglishOpen] = useState(false)
+  const [isFormDirty, setIsFormDirty] = useState(false)
 
   return (
     <div className="space-y-6">
@@ -77,6 +80,10 @@ export function AdminLocationPage() {
         description="관리자는 주소만 입력해도 됩니다. 방문자 화면에서는 주소 기반 네이버지도/카카오맵 버튼이 자동으로 생성됩니다."
         title="오시는 길 관리"
       />
+      <div className="flex flex-wrap items-center gap-3 rounded-button border border-line-default bg-bg-warm-white p-4">
+        <Button disabled={!crud.item || crud.isMutating || isFormDirty} onClick={() => setEnglishOpen(true)} variant="secondary">English 버전 작성·수정</Button>
+        <p className="text-xs leading-5 text-text-muted">{!crud.item ? '한국어 오시는 길을 먼저 저장하면 영문 버전을 작성할 수 있습니다.' : isFormDirty ? '한국어 변경을 먼저 저장하면 영문 편집을 열 수 있습니다.' : '영문 장소 안내는 초안으로 저장한 뒤 영어 버전에 게시합니다.'}</p>
+      </div>
 
       <Card className="p-6">
         <div className="mb-6 rounded-button border border-gold-warm/35 bg-bg-ivory px-4 py-3 text-sm leading-6 text-text-muted">
@@ -105,10 +112,12 @@ export function AdminLocationPage() {
             disabled={crud.isMutating}
             initialValues={toFormValues(crud.item)}
             key={crud.item?.id ?? 'new-location'}
+            onDirtyChange={setIsFormDirty}
             onSubmit={crud.saveItem}
           />
         ) : null}
       </Card>
+      {englishOpen && crud.item ? <AdminEnglishContentForm key={`locations:${crud.item.id}`} onClose={() => setEnglishOpen(false)} resource="locations" row={crud.item} /> : null}
     </div>
   )
 }
@@ -116,10 +125,12 @@ export function AdminLocationPage() {
 function LocationForm({
   disabled,
   initialValues,
+  onDirtyChange,
   onSubmit,
 }: {
   disabled: boolean
   initialValues: LocationFormValues
+  onDirtyChange: (dirty: boolean) => void
   onSubmit: (payload: CmsMutationPayload) => Promise<CmsResult<LocationRow>>
 }) {
   const [values, setValues] = useState<LocationFormValues>(initialValues)
@@ -131,7 +142,9 @@ function LocationForm({
   const submitLock = useRef(false)
   const pendingImage = ['selected', 'uploading', 'error'].includes(uploadState)
   const busy = disabled || isSubmitting
-  useUnsavedChangesGuard({ enabled: busy || pendingImage || JSON.stringify(values) !== JSON.stringify(savedValues) })
+  const isDirty = pendingImage || JSON.stringify(values) !== JSON.stringify(savedValues)
+  useUnsavedChangesGuard({ enabled: busy || isDirty })
+  useEffect(() => onDirtyChange(isDirty), [isDirty, onDirtyChange])
 
   const mapActions = useMemo(() => {
     return getMapActions({

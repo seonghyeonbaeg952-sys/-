@@ -92,6 +92,8 @@ const AdminSiteEditorPage = lazy(() =>
     default: module.AdminSiteEditorPage,
   })),
 )
+const SampleLanguageProvider = lazy(() => import('./features/sample-language/SampleLanguageProvider').then(module => ({ default: module.SampleLanguageProvider })))
+const AdminSampleEnglishEditorPage = lazy(() => import('./pages/admin/AdminSampleEnglishEditorPage').then(module => ({ default: module.AdminSampleEnglishEditorPage })))
 const AdminAboutPage = lazy(() =>
   import('./pages/admin/AdminAboutPage').then((module) => ({ default: module.AdminAboutPage })),
 )
@@ -220,6 +222,14 @@ export function RouteFallback() {
 
 function AppRoutes() {
   const isColorSample = isColorSamplePath(window.location.pathname)
+  const isAdmin = /^\/admin(?:\/|$)/.test(window.location.pathname)
+
+  if (isAdmin) return <AppRouteContent />
+  return <Suspense fallback={<RouteFallback />}><SampleLanguageProvider isSample={isColorSample}><AppRouteContent /></SampleLanguageProvider></Suspense>
+}
+
+function AppRouteContent() {
+  const isColorSample = isColorSamplePath(window.location.pathname)
 
   return (
       <SiteEditorProvider>
@@ -257,6 +267,7 @@ function AppRoutes() {
             <Route index element={<AdminDashboardPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
             <Route path="editor" element={<AdminSiteEditorPage />} />
+            <Route path="editor-english" element={<AdminSampleEnglishEditorPage />} />
             <Route path="home" element={<Navigate replace to="/admin/editor?page=home" />} />
             <Route path="site-texts" element={<Navigate replace to="/admin/editor?page=home" />} />
             <Route path="hero-slides" element={<AdminHeroSlidesPage />} />

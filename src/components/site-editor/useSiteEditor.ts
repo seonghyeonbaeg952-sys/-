@@ -5,6 +5,7 @@ import type { CanvasCopyRegistry } from './CanvasCopy'
 export type SiteEditorContextValue = {
   copy: (page: EditorPageId, key: string, fallback: string) => string
   documents: SiteEditorDocuments
+  sourceDocuments?: SiteEditorDocuments
   device: EditorDevice
   isPreview: boolean
   canvas?: CanvasCopyRegistry

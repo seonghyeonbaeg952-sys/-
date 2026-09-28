@@ -2,12 +2,12 @@ import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { HomeCopy } from './HomeCopy'
 import { useEffect, useState } from 'react'
 import type { HomeQuickActionItem } from '../../types/homeContent'
-import { getColorSampleHref } from '../../utils/colorSamplePath'
 import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 import { Reveal } from '../common/Reveal'
 import { StaffLines } from '../common/StaffLines'
 import '../../styles/home-responsive-quick.css'
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
 
 const desktopQuickQuery = '(min-width: 1024px)'
 
@@ -29,6 +29,7 @@ function useDesktopQuickLayout() {
 
 function ResponsiveQuickActions({ cards }: { cards: HomeQuickActionItem[] }) {
   const { copy: copyText } = useSiteEditor()
+  const { href: sampleHref } = useSampleLanguage()
   if (!cards.length) return null
 
   return (
@@ -42,7 +43,7 @@ function ResponsiveQuickActions({ cards }: { cards: HomeQuickActionItem[] }) {
         <ul className="home-responsive-quick__list" role="list">
           {cards.map((card) => (
             <li key={card.id}>
-              <a className="home-responsive-quick__row" href={getColorSampleHref(card.href)}>
+              <a className="home-responsive-quick__row" href={sampleHref(card.href)}>
                 <span aria-hidden="true" className="home-responsive-quick__code">{card.code}</span>
                 <span aria-hidden="true" className="home-responsive-quick__divider">/</span>
                 <span className="home-responsive-quick__title"><HomeCopy sourceKey={`home.quickActions.${card.id}.title`} text={card.title} /></span>
@@ -61,6 +62,7 @@ export function FloatingInfoCards({
   cards: HomeQuickActionItem[]
 }) {
   const { copy: copyText } = useSiteEditor()
+  const { href: sampleHref } = useSampleLanguage()
   const isDesktop = useDesktopQuickLayout()
 
   if (!isDesktop) return <ResponsiveQuickActions cards={cards} />
@@ -80,11 +82,11 @@ export function FloatingInfoCards({
       <Container>
         <div className="home-quick-action-grid">
           {cards.map((card, index) => (
-            <Reveal key={card.title} staggerIndex={index} variant="card-rise">
+            <Reveal key={card.id} staggerIndex={index} variant="card-rise">
               <a
                 className="home-quick-action-card group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-ink"
                 data-card-index={index + 1}
-                href={getColorSampleHref(card.href ?? '/')}
+                href={sampleHref(card.href ?? '/')}
               >
                 <span
                   aria-hidden="true"

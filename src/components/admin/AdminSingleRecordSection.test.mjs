@@ -55,7 +55,7 @@ function createSection() {
     './usePublicData': { invalidatePublicDataCache() {} },
     '../../hooks/useUnsavedChangesGuard': { useUnsavedChangesGuard(value) { guards.push(value.enabled) } },
   }
-  for (const name of ['Card', 'Button', 'AdminErrorState', 'AdminLoadingState', 'AdminRecordForm']) {
+  for (const name of ['Card', 'Button', 'AdminErrorState', 'AdminLoadingState', 'AdminRecordForm', 'AdminEnglishContentForm']) {
     imports[name === 'Card' || name === 'Button' ? `../common/${name}` : `./${name}`] = { [name]: name }
   }
   function load(source) {

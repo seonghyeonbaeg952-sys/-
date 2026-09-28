@@ -6,6 +6,8 @@ import {
 } from 'react'
 
 import type { Concert } from '../../../types/content'
+import { useSampleLanguage } from '../../../features/sample-language/useSampleLanguage'
+import { workflowDate, workflowTime } from '../../common/workflowCopy'
 import { HomeCopy } from '../../home/HomeCopy'
 import { formatKoreanDate } from '../../../utils/formatDate'
 import { Button } from '../../common/Button'
@@ -90,6 +92,8 @@ function TemplateFace({
   position: TemplatePosition
   programState?: ProgramBookState
 }) {
+  const { enabled, language, translate } = useSampleLanguage()
+  const english = enabled && language === 'en'
   const style = {
     '--home-v4-template-paper': `url("${PAPER_TEXTURE_ASSET}")`,
   } as CSSProperties
@@ -117,10 +121,10 @@ function TemplateFace({
           <span />
         </div>
         <p className="home-v4-template-face__venue">
-          {concert.location || '공연장 추후 안내'}
+          {concert.location || translate('공연장 추후 안내')}
         </p>
         <time className="home-v4-template-face__date" dateTime={concert.date}>
-          {formatKoreanDate(concert.date)}
+          {workflowDate(concert.date, formatKoreanDate(concert.date), english, true)}
         </time>
         <img
           alt=""
@@ -166,10 +170,12 @@ function CurrentProgramTemplate({
   expanded,
   onStateChange,
 }: CurrentProgramTemplateProps) {
+  const { enabled, language, translate, href: publicHref } = useSampleLanguage()
+  const english = enabled && language === 'en'
   const [bookState, setBookState] = useState<ProgramBookState>('front')
   const sideTimerRef = useRef<number | null>(null)
   const previousExpandedRef = useRef(expanded)
-  const dateText = formatKoreanDate(concert.date)
+  const dateText = workflowDate(concert.date, formatKoreanDate(concert.date), english, true)
 
   useLayoutEffect(() => {
     if (sideTimerRef.current !== null) {
@@ -204,7 +210,7 @@ function CurrentProgramTemplate({
 
   return (
     <div
-      aria-label={`${concert.title} 프로그램 템플릿`}
+      aria-label={`${concert.title} ${english ? 'concert brochure' : '프로그램 템플릿'}`}
       className="home-v4-current-program"
     >
       <div className="motion-program-book" data-state={bookState}>
@@ -218,7 +224,7 @@ function CurrentProgramTemplate({
             <div>
               <p className="motion-program-kicker">PROGRAM NOTE</p>
               <h4><ConcertTitle title={concert.title} /></h4>
-              <p>{getConcertSummary(concert)}</p>
+              <p>{translate(getConcertSummary(concert))}</p>
             </div>
           </section>
           <section className="motion-program-panel motion-program-panel-center">
@@ -236,7 +242,7 @@ function CurrentProgramTemplate({
               {concert.time ? (
                 <div>
                   <dt>TIME</dt>
-                  <dd>{concert.time}</dd>
+                  <dd>{workflowTime(concert.time, english)}</dd>
                 </div>
               ) : null}
               {concert.location ? (
@@ -251,23 +257,23 @@ function CurrentProgramTemplate({
             <div>
               <p className="motion-program-kicker">GUIDE</p>
               <div className="motion-program-statuses">
-                <span>{statusLabels[concert.status]}</span>
+                <span>{translate(statusLabels[concert.status])}</span>
               </div>
             </div>
             <div className="motion-program-actions">
               <Button
-                href={`/sample/concerts/${concert.id}`}
+                href={publicHref(`/concerts/${concert.id}`)}
                 showArrow={false}
                 variant="gold"
               >
                 <HomeCopy sourceKey="home.concertProgram.detailCtaLabel" text={detailButtonLabel} /> <span aria-hidden="true">→</span>
               </Button>
               <Button
-                href="/sample/contact?section=performance"
+                href={publicHref('/contact?section=performance')}
                 showArrow={false}
                 variant="secondary"
               >
-                공연 문의 <span aria-hidden="true">→</span>
+                {translate('공연 문의')} <span aria-hidden="true">→</span>
               </Button>
             </div>
           </section>
@@ -336,6 +342,8 @@ export function HomeV4PerformanceCarousel({
   emptyTitle,
   title,
 }: HomeV4PerformanceCarouselProps) {
+  const { enabled, language, translate, href: publicHref } = useSampleLanguage()
+  const english = enabled && language === 'en'
   const [activeIndex, setActiveIndex] = useState(0)
   const [isTemplateOpen, setIsTemplateOpen] = useState(false)
   const [programBookState, setProgramBookState] =
@@ -377,7 +385,7 @@ export function HomeV4PerformanceCarousel({
         </div>
         <EmptyState
           action={
-            <Button href="/sample/concerts" variant="secondary">
+            <Button href={publicHref('/concerts')} variant="secondary">
               <HomeCopy sourceKey="home.concertProgram.emptyConcertCtaLabel" text={emptyButtonLabel} />
             </Button>
           }
@@ -460,36 +468,36 @@ export function HomeV4PerformanceCarousel({
           <h3><ConcertTitle title={activeConcert.title} /></h3>
           <dl>
             <div>
-              <dt aria-label="공연 날짜">▣</dt>
-              <dd>{formatKoreanDate(activeConcert.date)}</dd>
+              <dt aria-label={translate('공연 날짜')}>▣</dt>
+              <dd>{workflowDate(activeConcert.date, formatKoreanDate(activeConcert.date), english, true)}</dd>
             </div>
             <div>
-              <dt aria-label="공연 장소">⌖</dt>
-              <dd>{activeConcert.location || '공연장 추후 안내'}</dd>
+              <dt aria-label={translate('공연 장소')}>⌖</dt>
+              <dd>{activeConcert.location || translate('공연장 추후 안내')}</dd>
             </div>
           </dl>
         </div>
         <div className="home-v4-performance-carousel__actions">
           <Button
-            href={`/sample/concerts/${activeConcert.id}`}
+            href={publicHref(`/concerts/${activeConcert.id}`)}
             showArrow={false}
             variant="gold"
           >
             <HomeCopy sourceKey="home.concertProgram.detailCtaLabel" text={detailButtonLabel} /> <span aria-hidden="true">→</span>
           </Button>
-          <Button href="/sample/concerts" showArrow={false} variant="secondary">
+          <Button href={publicHref('/concerts')} showArrow={false} variant="secondary">
             <HomeCopy sourceKey="home.concertProgram.desktopConcertsCtaLabel" text={concertButtonLabel} /> <span aria-hidden="true">→</span>
           </Button>
         </div>
         <ol
-          aria-label="공연 템플릿 선택"
+          aria-label={english ? 'Choose a concert brochure' : '공연 템플릿 선택'}
           className="home-v4-performance-carousel__timeline"
         >
           {visibleConcerts.map((concert, index) => (
             <li className={index === safeActiveIndex ? 'is-active' : undefined} key={concert.id}>
               <button
                 aria-current={index === safeActiveIndex ? 'true' : undefined}
-                aria-label={`${index + 1}번 공연 ${concert.title} 보기`}
+                aria-label={english ? `View concert ${index + 1}: ${concert.title}` : `${index + 1}번 공연 ${concert.title} 보기`}
                 disabled={
                   programBookState !== 'front' || isCarouselTransitioning
                 }
@@ -546,7 +554,7 @@ export function HomeV4PerformanceCarousel({
             })}
           </div>
           <button
-            aria-label={`${activeConcert.title} 템플릿 펼치기`}
+            aria-label={english ? `Open brochure for ${activeConcert.title}` : `${activeConcert.title} 템플릿 펼치기`}
             className="home-v4-architecture__center-trigger"
             disabled={isCarouselTransitioning}
             onClick={() => setIsTemplateOpen(true)}
@@ -563,7 +571,7 @@ export function HomeV4PerformanceCarousel({
           <ArchitectureBlueprintFrame />
           <div className="home-v4-architecture__controls">
             <button
-              aria-label="이전 공연 템플릿"
+              aria-label={english ? 'Previous concert brochure' : '이전 공연 템플릿'}
               disabled={
                 visibleConcerts.length < 2 ||
                 programBookState !== 'front' ||
@@ -577,17 +585,17 @@ export function HomeV4PerformanceCarousel({
             <button
               aria-expanded={isTemplateOpen}
               aria-controls={`concert-template-details-${activeConcert.id}`}
-              aria-label={isTemplateOpen ? '공연 템플릿 접기' : '공연 템플릿 펼치기'}
+              aria-label={isTemplateOpen ? translate('공연 템플릿 접기') : translate('공연 템플릿 펼치기')}
               className="home-v4-architecture__expand"
               disabled={isCarouselTransitioning}
               onClick={() => setIsTemplateOpen((current) => !current)}
               type="button"
             >
-              {isTemplateOpen ? '템플릿 접기' : '템플릿 펼치기'}{' '}
+              {isTemplateOpen ? translate('템플릿 접기') : translate('템플릿 펼치기')}{' '}
               <span aria-hidden="true">{isTemplateOpen ? '×' : '↗'}</span>
             </button>
             <button
-              aria-label="다음 공연 템플릿"
+              aria-label={english ? 'Next concert brochure' : '다음 공연 템플릿'}
               disabled={
                 visibleConcerts.length < 2 ||
                 programBookState !== 'front' ||

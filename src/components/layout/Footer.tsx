@@ -6,6 +6,7 @@ import { useContactData } from '../../hooks/usePublicData'
 import { BrandLogo } from '../common/BrandLogo'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { navigationCopyKey, navigationLabelKey } from '../../content/siteCopyCommonCatalog'
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
 import '../../styles/footer-utility.css'
 
 type FooterLink = {
@@ -65,6 +66,12 @@ function getTelephoneHref(value: string) {
   return `tel:${value.replace(/[^\d+]/g, '')}`
 }
 
+function footerRouterHref(target: string, publicHref: (href: string) => string, enabled: boolean, isSample: boolean) {
+  if (!enabled) return target
+  const href = publicHref(target)
+  return isSample ? href.replace(/^\/sample(?=\/|[?#]|$)/, '') || '/' : href
+}
+
 function scrollToPageTop() {
   if (typeof window === 'undefined') {
     return
@@ -92,9 +99,10 @@ function FooterLinkGroup({
   titleCopyKey: string
 }) {
   const { copy } = useSiteEditor()
+  const { enabled, isSample, language, href: sampleHref } = useSampleLanguage()
   return (
     <nav
-      aria-label={`${title} 푸터 메뉴`}
+      aria-label={enabled && language === 'en' ? `${title} footer menu` : `${title} 푸터 메뉴`}
       className={['footer-utility__link-group', className]
         .filter(Boolean)
         .join(' ')}
@@ -102,7 +110,7 @@ function FooterLinkGroup({
       <p className="footer-utility__group-title"><FormattedCopy page="common" id={titleCopyKey} text={title}>{title}</FormattedCopy></p>
       <div className="footer-utility__link-list">
         {links.map((link) => (
-          <NavLink className="footer-utility__link" key={link.href} to={link.href}>
+          <NavLink className="footer-utility__link" key={link.href} to={footerRouterHref(link.href, sampleHref, enabled, isSample)}>
             <span><FormattedCopy page="common" id={navigationLabelKey(link.href, link.label)} text={copy('common', navigationLabelKey(link.href, link.label), link.label)}>{copy('common', navigationLabelKey(link.href, link.label), link.label)}</FormattedCopy></span>
             <span aria-hidden="true" className="footer-utility__link-arrow">
               ↗
@@ -117,6 +125,8 @@ function FooterLinkGroup({
 export function Footer() {
   const { copy: copyText } = useSiteEditor()
   const { copy } = useSiteEditor()
+  const { enabled, isSample, language, href: sampleHref } = useSampleLanguage()
+  const isSampleEnglish = enabled && language === 'en'
   const currentYear = new Date().getFullYear()
   const contactData = useContactData()
   const settings = contactData.data.siteSettings
@@ -124,6 +134,7 @@ export function Footer() {
   const phone = settings.phone?.trim() || mockSiteSettings.phone
   const email = settings.email?.trim()
   const socialLinks = getSocialLinks(settings)
+  const adminLabel = <FormattedCopy page="common" id="common.footer.admin" text={copy('common', 'common.footer.admin', '관리자 로그인')}>{copy('common', 'common.footer.admin', '관리자 로그인')}</FormattedCopy>
 
   return (
     <footer
@@ -135,7 +146,7 @@ export function Footer() {
           <NavLink
             aria-label={copyText("common", "common.fixed.Footer.8975e38d2f", "서울모테트청소년합창단 홈으로 이동")}
             className="footer-utility__brand"
-            to="/"
+            to={footerRouterHref('/', sampleHref, enabled, isSample)}
           >
             <BrandLogo
               className="footer-utility__brand-symbol"
@@ -153,14 +164,14 @@ export function Footer() {
           <nav aria-label={copyText("common", "common.fixed.Footer.66b325059d", "주요 바로가기")} className="footer-utility__actions">
             <NavLink
               className="footer-utility__action footer-utility__action--primary"
-              to="/join"
+              to={footerRouterHref('/join', sampleHref, enabled, isSample)}
             >
               <span><FormattedCopy page="common" id={navigationLabelKey('/join', '입단 안내')} text={copy('common', navigationLabelKey('/join', '입단 안내'), '입단 안내')}>{copy('common', navigationLabelKey('/join', '입단 안내'), '입단 안내')}</FormattedCopy></span>
               <span aria-hidden="true">↗</span>
             </NavLink>
             <NavLink
               className="footer-utility__action footer-utility__action--secondary"
-              to="/contact?section=support"
+              to={footerRouterHref('/contact?section=support', sampleHref, enabled, isSample)}
             >
               <span><FormattedCopy page="common" id={navigationCopyKey('/contact')} text={copy('common', navigationCopyKey('/contact'), '후원·문의')}>{copy('common', navigationCopyKey('/contact'), '후원·문의')}</FormattedCopy></span>
               <span aria-hidden="true">↗</span>
@@ -178,7 +189,7 @@ export function Footer() {
             <address className="footer-utility__contact-list">
               <div>
                 <p className="footer-utility__contact-label"><FormattedCopy page="common" id="common.footer.address" text={copy('common', 'common.footer.address', '주소')}>{copy('common', 'common.footer.address', '주소')}</FormattedCopy></p>
-                <p className="footer-utility__contact-value">{address}</p>
+                <p className="footer-utility__contact-value" lang={isSampleEnglish && /[가-힣]/.test(address) ? 'ko' : undefined}>{address}</p>
               </div>
               <div>
                 <p className="footer-utility__contact-label"><FormattedCopy page="common" id="common.footer.phone" text={copy('common', 'common.footer.phone', '전화')}>{copy('common', 'common.footer.phone', '전화')}</FormattedCopy></p>
@@ -222,7 +233,9 @@ export function Footer() {
               <div className="footer-utility__link-list">
                 {socialLinks.map((link) => (
                   <a
-                    aria-label={`${copyText('common', `common.footer.social.${link.label}`, link.label)} 새 창으로 열기`}
+                    aria-label={isSampleEnglish
+                      ? `${copyText('common', `common.footer.social.${link.label}`, link.label)} (opens in a new window)`
+                      : `${copyText('common', `common.footer.social.${link.label}`, link.label)} 새 창으로 열기`}
                     className="footer-utility__link"
                     href={link.href}
                     key={link.label}
@@ -246,9 +259,11 @@ export function Footer() {
 
         <div className="footer-utility__legal">
           <p>© {currentYear}{<FormattedCopy page="common" id="common.fixed.Footer.189e34321f" text={copyText("common", "common.fixed.Footer.189e34321f", " Seoul Motet Youth Choir. All rights reserved.")}>{copyText("common", "common.fixed.Footer.189e34321f", " Seoul Motet Youth Choir. All rights reserved.")}</FormattedCopy>}</p>
-          <NavLink className="footer-utility__admin-link" to="/admin/login">
-            <FormattedCopy page="common" id="common.footer.admin" text={copy('common', 'common.footer.admin', '관리자 로그인')}>{copy('common', 'common.footer.admin', '관리자 로그인')}</FormattedCopy>
-          </NavLink>
+          {isSample ? (
+            <a className="footer-utility__admin-link" href={sampleHref('/admin/login')}>{adminLabel}</a>
+          ) : (
+            <NavLink className="footer-utility__admin-link" to="/admin/login">{adminLabel}</NavLink>
+          )}
           <button
             aria-label={copyText("common", "common.fixed.Footer.f3f317ea45", "페이지 맨 위로 이동")}
             className="footer-utility__top-button"

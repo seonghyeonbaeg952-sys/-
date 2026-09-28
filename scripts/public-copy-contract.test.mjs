@@ -10,6 +10,75 @@ test('visitor JSX labels have explicit editor adapters or a documented source ex
   const remaining = files.flatMap(({ file, candidates }) => candidates.filter(candidate => !exclusion(file, candidate)).map(candidate => `${file}:${candidate.line} ${candidate.value}`))
   assert.deepEqual(remaining, [], 'These fixed visitor strings still cannot be edited')
 })
+test('only the four native sample language-control identities are fixed source exceptions', () => {
+  const file = 'src/features/sample-language/SampleLanguageSwitch.tsx'
+  for (const candidate of [
+    { kind: 'text', value: 'KR' }, { kind: 'text', value: 'EN' },
+    { kind: 'attribute', attribute: 'aria-label', value: '한국어' },
+    { kind: 'attribute', attribute: 'aria-label', value: 'English' },
+  ]) assert.ok(exclusion(file, candidate))
+  assert.equal(exclusion(file, { kind: 'text', value: 'New unchecked label' }), null)
+  assert.equal(exclusion(file, { kind: 'attribute', attribute: 'title', value: 'English' }), null)
+  assert.equal(exclusion('src/components/layout/Footer.tsx', { kind: 'text', value: 'EN' }), null)
+})
+
+test('verified sample language adapters retain the original JSX branch and expose original text, class and link mutations', () => {
+  const original = 'function A(){return <section className="same"><p>{title}</p><a href="/join?section=contact#application">{count}개</a></section>}'
+  const adapted = `import { useSampleLanguage } from '../features/sample-language/useSampleLanguage';
+    import { workflowTextLanguage } from '../common/workflowCopy';
+    function A(){const {enabled, language, translate, href: sampleHref}=useSampleLanguage(); const english=enabled && language === 'en';
+    return <section className="same"><p lang={workflowTextLanguage(title, english)}>{translate(title)}</p><a href={sampleHref('/join?section=contact#application')}>{english ? 'English count' : <>{count}개</>}</a></section>}`
+  const expected = publicMarkupFingerprint(original, 'fixture.tsx')
+  assert.equal(publicMarkupFingerprint(adapted, 'fixture.tsx'), expected)
+  for (const changed of [adapted.replace('translate(title)', 'translate(otherTitle)'), adapted.replace('className="same"', 'className="changed"'), adapted.replace('/join?section=contact#application', '/contact'), adapted.replace('{count}개', '{count}명')]) {
+    assert.notEqual(publicMarkupFingerprint(changed, 'fixture.tsx'), expected)
+  }
+  assert.notEqual(publicMarkupFingerprint(adapted.replace("enabled && language === 'en'", "!enabled || language === 'en'"), 'fixture.tsx'), expected)
+})
+
+test('source-bound workflow templates retain interpolated values and the original date result', () => {
+  const original = 'function A(){return <p title={`${record.title} 포스터`}>{dateLabel}</p>}'
+  const adapted = `import { useSampleLanguage } from '../features/sample-language/useSampleLanguage';
+    import { workflowCopy, workflowDate } from '../common/workflowCopy';
+    function A(){const {enabled, language, translate}=useSampleLanguage(); const english=enabled && language === 'en';
+    return <p title={workflowCopy(translate, '{title} 포스터', {title: record.title})}>{workflowDate(record.date, dateLabel, english)}</p>}`
+  const expected = publicMarkupFingerprint(original, 'fixture.tsx')
+  assert.equal(publicMarkupFingerprint(adapted, 'fixture.tsx'), expected)
+  for (const changed of [adapted.replace('{title} 포스터', '{title} 사진'), adapted.replace('record.title}', 'record.other}'), adapted.replace('dateLabel, english', 'otherDate, english')]) {
+    assert.notEqual(publicMarkupFingerprint(changed, 'fixture.tsx'), expected)
+  }
+  assert.notEqual(publicMarkupFingerprint(adapted.replace('useSampleLanguage()', 'someOtherHook()'), 'fixture.tsx'), expected)
+})
+
+test('the sample switch is absent from the original branch only when imported from its verified module', () => {
+  const original = 'function A(){return <header><a href="/">Home</a><button>Join</button></header>}'
+  const adapted = `import { SampleLanguageSwitch } from '../features/sample-language/SampleLanguageSwitch';
+    function A(){return <header><a href="/">Home</a><SampleLanguageSwitch/><button>Join</button></header>}`
+  const expected = publicMarkupFingerprint(original, 'fixture.tsx')
+  assert.equal(publicMarkupFingerprint(adapted, 'fixture.tsx'), expected)
+  assert.notEqual(publicMarkupFingerprint(adapted.replace('/sample-language/SampleLanguageSwitch', '/other/SampleLanguageSwitch'), 'fixture.tsx'), expected)
+  assert.notEqual(publicMarkupFingerprint(adapted.replace('<SampleLanguageSwitch/>', '<SampleLanguageSwitch enabled/>'), 'fixture.tsx'), expected)
+})
+
+test('sample adapter audit does not erase a shadowed or reassigned translator', () => {
+  const original = 'function A(){return items.map(translate => <p>{translate(title)}</p>)}'
+  const hook = "import {useSampleLanguage} from '../features/sample-language/useSampleLanguage';"
+  const captured = hook + 'function A(){const {translate}=useSampleLanguage();return items.map(translate => <p>{translate(title)}</p>)}'
+  assert.equal(publicMarkupFingerprint(captured, 'fixture.tsx'), publicMarkupFingerprint(original, 'fixture.tsx'))
+  const reassigned = hook + 'function A(){let {translate}=useSampleLanguage();translate=otherTranslator;return <p>{translate(title)}</p>}'
+  assert.notEqual(publicMarkupFingerprint(reassigned, 'fixture.tsx'), publicMarkupFingerprint('function A(){return <p>{title}</p>}', 'fixture.tsx'))
+})
+
+test('the approved Reveal identity repair does not ignore list keys, artwork or other reveal props', () => {
+  const file = 'src/components/home/FloatingInfoCards.tsx'
+  const original = "import {Reveal} from '../common/Reveal'; function A(){return <div><li key={card.id}>{card.title}</li><Reveal key={card.title} variant=\"card-rise\"><img src=\"/art.svg\"/></Reveal></div>}"
+  const adapted = original.replace('Reveal key={card.title}', 'Reveal key={card.id}')
+  const expected = publicMarkupFingerprint(original, file)
+  assert.equal(publicMarkupFingerprint(adapted, file), expected)
+  for (const changed of [adapted.replace('li key={card.id}', 'li key={card.title}'), adapted.replace('variant="card-rise"', 'variant="changed"'), adapted.replace('/art.svg', '/other.svg'), adapted.replace('Reveal key={card.id}', 'Reveal key={card.other}')]) {
+    assert.notEqual(publicMarkupFingerprint(changed, file), expected)
+  }
+})
 test('default-markup verification ignores explicit copy adapters but detects layout, text and link changes', () => {
   const original = 'function A() { return <h1 className="same" title="한글">Original <a href="/join">Join</a></h1> }'
   const adapted = 'function A() { return <h1 className="same" title={copyText("common","common.fixed.title","한글")}>{copyText("common","common.fixed.a","Original ")}<a href="/join">{copyText("common","common.fixed.b","Join")}</a></h1> }'

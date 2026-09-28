@@ -111,6 +111,7 @@ test('v2 list distinguishes uncollected fields from missing legacy answers', () 
 })
 
 test('the CMS detail offers a named print action without changing the saved application', () => {
+  assert.equal(props.editActionLabel, '상세·인쇄')
   const before = structuredClone(row)
   const html = renderToStaticMarkup(props.renderBeforeForm(row))
   assert.match(html, /<button[^>]*>입단지원서 인쇄<\/button>/)

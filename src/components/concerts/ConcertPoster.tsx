@@ -1,3 +1,5 @@
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
+import { workflowCopy } from '../common/workflowCopy'
 import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useEffect, useId, useRef, useState } from 'react'
@@ -5,12 +7,13 @@ import { useEffect, useId, useRef, useState } from 'react'
 type PosterProps = { src: string; title: string }
 
 function PosterImage({ src, title, onExpand }: PosterProps & { onExpand?: () => void }) {
+  const { translate } = useSampleLanguage()
   const { copy: copyText } = useSiteEditor()
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   const [attempt, setAttempt] = useState(0)
   const image = (
     <img
-      alt={`${title} 포스터`}
+      alt={workflowCopy(translate, '{title} 포스터', { title })}
       className="concert-poster__image"
       decoding="async"
       key={attempt}
@@ -33,7 +36,7 @@ function PosterImage({ src, title, onExpand }: PosterProps & { onExpand?: () => 
           >{<FormattedCopy page="concert-detail" id="concert-detail.fixed.ConcertPoster.04335e08ad" text={copyText("concert-detail", "concert-detail.fixed.ConcertPoster.04335e08ad", "포스터 다시 불러오기")}>{copyText("concert-detail", "concert-detail.fixed.ConcertPoster.04335e08ad", "포스터 다시 불러오기")}</FormattedCopy>}</button>
         </div>
       ) : onExpand ? (
-        <button aria-label={`${title} 포스터 확대`} aria-haspopup="dialog" className="concert-poster__image-button" onClick={onExpand} type="button">
+        <button aria-label={workflowCopy(translate, '{title} 포스터 확대', { title })} aria-haspopup="dialog" className="concert-poster__image-button" onClick={onExpand} type="button">
           {image}
         </button>
       ) : image}

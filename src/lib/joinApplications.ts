@@ -1,4 +1,5 @@
 import { getSupabaseClientSafe } from './auth'
+import { getSampleSubmissionMessage } from './sampleSubmissionGuard'
 import { isSiteEditorPreview, PREVIEW_SUBMISSION_MESSAGE } from './siteEditorPreview'
 import { buildJoinApplicationPayload, validateJoinApplicationValues, type JoinApplicationValues } from '../components/join/joinApplicationModel'
 
@@ -36,6 +37,8 @@ export async function getJoinApplicationConfig(joinInfoId: string): Promise<Resu
 }
 
 export async function submitJoinApplication(values: JoinApplicationValues, joinInfoId: string, submissionId: string, now = new Date()): Promise<Result<true>> {
+  const sampleMessage = getSampleSubmissionMessage('application')
+  if (sampleMessage) return { data: null, error: sampleMessage }
   if (isSiteEditorPreview()) return { data: null, error: PREVIEW_SUBMISSION_MESSAGE }
   if (values.website.trim()) return { data: null, error: '입력 내용을 확인한 뒤 다시 시도해 주세요.' }
   const errors = validateJoinApplicationValues(values, now)

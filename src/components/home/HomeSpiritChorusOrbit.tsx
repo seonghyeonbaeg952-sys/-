@@ -1,4 +1,5 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
 import { HomeCopy } from './HomeCopy'
 import { SiteCopy } from '../site-editor/SiteCopy'
 import { splitHomeCopyLines } from '../../lib/homeCopySlices'
@@ -101,6 +102,7 @@ function HomeSpiritChorusOrbitDesktop({
   sections,
   wrapper,
 }: HomeSpiritChorusOrbitProps) {
+  const { translate } = useSampleLanguage()
   const { copy: copyText } = useSiteEditor()
   const sectionRef = useRef<HTMLElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -345,7 +347,7 @@ function HomeSpiritChorusOrbitDesktop({
                 <button
                   aria-controls="home-spirit-chorus-orbit-detail"
                   aria-expanded={activeIndex === index}
-                  aria-label={`${movementLabels[index]}: ${copyText('home', `home.content.spirit.${homeSpiritBookletPages[index].id}.title`, page.title)}`}
+                  aria-label={`${translate(movementLabels[index])}: ${copyText('home', `home.content.spirit.${homeSpiritBookletPages[index].id}.title`, page.title)}`}
                   className="home-spirit-chorus-orbit__value-trigger"
                   onBlur={() => setFocusedIndex(null)}
                   onFocus={() => setFocusedIndex(index)}
@@ -373,7 +375,7 @@ function HomeSpiritChorusOrbitDesktop({
                     />
                     <span className="home-spirit-chorus-orbit__value-copy">
                       <b>{String(index + 1).padStart(2, '0')}</b>
-                      <span>{movementLabels[index]}</span>
+                      <span>{translate(movementLabels[index])}</span>
                     </span>
                   </span>
                 </button>

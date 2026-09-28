@@ -39,6 +39,7 @@ import type {
 } from '../types/content'
 import type { AboutSectionRow, JoinInfoRow, SiteTextRow } from '../types/cms'
 import { hasSupabaseConfig } from '../lib/supabase'
+import { useSampleLanguage } from '../features/sample-language/useSampleLanguage'
 
 type PublicDataState<TData> = {
   data: TData
@@ -156,6 +157,7 @@ function usePublicLoader<TData>(
   loader: () => Promise<PublicDataLoadResult<TData>>,
   cacheKey?: string,
 ): PublicDataHookResult<TData> {
+  const { translateData, translate } = useSampleLanguage()
   const [reloadToken, setReloadToken] = useState(0)
   const [state, setState] = useState<PublicDataLoaderState<TData>>(() =>
     createPublicDataLoaderState(fallbackData, cacheKey),
@@ -237,10 +239,11 @@ function usePublicLoader<TData>(
     state.cacheKey === cacheKey
       ? state
       : createPublicDataLoaderState(fallbackData, cacheKey)
+  const displayData = useMemo(() => translateData(visibleState.data, cacheKey), [translateData, visibleState.data, cacheKey])
 
   return {
-    data: visibleState.data,
-    error: visibleState.error,
+    data: displayData,
+    error: visibleState.error ? translate(visibleState.error) : null,
     isLoading: visibleState.isLoading,
     refetch,
   }

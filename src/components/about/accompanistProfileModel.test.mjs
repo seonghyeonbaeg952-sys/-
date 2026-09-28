@@ -56,6 +56,14 @@ test('구조화된 CMS 항목이 있으면 bio보다 우선한다', () => {
   assert.deepEqual(model.current, ['서울모테트청소년합창단 반주자', '대학 성악과 반주'])
 })
 
+test('English CMS biography separates current roles from education', () => {
+  const model = buildAccompanistProfileModel({
+    bio: 'Studied collaborative piano.\n\nCurrently an accompanist for Seoul Motet Youth Choir.\nAlso teaches vocal students.',
+  })
+  assert.deepEqual(model.education, ['Studied collaborative piano.'])
+  assert.deepEqual(model.current, ['Currently an accompanist for Seoul Motet Youth Choir.', 'Also teaches vocal students.'])
+})
+
 test('박정화 프로필 사진만 반응형 compact 크기를 사용한다', async () => {
   const [component, css] = await Promise.all([
     readFile(new URL('src/components/about/AccompanistProfiles.tsx', projectRoot), 'utf8'),

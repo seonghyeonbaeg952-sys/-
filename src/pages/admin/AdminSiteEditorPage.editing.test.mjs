@@ -20,9 +20,9 @@ const empty = () => ({ schemaVersion: 1, copy: {}, deviceCopy: {}, appearance: {
 
 // The page, session edits, history and validators are real. Only React scheduling,
 // route state, transport and child rendering are controlled native boundaries.
-function page(document = empty()) {
+function page(document = empty(), options = {}) {
   const slots = [], effects = [], events = new Map()
-  let cursor = 0, tree, params = new URLSearchParams('page=notices'), saved = 0, activePage = 'notices'
+  let cursor = 0, tree, params = new URLSearchParams(options.query ?? 'page=notices'), saved = 0, activePage = 'notices', workspaceArguments, exitGuard
   const sessions = { notices: real.editorSessionModel.createEditorSession({ page_key: 'notices', draft: document, published: document, version: 1, updated_at: '', published_at: '' }),
     join: real.editorSessionModel.createEditorSession({ page_key: 'join', draft: empty(), published: empty(), version: 1, updated_at: '', published_at: '' }) }
   const workspace = { get sessions() { return sessions }, get session() { return sessions[activePage] }, action: null,
@@ -42,8 +42,8 @@ function page(document = empty()) {
     if (name === 'react-router') return { useSearchParams: () => [params, next => { params = next }] }
     const part = name.split('/').at(-1)
     if (real[part]) return real[part]
-    if (part === 'useEditorWorkspace') return { useEditorWorkspace: target => { activePage = target; return workspace } }
-    if (part === 'useUnsavedChangesGuard') return { useUnsavedChangesGuard: () => {} }
+    if (part === 'useEditorWorkspace') return { useEditorWorkspace: (target, storageScope, definitions) => { workspaceArguments = { target, storageScope, definitions }; activePage = target; return workspace } }
+    if (part === 'useUnsavedChangesGuard') return { useUnsavedChangesGuard: value => { exitGuard = value } }
     if (part === 'publicData') return { getPublicSiteTexts: () => new Promise(() => {}) }
     if (name.endsWith('.css')) return {}
     return { [part]: part }
@@ -51,7 +51,11 @@ function page(document = empty()) {
   const find = (predicate, node = tree, parents = []) => !node || typeof node !== 'object' ? [] : [
     ...(predicate(node) ? [{ node, parents }] : []), ...[node.props?.children ?? null].flat(Infinity).flatMap(child => find(predicate, child, [...parents, node])),
   ]
-  function render() { cursor = 0; tree = exports.AdminSiteEditorPage({}); effects.splice(0).forEach(effect => effect()) }
+  function render() {
+    cursor = 0; tree = exports.AdminSiteEditorPage(options.props ?? {})
+    while (typeof tree.type === 'function') tree = tree.type(tree.props)
+    effects.splice(0).forEach(effect => effect())
+  }
   const component = name => find(node => node.type === name)[0]?.node
   const button = label => find(node => ['button', 'Button'].includes(node.type) && node.props.children === label)[0]?.node
   render()
@@ -67,7 +71,8 @@ function page(document = empty()) {
       sessions.notices = real.editorSessionModel.reconcileEditorSession(current, { ...current.record, draft, version: current.record.version + 1 })
       render()
     },
-    saved: () => saved, route: () => params.get('page'),
+    async settle() { await new Promise(resolve => setImmediate(resolve)); render() },
+    saved: () => saved, route: () => params.get('page'), workspaceArguments: () => workspaceArguments, exitGuard: () => exitGuard,
   }
 }
 
@@ -150,4 +155,65 @@ test('an external query change cannot unmount the composing page or strand its i
   assert.equal(p.component('EditorPreview').props.page, 'join')
   assert.equal(p.component('EditorGlobalCopySearch').props.disabled, false)
   assert.equal(p.document().deviceCopy.desktop['notices.title'], '한')
+})
+
+test('English workspace passes its field definitions through validation, search and preview', async () => {
+  const definitions = real.siteCopyCatalog.siteCopyDefinitions.map(field => field.key === 'notices.title' ? { ...field, defaultValue: 'News', maxLength: 10 } : field)
+  const p = page(empty(), { props: { storageScope: 'sample-english', copyDefinitions: definitions,
+    loadDefaults: async () => ({ 'notices.title': 'News' }), previewPathFor: path => `/sample${path}?lang=en` } })
+  await p.settle()
+  assert.equal(p.component('AdminPageTitle').props.title, '영어 버전 변경')
+  assert.equal(p.workspaceArguments().storageScope, 'sample-english')
+  assert.equal(p.workspaceArguments().definitions, definitions)
+  assert.equal(p.component('EditorGlobalCopySearch').props.definitions, definitions)
+  assert.equal(p.component('EditorPreview').props.copyDefinitions, definitions)
+  assert.equal(p.component('EditorPreview').props.context.copyDefinitions, definitions)
+  assert.equal(p.component('EditorPreview').props.context.storageScope, 'sample-english')
+  assert.equal(p.component('EditorPreview').props.path, '/sample/notices?lang=en')
+  assert.equal(p.find(node => node.props?.className === 'site-editor__content-links').length, 0)
+  p.type('Far beyond the English field limit')
+  assert.equal(p.button('영어 버전 임시저장').props.disabled, true)
+  p.type('Our news')
+  assert.equal(p.button('영어 버전 임시저장').props.disabled, false)
+  assert.equal(p.exitGuard().enabled, true)
+})
+
+test('workspace switches keep the page and device through the existing guarded internal links', async () => {
+  const p = page(empty(), { query: 'page=notices&device=mobile&scope=shared', props: {
+    storageScope: 'sample-english', loadDefaults: async () => ({}), previewPathFor: path => `/sample${path}?lang=en`,
+  } })
+  await p.settle()
+  assert.equal(p.component('EditorPreview').props.device, 'mobile')
+  assert.equal(p.component('EditorPreview').props.context.scope, 'shared')
+  const original = p.button('한글 원본'), english = p.button('영어 버전')
+  assert.equal(original.props.href, '/admin/editor?page=notices&device=mobile&scope=shared')
+  assert.equal(original.props.target, undefined, 'the router guard must handle workspace navigation in the same task')
+  assert.equal(english.props['aria-current'], 'page')
+  p.type('Saved later')
+  assert.equal(p.exitGuard().enabled, true)
+  assert.equal(p.button('한글 원본').props.disabled, false, 'dirty input uses the existing leave/continue dialog')
+  p.start()
+  assert.equal(p.button('한글 원본').props.disabled, true, 'unfinished composition remains protected')
+})
+
+test('changing preview device selects matching English defaults without reloading or creating overrides', async () => {
+  let loads = 0
+  const defaultsByDevice = { mobile: { 'notices.title': 'Choir news' }, tablet: { 'notices.title': 'Concert news' }, desktop: { 'notices.title': 'Notices' } }
+  const p = page(empty(), { query: 'page=notices&device=mobile&scope=shared', props: {
+    storageScope: 'sample-english', defaultsByDevice,
+    loadDefaults: async () => { loads++; return { 'notices.title': 'Notices', 'sample.content.fixture': 'Shared content' } },
+    previewPathFor: path => `/sample${path}?lang=en`,
+  } })
+  await p.settle()
+  for (const device of ['mobile', 'desktop', 'tablet', 'mobile']) {
+    p.component('EditorPreview').props.onDeviceChange(device); p.render()
+    assert.equal(p.component('EditorPreview').props.context.scope, 'shared')
+    assert.equal(p.component('EditorPreview').props.context.defaults['notices.title'], defaultsByDevice[device]['notices.title'])
+    assert.equal(p.component('EditorCopyPanel').props.defaults['notices.title'], defaultsByDevice[device]['notices.title'])
+    assert.equal(p.component('EditorGlobalCopySearch').props.previewDevice, device)
+    assert.equal(p.component('EditorGlobalCopySearch').props.defaultsByDevice, defaultsByDevice)
+    assert.equal(p.component('EditorCopyPanel').props.defaults['sample.content.fixture'], 'Shared content')
+  }
+  assert.equal(loads, 1)
+  assert.deepEqual(p.document(), empty())
 })

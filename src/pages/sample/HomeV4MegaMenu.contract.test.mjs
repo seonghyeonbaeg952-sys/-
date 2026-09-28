@@ -83,7 +83,7 @@ test('V4 header preserves the production header density and pill CTA contract', 
   assert.match(headerSource, /className="home-v4-sample-header__cta"/)
   assert.match(
     headerSource,
-    /const joinApplicationHref = `\$\{routePrefix\}\/join\?section=contact#application`/,
+    /const joinApplicationHref = sampleHref\(`\$\{routePrefix\}\/join\?section=contact#application`\)/,
   )
   assert.match(
     headerSource,
@@ -135,7 +135,7 @@ test('every public navigation category can open three editorial groups', () => {
   assert.match(megaMenuSource, /code: '03'/)
   assert.match(
     megaMenuSource,
-    /<nav[\s\S]*aria-label=\{`\$\{item\.label\} 상세 메뉴`\}/,
+    /<nav[\s\S]*aria-label=\{isSampleEnglish \? `\$\{item\.label\} menu` : `\$\{item\.label\} 상세 메뉴`\}/,
   )
   assert.match(megaMenuSource, /label: '모테트 정신'/)
   assert.match(megaMenuSource, /label: '활동과 기록'/)

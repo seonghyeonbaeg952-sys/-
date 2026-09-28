@@ -1,4 +1,5 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
 import { EditableLayout } from '../site-editor/EditableLayout'
 import { HomeCopy } from './HomeCopy'
 import { legacyLocationSeed } from '../../constants/legacyContent'
@@ -45,6 +46,7 @@ export function SupportLetterFold({
   settings,
   approvedResponsive = false,
 }: SupportLetterFoldProps) {
+  const { translate } = useSampleLanguage()
   const { copy: copyText } = useSiteEditor()
   const viewport = useHomeResponsiveViewport()
   if (approvedResponsive && viewport !== 'desktop') {
@@ -64,7 +66,7 @@ export function SupportLetterFold({
     >
       <HomeSectionStaffCue
         className="home-section-staff-cue--support"
-        label={content.eyebrowKo}
+        label={translate(content.eyebrowKo)}
         noteOffset={11}
         symbol="♩"
       />
@@ -77,10 +79,10 @@ export function SupportLetterFold({
           <div className="support-pledge-copy">
             <p className="support-pledge-eyebrow"><HomeCopy sourceKey="home.supportLetter.eyebrowEn" text={content.eyebrowEn} /></p>
             <EditableLayout id="home.support.title"><h2 id="home-support-title">
-              <HomeCopy sourceKey="home.supportLetter.title" text={content.title || fallback.title} />
+              <HomeCopy sourceKey="home.supportLetter.title" text={content.title || translate(fallback.title)} />
             </h2></EditableLayout>
             <EditableLayout id="home.support.description"><p className="support-pledge-description">
-              <HomeCopy sourceKey="home.supportLetter.description" text={content.description || fallback.body} />
+              <HomeCopy sourceKey="home.supportLetter.description" text={content.description || translate(fallback.body)} />
             </p></EditableLayout>
             <p className="support-pledge-values">{copyText("home", "home.fixed.SupportLetterFold.97e1959dd9", "정직한 음악 ")}<span aria-hidden="true">·</span>{copyText("home", "home.fixed.SupportLetterFold.31e5f76d33", " 함께 부르는 공동체")}{' '}
               <span aria-hidden="true">·</span>{copyText("home", "home.fixed.SupportLetterFold.6a95b54c19", " 다음 세대 교육")}</p>
@@ -117,8 +119,8 @@ export function SupportLetterFold({
               {supportUses.map((use) => (
                 <li key={use.number}>
                   <span className="support-pledge-use__number">{use.number}</span>
-                  <strong>{use.title}</strong>
-                  <span>{use.description}</span>
+                  <strong>{translate(use.title)}</strong>
+                  <span>{translate(use.description)}</span>
                 </li>
               ))}
             </ol>

@@ -17,11 +17,13 @@ export type AdminTableColumn<TRow extends CmsRecord> = {
 type AdminTableProps<TRow extends CmsRecord> = {
   columns: Array<AdminTableColumn<TRow>>
   emptyMessage?: string
+  editActionLabel?: string
   error?: string | null
   isDeleting?: boolean
   loading?: boolean
   onDelete?: (row: TRow) => void
   onEdit?: (row: TRow) => void
+  onEditEnglish?: (row: TRow) => void
   rows: TRow[]
   showVisibility?: boolean
 }
@@ -65,11 +67,13 @@ function VisibilityBadge({ value }: { value?: boolean }) {
 export function AdminTable<TRow extends CmsRecord>({
   columns,
   emptyMessage,
+  editActionLabel,
   error,
   isDeleting = false,
   loading = false,
   onDelete,
   onEdit,
+  onEditEnglish,
   rows,
   showVisibility = true,
 }: AdminTableProps<TRow>) {
@@ -116,12 +120,13 @@ export function AdminTable<TRow extends CmsRecord>({
                   ) : null}
                   {(onEdit || onDelete) ? (
                     <td className="px-4 py-4 align-top">
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2">
                         {onEdit ? (
                           <Button onClick={() => onEdit(row)} size="sm" variant="secondary">
-                            수정
+                            {editActionLabel ?? (onEditEnglish ? '한국어 수정' : '수정')}
                           </Button>
                         ) : null}
+                        {onEditEnglish ? <Button onClick={() => onEditEnglish(row)} size="sm" variant="secondary">English 작성·수정</Button> : null}
                         {onDelete ? (
                           <Button
                             disabled={isDeleting}
@@ -147,12 +152,13 @@ export function AdminTable<TRow extends CmsRecord>({
           <Card className="p-5" hoverable key={row.id}>
             <div className="mb-4 flex items-center justify-between gap-3">
               {showVisibility ? <VisibilityBadge value={row.is_visible} /> : <span />}
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 {onEdit ? (
                   <Button onClick={() => onEdit(row)} size="sm" variant="secondary">
-                    수정
+                    {editActionLabel ?? (onEditEnglish ? '한국어 수정' : '수정')}
                   </Button>
                 ) : null}
+                {onEditEnglish ? <Button onClick={() => onEditEnglish(row)} size="sm" variant="secondary">English 작성·수정</Button> : null}
                 {onDelete ? (
                   <Button
                     disabled={isDeleting}

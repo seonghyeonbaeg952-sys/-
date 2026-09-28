@@ -1,6 +1,7 @@
 import type { HomeTitleAccent } from '../../lib/homeTypography'
 import { buildHomeTitleFragments } from '../../lib/homeTypography'
 import { HomeCopy } from './HomeCopy'
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
 
 type HomeDisplayTitleTextProps = {
   accents: readonly HomeTitleAccent[]
@@ -17,10 +18,10 @@ export function HomeDisplayTitleText({
   fullText = text,
   offset = 0,
 }: HomeDisplayTitleTextProps) {
-  let cursor = offset
-  return buildHomeTitleFragments(text, accents).map((fragment, index) => {
-    const fragmentOffset = cursor
-    cursor += fragment.text.length
+  const { translate } = useSampleLanguage()
+  const fragments = buildHomeTitleFragments(text, accents.map(accent => ({ ...accent, term: translate(accent.term, sourceKey) })))
+  return fragments.map((fragment, index) => {
+    const fragmentOffset = offset + fragments.slice(0, index).reduce((length, part) => length + part.text.length, 0)
     const content = sourceKey ? <HomeCopy key={index} sourceKey={sourceKey} text={fragment.text} fullText={fullText} offset={fragmentOffset} /> : fragment.text
     return fragment.role === 'base' ? (
       content

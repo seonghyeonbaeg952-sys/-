@@ -11,6 +11,7 @@ const paths = {
   list: '../../components/admin/AdminCrudListPage.tsx',
   form: '../../components/admin/AdminRecordForm.tsx',
   field: '../../components/admin/AdminFormField.tsx',
+  guidance: '../../features/sample-language/sampleContentGuidance.ts',
 }
 const code = file => ts.transpileModule(readFileSync(new URL(file, import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
@@ -61,6 +62,9 @@ function harness(initialData = null) {
         if (component === 'AdminRecordForm') return load('form')
         if (component === 'AdminFormField') return load('field')
         if (component === 'popupNoticeDates') return load(component)
+        if (component === 'sampleContentGuidance') return load('guidance')
+        if (component === 'sampleContentModel') return { isSampleContentResource: resource => resource === 'popup_notices' }
+        if (component === 'sampleContentApi') return { loadEnglishContentStates: async () => ({ data: {}, error: null }) }
         return { [component]: component }
       },
     })

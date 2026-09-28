@@ -8,8 +8,8 @@ import type { CmsMutationPayload, SiteSettingsRow } from '../../types/cms'
 const siteBasicFields = [
   { name: 'site_title', label: '사이트명', type: 'text', required: true },
   {
-    description: '푸터와 일부 기본 안내 화면의 짧은 단체 소개입니다. 홈 섹션 문구는 “홈페이지 편집 · 미리보기”에서 수정합니다.',
-    label: '사이트 소개 한 줄',
+    description: '합창단 소개 페이지의 검색 결과용 메타 설명에 사용됩니다. 현재 본문·푸터에는 표시되지 않습니다. 홈 섹션 문구는 “홈페이지 편집 · 미리보기”에서 수정합니다.',
+    label: '소개 페이지 검색 설명',
     name: 'about_summary',
     type: 'textarea',
     rows: 4,
@@ -78,6 +78,7 @@ export function AdminSettingsPage() {
           site_title: '서울모테트청소년합창단',
         }}
         description="사이트 대표명과 공통 소개 문구를 관리합니다. Hero, 입단 CTA, 갤러리 등 홈 전용 문구는 이 화면에서 분리했습니다."
+        englishResource="site_settings"
         fields={siteBasicFields}
         table="site_settings"
         title="사이트 기본 정보"

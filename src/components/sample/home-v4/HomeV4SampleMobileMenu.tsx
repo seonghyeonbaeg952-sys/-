@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useSiteEditor } from '../../site-editor/useSiteEditor'
 import { navigationCopyKey, navigationLabelKey } from '../../../content/siteCopyCommonCatalog'
 import { FormattedCopy } from '../../site-editor/FormattedCopy'
+import { useSampleLanguage } from '../../../features/sample-language/useSampleLanguage'
 
 type HomeV4SampleMobileMenuProps = {
   id: string
@@ -98,6 +99,7 @@ export function HomeV4SampleMobileMenu({
   routePrefix = '/sample',
 }: HomeV4SampleMobileMenuProps) {
   const { copy: copyText } = useSiteEditor()
+  const { href: sampleHref } = useSampleLanguage()
   const [expandedSectionId, setExpandedSectionId] = useState<string>('about')
   const { copy } = useSiteEditor()
 
@@ -112,7 +114,7 @@ export function HomeV4SampleMobileMenu({
       <nav aria-label={copyText("common", "common.fixed.HomeV4SampleMobileMenu.447d6ce0fb", "모바일 주요 메뉴")}>
         <a
           className="home-v4-mobile-menu__row is-active"
-          href={routePrefix ? `${routePrefix}/home-v4` : '/'}
+          href={sampleHref(routePrefix ? `${routePrefix}/home-v4` : '/')}
           onClick={onNavigate}
         >
           <span><FormattedCopy page="common" id={navigationCopyKey('/')} text={copy('common', navigationCopyKey('/'), '홈')}>{copy('common', navigationCopyKey('/'), '홈')}</FormattedCopy></span>
@@ -147,7 +149,7 @@ export function HomeV4SampleMobileMenu({
               >
                 {section.links.map((link) => (
                   <a
-                    href={`${routePrefix}${link.href}`}
+                    href={sampleHref(`${routePrefix}${link.href}`)}
                     key={link.href}
                     onClick={onNavigate}
                   >

@@ -1,4 +1,5 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
 import { EditableLayout } from '../site-editor/EditableLayout'
 import { HomeCopy } from './HomeCopy'
 import { SiteCopy } from '../site-editor/SiteCopy'
@@ -163,6 +164,7 @@ export function JoinOpenScoreCTA({
   joinInfo,
   presentation = 'default',
 }: JoinOpenScoreCTAProps) {
+  const { translate } = useSampleLanguage()
   const { copy: copyText, documents } = useSiteEditor()
   const tabletDescriptionKey = 'home.tablet.current.join.description'
   const tabletDescriptionEdited = Object.hasOwn(documents.home?.copy ?? {}, tabletDescriptionKey)
@@ -183,10 +185,10 @@ export function JoinOpenScoreCTA({
       .filter(Boolean) ?? []
   const target =
     isFigmaPresentation
-      ? '유소년반 · 청소년반 · 대학부'
+      ? translate('유소년반 · 청소년반 · 대학부')
       : targetItems.length > 0
       ? targetItems.join(' · ')
-      : '정기 연습에 참여할 수 있는 청소년'
+      : translate('정기 연습에 참여할 수 있는 청소년')
   const descriptionDivider = tabletDescriptionEdited ? -1 : content.description.indexOf(',')
   const descriptionLead = descriptionDivider >= 0
     ? content.description.slice(0, descriptionDivider + 1)
@@ -223,13 +225,13 @@ export function JoinOpenScoreCTA({
         <div aria-hidden="true" className="join-open-score__mobile-rail">
           <span className="join-open-score__mobile-rail-note">♫</span>
           <span className="join-open-score__mobile-rail-label">
-            {content.eyebrowKo}
+            {translate(content.eyebrowKo)}
           </span>
           <span className="join-open-score__mobile-rail-node" />
         </div>
         <HomeSectionStaffCue
           className="home-section-staff-cue--join"
-          label={content.eyebrowKo}
+          label={translate(content.eyebrowKo)}
           noteOffset={30}
           symbol="♫"
         />
@@ -336,12 +338,12 @@ export function JoinOpenScoreCTA({
               <FactItem
                 delay={500}
                 label={copyText("home", "home.fixed.JoinOpenScoreCTA.120afc446b", "연습 안내")}
-                value="일정·장소는 입단 안내에서 확인"
+                value={translate('일정·장소는 입단 안내에서 확인')}
               />
               <FactItem
                 delay={580}
                 label={copyText("home", "home.fixed.JoinOpenScoreCTA.886055c890", "보호자 안내")}
-                value="지원 후 보호자 연락처로 안내"
+                value={translate('지원 후 보호자 연락처로 안내')}
               />
             </dl>
           </div>
@@ -389,7 +391,7 @@ export function JoinOpenScoreCTA({
               <p>{copyText("home", "home.fixed.JoinOpenScoreCTA.924d5f8adf", "FOR PARENTS & GUARDIANS")}</p>
               <ul>
                 {visibleGuardianNotes.map((note) => (
-                  <li key={note}>{note}</li>
+                  <li key={note}>{translate(note)}</li>
                 ))}
               </ul>
             </aside>

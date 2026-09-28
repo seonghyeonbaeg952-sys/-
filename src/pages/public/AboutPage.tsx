@@ -1,4 +1,5 @@
 import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
 import { useSearchParams } from 'react-router'
 
 import { AnimatedSectionTabs } from '../../components/common/AnimatedSectionTabs'
@@ -27,6 +28,7 @@ import {
 
 function AboutSectionSelector({ activeSection }: { activeSection: AboutSectionKey }) {
   const { copy: copyText } = useSiteEditor()
+  const { translate } = useSampleLanguage()
   return (
     <div
       className="section-tabs-wrap relative overflow-hidden rounded-formal border border-line-default bg-bg-warm-white p-3 shadow-card"
@@ -35,7 +37,7 @@ function AboutSectionSelector({ activeSection }: { activeSection: AboutSectionKe
       <AnimatedSectionTabs
         activeValue={activeSection}
         ariaLabel={copyText("about", "about.fixed.AboutPage.bc6e5381b9", "소개 섹션 선택")}
-        tabs={aboutSectionTabs}
+        tabs={aboutSectionTabs.map(tab => ({ ...tab, label: translate(tab.label) }))}
         tone="navy"
       />
     </div>

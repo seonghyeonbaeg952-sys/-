@@ -3,6 +3,8 @@ import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { SiteCopy } from '../site-editor/SiteCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useMemo, useState } from 'react'
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
+import { englishHistoryMonth } from '../../features/sample-language/sampleLanguageModel'
 
 import { legacyHistorySeed } from '../../constants/legacyContent'
 import type { HistoryRow } from '../../types/cms'
@@ -33,6 +35,8 @@ export function HistoryCueSheetExperience({
   shouldUseLegacyFallback,
 }: HistoryCueSheetExperienceProps) {
   const { copy: copyText } = useSiteEditor()
+  const { enabled, language } = useSampleLanguage()
+  const english = enabled && language === 'en'
   const { copy: editorCopy } = useSiteEditor()
   const sourceRows = useMemo<readonly HistoryCueSource[]>(() => {
     if (history.length > 0) {
@@ -230,7 +234,7 @@ export function HistoryCueSheetExperience({
                         <span className="history-cue__folio">{record.folio}</span>
                         <span className="history-cue__date">
                           <strong>{record.year}</strong>
-                          {record.month ? <small>{record.month}</small> : null}
+                          {record.month ? <small>{english ? englishHistoryMonth(record.month) : record.month}</small> : null}
                         </span>
                         <span className="history-cue__title">{record.title}</span>
                         <span aria-hidden="true" className="history-cue__toggle">

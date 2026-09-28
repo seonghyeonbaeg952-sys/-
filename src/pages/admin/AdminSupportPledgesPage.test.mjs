@@ -25,6 +25,7 @@ const png = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCA
 const row = { id: 'fixture', name: '후원자', phone: '010-0000-0000', email: 'fixture@example.invalid', gender: 'female', birth_date: '1990-01-02', address: '주소 원문\n둘째 줄', member_type: 'individual', amount: 10000, custom_amount: null, depositor: '입금자', pledge_date: '2026-09-17', signer_name: '서명자', signature_image_url: png, privacy_agreed: true, status: 'new', created_at: '2026-09-17T00:00:00Z', terms_snapshot: { title: '원본 제목', subtitle: '원본 부제', message: '  원문\n\n끝 <script>unsafe()</script> ', privacy_notice: '동의한 원문', print_note: '인쇄 안내', footer_note: '하단 원문', bank_account_number: null, internal_note: 'INTERNAL-SENTINEL' } }
 
 test('pledge detail exposes printing and original terms without permitting answer mutation', () => {
+  assert.equal(props.editActionLabel, '상세·인쇄')
   assert.equal(typeof props.renderBeforeForm, 'function', 'CMS must offer a readable receipt and print action')
   const html = renderToStaticMarkup(props.renderBeforeForm(row))
   assert.match(html, /후원약정서 인쇄/)

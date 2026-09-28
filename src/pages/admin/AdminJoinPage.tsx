@@ -88,6 +88,7 @@ export function AdminJoinPage() {
       <AdminSingleRecordSection
         defaultValues={{ is_visible: true }}
         description="한국 시간(Asia/Seoul) 기준으로 설정합니다. 두 일시를 모두 비우면 상시 접수하며, 설정한 기간에 맞춰 접수가 자동으로 열리고 닫힙니다."
+        englishResource="join_info"
         fields={joinInfoFields}
         preparePayload={preparePayload}
         table="join_info"

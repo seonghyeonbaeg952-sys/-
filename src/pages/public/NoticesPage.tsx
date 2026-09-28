@@ -1,3 +1,5 @@
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
+import { workflowCopy, workflowDate, workflowTextLanguage } from '../../components/common/workflowCopy'
 import { EditableLayout } from '../../components/site-editor/EditableLayout'
 import { FormattedCopy } from '../../components/site-editor/FormattedCopy'
 import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
@@ -27,6 +29,8 @@ const defaultCategoryOptions = [
 ]
 
 export function NoticesPage() {
+  const { enabled, language, translate } = useSampleLanguage()
+  const english = enabled && language === 'en'
   const { copy: copyText } = useSiteEditor()
   const t = usePageCopy('notices')
   const categoryOptions = defaultCategoryOptions.map(item => ({ ...item, label: copyText('notices', `notices.options.${item.value}`, item.label) }))
@@ -169,10 +173,10 @@ export function NoticesPage() {
                       {notice.is_important ? <FormattedCopy page="notices" id="notices.fixed.NoticesPage.39b62d01a5" text={copyText("notices", "notices.fixed.NoticesPage.39b62d01a5", "중요 공지")}>{copyText("notices", "notices.fixed.NoticesPage.39b62d01a5", "중요 공지")}</FormattedCopy> : <FormattedCopy page="notices" id={`notices.options.${notice.category}`} text={copyText('notices', `notices.options.${notice.category}`, getNoticeCategoryLabel(notice.category))}>{copyText('notices', `notices.options.${notice.category}`, getNoticeCategoryLabel(notice.category))}</FormattedCopy>}
                     </span>
                     <div className="notices-page__row-copy">
-                      <h2>{notice.title}</h2>
-                      {notice.content ? <p>{getNoticeExcerpt(notice.content)}</p> : null}
+                      <h2 lang={workflowTextLanguage(notice.title, english)}>{notice.title}</h2>
+                      {notice.content ? <p lang={workflowTextLanguage(notice.content, english)}>{getNoticeExcerpt(notice.content)}</p> : null}
                     </div>
-                    <time className="notices-page__row-date" dateTime={notice.created_at}>{formatNoticeDate(notice.created_at)}</time>
+                    <time className="notices-page__row-date" dateTime={notice.created_at}>{workflowDate(notice.created_at, formatNoticeDate(notice.created_at), english)}</time>
                     <span aria-hidden="true" className="notices-page__row-arrow">↗</span>
                   </Link>
                 </li>
@@ -180,7 +184,7 @@ export function NoticesPage() {
             </ul>
           )}
           {!noticesData.isLoading && !noticesData.error ? (
-            <p aria-live="polite" aria-atomic="true" className="notices-page__count">{<FormattedCopy page="notices" id="notices.fixed.NoticesPage.90252b07ab" text={copyText("notices", "notices.fixed.NoticesPage.90252b07ab", "총 ")}>{copyText("notices", "notices.fixed.NoticesPage.90252b07ab", "총 ")}</FormattedCopy>}{filteredNotices.length}{<FormattedCopy page="notices" id="notices.fixed.NoticesPage.ef7c0bca0a" text={copyText("notices", "notices.fixed.NoticesPage.ef7c0bca0a", "건의 공지사항")}>{copyText("notices", "notices.fixed.NoticesPage.ef7c0bca0a", "건의 공지사항")}</FormattedCopy>}</p>
+            <p aria-live="polite" aria-atomic="true" className="notices-page__count">{english ? workflowCopy(translate, '총 {count}건의 공지사항', { count: filteredNotices.length }) : <>{<FormattedCopy page="notices" id="notices.fixed.NoticesPage.90252b07ab" text={copyText("notices", "notices.fixed.NoticesPage.90252b07ab", "총 ")}>{copyText("notices", "notices.fixed.NoticesPage.90252b07ab", "총 ")}</FormattedCopy>}{filteredNotices.length}{<FormattedCopy page="notices" id="notices.fixed.NoticesPage.ef7c0bca0a" text={copyText("notices", "notices.fixed.NoticesPage.ef7c0bca0a", "건의 공지사항")}>{copyText("notices", "notices.fixed.NoticesPage.ef7c0bca0a", "건의 공지사항")}</FormattedCopy>}</>}</p>
           ) : null}
         </div>
       </section>

@@ -8,6 +8,7 @@ const compile = source => ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
 }).outputText
 const modelUrl = dataModule(compile(await readFile(new URL('../components/join/joinApplicationModel.ts', import.meta.url), 'utf8')))
+const sampleGuardUrl = dataModule(compile(await readFile(new URL('./sampleSubmissionGuard.ts', import.meta.url), 'utf8')))
 const editorStylesUrl = dataModule(compile(await readFile(new URL('./siteEditorTextStyles.ts', import.meta.url), 'utf8')))
 const layoutUrl = dataModule(compile(await readFile(new URL('./siteEditorLayout.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(editorStylesUrl)))
 const editorModelUrl = dataModule(compile(await readFile(new URL('./siteEditorModel.ts', import.meta.url), 'utf8')).replaceAll("'./siteEditorTextStyles'", JSON.stringify(editorStylesUrl)).replaceAll("'./siteEditorLayout'", JSON.stringify(layoutUrl)))
@@ -27,6 +28,7 @@ globalThis[transportKey] = {
 }
 const authUrl = dataModule(`export const getSupabaseClientSafe = () => globalThis.${transportKey}.getClient()`)
 let source = compile(await readFile(new URL('./joinApplications.ts', import.meta.url), 'utf8'))
+source = source.replace(/(['"])\.\/sampleSubmissionGuard\1/g, JSON.stringify(sampleGuardUrl))
 source = source.replace(/(['"])\.\/auth\1/g, JSON.stringify(authUrl))
 source = source.replace(/(['"])\.\/siteEditorPreview\1/g, JSON.stringify(previewUrl))
 source = source.replace(/(['"])\.\.\/components\/join\/joinApplicationModel\1/g, JSON.stringify(modelUrl))
@@ -42,6 +44,21 @@ const values = {
   privacy_agreed: true, website: '',
 }
 const reset = response => { calls.length = 0; result = response; unavailable = false }
+
+test('Korean and English sample applications never reach the intake RPC', async () => {
+  reset({ data: true, error: null })
+  const previousWindow = globalThis.window
+  try {
+    for (const search of ['?lang=ko', '?lang=en']) {
+      globalThis.window = { location: { pathname: '/sample/join', search } }
+      assert.match((await api.submitJoinApplication(values, joinId, submissionId)).error, /입단지원서는 접수되지 않습니다/)
+    }
+    assert.equal(calls.length, 0)
+  } finally {
+    if (previousWindow === undefined) delete globalThis.window
+    else globalThis.window = previousWindow
+  }
+})
 
 test('readiness uses only the published guide GET RPC and returns no extra server fields', async () => {
   reset({ data: [{ form_version: 2, server_now: '2026-09-08T12:00:00Z', recruitment_starts_at: null,

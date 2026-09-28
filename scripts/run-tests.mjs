@@ -4,6 +4,26 @@ import { fileURLToPath } from 'node:url'
 // Explicit regression inventory. Archived visual-prototype contracts are not
 // included through a broad glob; their status is tracked separately.
 const tests = [
+  'src/features/sample-language/sampleContentModel.test.mjs',
+  'src/features/sample-language/sampleContentGuidance.test.mjs',
+  'src/features/sample-language/SampleDateInput.clear.test.mjs',
+  'src/features/sample-language/sampleContentApi.test.mjs',
+  'src/features/sample-language/sampleEnglishLayout.test.mjs',
+  'src/components/admin/AdminEnglishContentForm.test.mjs',
+  'src/components/admin/AdminCrudListPage.englishStatus.test.mjs',
+  'src/components/admin/AdminSingleRecordSection.english.test.mjs',
+  'src/components/admin/AdminTable.printAction.test.mjs',
+  'src/features/sample-language/sampleLanguage.test.mjs',
+  'src/features/sample-language/sampleRoutes.test.mjs',
+  'src/features/sample-language/SampleLanguageProvider.test.mjs',
+  'src/features/sample-language/sampleEnglishEditor.test.mjs',
+  'src/components/home/HomeFallbackLanguage.test.mjs',
+  'src/components/common/TransitionLink.sample.test.mjs',
+  'src/components/common/workflowCopy.test.mjs',
+  'src/components/sample/home-v4/HomeV4SampleHeader.language.test.mjs',
+  'src/lib/sampleSubmissionGuard.test.mjs',
+  'src/pages/admin/AdminSampleEnglishEditorPage.test.mjs',
+  'src/components/admin/site-editor/EditorPreview.test.mjs',
   'src/hooks/useAdminAuth.test.mjs',
   'src/hooks/useCrudList.test.mjs',
   'src/hooks/useUnsavedChangesGuard.test.mjs',
@@ -37,6 +57,7 @@ const tests = [
   'src/lib/joinApplications.test.mjs',
   'src/lib/joinRecruitment.test.mjs',
   'src/pages/admin/AdminJoinPage.test.mjs',
+  'src/pages/admin/AdminLocationPage.english.test.mjs',
   'src/pages/admin/AdminJoinApplicationsPage.test.mjs',
   'src/pages/admin/AdminSupportPledgesPage.test.mjs',
   'src/pages/admin/AdminDashboardPage.test.mjs',
@@ -114,7 +135,10 @@ const tests = [
   'src/lib/cmsPopupNotices.test.mjs',
 ]
 
-const result = spawnSync(process.execPath, ['--test', '--test-concurrency=4', ...tests], {
+// Avoid overlapping native Vite SSR worker shutdowns on Windows (0xC0000005).
+// Every test still runs; only the worker concurrency differs by platform.
+const concurrency = process.platform === 'win32' ? 1 : 4
+const result = spawnSync(process.execPath, ['--test', `--test-concurrency=${concurrency}`, ...tests], {
   cwd: fileURLToPath(new URL('..', import.meta.url)),
   stdio: 'inherit',
 })

@@ -1,0 +1,278 @@
+/* Translation changes line length. English titles and neighbouring content
+   must reserve their actual height rather than reuse Korean pixel offsets. */
+/* The opened concert brochure is editorial paper, not three empty white cards.
+   Keep its frame and folding geometry; only refine the interior English face. */
+html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel {
+  justify-content: flex-start;
+  gap: 1.35rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: linear-gradient(165deg, #fffdf9, #f8f1e9);
+  scrollbar-width: thin;
+  scrollbar-color: #8b6875 transparent;
+}
+html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-center {
+  background: linear-gradient(160deg, #fffaf2, #f4e9e1);
+}
+html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel::before {
+  content: '';
+  display: block;
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2px;
+  background: #ec4b1f;
+}
+html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel > div:first-of-type {
+  min-width: 0;
+}
+html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-kicker {
+  margin: 0 0 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgb(110 37 65 / 20%);
+  color: #74334d;
+  letter-spacing: 0.16em;
+}
+html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel :is(h3, h4) {
+  margin: 0 0 0.85rem;
+  font-size: clamp(1.05rem, 1.45vw, 1.45rem);
+  line-height: 1.25;
+  overflow-wrap: normal;
+  text-wrap: balance;
+}
+html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-left > div > p:last-child {
+  max-width: 30ch;
+  line-height: 1.7;
+}
+html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-center dl {
+  width: 100%;
+  margin-top: auto;
+  gap: 0;
+}
+html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-center dl > div {
+  padding: 0.65rem 0;
+  border-top: 1px solid rgb(110 37 65 / 18%);
+}
+html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-right .motion-program-statuses span {
+  border-color: rgb(236 75 31 / 34%);
+  background: rgb(236 75 31 / 8%);
+  color: #773047;
+}
+html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-right .motion-program-actions {
+  margin-top: auto;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgb(110 37 65 / 18%);
+}
+html[data-sample-language='en'] .public-shell .motet-score-final-sheet-content {
+  position: relative;
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: 64px 24px;
+}
+html[data-sample-language='en'] .public-shell .motet-score-final-sheet { overflow-y: auto; }
+html[data-sample-language='en'] .public-shell .motet-score-final-sheet-content > h2 {
+  position: relative;
+  inset: auto;
+  width: min(920px, 100%);
+  font-size: clamp(34px, 3.1vw, 48px);
+  line-height: 1.28;
+  transform: translateY(var(--headline-y)) scale(var(--headline-scale));
+}
+html[data-sample-language='en'] .public-shell .motet-score-voice-legend {
+  position: relative;
+  inset: auto;
+  width: min(980px, 100%);
+  margin-top: 12px;
+  transform: translateY(calc((1 - var(--legend-reveal)) * 12px));
+}
+html[data-sample-language='en'] .public-shell .motet-score-final-staff {
+  position: relative;
+  inset: auto;
+  width: calc(100% + 48px);
+  transform: scaleX(calc(0.02 + var(--staff-reveal) * 0.98));
+}
+html[data-sample-language='en'] .public-shell .motet-score-final-summary {
+  position: relative;
+  inset: auto;
+  width: min(720px, 100%);
+  line-height: 1.7;
+  transform: translateY(calc((1 - var(--summary-reveal)) * 14px));
+}
+html[data-sample-language='en'] .public-shell .motet-score-final-actions {
+  position: relative;
+  inset: auto;
+  justify-content: center;
+  flex-wrap: wrap;
+  transform: translateY(calc((1 - var(--actions-reveal)) * 12px));
+}
+html[data-sample-language='en'] .public-shell .home-spirit-chorus-orbit__center { width: min(72%, 420px); }
+html[data-sample-language='en'] .public-shell .home-spirit-chorus-orbit__headline {
+  font-size: clamp(23px, 1.8vw, 28px);
+  letter-spacing: -0.025em;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+html[data-sample-language='en'] .public-shell .home-spirit-chorus-orbit__eyebrow { margin-bottom: 16px; }
+html[data-sample-language='en'] .public-shell .home-spirit-chorus-orbit__signature { margin-top: 16px; }
+html[data-sample-language='en'] .public-shell .home-spirit-chorus-orbit__action { margin-top: 32px; }
+html[data-sample-language='en'] .public-shell :is(
+  .home-about-portrait__copy > p, .about-overview__intro-body,
+  .about-overview__founding-body, .about-overview__spirit-body,
+  .spirit-heritage__motet-body, .spirit-heritage__faith-lead,
+  .spirit-heritage__education-lead, .join-open-score__description,
+  .notices-page__description, .gallery-journal__description,
+  .contact-atelier__intro p, .join-guide__description
+) { text-wrap: pretty; }
+
+html[data-sample-language='en'] .public-shell :is(
+  .spirit-heritage__motet-line, .spirit-heritage__manifesto-line, .spirit-heritage__faith-line,
+  .spirit-heritage__faith-title h2 .spirit-heritage__faith-line--last, .spirit-heritage__values-line,
+  .spirit-heritage__education-line, .spirit-heritage__community-line
+) {
+  height: auto;
+  padding-left: 0;
+  font-size: inherit;
+  line-height: inherit;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+html[data-sample-language='en'] .public-shell :is(
+  .spirit-heritage__motet-title h2, .spirit-heritage__manifesto-heading h2,
+  .spirit-heritage__faith-title h2, .spirit-heritage__values-heading h2,
+  .spirit-heritage__education-title h2, .spirit-heritage__community-heading h2
+) { display: block; font-size: clamp(32px, 3vw, 44px); letter-spacing: -0.025em; line-height: 1.28; text-wrap: balance; }
+html[data-sample-language='en'] .public-shell :is(
+  .spirit-heritage__motet-line, .spirit-heritage__manifesto-line,
+  .spirit-heritage__faith-line, .spirit-heritage__values-line,
+  .spirit-heritage__education-line, .spirit-heritage__community-line
+) { display: inline; white-space: normal; }
+html[data-sample-language='en'] .public-shell :is(
+  .spirit-heritage__motet-title em, .spirit-heritage__manifesto-heading h2 strong,
+  .spirit-heritage__faith-title h2 strong, .spirit-heritage__faith-title h2 em,
+  .spirit-heritage__values-heading h2 strong, .spirit-heritage__education-title h2 strong,
+  .spirit-heritage__community-heading h2 em
+) { font-size: 1.08em; line-height: inherit; }
+html[data-sample-language='en'] .public-shell .spirit-heritage__faith-title::before,
+html[data-sample-language='en'] .public-shell .spirit-heritage__faith-title::after {
+  top: auto;
+  bottom: -16px;
+  left: 0;
+  max-width: 100%;
+}
+html[data-sample-language='en'] .public-shell :is(.spirit-heritage__education-lead, .spirit-heritage__motet-body) {
+  position: relative;
+  inset: auto;
+  width: auto;
+  margin-top: 32px !important;
+}
+html[data-sample-language='en'] .public-shell .spirit-heritage__scripture-card {
+  display: flex;
+  height: auto;
+  min-height: 282px;
+  flex-direction: column;
+  gap: 24px;
+  padding: 28px 30px;
+}
+html[data-sample-language='en'] .public-shell .spirit-heritage__scripture-card :is(p, blockquote, small) {
+  position: relative;
+  inset: auto;
+  width: auto;
+  margin: 0 !important;
+}
+html[data-sample-language='en'] .public-shell .spirit-heritage__scripture-card small { margin-top: auto !important; }
+html[data-sample-language='en'] .public-shell .spirit-heritage__value-panel { height: auto; overflow: visible; }
+html[data-sample-language='en'] .public-shell .spirit-heritage__value-panel :is(h3, strong, p) { width: auto; max-width: 100%; }
+html[data-sample-language='en'] .public-shell .spirit-heritage__motet-glass { height: auto; min-height: 524px; }
+html[data-sample-language='en'] .public-shell .spirit-heritage__quote-card {
+  position: relative;
+  inset: auto;
+  width: auto;
+  height: auto;
+  margin-top: 28px;
+}
+html[data-sample-language='en'] .public-shell .spirit-heritage__quote-card blockquote { width: auto; }
+html[data-sample-language='en'] .public-shell .spirit-heritage__community-heading::before,
+html[data-sample-language='en'] .public-shell .spirit-heritage__community-heading::after {
+  top: auto;
+  bottom: -16px;
+  left: 0;
+  max-width: 100%;
+}
+html[data-sample-language='en'] .public-shell .about-overview__title-focus { font-size: 1.08em; line-height: inherit; white-space: normal; }
+/* The Korean reveal mask clips English glyph descenders (for example, 'g').
+   Opacity on the animated child still hides it before the entrance. */
+html[data-sample-language='en'] .public-shell .about-overview__title-mask { overflow: visible; }
+html[data-sample-language='en'] .public-shell .about-overview__intro h1 { font-size: clamp(38px, 4vw, 58px); line-height: 1.22; }
+html[data-sample-language='en'] .public-shell :is(
+  .about-overview__glass-caption, .about-overview__archive-caption,
+  .about-overview__practice-caption, .about-overview__program-grid article
+) { height: auto; min-height: 104px; }
+
+html[data-sample-language='en'] .public-shell .join-open-score__actions { flex-wrap: wrap; justify-content: center; }
+html[data-sample-language='en'] .public-shell .join-open-score .join-open-score__cta {
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  height: auto;
+  padding-block: 12px;
+  line-height: 1.35;
+}
+html[data-sample-language='en'] .public-shell .join-open-score .join-open-score__cta > span:first-child {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+html[data-sample-language='en'] .public-shell .join-open-score .join-open-score__cta--primary,
+html[data-sample-language='en'] .public-shell .join-open-score .join-open-score__cta--secondary {
+  flex: none;
+  width: min(260px, 100%);
+  max-width: 260px;
+}
+
+@media (min-width: 1100px) {
+  html[data-sample-language='en'] .public-shell :is(.about-overview__intro, .about-overview__founding, .about-overview__education) { height: auto; }
+  html[data-sample-language='en'] .public-shell :is(.about-overview__intro-stage, .about-overview__founding-stage, .about-overview__education-stage) {
+    display: grid;
+    height: auto;
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+    align-items: start;
+    gap: 40px 72px;
+    padding-block: 82px 64px;
+  }
+  html[data-sample-language='en'] .public-shell .about-overview__intro-stage { grid-template-areas: 'copy photo' 'lyric lyric' 'rule rule'; }
+  html[data-sample-language='en'] .public-shell .about-overview__founding-stage { grid-template-areas: 'heading copy' 'photo copy' 'meta meta'; grid-template-rows: auto 1fr auto; }
+  html[data-sample-language='en'] .public-shell .about-overview__education-stage { grid-template-areas: 'heading script' 'photo sequence' 'statement statement' 'programs programs' 'rule rule'; }
+  html[data-sample-language='en'] .public-shell :is(
+    .about-overview__intro-copy, .about-overview__intro-figure, .about-overview__intro-lyric,
+    .about-overview__bottom-rule, .about-overview__founding-heading, .about-overview__founding-visual,
+    .about-overview__founding-copy, .about-overview__founding-meta, .about-overview__education-heading,
+    .about-overview__education-visual, .about-overview__learning-script, .about-overview__learning-sequence,
+    .about-overview__education-statement, .about-overview__programs, .about-overview__education-accent
+  ) { position: relative; inset: auto; width: 100%; min-width: 0; }
+  html[data-sample-language='en'] .public-shell .about-overview__intro-copy { grid-area: copy; }
+  html[data-sample-language='en'] .public-shell .about-overview__intro-figure { grid-area: photo; }
+  html[data-sample-language='en'] .public-shell .about-overview__intro-lyric { grid-area: lyric; }
+  html[data-sample-language='en'] .public-shell .about-overview__bottom-rule { grid-area: rule; }
+  html[data-sample-language='en'] .public-shell .about-overview__founding-heading { grid-area: heading; }
+  html[data-sample-language='en'] .public-shell .about-overview__founding-visual { grid-area: photo; }
+  html[data-sample-language='en'] .public-shell .about-overview__founding-copy { grid-area: copy; }
+  html[data-sample-language='en'] .public-shell .about-overview__founding-meta { grid-area: meta; }
+  html[data-sample-language='en'] .public-shell .about-overview__education-heading { grid-area: heading; }
+  html[data-sample-language='en'] .public-shell .about-overview__learning-script { grid-area: script; }
+  html[data-sample-language='en'] .public-shell .about-overview__education-visual { grid-area: photo; }
+  html[data-sample-language='en'] .public-shell .about-overview__learning-sequence { grid-area: sequence; }
+  html[data-sample-language='en'] .public-shell .about-overview__education-statement { grid-area: statement; }
+  html[data-sample-language='en'] .public-shell .about-overview__programs { grid-area: programs; }
+  html[data-sample-language='en'] .public-shell .about-overview__education-accent { grid-area: rule; }
+  html[data-sample-language='en'] .public-shell :is(
+    .about-overview__intro-image, .about-overview__founding-visual figure, .about-overview__founding-image,
+    .about-overview__education-visual figure, .about-overview__education-image
+  ) { width: 100%; }
+  html[data-sample-language='en'] .public-shell :is(.about-overview__founding-heading h2, .about-overview__education-heading h2) { font-size: 44px; line-height: 1.28; }
+  html[data-sample-language='en'] .public-shell .about-overview__education-heading h2 span { font-size: 1.08em; line-height: inherit; }
+  html[data-sample-language='en'] .public-shell .about-overview__founding-copy blockquote { width: auto; margin-right: 0; }
+  html[data-sample-language='en'] .public-shell .about-overview__practice-caption { left: auto; right: 24px; width: min(316px, calc(100% - 48px)); }
+}

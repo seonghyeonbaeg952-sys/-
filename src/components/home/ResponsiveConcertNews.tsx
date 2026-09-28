@@ -3,6 +3,8 @@ import { HomeCopy } from './HomeCopy'
 
 import type { Concert, Notice } from '../../types/content'
 import { formatShortDate } from '../../utils/formatDate'
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
+import { workflowTime } from '../common/workflowCopy'
 import { Button } from '../common/Button'
 import { EmptyState } from '../common/EmptyState'
 import { TransitionLink } from '../common/TransitionLink'
@@ -29,7 +31,7 @@ type ResponsiveConcertNewsProps = {
   title: string
 }
 
-function getTicketDate(dateString: string) {
+function getTicketDate(dateString: string, english: boolean) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) return null
 
   const date = new Date(`${dateString}T12:00:00Z`)
@@ -38,11 +40,11 @@ function getTicketDate(dateString: string) {
   }
 
   return {
-    label: new Intl.DateTimeFormat('ko-KR', {
+    label: new Intl.DateTimeFormat(english ? 'en-GB' : 'ko-KR', {
       day: 'numeric', month: 'long', timeZone: 'UTC', weekday: 'long', year: 'numeric',
     }).format(date),
-    monthDay: `${dateString.slice(5, 7)}.${dateString.slice(8, 10)}`,
-    weekday: new Intl.DateTimeFormat('ko-KR', {
+    monthDay: english ? new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', day: 'numeric', month: 'short' }).format(date) : `${dateString.slice(5, 7)}.${dateString.slice(8, 10)}`,
+    weekday: new Intl.DateTimeFormat(english ? 'en-GB' : 'ko-KR', {
       timeZone: 'UTC', weekday: 'long',
     }).format(date),
     year: dateString.slice(0, 4),
@@ -69,9 +71,11 @@ export function ResponsiveConcertNews({
   responsiveNoticeImportantLabel = '중요 안내',
   title,
 }: ResponsiveConcertNewsProps) {
+  const { enabled, language } = useSampleLanguage()
+  const english = enabled && language === 'en'
   const headingId = useId()
   const noticesHeadingId = useId()
-  const date = concert ? getTicketDate(concert.date) : null
+  const date = concert ? getTicketDate(concert.date, english) : null
 
   return (
     <section
@@ -110,7 +114,7 @@ export function ResponsiveConcertNews({
               {concert.location || concert.time ? (
                 <div className="responsive-concerts__venue">
                   {concert.location ? <p>{concert.location}</p> : null}
-                  {concert.time ? <p>{concert.time}</p> : null}
+                  {concert.time ? <p>{workflowTime(concert.time, english)}</p> : null}
                 </div>
               ) : null}
               <Button

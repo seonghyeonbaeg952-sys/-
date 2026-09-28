@@ -1,4 +1,5 @@
 import { getSupabaseClientSafe } from './auth'
+import { getSampleSubmissionMessage } from './sampleSubmissionGuard'
 import { isSiteEditorPreview, PREVIEW_SUBMISSION_MESSAGE } from './siteEditorPreview'
 import { INTAKE_CHANGED_MESSAGE, INTAKE_INVALID_MESSAGE, INTAKE_RATE_LIMIT_MESSAGE, SUPPORT_CLOSED_MESSAGE, isSettingsId, isSubmissionId, validateContactIntake, validateSupportIntake } from './intakeModel'
 import type { ContactIntakePayload, IntakeResult, SupportIntakePayload } from '../types/intake'
@@ -19,6 +20,8 @@ async function submit(rpc: string, args: Record<string, unknown>, fallback: stri
 }
 
 export async function submitContactIntake(input: ContactIntakePayload & { website?: string | null }, submissionId: string): Promise<IntakeResult> {
+  const sampleMessage = getSampleSubmissionMessage('enquiry')
+  if (sampleMessage) return { data: null, error: sampleMessage }
   if (isSiteEditorPreview()) return { data: null, error: PREVIEW_SUBMISSION_MESSAGE }
   if (input.website?.trim()) return { data: true, error: null }
   const payload = { ...input }
@@ -29,6 +32,8 @@ export async function submitContactIntake(input: ContactIntakePayload & { websit
 }
 
 export async function submitSupportIntake(input: SupportIntakePayload & { website?: string | null }, submissionId: string, settingsId: string): Promise<IntakeResult> {
+  const sampleMessage = getSampleSubmissionMessage('pledge')
+  if (sampleMessage) return { data: null, error: sampleMessage }
   if (isSiteEditorPreview()) return { data: null, error: PREVIEW_SUBMISSION_MESSAGE }
   if (input.website?.trim()) return { data: true, error: null }
   const payload = { ...input }

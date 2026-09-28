@@ -9,6 +9,7 @@ React, Vite, TypeScript, Tailwind CSS 기반의 공식 홈페이지와 관리자
 - Supabase Database: 공개 데이터는 `is_visible = true`만 조회
 - Supabase Storage: `site-images` bucket 기준 이미지 업로드
 - 청소년 개인정보 보호: 단원 이름 공개 방식과 공개 여부 관리
+- 공개 홈페이지의 한국어 기본·영어 전환 및 독립 영문 CMS: [사용 안내](docs/sample-english-guide.md) (`/?lang=en`, `/sample/`, `/admin/editor-english`)
 
 ## 로컬 실행
 

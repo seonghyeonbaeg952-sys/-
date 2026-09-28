@@ -1,4 +1,6 @@
 import { FormattedCopy } from '../site-editor/FormattedCopy'
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
+import { workflowCopy } from '../common/workflowCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
@@ -45,6 +47,7 @@ export function ConcertFilterDrawer({
   year,
   yearOptions,
 }: ConcertFilterDrawerProps) {
+  const { enabled, language, translate } = useSampleLanguage()
   const { copy: copyText } = useSiteEditor()
   const t = usePageCopy('concerts')
   const dialogRef = useRef<HTMLDivElement>(null)
@@ -178,7 +181,7 @@ export function ConcertFilterDrawer({
             onClick={() => onCloseRef.current()}
             type="button"
           >
-            {resultCount}{<FormattedCopy page="concerts" id="concerts.showResults" text={t('showResults')}>{t('showResults')}</FormattedCopy>}
+            {enabled && language === 'en' ? workflowCopy(translate, '{count}개 공연 보기', { count: resultCount }) : <>{resultCount}{<FormattedCopy page="concerts" id="concerts.showResults" text={t('showResults')}>{t('showResults')}</FormattedCopy>}</>}
           </button>
         </div>
       </div>

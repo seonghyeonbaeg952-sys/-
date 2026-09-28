@@ -32,6 +32,7 @@ import { normalizeHomeContentV2 } from '../../lib/homeContent'
 import { applyHomeEditorOverrides, resolveHomeEditorContent } from '../../lib/homeEditorOverrides'
 import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 import type { Concert, GalleryImage } from '../../types/content'
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
 
 type HomePageMode = 'default' | 'section-flow-sample'
 
@@ -152,7 +153,9 @@ export function HomePage({
 }: HomePageProps) {
   const { copy: copyText } = useSiteEditor()
   const viewport = useHomeResponsiveViewport()
-  const { documents } = useSiteEditor()
+  const editor = useSiteEditor()
+  const documents = editor.sourceDocuments ?? editor.documents
+  const { translateHome } = useSampleLanguage()
   const homeData = useHomeData()
   const {
     aboutSections,
@@ -169,10 +172,10 @@ export function HomePage({
     videos,
   } = homeData.data
   const homeContent = useMemo(
-    () => performancePresentation === 'figma-template-carousel'
+    () => translateHome(performancePresentation === 'figma-template-carousel'
       ? resolveHomeEditorContent(siteTexts, documents, viewport)
-      : normalizeHomeContentV2(applyHomeEditorOverrides(siteTexts, documents, 'desktop')),
-    [documents, performancePresentation, siteTexts, viewport],
+      : normalizeHomeContentV2(applyHomeEditorOverrides(siteTexts, documents, 'desktop')), editor.documents, viewport),
+    [documents, editor.documents, performancePresentation, siteTexts, viewport, translateHome],
   )
   const visibleGalleryImages = getVisibleGalleryImages(gallery)
   const aboutVisualImage =

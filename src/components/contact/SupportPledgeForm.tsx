@@ -1,3 +1,7 @@
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
+import { SampleDateInput } from '../../features/sample-language/SampleDateInput'
+import { SAMPLE_SUBMISSION_MESSAGES } from '../../lib/sampleSubmissionGuard'
+import { workflowCopy, workflowTextLanguage, type WorkflowTranslate } from '../common/workflowCopy'
 import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent, PointerEvent as ReactPointerEvent } from 'react'
@@ -86,8 +90,8 @@ function normalizeSupportDisplayText(value: string | null | undefined) {
   return trimmedValue
 }
 
-function formatAmount(amount: number) {
-  return `월 ${amount.toLocaleString('ko-KR')}원`
+function formatAmount(amount: number, translate: WorkflowTranslate) {
+  return workflowCopy(translate, '월 {amount}원', { amount: amount.toLocaleString('ko-KR') })
 }
 
 function getInitialAmount(settings: SupportSettings) {
@@ -139,7 +143,7 @@ function FieldLabel({
 
 type PrintableField = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
 
-function syncPrintableFormValues(source: HTMLElement, clone: HTMLElement) {
+function syncPrintableFormValues(source: HTMLElement, clone: HTMLElement, translate: WorkflowTranslate) {
   const sourceFields = Array.from(
     source.querySelectorAll<PrintableField>('input, select, textarea'),
   )
@@ -158,14 +162,14 @@ function syncPrintableFormValues(source: HTMLElement, clone: HTMLElement) {
     printedValue.className = 'support-pledge__printed-value'
     if (sourceField instanceof HTMLInputElement) {
       if (sourceField.type === 'checkbox' || sourceField.type === 'radio') {
-        printedValue.textContent = sourceField.checked ? '☑ 동의함' : '☐ 동의하지 않음'
+        printedValue.textContent = translate(sourceField.checked ? '☑ 동의함' : '☐ 동의하지 않음')
       } else {
-        printedValue.textContent = sourceField.value || '미작성'
+        printedValue.textContent = sourceField.value || translate('미작성')
       }
     } else if (sourceField instanceof HTMLSelectElement) {
-      printedValue.textContent = sourceField.selectedOptions[0]?.textContent || '미작성'
+      printedValue.textContent = sourceField.selectedOptions[0]?.textContent || translate('미작성')
     } else {
-      printedValue.textContent = sourceField.value || '미작성'
+      printedValue.textContent = sourceField.value || translate('미작성')
     }
     cloneField.replaceWith(printedValue)
   })
@@ -181,7 +185,7 @@ function syncPrintableFormValues(source: HTMLElement, clone: HTMLElement) {
     }
 
     const signatureImage = document.createElement('img')
-    signatureImage.alt = sourceCanvas.getAttribute('aria-label') || '서명 이미지'
+    signatureImage.alt = sourceCanvas.getAttribute('aria-label') || translate('서명 이미지')
     signatureImage.className = sourceCanvas.className
     signatureImage.src = sourceCanvas.toDataURL('image/png')
     cloneCanvas.replaceWith(signatureImage)
@@ -195,6 +199,8 @@ export function SupportPledgeForm({
   settings,
   siteSettings,
 }: SupportPledgeFormProps) {
+  const { enabled, isSample, language, translate } = useSampleLanguage()
+  const english = enabled && language === 'en'
   const { copy: copyText } = useSiteEditor()
   const [values, setValues] = useState<PledgeFormValues>(() =>
     getInitialValues(settings),
@@ -344,7 +350,7 @@ export function SupportPledgeForm({
     if (sourcePrintArea) {
       const printableClone = sourcePrintArea.cloneNode(true) as HTMLElement
 
-      syncPrintableFormValues(sourcePrintArea, printableClone)
+      syncPrintableFormValues(sourcePrintArea, printableClone, translate)
       printHost.append(printableClone)
       document.body.append(printHost)
     }
@@ -390,10 +396,10 @@ export function SupportPledgeForm({
   )
   const selectedAmountLabel =
     Number.isFinite(selectedAmount) && selectedAmount > 0
-      ? formatAmount(selectedAmount)
-      : '선택 예정'
+      ? formatAmount(selectedAmount, translate)
+      : translate('선택 예정')
   const memberTypeLabel =
-    values.memberType === 'individual' ? '개인회원' : '기업회원'
+    translate(values.memberType === 'individual' ? '개인회원' : '기업회원')
 
   const getSignaturePoint = (
     event: ReactPointerEvent<HTMLCanvasElement>,
@@ -540,6 +546,10 @@ export function SupportPledgeForm({
 
   const handleConfirm = async () => {
     if (!isReviewing || isSubmittingRef.current || wasSubmittedRef.current) return
+    if (isSample) {
+      setSubmitError(SAMPLE_SUBMISSION_MESSAGES.pledge)
+      return
+    }
     const error = validatePledge()
     if (error) {
       setSubmitError(error)
@@ -589,16 +599,16 @@ export function SupportPledgeForm({
     ['후원 구분', memberTypeLabel],
     ['약정 금액', selectedAmountLabel],
     ['이름', values.name.trim()],
-    ['성별', values.gender === 'male' ? '남' : values.gender === 'female' ? '여' : values.gender === 'none' ? '응답하지 않음' : '선택 안 함'],
-    ['생년월일', values.birthDate || '미작성'],
+    ['성별', translate(values.gender === 'male' ? '남' : values.gender === 'female' ? '여' : values.gender === 'none' ? '응답하지 않음' : '선택 안 함')],
+    ['생년월일', values.birthDate || translate('미작성')],
     ['핸드폰', values.phone.trim()],
     ['E-mail', values.email.trim()],
-    ['예금주', values.depositor || '미작성'],
-    ['주소', values.address || '미작성'],
-    ['약정 날짜', values.pledgeDate || '미작성'],
-    ['서명 이름', values.signature || values.name || '미작성'],
-    ['인 / 서명', values.signatureImageUrl ? '직접 서명 완료' : '직접 서명 미작성'],
-    ['개인정보 수집 및 이용', values.privacyAgreed ? '동의함' : '동의하지 않음'],
+    ['예금주', values.depositor || translate('미작성')],
+    ['주소', values.address || translate('미작성')],
+    ['약정 날짜', values.pledgeDate || translate('미작성')],
+    ['서명 이름', values.signature || values.name || translate('미작성')],
+    ['인 / 서명', translate(values.signatureImageUrl ? '직접 서명 완료' : '직접 서명 미작성')],
+    ['개인정보 수집 및 이용', translate(values.privacyAgreed ? '동의함' : '동의하지 않음')],
   ]
 
   return (
@@ -624,18 +634,18 @@ export function SupportPledgeForm({
 
         <form className="support-pledge-print-area support-pledge__form" aria-describedby={submitError ? 'support-pledge-error' : undefined} onSubmit={handleSubmit} ref={printAreaRef}>
           <div aria-hidden="true" className="support-print-hidden hidden">
-            <label htmlFor="support-pledge-website">웹사이트</label>
+            <label htmlFor="support-pledge-website">{translate('웹사이트')}</label>
             <input autoComplete="off" id="support-pledge-website" onChange={(event) => setValue('website', event.target.value)} tabIndex={-1} value={values.website} />
           </div>
           <div className="support-pledge__document-heading">
-            <p className="support-pledge__eyebrow">{settings.organization_name}</p>
-            <h3>{settings.title}</h3>
-            <p className="support-pledge__subtitle">{settings.subtitle}</p>
-            <p className="support-pledge__copy">{settings.description}</p>
+            <p className="support-pledge__eyebrow" lang={workflowTextLanguage(settings.organization_name, english)}>{settings.organization_name}</p>
+            <h3 lang={workflowTextLanguage(settings.title, english)}>{settings.title}</h3>
+            <p className="support-pledge__subtitle" lang={workflowTextLanguage(settings.subtitle, english)}>{settings.subtitle}</p>
+            <p className="support-pledge__copy" lang={workflowTextLanguage(settings.description, english)}>{settings.description}</p>
           </div>
           <div className="support-pledge__original">
-            <p className="support-pledge__copy">{settings.message}</p>
-            {settings.form_note ? <p className="support-pledge__copy">{settings.form_note}</p> : null}
+            <p className="support-pledge__copy" lang={workflowTextLanguage(settings.message, english)}>{settings.message}</p>
+            {settings.form_note ? <p className="support-pledge__copy" lang={workflowTextLanguage(settings.form_note, english)}>{settings.form_note}</p> : null}
           </div>
 
           <div data-print-fields hidden={isReviewing || Boolean(submitSuccess)}>
@@ -656,7 +666,7 @@ export function SupportPledgeForm({
                 {amountOptions.map((amount) => (
                   <label className={`support-pledge__option${values.amount === String(amount) ? ' is-selected' : ''}`} key={amount}>
                     <input checked={values.amount === String(amount)} className="sr-only" name="support-amount" onChange={() => { setValue('amount', String(amount)); setValue('customAmount', '') }} type="radio" value={amount} />
-                    {formatAmount(amount)}
+                    {formatAmount(amount, translate)}
                   </label>
                 ))}
                 {settings.allow_custom_amount ? (
@@ -696,7 +706,7 @@ export function SupportPledgeForm({
                 </div>
                 <div>
                   <FieldLabel htmlFor="support-birth-date">생년월일</FieldLabel>
-                  <input className={fieldClassName} id="support-birth-date" onChange={(event) => setValue('birthDate', event.target.value)} type="date" value={values.birthDate} />
+                  {english ? <SampleDateInput className={fieldClassName} id="support-birth-date" label={copyText('contact', 'contact.pledge.support-birth-date', '생년월일')} onChange={(value) => setValue('birthDate', value)} value={values.birthDate} /> : <input className={fieldClassName} id="support-birth-date" onChange={(event) => setValue('birthDate', event.target.value)} type="date" value={values.birthDate} />}
                 </div>
                 <div className="support-pledge__wide">
                   <FieldLabel htmlFor="support-depositor">예금주</FieldLabel>
@@ -720,7 +730,7 @@ export function SupportPledgeForm({
                 {bankNote ? <p className="support-pledge__copy">{bankNote}</p> : null}
                 <div className="support-print-hidden">
                   <Button className="support-pledge__button" disabled={!hasBankAccount} onClick={handleCopyAccount} size="sm" type="button" variant="secondary">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.2c270028c3" text={copyText("contact", "contact.fixed.SupportPledgeForm.2c270028c3", "계좌번호 복사")}>{copyText("contact", "contact.fixed.SupportPledgeForm.2c270028c3", "계좌번호 복사")}</FormattedCopy>}</Button>
-                  {copyStatus ? <p className="support-pledge__field-hint" role="status">{copyStatus}</p> : null}
+                  {copyStatus ? <p className="support-pledge__field-hint" role="status">{translate(copyStatus)}</p> : null}
                 </div>
               </section>
             ) : null}
@@ -730,11 +740,11 @@ export function SupportPledgeForm({
               <div className="support-pledge__fields">
                 <div>
                   <FieldLabel htmlFor="support-pledge-date">날짜</FieldLabel>
-                  <input className={fieldClassName} id="support-pledge-date" onChange={(event) => setValue('pledgeDate', event.target.value)} type="date" value={values.pledgeDate} />
+                  {english ? <SampleDateInput className={fieldClassName} id="support-pledge-date" label={copyText('contact', 'contact.pledge.support-pledge-date', '날짜')} onChange={(value) => setValue('pledgeDate', value)} value={values.pledgeDate} /> : <input className={fieldClassName} id="support-pledge-date" onChange={(event) => setValue('pledgeDate', event.target.value)} type="date" value={values.pledgeDate} />}
                 </div>
                 <div>
                   <FieldLabel htmlFor="support-signer-name">서명 이름</FieldLabel>
-                  <input className={fieldClassName} id="support-signer-name" onChange={(event) => setValue('signature', event.target.value)} placeholder={values.name || '성명을 입력하세요'} value={values.signature} />
+                  <input className={fieldClassName} id="support-signer-name" onChange={(event) => setValue('signature', event.target.value)} placeholder={values.name || translate('성명을 입력하세요')} value={values.signature} />
                 </div>
               </div>
               <div className="support-print-signature-box support-pledge__signature">
@@ -754,7 +764,7 @@ export function SupportPledgeForm({
               <p className="support-pledge__copy">{settings.print_note}</p>
               <label className="support-pledge__consent">
                 <input checked={values.privacyAgreed} onChange={(event) => setValue('privacyAgreed', event.target.checked)} required type="checkbox" />
-                <span>개인정보 수집 및 이용에 동의합니다.</span>
+                <span>{translate('개인정보 수집 및 이용에 동의합니다.')}</span>
               </label>
             </div>
           </div>
@@ -764,7 +774,7 @@ export function SupportPledgeForm({
               <h4 ref={reviewHeadingRef} tabIndex={-1}>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.6073524827" text={copyText("contact", "contact.fixed.SupportPledgeForm.6073524827", "작성 내용을 확인해 주세요.")}>{copyText("contact", "contact.fixed.SupportPledgeForm.6073524827", "작성 내용을 확인해 주세요.")}</FormattedCopy>}</h4>
               <p className="support-pledge__copy">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.560a5275f4" text={copyText("contact", "contact.fixed.SupportPledgeForm.560a5275f4", "아래 내용이 맞는지 확인한 뒤 약정서를 보내주세요. 아직 접수되지 않았습니다.")}>{copyText("contact", "contact.fixed.SupportPledgeForm.560a5275f4", "아래 내용이 맞는지 확인한 뒤 약정서를 보내주세요. 아직 접수되지 않았습니다.")}</FormattedCopy>}</p>
               <dl className="support-pledge__review-list">
-                {reviewItems.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
+                {reviewItems.map(([label, value]) => <div key={label}><dt>{translate(label)}</dt><dd lang={workflowTextLanguage(value, english)}>{value}</dd></div>)}
               </dl>
               {values.signatureImageUrl ? <img className="support-pledge__review-signature" src={values.signatureImageUrl} alt={copyText("contact", "contact.fixed.SupportPledgeForm.5cc6723f8c", "작성한 인/서명")} /> : null}
               {hasCompleteBankAccount ? <dl className="support-pledge__review-list"><div><dt>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.1f1859979a" text={copyText("contact", "contact.fixed.SupportPledgeForm.1f1859979a", "은행명")}>{copyText("contact", "contact.fixed.SupportPledgeForm.1f1859979a", "은행명")}</FormattedCopy>}</dt><dd>{bankName}</dd></div><div><dt>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.e93f44ec04" text={copyText("contact", "contact.fixed.SupportPledgeForm.e93f44ec04", "계좌번호")}>{copyText("contact", "contact.fixed.SupportPledgeForm.e93f44ec04", "계좌번호")}</FormattedCopy>}</dt><dd>{bankAccountNumber}</dd></div><div><dt>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.71b9138c69" text={copyText("contact", "contact.fixed.SupportPledgeForm.71b9138c69", "예금주")}>{copyText("contact", "contact.fixed.SupportPledgeForm.71b9138c69", "예금주")}</FormattedCopy>}</dt><dd>{bankAccountHolder}</dd></div></dl> : null}
@@ -778,12 +788,12 @@ export function SupportPledgeForm({
             <dl className="support-pledge__contacts">
               {contactItems.map(item => <div key={item.label}><dt><FormattedCopy page="contact" id={item.copyKey} text={copyText('contact', item.copyKey, item.label)}>{copyText('contact', item.copyKey, item.label)}</FormattedCopy></dt><dd>{item.value}</dd></div>)}
             </dl>
-            {contactItems.length === 0 ? <p>{supportFallbackMessage}</p> : null}
+            {contactItems.length === 0 ? <p>{translate(supportFallbackMessage)}</p> : null}
             <p className="support-pledge__copy">{settings.footer_note}</p>
           </div>
 
-          {submitError ? <p className="support-print-hidden support-pledge__feedback is-error" id="support-pledge-error" role="alert">{submitError}</p> : null}
-          {submitSuccess ? <p className="support-print-hidden support-pledge__feedback is-success" role="status">{submitSuccess}</p> : null}
+          {submitError ? <p className="support-print-hidden support-pledge__feedback is-error" id="support-pledge-error" role="alert">{translate(submitError)}</p> : null}
+          {submitSuccess ? <p className="support-print-hidden support-pledge__feedback is-success" role="status">{translate(submitSuccess)}</p> : null}
           {!settings.enable_online_submission ? <p className="support-print-hidden support-pledge__feedback">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.45cda4bcf7" text={copyText("contact", "contact.fixed.SupportPledgeForm.45cda4bcf7", "현재 온라인 제출은 닫혀 있습니다. 약정서를 인쇄해 제출해 주세요.")}>{copyText("contact", "contact.fixed.SupportPledgeForm.45cda4bcf7", "현재 온라인 제출은 닫혀 있습니다. 약정서를 인쇄해 제출해 주세요.")}</FormattedCopy>}</p> : null}
 
           <div className="support-print-hidden support-pledge__actions">
@@ -802,12 +812,12 @@ export function SupportPledgeForm({
       <details className="support-pledge__background support-print-hidden">
         <summary>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.9cefa2a311" text={copyText("contact", "contact.fixed.SupportPledgeForm.9cefa2a311", "후원 안내")}>{copyText("contact", "contact.fixed.SupportPledgeForm.9cefa2a311", "후원 안내")}</FormattedCopy>}</summary>
         <p className="support-pledge__eyebrow">{supportSpiritCopy.eyebrow}</p>
-        <h3>{supportSpiritCopy.title}</h3>
-        <p className="support-pledge__copy">{supportSpiritCopy.body}</p>
-        <p className="support-pledge__copy">{supportSpiritCopy.notice}</p>
+        <h3>{translate(supportSpiritCopy.title)}</h3>
+        <p className="support-pledge__copy">{translate(supportSpiritCopy.body)}</p>
+        <p className="support-pledge__copy">{translate(supportSpiritCopy.notice)}</p>
         <div className="support-pledge__background-grid">
-          <div><h4>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.0c5170bd78" text={copyText("contact", "contact.fixed.SupportPledgeForm.0c5170bd78", "후원은 이렇게 연결됩니다")}>{copyText("contact", "contact.fixed.SupportPledgeForm.0c5170bd78", "후원은 이렇게 연결됩니다")}</FormattedCopy>}</h4>{supportMethodItems.map(item => <div key={item.title}><h5>{item.title}</h5><p>{item.description}</p></div>)}</div>
-          <div><h4>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.7850a98e79" text={copyText("contact", "contact.fixed.SupportPledgeForm.7850a98e79", "안전한 후원 접수")}>{copyText("contact", "contact.fixed.SupportPledgeForm.7850a98e79", "안전한 후원 접수")}</FormattedCopy>}</h4>{donorCareItems.map(item => <div key={item.title}><h5>{item.title}</h5><p>{item.description}</p></div>)}</div>
+          <div><h4>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.0c5170bd78" text={copyText("contact", "contact.fixed.SupportPledgeForm.0c5170bd78", "후원은 이렇게 연결됩니다")}>{copyText("contact", "contact.fixed.SupportPledgeForm.0c5170bd78", "후원은 이렇게 연결됩니다")}</FormattedCopy>}</h4>{supportMethodItems.map(item => <div key={item.title}><h5>{translate(item.title)}</h5><p>{translate(item.description)}</p></div>)}</div>
+          <div><h4>{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.7850a98e79" text={copyText("contact", "contact.fixed.SupportPledgeForm.7850a98e79", "안전한 후원 접수")}>{copyText("contact", "contact.fixed.SupportPledgeForm.7850a98e79", "안전한 후원 접수")}</FormattedCopy>}</h4>{donorCareItems.map(item => <div key={item.title}><h5>{translate(item.title)}</h5><p>{translate(item.description)}</p></div>)}</div>
         </div>
         <p className="support-pledge__copy">{<FormattedCopy page="contact" id="contact.fixed.SupportPledgeForm.97207df43d" text={copyText("contact", "contact.fixed.SupportPledgeForm.97207df43d", "청소년 음악교육 · 정기연주와 초청연주 · 봉사와 나눔의 무대")}>{copyText("contact", "contact.fixed.SupportPledgeForm.97207df43d", "청소년 음악교육 · 정기연주와 초청연주 · 봉사와 나눔의 무대")}</FormattedCopy>}</p>
       </details>

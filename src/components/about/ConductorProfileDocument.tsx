@@ -2,6 +2,7 @@ import { EditableLayout } from '../site-editor/EditableLayout'
 import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { SiteCopy } from '../site-editor/SiteCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
 import type { PersonProfileRow } from '../../types/cms'
 import '../../styles/conductor-profile.css'
 
@@ -134,8 +135,13 @@ function parseFirstActivityImage(value: string | null | undefined, fallbackAlt: 
 export function ConductorProfileDocument({ person }: { person?: PersonProfileRow | null }) {
   const { copy: copyText } = useSiteEditor()
   const { copy: editorCopy } = useSiteEditor()
+  const { enabled, language, translate } = useSampleLanguage()
+  const isSampleEnglish = enabled && language === 'en'
   const name = person?.name?.trim() || '김형수'
-  const role = person?.role?.trim() || '지휘자'
+  const role = translate(person?.role?.trim() || '지휘자')
+  const showDefaultIdentity = !isSampleEnglish || name === '김형수'
+  const sourceLanguage = (source: string, displayed: string) =>
+    isSampleEnglish && source === displayed && /[가-힣]/.test(source) ? 'ko' : undefined
   const profileSummary = splitParagraphs(person?.profile_summary)
   const legacyDescription = splitParagraphs(person?.description, {
     splitSingleLines: true,
@@ -149,7 +155,7 @@ export function ConductorProfileDocument({ person }: { person?: PersonProfileRow
       : legacyDescription.length > 0
         ? legacyDescription
         : legacyBio
-  const biography = cmsBiography.length > 0 ? cmsBiography : [...defaultBiography]
+  const biography = cmsBiography.length > 0 ? cmsBiography : showDefaultIdentity ? [...defaultBiography] : []
   const cmsCurrentRoles = parseStructuredItems(person?.current_roles)
   const legacyCurrentRoles = looksLikeRoleList(person?.bio)
     ? parseStructuredItems(person?.bio)
@@ -159,8 +165,8 @@ export function ConductorProfileDocument({ person }: { person?: PersonProfileRow
       ? cmsCurrentRoles
       : legacyCurrentRoles.length > 0
         ? legacyCurrentRoles
-        : [...defaultCurrentRoles]
-  const profileImage = normalizeImageSource(person?.photo_url ?? '') || defaultProfileImage
+        : showDefaultIdentity ? [...defaultCurrentRoles] : []
+  const profileImage = normalizeImageSource(person?.photo_url ?? '') || (showDefaultIdentity ? defaultProfileImage : null)
   const performanceImage = parseFirstActivityImage(person?.activity_images, editorCopy('conductor', 'conductor.activity.alt', '서울모테트청소년합창단 공연 사진')) ?? {
     alt: editorCopy('conductor', 'conductor.performance.alt', '서울모테트청소년합창단과 오케스트라가 함께하는 공연 사진'),
     caption: null,
@@ -168,6 +174,8 @@ export function ConductorProfileDocument({ person }: { person?: PersonProfileRow
   }
   const profileImageAlt =
     person?.profile_image_alt?.trim() || `${name} ${role} ${editorCopy('conductor', 'conductor.profile.altSuffix', '공식 프로필')}`
+  const displayedProfileImageAlt = translate(profileImageAlt)
+  const displayedPerformanceImageAlt = translate(performanceImage.alt)
 
   return (
     <div className="conductor-profile">
@@ -189,26 +197,28 @@ export function ConductorProfileDocument({ person }: { person?: PersonProfileRow
             <figure className="conductor-profile__portrait-matte">
               <span aria-hidden="true" className="conductor-profile__media-rule" />
               <div className="conductor-profile__portrait-frame">
-                <img
-                  alt={profileImageAlt}
+                {profileImage ? <img
+                  alt={displayedProfileImageAlt}
+                  lang={sourceLanguage(profileImageAlt, displayedProfileImageAlt)}
                   decoding="async"
                   fetchPriority="high"
                   src={profileImage}
-                />
+                /> : <span className="conductor-profile__visually-hidden">{translate('공개된 프로필 사진이 없습니다.')}</span>}
               </div>
             </figure>
 
             <figure className="conductor-profile__performance">
               <span aria-hidden="true" className="conductor-profile__media-rule" />
               <img
-                alt={performanceImage.alt}
+                alt={displayedPerformanceImageAlt}
+                lang={sourceLanguage(performanceImage.alt, displayedPerformanceImageAlt)}
                 decoding="async"
                 fetchPriority="high"
                 src={performanceImage.src}
               />
               {performanceImage.caption ? (
-                <figcaption className="conductor-profile__visually-hidden">
-                  {performanceImage.caption}
+                <figcaption className="conductor-profile__visually-hidden" lang={sourceLanguage(performanceImage.caption, translate(performanceImage.caption))}>
+                  {translate(performanceImage.caption)}
                 </figcaption>
               ) : null}
             </figure>
@@ -217,31 +227,34 @@ export function ConductorProfileDocument({ person }: { person?: PersonProfileRow
           <div className="conductor-profile__details">
             <div className="conductor-profile__identity">
               <p>{<FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.f34c03131f" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</FormattedCopy>}</p>
-              <small><SiteCopy page="conductor" id="conductor.conductorProfileDocument.english2" fallback={"CONDUCTOR"} />{<FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.8a191edde4" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.8a191edde4", " · 2014 — PRESENT")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.8a191edde4", " · 2014 — PRESENT")}</FormattedCopy>}</small>
+              <small><SiteCopy page="conductor" id="conductor.conductorProfileDocument.english2" fallback={"CONDUCTOR"} />{showDefaultIdentity ? <FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.8a191edde4" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.8a191edde4", " · 2014 — PRESENT")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.8a191edde4", " · 2014 — PRESENT")}</FormattedCopy> : null}</small>
               <span aria-hidden="true" className="conductor-profile__identity-rule" />
-              <EditableLayout id="conductor.profile.name"><h2>{name}</h2></EditableLayout>
-              <strong>{<FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.ab3fd80626" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.ab3fd80626", "KIM HYUNG-SU")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.ab3fd80626", "KIM HYUNG-SU")}</FormattedCopy>}</strong>
+              <EditableLayout id="conductor.profile.name"><h2 lang={sourceLanguage(name, name)}>{name}</h2></EditableLayout>
+              {showDefaultIdentity ? <strong><FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.ab3fd80626" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.ab3fd80626", "KIM HYUNG-SU")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.ab3fd80626", "KIM HYUNG-SU")}</FormattedCopy></strong> : null}
             </div>
 
             <div className="conductor-profile__copy">
               <EditableLayout id="conductor.profile.biography"><div className="conductor-profile__biography">
-                {biography.map((paragraph, index) => (
-                  <p key={`${index}-${paragraph.slice(0, 24)}`}>{paragraph}</p>
-                ))}
+                {biography.map((paragraph, index) => {
+                  const displayed = translate(paragraph)
+                  return <p key={`${index}-${paragraph.slice(0, 24)}`} lang={sourceLanguage(paragraph, displayed)}>{displayed}</p>
+                })}
+                {!biography.length ? <p>{translate('공개된 약력 정보가 없습니다.')}</p> : null}
               </div></EditableLayout>
 
               <div className="conductor-profile__current">
                 <p><SiteCopy page="conductor" id="conductor.conductorProfileDocument.english3" fallback={"CURRENT"} /></p>
-                <ul aria-label={editorCopy("conductor", "conductor.conductorProfileDocument.ariaLabel2", "현재 주요 역할")}>
-                  {currentRoles.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
+                {currentRoles.length > 0 ? <ul aria-label={editorCopy("conductor", "conductor.conductorProfileDocument.ariaLabel2", "현재 주요 역할")}>
+                  {currentRoles.map((item) => {
+                    const displayed = translate(item)
+                    return <li key={item} lang={sourceLanguage(item, displayed)}>{displayed}</li>
+                  })}
+                </ul> : <p>{translate('공개된 현재 활동 정보가 없습니다.')}</p>}
               </div>
             </div>
           </div>
 
-          <footer className="conductor-profile__footer-note"><SiteCopy page="conductor" id="conductor.conductorProfileDocument.english4" fallback={"SMYC CONDUCTOR PROFILE"} />{<FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.daecd7d7b9" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.daecd7d7b9", " · KIM HYUNG-SU")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.daecd7d7b9", " · KIM HYUNG-SU")}</FormattedCopy>}</footer>
+          <footer className="conductor-profile__footer-note"><SiteCopy page="conductor" id="conductor.conductorProfileDocument.english4" fallback={"SMYC CONDUCTOR PROFILE"} />{showDefaultIdentity ? <FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.daecd7d7b9" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.daecd7d7b9", " · KIM HYUNG-SU")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.daecd7d7b9", " · KIM HYUNG-SU")}</FormattedCopy> : null}</footer>
         </section>
       </div>
     </div>

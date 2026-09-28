@@ -55,6 +55,7 @@ export const pageCopyDefaults = {
     guideEmpty: '공개된 입단 안내가 없습니다', guideErrorHelp: '연결을 확인한 뒤 다시 불러오거나, 궁금한 내용을 문의로 남겨 주세요.', guideEmptyHelp: '현재 공개된 안내를 확인할 수 없습니다. 입단에 관한 자세한 내용은 문의해 주세요.',
   },
   contact: {
+    dateMonth: 'Month', dateDay: 'Day', dateYear: 'Year', dateYearHint: 'YYYY', dateClear: 'Clear date',
     title: '후원·문의', back: '← 후원·문의 전체 보기', description: '후원과 공연 의뢰,\n합창단에 전하고 싶은 이야기를 기다립니다.',
     supportTitle: '후원으로 \n함께해 주세요.', support: '후원 안내', sponsors: '후원사', performance: '공연 의뢰', inquiry: '문의하기', location: '오시는 길',
     regular: '정기 후원', individual: '개인', corporate: '기업', pledgeAction: '후원 약정서 작성', supportInquiry: '후원 문의하기',

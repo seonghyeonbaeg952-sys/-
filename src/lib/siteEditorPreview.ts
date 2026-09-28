@@ -16,7 +16,7 @@ export type SiteEditorPreviewMessage = MessageBase & (
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 export function getSiteEditorPage(pathname: string, search = ''): EditorPageId | null {
-  const path = pathname.replace(/\/$/, '') || '/'
+  const path = pathname.replace(/^\/sample(?=\/|$)/, '').replace(/\/$/, '') || '/'
   if (path === '/' || path === '/home-classic') return 'home'
   if (path === '/about') {
     const section = new URLSearchParams(search).get('section')
@@ -115,6 +115,10 @@ export function getPreviewNavigationTarget(href: string, base: string, nonce: st
     const next = new URL(href, current)
     if (!uuid.test(nonce) || next.origin !== current.origin || !['http:', 'https:'].includes(next.protocol)
       || getSiteEditorPage(next.pathname, next.search) !== page) return null
+    if (/^\/sample(?:\/|$)/.test(current.pathname)) {
+      if (!/^\/sample(?:\/|$)/.test(next.pathname)) next.pathname = `/sample${next.pathname}`
+      next.searchParams.set('lang', current.searchParams.get('lang') === 'en' ? 'en' : 'ko')
+    }
     next.searchParams.set('site-editor-preview', nonce)
     return `${next.pathname}${next.search}${next.hash}`
   } catch {
@@ -127,9 +131,9 @@ export function getPreviewPageIntent(href: string, base: string): PreviewPageInt
   try {
     const current = new URL(base), next = new URL(href, current)
     if (next.origin !== current.origin || !['http:', 'https:'].includes(next.protocol) || next.username || next.password) return null
-    // The existing home performance carousel still contains these legacy links.
-    // Resolve only its known public destinations; never allow arbitrary sample pages.
-    if (/^\/sample\/concerts(?:\/[^/]+)?\/?$/.test(next.pathname)) next.pathname = next.pathname.replace(/^\/sample/, '')
+    // Normalise the sample basename, then use the same public-route allowlist.
+    // The parent workspace alone determines which preview scope it can open.
+    next.pathname = next.pathname.replace(/^\/sample(?=\/|$)/, '') || '/'
     const page = getSiteEditorPage(next.pathname, next.search)
     if (!page) return null
     next.searchParams.delete('site-editor-preview')

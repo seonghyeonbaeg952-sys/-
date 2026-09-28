@@ -3,6 +3,7 @@ import { EDITOR_FONT_FAMILIES, resolveTextRuns } from '../../lib/siteEditorTextS
 import type { EditorPageId, EditorTextRun } from '../../types/siteEditor'
 import { useSiteEditor } from './useSiteEditor'
 import { CanvasCopy } from './CanvasCopy'
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
 
 type Props = {
   page: EditorPageId
@@ -55,6 +56,7 @@ export function TextRunContent({ text, runs, offset = 0, lineBreaks = false }: {
 
 export function FormattedCopy({ page, id, text, fullText = text, offset = 0, children, lineBreaks, inheritedRuns }: Props) {
   const { documents, device } = useSiteEditor()
+  const sample = useSampleLanguage()
   const runs = inheritedRuns ?? resolveTextRuns(documents[page], device, id, fullText)
   // Existing accents, literal whitespace and element structure remain untouched
   // until the administrator explicitly formats this exact text.
@@ -64,5 +66,7 @@ export function FormattedCopy({ page, id, text, fullText = text, offset = 0, chi
   const content = canFormat
     ? createElement('smyc-text', { className: 'site-copy-text' }, <TextRunContent text={text} runs={runs} offset={offset} lineBreaks={lineBreaks} />)
     : children ?? text
-  return <CanvasCopy page={page} id={id} text={text} fullText={fullText} offset={offset}>{content}</CanvasCopy>
+  const labelled = sample.enabled && sample.language === 'en' && /[가-힣]/.test(text)
+    ? createElement('smyc-copy', { lang: 'ko' }, content) : content
+  return <CanvasCopy page={page} id={id} text={text} fullText={fullText} offset={offset}>{labelled}</CanvasCopy>
 }

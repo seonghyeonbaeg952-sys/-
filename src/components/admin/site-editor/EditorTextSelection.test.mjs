@@ -27,6 +27,7 @@ const canvasCopy = load(await compile('../../site-editor/CanvasCopy.tsx'), { './
   './useTextBoxLayout': textBoxLayout, './site-editor-text-box.css': {} })
 const formatted = load(await compile('../../site-editor/FormattedCopy.tsx'), {
   '../../lib/siteEditorTextStyles': styles, './useSiteEditor': context, './CanvasCopy': canvasCopy,
+  '../../features/sample-language/useSampleLanguage': { useSampleLanguage: () => ({ enabled: false, language: 'ko' }) },
 })
 const code = await compile('./EditorTextSelection.tsx')
 

@@ -42,6 +42,8 @@ export type AdminFieldConfig<TRow extends CmsRecord> = {
   rows?: number
   section?: string
   type: AdminFieldType
+  uploadCommitHint?: string
+  getTextFeedback?: (value: string) => { count: string; warning?: string }
 }
 
 type AdminRecordFormProps<TRow extends CmsRecord> = {
@@ -256,6 +258,7 @@ export function AdminRecordForm<TRow extends CmsRecord>({
 
   const renderField = (field: AdminFieldConfig<TRow>) => {
     const value = values[field.name]
+    const textFeedback = field.getTextFeedback?.(typeof value === 'string' ? value : '')
     const fieldId = `${generatedId}-${field.name}`
     const commonProps = {
       description: field.description,
@@ -277,6 +280,7 @@ export function AdminRecordForm<TRow extends CmsRecord>({
             rows={field.rows ?? 5}
             value={typeof value === 'string' ? value : ''}
           />
+          {textFeedback ? <div className="mt-2 text-xs leading-5"><p className="text-text-muted">{textFeedback.count}</p>{textFeedback.warning ? <p className="text-state-error" role="status">{textFeedback.warning}</p> : null}</div> : null}
         </div>
       )
     }
@@ -285,6 +289,7 @@ export function AdminRecordForm<TRow extends CmsRecord>({
       return (
         <div className="md:col-span-2" key={field.name}>
           <ImageUploader
+            commitHint={field.uploadCommitHint}
             accept={field.accept}
             allowManualUrl={field.allowManualUrl}
             allowSvg={field.allowSvg}
@@ -388,7 +393,11 @@ export function AdminRecordForm<TRow extends CmsRecord>({
         value={value === null || value === undefined ? '' : String(value)}
       />
     )
-    return field.fullWidth ? <div className="md:col-span-2" key={field.name}>{input}</div> : input
+    if (!textFeedback) return field.fullWidth ? <div className="md:col-span-2" key={field.name}>{input}</div> : input
+    return <div className={field.fullWidth ? 'md:col-span-2' : undefined} key={field.name}>
+      {input}
+      <div className="mt-2 text-xs leading-5"><p className="text-text-muted">{textFeedback.count}</p>{textFeedback.warning ? <p className="text-state-error" role="status">{textFeedback.warning}</p> : null}</div>
+    </div>
   }
 
   const groups: Array<{ section?: string; fields: Array<AdminFieldConfig<TRow>> }> = []

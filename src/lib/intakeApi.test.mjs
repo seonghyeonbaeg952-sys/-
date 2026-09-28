@@ -15,7 +15,9 @@ globalThis.__intake_fixture = {
 const auth = moduleUrl('export const getSupabaseClientSafe = () => globalThis.__intake_fixture.client()')
 const guard = moduleUrl('export const isSiteEditorPreview = () => globalThis.__intake_fixture.preview(); export const PREVIEW_SUBMISSION_MESSAGE = "preview blocked"')
 const model = moduleUrl(compile(await readFile(new URL('./intakeModel.ts', import.meta.url), 'utf8')))
+const sampleGuard = moduleUrl(compile(await readFile(new URL('./sampleSubmissionGuard.ts', import.meta.url), 'utf8')))
 const source = compile(await readFile(new URL('./intakeApi.ts', import.meta.url), 'utf8'))
+  .replace(/(['"])\.\/sampleSubmissionGuard\1/g, JSON.stringify(sampleGuard))
   .replace(/(['"])\.\/auth\1/g, JSON.stringify(auth)).replace(/(['"])\.\/siteEditorPreview\1/g, JSON.stringify(guard)).replace(/(['"])\.\/intakeModel\1/g, JSON.stringify(model))
 const api = await import(moduleUrl(source))
 after(() => { delete globalThis.__intake_fixture })
@@ -24,6 +26,22 @@ const settingsId = '00000000-0000-0000-0000-000000000401'
 const contact = { name: '김테스트', email: 'fixture@example.test', phone: null, type: 'general', title: null, message: ' 원문\n둘째 줄 ', privacy_agreed: true }
 const pledge = { name: '김테스트', email: 'fixture@example.test', phone: '010-1234-5678', address: null, amount: 10000, custom_amount: null, birth_date: null, gender: null, member_type: 'individual', depositor: null, pledge_date: null, signer_name: null, signature_image_url: null, privacy_agreed: true }
 const reset = value => { calls.length = 0; response = value; preview = false }
+
+test('Korean and English sample enquiries and pledges never call the transport', async () => {
+  reset({ data: true, error: null })
+  const previousWindow = globalThis.window
+  try {
+    for (const search of ['?lang=ko', '?lang=en']) {
+      globalThis.window = { location: { pathname: '/sample/contact', search } }
+      assert.match((await api.submitContactIntake(contact, id)).error, /문의는 접수되지 않습니다/)
+      assert.match((await api.submitSupportIntake(pledge, id, settingsId)).error, /후원약정은 접수되지 않습니다/)
+    }
+    assert.equal(calls.length, 0)
+  } finally {
+    if (previousWindow === undefined) delete globalThis.window
+    else globalThis.window = previousWindow
+  }
+})
 
 test('contact RPC sends exact original payload and the same opaque ID on retry, without private/admin fields', async () => {
   reset({ data: true, error: null })

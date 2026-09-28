@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { isEditorPageId, validateSiteEditorDocument } from '../../../lib/siteEditorModel'
 import { SITE_EDITOR_PROTOCOL_VERSION, type PreviewPageIntent } from '../../../lib/siteEditorPreview'
 import { siteCopyDefinitions } from '../../../content/siteCopyCatalog'
-import type { EditorDevice, EditorPageId, EditorTextLayout, SiteEditorDocument, SiteEditorDocuments } from '../../../types/siteEditor'
+import type { EditorDevice, EditorPageId, EditorTextLayout, SiteCopyDefinition, SiteEditorDocument, SiteEditorDocuments } from '../../../types/siteEditor'
+import type { EditorStorageScope } from '../../../lib/siteEditorApi'
 import { Button } from '../../common/Button'
 import { readEditorPreviewReply } from './editorPreviewModel'
 import { editorViewports } from './editorUiOptions'
@@ -20,6 +21,8 @@ type Props = {
   path: string | null
   device: EditorDevice
   documents: SiteEditorDocuments
+  copyDefinitions?: readonly SiteCopyDefinition[]
+  storageScope?: EditorStorageScope
   loadingPath?: boolean
   onDeviceChange: (device: EditorDevice) => void
   onNavigate?: (target: PreviewPageIntent) => void
@@ -28,7 +31,7 @@ type Props = {
   onBoxRemove: (id: string) => { ok: true; document: SiteEditorDocument } | { ok: false; message: string }
 } & CanvasBridgeOptions & { locked: boolean }
 
-function PreviewFrame({ page, label, path, device, documents, fit, context, onCommit, onActiveChange, onSave, onLayoutChange, onBoxAdd, onBoxRemove, onNavigate }: Omit<Props, 'onDeviceChange'> & { path: string; fit: boolean }) {
+function PreviewFrame({ page, label, path, device, documents, copyDefinitions = siteCopyDefinitions, storageScope = 'original', fit, context, onCommit, onActiveChange, onSave, onLayoutChange, onBoxAdd, onBoxRemove, onNavigate }: Omit<Props, 'onDeviceChange'> & { path: string; fit: boolean }) {
   const [nonce] = useState(() => crypto.randomUUID())
   const frame = useRef<HTMLIFrameElement>(null)
   const holder = useRef<HTMLDivElement>(null)
@@ -79,9 +82,11 @@ function PreviewFrame({ page, label, path, device, documents, fit, context, onCo
   const previewPage = page === 'common' ? 'home' : page
   const scale = fit && available > 0 ? Math.min(1, available / viewport.width) : 1
   const url = new URL(path, window.location.origin)
+  const samplePath = url.pathname === '/sample' || url.pathname.startsWith('/sample/')
   const allowedUrl = url.origin === window.location.origin && !url.pathname.startsWith('/admin')
+    && (storageScope !== 'sample-english' || (samplePath && url.searchParams.get('lang') === 'en'))
   url.searchParams.set('site-editor-preview', nonce)
-  const invalidDraft = Object.entries(documents).some(([key, document]) => !isEditorPageId(key) || validateSiteEditorDocument(document) || validateEditorCopyFields(document, siteCopyDefinitions.filter((field) => field.page === key)))
+  const invalidDraft = Object.entries(documents).some(([key, document]) => !isEditorPageId(key) || validateSiteEditorDocument(document) || validateEditorCopyFields(document, copyDefinitions.filter((field) => field.page === key)))
 
   useEffect(() => {
     const node = holder.current
@@ -218,17 +223,17 @@ function PreviewFrame({ page, label, path, device, documents, fit, context, onCo
   </>
 }
 
-export function EditorPreview({ page, label, path, device, documents, loadingPath = false, onDeviceChange, locked, ...canvasOptions }: Props) {
+export function EditorPreview({ page, label, path, device, documents, copyDefinitions = siteCopyDefinitions, storageScope = 'original', loadingPath = false, onDeviceChange, locked, ...canvasOptions }: Props) {
   const [fit, setFit] = useState(true)
   const [refresh, setRefresh] = useState(0)
   const [open, setOpen] = useState(true)
   return <section className="site-editor__preview" aria-label="실제 화면 미리보기">
-    <div className="site-editor__section-heading"><h2>홈페이지 화면에서 편집</h2><Button size="sm" variant="ghost" disabled={locked} aria-expanded={open} onClick={() => setOpen((value) => !value)}>{open ? '접기' : '펼치기'}</Button></div>
-    <p className="site-editor__help">이 창은 관리자 초안입니다. 임시저장이나 미리보기는 공개 홈페이지를 바꾸지 않습니다.</p>
+    <div className="site-editor__section-heading"><h2>{storageScope === 'sample-english' ? '영어 버전 화면에서 편집' : '홈페이지 화면에서 편집'}</h2><Button size="sm" variant="ghost" disabled={locked} aria-expanded={open} onClick={() => setOpen((value) => !value)}>{open ? '접기' : '펼치기'}</Button></div>
+    <p className="site-editor__help">{storageScope === 'sample-english' ? '이 창은 영어 버전 초안 미리보기입니다. 게시하면 공개 홈페이지와 /sample/의 English 화면에 적용됩니다.' : '이 창은 관리자 초안입니다. 임시저장이나 미리보기는 공개 홈페이지를 바꾸지 않습니다.'}</p>
     <div hidden={!open}>
       <div className="site-editor__preview-tools" role="group" aria-label="미리보기 크기">{editorViewports.map((viewport) => <button key={viewport.id} type="button" disabled={locked} aria-pressed={device === viewport.id} onClick={() => onDeviceChange(viewport.id)}>{viewport.label} {viewport.width}</button>)}</div>
       <div className="site-editor__preview-tools" role="group" aria-label="미리보기 표시"><button type="button" disabled={locked} aria-pressed={fit} onClick={() => setFit(true)}>화면에 맞춤</button><button type="button" disabled={locked} aria-pressed={!fit} onClick={() => setFit(false)}>실제 크기</button><button type="button" disabled={locked} onClick={() => setRefresh((value) => value + 1)}>새로고침</button></div>
-      {loadingPath ? <p role="status">미리볼 공개 항목을 찾는 중입니다.</p> : path ? <PreviewFrame key={`${page}-${path}-${refresh}`} page={page} label={label} path={path} device={device} documents={documents} fit={fit} locked={locked} {...canvasOptions} /> : <p className="site-editor__empty">미리볼 공개 항목이 없습니다. 연결된 콘텐츠 관리에서 항목을 등록하고 공개한 뒤 다시 열어 주세요.</p>}
+      {loadingPath ? <p role="status">미리볼 공개 항목을 찾는 중입니다.</p> : path ? <PreviewFrame key={`${storageScope}-${page}-${path}-${refresh}`} page={page} label={label} path={path} device={device} documents={documents} copyDefinitions={copyDefinitions} storageScope={storageScope} fit={fit} locked={locked} {...canvasOptions} /> : <p className="site-editor__empty">{storageScope === 'sample-english' ? '영문 미리보기에 사용할 공개 항목이 없습니다. 공개된 항목이 생기면 미리볼 수 있습니다.' : '미리볼 공개 항목이 없습니다. 연결된 콘텐츠 관리에서 항목을 등록하고 공개한 뒤 다시 열어 주세요.'}</p>}
     </div>
   </section>
 }

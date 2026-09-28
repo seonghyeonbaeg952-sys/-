@@ -12,10 +12,13 @@ import type {
 import { AdminErrorState } from './AdminErrorState'
 import { AdminLoadingState } from './AdminLoadingState'
 import { AdminRecordForm, type AdminFieldConfig } from './AdminRecordForm'
+import { AdminEnglishContentForm } from './AdminEnglishContentForm'
+import type { SampleContentResource } from '../../features/sample-language/sampleContentModel'
 
 type AdminSingleRecordSectionProps<TTable extends CmsTableName> = {
   defaultValues?: CmsMutationPayload
   description?: string
+  englishResource?: SampleContentResource
   fields: Array<AdminFieldConfig<CmsRowFor<TTable>>>
   preparePayload?: (
     payload: CmsMutationPayload,
@@ -32,6 +35,7 @@ type AdminSingleRecordSectionProps<TTable extends CmsTableName> = {
 export function AdminSingleRecordSection<TTable extends CmsTableName>({
   defaultValues,
   description,
+  englishResource,
   fields,
   preparePayload,
   table,
@@ -41,6 +45,7 @@ export function AdminSingleRecordSection<TTable extends CmsTableName>({
   const crud = useCrudItem(table)
   const [formError, setFormError] = useState<string | null>(null)
   const [isFormDirty, setIsFormDirty] = useState(false)
+  const [englishOpen, setEnglishOpen] = useState(false)
 
   useUnsavedChangesGuard({
     enabled: isFormDirty || crud.isMutating,
@@ -72,6 +77,10 @@ export function AdminSingleRecordSection<TTable extends CmsTableName>({
         {description ? (
           <p className="mt-2 text-sm leading-6 text-text-muted">{description}</p>
         ) : null}
+        {englishResource ? <div className="mt-4 flex flex-wrap items-center gap-3">
+          <Button disabled={!crud.item || crud.isMutating || isFormDirty} onClick={() => setEnglishOpen(true)} variant="secondary">English 버전 작성·수정</Button>
+          <p className="text-xs leading-5 text-text-muted">{!crud.item ? '한국어 원본을 먼저 저장하면 영문 버전을 작성할 수 있습니다.' : isFormDirty ? '한국어 변경을 먼저 저장하면 영문 편집을 열 수 있습니다.' : '영문 초안은 따로 저장하고 영어 버전에 게시합니다.'}</p>
+        </div> : null}
       </div>
 
       {crud.message ? (
@@ -105,6 +114,7 @@ export function AdminSingleRecordSection<TTable extends CmsTableName>({
           onSubmit={handleSubmit}
         />
       ) : null}
+      {englishOpen && englishResource && crud.item ? <AdminEnglishContentForm key={`${englishResource}:${crud.item.id}`} onClose={() => setEnglishOpen(false)} resource={englishResource} row={crud.item} /> : null}
     </Card>
   )
 }

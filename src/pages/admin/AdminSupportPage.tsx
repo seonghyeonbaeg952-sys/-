@@ -155,6 +155,7 @@ export function AdminSupportPage() {
           title: '후원약정',
         }}
         description="방문자 화면의 /contact?section=support에 표시되는 공개 설정입니다. 신청자 개인정보는 별도 후원 신청 관리 화면에서 관리자만 조회합니다."
+        englishResource="support_settings"
         fields={supportFields}
         preparePayload={prepareSupportPayload}
         table="support_settings"

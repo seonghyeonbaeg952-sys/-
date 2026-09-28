@@ -11,6 +11,7 @@ const exists = await readFile(new URL('./editorCanvasController.ts', import.meta
 })
 const api = exists ? await vite.ssrLoadModule('/src/components/admin/site-editor/editorCanvasController.ts') : {}
 const { addEditorTextBox } = await vite.ssrLoadModule('/src/lib/siteEditorAddedBoxes.ts')
+const { siteCopyDefinitions } = await vite.ssrLoadModule('/src/content/siteCopyCatalog.ts')
 const empty = () => ({ schemaVersion: 1, copy: {}, deviceCopy: {}, appearance: {} })
 const context = (overrides = {}) => ({
   editorPage: 'notices', previewPage: 'notices', device: 'desktop', scope: 'desktop', documents: { notices: empty() },
@@ -40,6 +41,31 @@ test('plain copy edits do not invent an empty formatting override or a second ch
   assert.equal(result.ok, true)
   assert.equal(result.document.deviceCopy.desktop['notices.title'], '합창 소식')
   assert.equal(result.document.textStyles, undefined)
+})
+
+test('English canvas grants use translated defaults and field limits while retaining canonical ownership', () => {
+  const original = siteCopyDefinitions.find(field => field.key === 'notices.title')
+  const definition = { ...original, defaultValue: 'Choir news', maxLength: 18 }
+  const ctx = context({ storageScope: 'sample-english', defaults: {}, copyDefinitions: [definition] })
+  const issued = issue(ctx, block(source('Choir news')))
+  const accepted = commit(ctx, issued, [patch(issued, [replacement(0, 10, 'Latest choir news')])])
+  assert.equal(accepted.ok, true)
+  assert.equal(accepted.document.deviceCopy.desktop['notices.title'], 'Latest choir news')
+  assert.equal(commit(ctx, issued, [patch(issued, [replacement(0, 10, 'A title beyond the English limit')])]).ok, false)
+  for (const changed of [{ page: 'join' }, { sourceDevice: 'mobile' }, { sourceKey: 'join.title' }, { inputType: 'url' }]) {
+    assert.equal(make({ ...ctx, copyDefinitions: [{ ...definition, ...changed }] }, block(source('Choir news'))).ok, false)
+  }
+  assert.equal(make({ ...ctx, copyDefinitions: [{ ...definition, key: 'notices.unknown' }] }, block(source('Choir news', 'notices.unknown'))).ok, false)
+})
+
+test('issued grants cannot cross original and English workspaces or changed field definitions', () => {
+  const definition = { ...siteCopyDefinitions.find(field => field.key === 'notices.title'), defaultValue: 'News', maxLength: 20 }
+  const ctx = context({ storageScope: 'sample-english', defaults: {}, copyDefinitions: [definition] })
+  const issued = issue(ctx, block(source('News')))
+  const changes = [patch(issued, [replacement(0, 4, 'Updates')])]
+  assert.equal(commit({ ...ctx, storageScope: 'original' }, issued, changes).ok, false)
+  assert.equal(commit({ ...ctx, copyDefinitions: [{ ...definition, maxLength: 40 }] }, issued, changes).ok, false)
+  assert.equal(commit(ctx, issued, changes).ok, true)
 })
 test('accompanist role labels are independently editable and inherit legacy text before their first edit', () => {
   const key = 'accompanist.profile.11111111-1111-4111-8111-111111111111.role'

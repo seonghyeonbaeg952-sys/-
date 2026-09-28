@@ -45,7 +45,7 @@ const row = (overrides = {}) => ({ page_key: 'contact', draft: empty(), publishe
   updated_at: '2026-09-17T00:00:00Z', published_at: null, ...overrides })
 const published = () => ({ page_key: 'contact', document: { ...empty(), copy: { 'contact.title': '게시본' } }, published_at: '2026-09-17T00:00:00Z' })
 const revisionId = '11111111-1111-4111-8111-111111111111'
-const reset = next => { api.invalidateEditorCache?.(); calls.length = 0; response = next; unavailable = false }
+const reset = next => { api.invalidateEditorCache?.(); api.invalidateSampleEnglishEditorCache?.(); calls.length = 0; response = next; unavailable = false }
 const has = name => assert.equal(typeof api[name], 'function', `${name} must implement the editor API contract`)
 
 test('missing administrator page reads become a fresh virtual version zero draft', async () => {
@@ -264,4 +264,226 @@ test('validated layout-only drafts survive save, publication, public loading and
   reset({ data: null, error: null })
   assert.ok((await api.saveEditorDraft('contact', { ...empty(), textLayouts: { shared: {} } }, 1)).error)
   assert.equal(calls.length, 0, 'invalid layouts must fail before a transport write')
+})
+
+test('sample English draft and history reads use only their independent storage', async () => {
+  reset({ data: null, error: null })
+  assert.deepEqual(await api.loadEditorPage('contact', 'sample-english'), { data: row({ version: 0, updated_at: '' }), error: null })
+  assert.deepEqual(calls, [{ kind: 'query', table: 'sample_english_editor_pages', select: 'page_key,draft,published,version,updated_at,published_at', filters: [['page_key', 'contact']], order: null }])
+
+  const revision = { id: revisionId, page_key: 'contact', document: empty(), published_at: '2026-09-17T00:00:00Z' }
+  reset({ data: [{ ...revision, published_by: 'private-identity' }], error: null })
+  assert.deepEqual(await api.loadEditorRevisions('contact', 'sample-english'), { data: [revision], error: null })
+  assert.deepEqual(calls, [{ kind: 'query', table: 'sample_english_editor_revisions', select: 'id,page_key,document,published_at', filters: [['page_key', 'contact']], order: ['published_at', { ascending: false }] }])
+})
+
+test('sample English saving snapshots the document and calls only its own versioned RPC', async () => {
+  const document = { ...empty(), copy: { 'contact.title': '  Contact\nour choir  ' }, textLayouts: { mobile: { 'contact.title': { width: 90 } } } }
+  const snapshot = structuredClone(document)
+  reset({ data: [row({ draft: snapshot, version: 3 })], error: null })
+  const saving = api.saveEditorDraft('contact', document, 2, 'sample-english')
+  document.copy['contact.title'] = 'later input'
+  assert.deepEqual(await saving, { data: row({ draft: snapshot, version: 3 }), error: null })
+  assert.deepEqual(calls, [{ kind: 'rpc', args: ['save_sample_english_editor_draft', { p_page_key: 'contact', p_document: snapshot, p_expected_version: 2 }] }])
+})
+
+test('sample English restore updates its draft without invoking either publication RPC', async () => {
+  const document = { ...empty(), copy: { 'contact.title': 'Earlier English wording' } }
+  reset({ data: row({ draft: document, version: 8 }), error: null })
+  assert.deepEqual(await api.restoreEditorRevision(revisionId, 7, 'sample-english'), { data: row({ draft: document, version: 8 }), error: null })
+  assert.deepEqual(calls, [{ kind: 'rpc', args: ['restore_sample_english_editor_revision', { p_revision_id: revisionId, p_expected_version: 7 }] }])
+})
+
+test('an explicit original scope retains the existing tables and RPC names', async () => {
+  const cases = [
+    [() => api.loadEditorPage('contact', 'original'), row(), 'site_editor_pages'],
+    [() => api.loadEditorRevisions('contact', 'original'), [], 'site_editor_revisions'],
+    [() => api.saveEditorDraft('contact', empty(), 0, 'original'), row(), 'save_site_editor_draft'],
+    [() => api.publishEditorPage('contact', 1, 'original'), row({ version: 2, published: empty(), published_at: '2026-09-17T00:00:00Z' }), 'publish_site_editor_page'],
+    [() => api.restoreEditorRevision(revisionId, 1, 'original'), row({ version: 2 }), 'restore_site_editor_revision'],
+  ]
+  for (const [operation, data, name] of cases) {
+    reset({ data, error: null })
+    assert.equal((await operation()).error, null)
+    assert.equal(calls.length, 1)
+    assert.equal(calls[0].table ?? calls[0].args[0], name)
+  }
+})
+
+test('unknown storage scopes never fall through to original storage or become table names', async () => {
+  reset({ data: row(), error: null })
+  for (const scope of ['site_editor_pages', 'sample_english_editor_pages', '__proto__', 'constructor', '', null, {}]) {
+    const operations = [() => api.loadEditorPage('contact', scope), () => api.loadEditorRevisions('contact', scope),
+      () => api.saveEditorDraft('contact', empty(), 0, scope), () => api.publishEditorPage('contact', 0, scope),
+      () => api.restoreEditorRevision(revisionId, 0, scope)]
+    for (const operation of operations) {
+      const value = await operation()
+      assert.equal(value.data, null)
+      assert.ok(value.error)
+    }
+  }
+  assert.equal(calls.length, 0)
+})
+
+test('sample English rejects invalid inputs and unsafe versions before making a request', async () => {
+  reset({ data: row(), error: null })
+  const operations = [
+    () => api.loadEditorPage('admin', 'sample-english'),
+    () => api.loadEditorRevisions('__proto__', 'sample-english'),
+    () => api.saveEditorDraft('contact', { ...empty(), copy: { title: '<script>bad</script>' } }, 0, 'sample-english'),
+    () => api.saveEditorDraft('contact', { ...empty(), textLayouts: { shared: {} } }, 0, 'sample-english'),
+    () => api.restoreEditorRevision('not-a-uuid', 0, 'sample-english'),
+  ]
+  for (const version of [-1, NaN, Infinity, 0.5, '1', null, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER + 1]) {
+    operations.push(() => api.saveEditorDraft('contact', empty(), version, 'sample-english'),
+      () => api.publishEditorPage('contact', version, 'sample-english'),
+      () => api.restoreEditorRevision(revisionId, version, 'sample-english'))
+  }
+  for (const operation of operations) {
+    const value = await operation()
+    assert.equal(value.data, null)
+    assert.ok(value.error)
+  }
+  assert.equal(calls.length, 0)
+})
+
+test('sample English normalises server failures and rejects wrong pages or non-incrementing versions', async () => {
+  for (const [data, error] of [[row({ version: 1 }), null], [row({ page_key: 'join', version: 2 }), null],
+    [row({ version: 2, draft: false }), null], [null, { code: '40001', message: 'private revision conflict' }],
+    [null, { code: '42501', message: 'private administrator detail' }], [null, { code: '22023', message: 'private SQL validation' }]]) {
+    reset({ data, error })
+    const value = await api.saveEditorDraft('contact', empty(), 1, 'sample-english')
+    assert.equal(value.data, null)
+    assert.ok(value.error)
+    assert.doesNotMatch(value.error, /private/)
+    assert.equal(calls[0].args[0], 'save_sample_english_editor_draft')
+  }
+})
+
+test('sample English public reads use a separate GET RPC and project out draft and identity fields', async () => {
+  has('loadPublicSampleEnglishEditorPages')
+  const record = { ...published(), document: { ...empty(), copy: { 'contact.title': 'Contact' } } }
+  reset({ data: [{ ...record, draft: { secret: 'PRIVATE-DRAFT' }, published_by: 'PRIVATE-IDENTITY' }], error: null })
+  assert.deepEqual(await api.loadPublicSampleEnglishEditorPages(), { data: [record], error: null })
+  assert.deepEqual(calls, [{ kind: 'rpc', args: ['get_public_sample_english_editor_pages', {}, { get: true }] }])
+  for (const data of [null, false, [record, record], [{ ...record, published_at: null }], [{ ...record, document: { draft: 'PRIVATE' } }]]) {
+    reset({ data, error: null })
+    const value = await api.loadPublicSampleEnglishEditorPages()
+    assert.equal(value.data, null)
+    assert.ok(value.error)
+  }
+})
+
+test('original and sample English public requests and cached documents remain independent', async () => {
+  has('loadPublicSampleEnglishEditorPages')
+  let completeOriginal
+  let completeEnglish
+  reset(new Promise(resolve => { completeOriginal = resolve }))
+  const original = api.loadPublicEditorPages()
+  response = new Promise(resolve => { completeEnglish = resolve })
+  const english = api.loadPublicSampleEnglishEditorPages()
+  const englishAgain = api.loadPublicSampleEnglishEditorPages()
+  assert.deepEqual(calls.map(call => call.args[0]), ['get_public_site_editor_pages', 'get_public_sample_english_editor_pages'])
+  completeOriginal({ data: [published()], error: null })
+  const englishRecord = { ...published(), document: { ...empty(), copy: { 'contact.title': 'Contact' } } }
+  completeEnglish({ data: [englishRecord], error: null })
+  const [ko, en, enAgain] = await Promise.all([original, english, englishAgain])
+  en.data[0].document.copy['contact.title'] = 'local mutation'
+  assert.equal(ko.data[0].document.copy['contact.title'], '게시본')
+  assert.equal(enAgain.data[0].document.copy['contact.title'], 'Contact')
+  assert.equal((await api.loadPublicSampleEnglishEditorPages()).data[0].document.copy['contact.title'], 'Contact')
+  assert.equal((await api.loadPublicEditorPages()).data[0].document.copy['contact.title'], '게시본')
+  assert.equal(calls.length, 2)
+})
+
+test('publishing one storage scope invalidates and announces only that scope', async () => {
+  has('loadPublicSampleEnglishEditorPages')
+  const originalWindow = globalThis.window
+  const events = []
+  globalThis.window = { dispatchEvent: event => { events.push(event.type); return true } }
+  try {
+    for (const scope of ['sample-english', 'original']) {
+      reset({ data: [published()], error: null })
+      await api.loadPublicEditorPages()
+      response = { data: [{ ...published(), document: { ...empty(), copy: { 'contact.title': 'Contact' } } }], error: null }
+      await api.loadPublicSampleEnglishEditorPages()
+      events.length = 0
+      const callsBeforePublish = calls.length
+      response = { data: row({ version: 2, published: empty(), published_at: '2026-09-17T00:00:00Z' }), error: null }
+      assert.equal((await api.publishEditorPage('contact', 1, scope)).error, null)
+      assert.equal(calls[callsBeforePublish].args[0], scope === 'sample-english' ? 'publish_sample_english_editor_page' : 'publish_site_editor_page')
+      assert.deepEqual(events, [scope === 'sample-english' ? 'sample-english-published' : 'site-editor-published'])
+      response = { data: [], error: null }
+      const unaffected = await (scope === 'sample-english' ? api.loadPublicEditorPages() : api.loadPublicSampleEnglishEditorPages())
+      assert.equal(unaffected.data.length, 1)
+      assert.equal(calls.length, callsBeforePublish + 1)
+      const refreshed = await (scope === 'sample-english' ? api.loadPublicSampleEnglishEditorPages() : api.loadPublicEditorPages())
+      assert.deepEqual(refreshed, { data: [], error: null })
+      assert.equal(calls.length, callsBeforePublish + 2)
+    }
+  } finally {
+    if (originalWindow === undefined) delete globalThis.window
+    else globalThis.window = originalWindow
+  }
+})
+
+test('an older sample English request cannot repopulate its cache after publication', async () => {
+  has('loadPublicSampleEnglishEditorPages')
+  let completeOld
+  reset(new Promise(resolve => { completeOld = resolve }))
+  const oldRequest = api.loadPublicSampleEnglishEditorPages()
+  response = { data: row({ version: 2, published: empty(), published_at: '2026-09-17T00:00:00Z' }), error: null }
+  assert.equal((await api.publishEditorPage('contact', 1, 'sample-english')).error, null)
+  const current = { ...published(), document: { ...empty(), copy: { 'contact.title': 'Current English' } } }
+  response = { data: [current], error: null }
+  assert.deepEqual(await api.loadPublicSampleEnglishEditorPages(), { data: [current], error: null })
+  completeOld({ data: [published()], error: null })
+  await oldRequest
+  assert.deepEqual(await api.loadPublicSampleEnglishEditorPages(), { data: [current], error: null })
+  assert.deepEqual(calls.map(call => call.args[0]), ['get_public_sample_english_editor_pages', 'publish_sample_english_editor_page', 'get_public_sample_english_editor_pages'])
+})
+
+test('failed sample publication keeps cached content and emits no publication event', async () => {
+  has('loadPublicSampleEnglishEditorPages')
+  const originalWindow = globalThis.window
+  const events = []
+  globalThis.window = { dispatchEvent: event => { events.push(event.type); return true } }
+  try {
+    reset({ data: [published()], error: null })
+    await api.loadPublicSampleEnglishEditorPages()
+    events.length = 0
+    for (const next of [{ data: row({ version: 2 }), error: null }, { data: null, error: { code: '40001' } }]) {
+      response = next
+      assert.ok((await api.publishEditorPage('contact', 1, 'sample-english')).error)
+      assert.deepEqual(await api.loadPublicSampleEnglishEditorPages(), { data: [published()], error: null })
+    }
+    assert.deepEqual(events, [])
+    assert.equal(calls.filter(call => call.args[0] === 'get_public_sample_english_editor_pages').length, 1)
+  } finally {
+    if (originalWindow === undefined) delete globalThis.window
+    else globalThis.window = originalWindow
+  }
+})
+
+test('unavailable sample storage returns recoverable errors without consulting original storage', async () => {
+  has('loadPublicSampleEnglishEditorPages')
+  const operations = [() => api.loadEditorPage('contact', 'sample-english'), () => api.loadEditorRevisions('contact', 'sample-english'),
+    () => api.saveEditorDraft('contact', empty(), 0, 'sample-english'), () => api.publishEditorPage('contact', 1, 'sample-english'),
+    () => api.restoreEditorRevision(revisionId, 1, 'sample-english'), () => api.loadPublicSampleEnglishEditorPages()]
+  for (const operation of operations) {
+    reset({ data: null, error: { code: 'PGRST202', message: 'private schema' } })
+    const missing = await operation()
+    assert.equal(missing.data, null)
+    assert.match(missing.error, /설치|준비/)
+    assert.doesNotMatch(missing.error, /private/)
+    assert.equal(calls.length, 1)
+    assert.match(calls[0].table ?? calls[0].args[0], /sample_english_editor/)
+    reset(new Error('private network detail'))
+    const disconnected = await operation()
+    assert.equal(disconnected.data, null)
+    assert.ok(disconnected.error)
+    reset({ data: null, error: null }); unavailable = true
+    assert.ok((await operation()).error)
+    assert.equal(calls.length, 0)
+  }
 })

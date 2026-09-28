@@ -1,3 +1,5 @@
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
+import { workflowCopy } from '../../components/common/workflowCopy'
 import { EditableLayout } from '../../components/site-editor/EditableLayout'
 import { FormattedCopy } from '../../components/site-editor/FormattedCopy'
 import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
@@ -5,7 +7,7 @@ import { useEffect } from 'react'
 import { Link, Navigate, useLocation, useSearchParams } from 'react-router'
 import { ContactInquiryForm } from '../../components/contact/ContactInquiryForm'
 import { SupportPledgeForm } from '../../components/contact/SupportPledgeForm'
-import { formatSupportAmounts, getContactSection, getInitialInquiryType, inquiryTypes } from '../../components/contact/contactFormModel'
+import { getContactSection, getInitialInquiryType, inquiryTypes } from '../../components/contact/contactFormModel'
 import { LoadingState } from '../../components/common/LoadingState'
 import { OptimizedImage } from '../../components/common/OptimizedImage'
 import { SeoHead } from '../../components/common/SeoHead'
@@ -37,6 +39,8 @@ export function ContactPage() {
 }
 
 function ContactContent() {
+  const { translate } = useSampleLanguage()
+  const displaySupportAmounts = (amounts: readonly number[]) => amounts.map(amount => workflowCopy(translate, '{amount}원', { amount: amount.toLocaleString('ko-KR') })).join(' · ')
   const { copy: copyText } = useSiteEditor()
   const t = usePageCopy('contact')
   const contactData = useContactData()
@@ -50,7 +54,7 @@ function ContactContent() {
   const address = location?.address || siteSettings.address
   const maps = getMapActions({ address, embedUrl: location?.map_embed_url, kakaoMapUrl: location?.kakao_map_url, naverMapUrl: location?.naver_map_url })
   const ready = !contactData.isLoading && !contactData.error
-  const title = activeSection === 'support' ? (supportSettings?.title || '후원 약정서') : t('title')
+  const title = activeSection === 'support' ? (supportSettings?.title || translate('후원 약정서')) : t('title')
 
   useEffect(() => {
     if (!ready || !route.hash) return
@@ -91,8 +95,8 @@ function ContactContent() {
               <h3>{<FormattedCopy page="contact" id="contact.regular" text={t('regular')}>{t('regular')}</FormattedCopy>}</h3>
               {supportSettings ? <>
                 <dl className="contact-atelier__amounts">
-                  {supportSettings.individual_amounts.length ? <div><dt>{<FormattedCopy page="contact" id="contact.individual" text={t('individual')}>{t('individual')}</FormattedCopy>}</dt><dd>{<FormattedCopy page="contact" id="contact.fixed.ContactPage.450d32b52e" text={copyText("contact", "contact.fixed.ContactPage.450d32b52e", "월 ")}>{copyText("contact", "contact.fixed.ContactPage.450d32b52e", "월 ")}</FormattedCopy>}{formatSupportAmounts(supportSettings.individual_amounts)}</dd></div> : null}
-                  {supportSettings.corporate_amounts.length ? <div><dt>{<FormattedCopy page="contact" id="contact.corporate" text={t('corporate')}>{t('corporate')}</FormattedCopy>}</dt><dd>{<FormattedCopy page="contact" id="contact.fixed.ContactPage.450d32b52e" text={copyText("contact", "contact.fixed.ContactPage.450d32b52e", "월 ")}>{copyText("contact", "contact.fixed.ContactPage.450d32b52e", "월 ")}</FormattedCopy>}{formatSupportAmounts(supportSettings.corporate_amounts)}</dd></div> : null}
+                  {supportSettings.individual_amounts.length ? <div><dt>{<FormattedCopy page="contact" id="contact.individual" text={t('individual')}>{t('individual')}</FormattedCopy>}</dt><dd>{<FormattedCopy page="contact" id="contact.fixed.ContactPage.450d32b52e" text={copyText("contact", "contact.fixed.ContactPage.450d32b52e", "월 ")}>{copyText("contact", "contact.fixed.ContactPage.450d32b52e", "월 ")}</FormattedCopy>}{displaySupportAmounts(supportSettings.individual_amounts)}</dd></div> : null}
+                  {supportSettings.corporate_amounts.length ? <div><dt>{<FormattedCopy page="contact" id="contact.corporate" text={t('corporate')}>{t('corporate')}</FormattedCopy>}</dt><dd>{<FormattedCopy page="contact" id="contact.fixed.ContactPage.450d32b52e" text={copyText("contact", "contact.fixed.ContactPage.450d32b52e", "월 ")}>{copyText("contact", "contact.fixed.ContactPage.450d32b52e", "월 ")}</FormattedCopy>}{displaySupportAmounts(supportSettings.corporate_amounts)}</dd></div> : null}
                 </dl>
                 {supportSettings.allow_custom_amount ? <p className="contact-atelier__support-note">{<FormattedCopy page="contact" id="contact.fixed.ContactPage.c43d9df174" text={copyText("contact", "contact.fixed.ContactPage.c43d9df174", "다른 금액도 직접 입력하실 수 있습니다.")}>{copyText("contact", "contact.fixed.ContactPage.c43d9df174", "다른 금액도 직접 입력하실 수 있습니다.")}</FormattedCopy>}</p> : null}
                 <p className="contact-atelier__support-note">{<FormattedCopy page="contact" id="contact.fixed.ContactPage.bb4b9f91d5" text={copyText("contact", "contact.fixed.ContactPage.bb4b9f91d5", "약정서를 보내도 결제되거나 자동 출금되지 않습니다.")}>{copyText("contact", "contact.fixed.ContactPage.bb4b9f91d5", "약정서를 보내도 결제되거나 자동 출금되지 않습니다.")}</FormattedCopy>}</p>
@@ -125,7 +129,7 @@ function ContactContent() {
                 <h2 id="contact-location-title">{address || <FormattedCopy page="contact" id="contact.fixed.ContactPage.85e1cf0fe2" text={copyText("contact", "contact.fixed.ContactPage.85e1cf0fe2", "장소 정보를 준비하고 있습니다.")}>{copyText("contact", "contact.fixed.ContactPage.85e1cf0fe2", "장소 정보를 준비하고 있습니다.")}</FormattedCopy>}</h2>
                 {location?.transit_info ? <p>{location.transit_info}</p> : null}
                 {location?.parking_info ? <p>{location.parking_info}</p> : null}
-                <div className="contact-atelier__map-actions">{maps.buttons.map(action => <a key={action.provider} className="contact-atelier__action" href={action.href} target="_blank" rel="noopener noreferrer">{action.label} <span aria-hidden="true">↗</span></a>)}</div>
+                <div className="contact-atelier__map-actions">{maps.buttons.map(action => <a key={action.provider} className="contact-atelier__action" href={action.href} target="_blank" rel="noopener noreferrer">{translate(action.label)} <span aria-hidden="true">↗</span></a>)}</div>
               </div>
               <dl className="contact-atelier__contacts">
                 {siteSettings.phone?.trim() ? <div><dt>{<FormattedCopy page="contact" id="contact.phone" text={t('phone')}>{t('phone')}</FormattedCopy>}</dt><dd><a href={'tel:' + siteSettings.phone.replace(/[^0-9+]/g, '')}>{siteSettings.phone}</a></dd></div> : null}
@@ -134,8 +138,8 @@ function ContactContent() {
               </dl>
             </div>
             {maps.embedSrc || location?.image_url ? <details className="contact-atelier__location-media"><summary>{<FormattedCopy page="contact" id="contact.map" text={t('map')}>{t('map')}</FormattedCopy>}</summary>
-              {maps.embedSrc ? <iframe src={maps.embedSrc} title={(location?.place_name || '서울모테트음악재단') + ' 지도'} loading="lazy" referrerPolicy="no-referrer-when-downgrade" /> : null}
-              {location?.image_url ? <figure><OptimizedImage className="contact-atelier__location-image" src={location.image_url} alt={location.image_alt || (location.place_name || '오시는 길') + ' 사진'} objectFit="contain" />{location.image_caption ? <figcaption>{location.image_caption}</figcaption> : null}</figure> : null}
+              {maps.embedSrc ? <iframe src={maps.embedSrc} title={workflowCopy(translate, '{title} 지도', { title: location?.place_name || '서울모테트음악재단' })} loading="lazy" referrerPolicy="no-referrer-when-downgrade" /> : null}
+              {location?.image_url ? <figure><OptimizedImage className="contact-atelier__location-image" src={location.image_url} alt={location.image_alt || workflowCopy(translate, '{title} 사진', { title: location.place_name || translate('오시는 길') })} objectFit="contain" />{location.image_caption ? <figcaption>{location.image_caption}</figcaption> : null}</figure> : null}
             </details> : null}
           </div>
         </section>

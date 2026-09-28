@@ -11,6 +11,7 @@ import { OptimizedImage } from '../common/OptimizedImage'
 import { Reveal } from '../common/Reveal'
 import { getStorageImageUrl } from '../../utils/supabaseImage'
 import { useHomeResponsiveViewport } from './useHomeResponsiveViewport'
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
 
 type HomeHeroSlideshowProps = {
   description?: string
@@ -262,6 +263,7 @@ export function HomeHeroSlideshow({
   slides,
 }: HomeHeroSlideshowProps) {
   const { copy: copyText } = useSiteEditor()
+  const { translate } = useSampleLanguage()
   const [activeIndex, setActiveIndex] = useState(0)
   const [isUserPaused, setIsUserPaused] = useState(false)
   const [failedImageIds, setFailedImageIds] = useState<Set<string>>(() => new Set())
@@ -414,7 +416,7 @@ export function HomeHeroSlideshow({
           <Reveal delayMs={0}>
             <div className="mb-6 h-1 w-16 rounded-full bg-gold-warm" />
             <p className="type-eyebrow mb-4 text-gold-soft">
-              {HOME_HERO_REFERENCE_COPY.eyebrow}
+              {translate(HOME_HERO_REFERENCE_COPY.eyebrow)}
             </p>
           </Reveal>
           <Reveal delayMs={80}>
@@ -440,7 +442,7 @@ export function HomeHeroSlideshow({
                 size="lg"
                 variant="gold"
               >
-                {HOME_HERO_REFERENCE_COPY.primaryCta.label}
+                {translate(HOME_HERO_REFERENCE_COPY.primaryCta.label)}
               </Button>
               <Button
                 className="w-full !border-bg-warm-white/72 !bg-bg-warm-white/[0.07] !text-bg-warm-white hover:!border-bg-warm-white hover:!bg-bg-warm-white/[0.12] hover:!text-gold-soft sm:w-auto"

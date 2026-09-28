@@ -1,3 +1,5 @@
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
+import { workflowCopy, workflowDate, workflowTime, workflowTextLanguage } from '../../components/common/workflowCopy'
 import { EditableLayout } from '../../components/site-editor/EditableLayout'
 import { FormattedCopy } from '../../components/site-editor/FormattedCopy'
 import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
@@ -46,7 +48,7 @@ function getCategoryLabel(category: string) {
   return categoryLabels[category] ?? (category.trim() || '기타')
 }
 
-function getDateParts(dateString: string) {
+function getDateParts(dateString: string, locale = 'ko-KR') {
   const match = dateString.match(/^(\d{4})-(\d{2})-(\d{2})$/)
 
   if (!match) {
@@ -59,7 +61,7 @@ function getDateParts(dateString: string) {
 
   const [, year, month, day] = match
   const utcDate = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)))
-  const weekday = new Intl.DateTimeFormat('ko-KR', {
+  const weekday = new Intl.DateTimeFormat(locale, {
     timeZone: 'UTC',
     weekday: 'short',
   }).format(utcDate)
@@ -80,6 +82,7 @@ function getPeriodFilter(value: string | null): PeriodFilter {
 }
 
 function PosterPlate({ concert }: { concert: Concert }) {
+  const { translate } = useSampleLanguage()
   const { copy: copyText } = useSiteEditor()
   const [failedPosterUrl, setFailedPosterUrl] = useState<string | null>(null)
   const safePosterUrl = getSafeHttpUrl(concert.poster_url)
@@ -89,8 +92,8 @@ function PosterPlate({ concert }: { concert: Concert }) {
     <div
       aria-label={
         canShowPoster
-          ? `${concert.title} 포스터`
-          : `${concert.title} 포스터 준비 중`
+          ? workflowCopy(translate, '{title} 포스터', { title: concert.title })
+          : workflowCopy(translate, '{title} 포스터 준비 중', { title: concert.title })
       }
       className="concerts-page__poster-plate"
       role="img"
@@ -114,6 +117,8 @@ function PosterPlate({ concert }: { concert: Concert }) {
 }
 
 function FeaturedStage({ concert, today }: { concert: Concert | null; today: string }) {
+  const { enabled, language, translate } = useSampleLanguage()
+  const english = enabled && language === 'en'
   const { copy: copyText } = useSiteEditor()
   const t = usePageCopy('concerts')
   if (!concert) {
@@ -129,7 +134,7 @@ function FeaturedStage({ concert, today }: { concert: Concert | null; today: str
     )
   }
 
-  const dateParts = getDateParts(concert.date)
+  const dateParts = getDateParts(concert.date, english ? 'en-GB' : 'ko-KR')
   const period = getConcertPeriod(concert, today)
 
   return (
@@ -140,16 +145,16 @@ function FeaturedStage({ concert, today }: { concert: Concert | null; today: str
       <div className="concerts-page__stage-copy">
         <p>{period === 'upcoming' ? <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.3548dbe981" text={copyText("concerts", "concerts.fixed.ConcertsPage.3548dbe981", "NEXT PERFORMANCE")}>{copyText("concerts", "concerts.fixed.ConcertsPage.3548dbe981", "NEXT PERFORMANCE")}</FormattedCopy> : <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.92a738581a" text={copyText("concerts", "concerts.fixed.ConcertsPage.92a738581a", "LATEST RECORD")}>{copyText("concerts", "concerts.fixed.ConcertsPage.92a738581a", "LATEST RECORD")}</FormattedCopy>}</p>
         <strong className="concerts-page__stage-date">{dateParts.monthDay}</strong>
-        <h2>{concert.title}</h2>
+        <h2 lang={workflowTextLanguage(concert.title, english)}>{concert.title}</h2>
         <span>
-          {[dateParts.weekday, concert.time.trim() || '시간 미정']
+          {[dateParts.weekday, workflowTime(concert.time.trim(), english) || translate('시간 미정')]
             .filter(Boolean)
             .join(' · ')}
           <br />
           {concert.location.trim() || <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.660394603a" text={copyText("concerts", "concerts.fixed.ConcertsPage.660394603a", "장소 추후 안내")}>{copyText("concerts", "concerts.fixed.ConcertsPage.660394603a", "장소 추후 안내")}</FormattedCopy>}
         </span>
         <TransitionLink
-          aria-label={`${concert.title} 공연 상세 보기`}
+          aria-label={workflowCopy(translate, '{title} 공연 상세 보기', { title: concert.title })}
           className="concerts-page__stage-link"
           to={`/concerts/${concert.id}`}
         >
@@ -164,6 +169,8 @@ function FeaturedStage({ concert, today }: { concert: Concert | null; today: str
 }
 
 function ConcertRow({ concert, today }: { concert: Concert; today: string }) {
+  const { enabled, language, translate } = useSampleLanguage()
+  const english = enabled && language === 'en'
   const { copy: copyText } = useSiteEditor()
   const fullDate = getConcertDateLabel(concert.date)
   const period = getConcertPeriod(concert, today)
@@ -173,7 +180,7 @@ function ConcertRow({ concert, today }: { concert: Concert; today: string }) {
   return (
     <article className="concerts-page__event" data-has-poster={hasPoster}>
       <TransitionLink
-        aria-label={`${concert.title} ${period === 'past' ? '공연 기록' : '공연 상세'} 보기`}
+        aria-label={workflowCopy(translate, period === 'past' ? '{title} 공연 기록 보기' : '{title} 공연 상세 보기', { title: concert.title })}
         className="concerts-page__event-link"
         to={`/concerts/${concert.id}`}
       >
@@ -181,8 +188,8 @@ function ConcertRow({ concert, today }: { concert: Concert; today: string }) {
           className="concerts-page__event-date"
           dateTime={fullDate === '날짜 미정' ? undefined : concert.date.trim()}
         >
-          <strong>{fullDate}</strong>
-          <span>{concert.time.trim() || <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.8b6b258c88" text={copyText("concerts", "concerts.fixed.ConcertsPage.8b6b258c88", "시간 미정")}>{copyText("concerts", "concerts.fixed.ConcertsPage.8b6b258c88", "시간 미정")}</FormattedCopy>}</span>
+          <strong>{workflowDate(concert.date, translate(fullDate), english, true)}</strong>
+          <span>{concert.time.trim() ? workflowTime(concert.time.trim(), english) : <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.8b6b258c88" text={copyText("concerts", "concerts.fixed.ConcertsPage.8b6b258c88", "시간 미정")}>{copyText("concerts", "concerts.fixed.ConcertsPage.8b6b258c88", "시간 미정")}</FormattedCopy>}</span>
         </time>
 
         {hasPoster ? (
@@ -196,7 +203,7 @@ function ConcertRow({ concert, today }: { concert: Concert; today: string }) {
             <FormattedCopy page="concerts" id={`concerts.category.${concert.category}`} text={copyText('concerts', `concerts.category.${concert.category}`, getCategoryLabel(concert.category))}>{copyText('concerts', `concerts.category.${concert.category}`, getCategoryLabel(concert.category))}</FormattedCopy> ·{' '}
             <FormattedCopy page="concerts" id={statusKey} text={copyText('concerts', statusKey, getConcertStatusLabel(concert.status, period))}>{copyText('concerts', statusKey, getConcertStatusLabel(concert.status, period))}</FormattedCopy>
           </p>
-          <h3>{concert.title}</h3>
+          <h3 lang={workflowTextLanguage(concert.title, english)}>{concert.title}</h3>
           <span>{concert.location.trim() || <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.660394603a" text={copyText("concerts", "concerts.fixed.ConcertsPage.660394603a", "장소 추후 안내")}>{copyText("concerts", "concerts.fixed.ConcertsPage.660394603a", "장소 추후 안내")}</FormattedCopy>}</span>
         </div>
 
@@ -212,6 +219,8 @@ function ConcertRow({ concert, today }: { concert: Concert; today: string }) {
 }
 
 export function ConcertsPage() {
+  const { enabled, language, translate } = useSampleLanguage()
+  const english = enabled && language === 'en'
   const { copy: copyText } = useSiteEditor()
   const t = usePageCopy('concerts')
   const concertsData = useConcertsData()
@@ -302,9 +311,9 @@ export function ConcertsPage() {
   const yearOptions = useMemo(
     () => [
       { label: copyText('concerts', 'concerts.options.allDates', '날짜 전체'), value: 'all' },
-      ...years.map((year) => ({ label: `${year}년`, value: year })),
+      ...years.map((year) => ({ label: workflowCopy(translate, '{year}년', { year }), value: year })),
     ],
-    [years, copyText],
+    [years, copyText, translate],
   )
 
   const concertListStructuredData = useMemo(
@@ -338,7 +347,7 @@ export function ConcertsPage() {
   return (
     <>
       <SeoHead
-        description={concertsPageDescription}
+        description={translate(concertsPageDescription)}
         jsonLd={concertListStructuredData}
         path="/concerts"
         title={copyText("concerts", "concerts.fixed.ConcertsPage.e926e08ea7", "공연·소식")}
@@ -370,16 +379,16 @@ export function ConcertsPage() {
           <div className="concerts-page__discovery-inner">
             <div className="concerts-page__discovery-heading">
               <h2>{<FormattedCopy page="concerts" id="concerts.find" text={t('find')}>{t('find')}</FormattedCopy>}</h2>
-              <p aria-live="polite">{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.5e1c40e141" text={copyText("concerts", "concerts.fixed.ConcertsPage.5e1c40e141", "전체 ")}>{copyText("concerts", "concerts.fixed.ConcertsPage.5e1c40e141", "전체 ")}</FormattedCopy>}{resultCount}{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.578c084317" text={copyText("concerts", "concerts.fixed.ConcertsPage.578c084317", "개 · 날짜순")}>{copyText("concerts", "concerts.fixed.ConcertsPage.578c084317", "개 · 날짜순")}</FormattedCopy>}</p>
+              <p aria-live="polite">{english ? workflowCopy(translate, '전체 {count}개 · 날짜순', { count: resultCount }) : <>{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.5e1c40e141" text={copyText("concerts", "concerts.fixed.ConcertsPage.5e1c40e141", "전체 ")}>{copyText("concerts", "concerts.fixed.ConcertsPage.5e1c40e141", "전체 ")}</FormattedCopy>}{resultCount}{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.578c084317" text={copyText("concerts", "concerts.fixed.ConcertsPage.578c084317", "개 · 날짜순")}>{copyText("concerts", "concerts.fixed.ConcertsPage.578c084317", "개 · 날짜순")}</FormattedCopy>}</>}</p>
             </div>
 
             <div className="concerts-page__filter-bar">
               <div aria-label={copyText("concerts", "concerts.fixed.ConcertsPage.8d666faa0e", "공연 기간")} className="concerts-page__period-tabs" role="group">
                 {(
                   [
-                    ['all', `전체 ${resultCount}`],
-                    ['upcoming', `예정 공연 ${filteredSchedule.upcoming.length}`],
-                    ['past', `지난 공연 ${filteredSchedule.past.length}`],
+                    ['all', workflowCopy(translate, '전체 {count}', { count: resultCount })],
+                    ['upcoming', workflowCopy(translate, '예정 공연 {count}', { count: filteredSchedule.upcoming.length })],
+                    ['past', workflowCopy(translate, '지난 공연 {count}', { count: filteredSchedule.past.length })],
                   ] as const
                 ).map(([value, label]) => (
                   <button
@@ -395,8 +404,8 @@ export function ConcertsPage() {
                       {value === 'all'
                         ? <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.a4b69faf0c" text={copyText("concerts", "concerts.fixed.ConcertsPage.a4b69faf0c", "전체")}>{copyText("concerts", "concerts.fixed.ConcertsPage.a4b69faf0c", "전체")}</FormattedCopy>
                         : value === 'upcoming'
-                          ? `예정 ${filteredSchedule.upcoming.length}`
-                          : `지난 ${filteredSchedule.past.length}`}
+                          ? workflowCopy(translate, '예정 {count}', { count: filteredSchedule.upcoming.length })
+                          : workflowCopy(translate, '지난 {count}', { count: filteredSchedule.past.length })}
                     </span>
                   </button>
                 ))}
@@ -451,7 +460,7 @@ export function ConcertsPage() {
                   ? <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.1b32435851" text={copyText("concerts", "concerts.fixed.ConcertsPage.1b32435851", "지난 공연")}>{copyText("concerts", "concerts.fixed.ConcertsPage.1b32435851", "지난 공연")}</FormattedCopy>
                   : <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.b89c609993" text={copyText("concerts", "concerts.fixed.ConcertsPage.b89c609993", "예정 공연")}>{copyText("concerts", "concerts.fixed.ConcertsPage.b89c609993", "예정 공연")}</FormattedCopy>}{' '}
               · {categoryFilter === 'all' ? <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.52f8bd3b3e" text={copyText("concerts", "concerts.fixed.ConcertsPage.52f8bd3b3e", "전체 유형")}>{copyText("concerts", "concerts.fixed.ConcertsPage.52f8bd3b3e", "전체 유형")}</FormattedCopy> : <FormattedCopy page="concerts" id={`concerts.category.${categoryFilter}`} text={copyText('concerts', `concerts.category.${categoryFilter}`, getCategoryLabel(categoryFilter))}>{copyText('concerts', `concerts.category.${categoryFilter}`, getCategoryLabel(categoryFilter))}</FormattedCopy>} ·{' '}
-              {yearFilter === 'all' ? <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.2458d99325" text={copyText("concerts", "concerts.fixed.ConcertsPage.2458d99325", "날짜 제한 없음")}>{copyText("concerts", "concerts.fixed.ConcertsPage.2458d99325", "날짜 제한 없음")}</FormattedCopy> : `${yearFilter}년`}
+              {yearFilter === 'all' ? <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.2458d99325" text={copyText("concerts", "concerts.fixed.ConcertsPage.2458d99325", "날짜 제한 없음")}>{copyText("concerts", "concerts.fixed.ConcertsPage.2458d99325", "날짜 제한 없음")}</FormattedCopy> : workflowCopy(translate, '{year}년', { year: yearFilter })}
             </p>
           </div>
         </section>
@@ -491,7 +500,7 @@ export function ConcertsPage() {
                 <div className="concerts-page__section-inner">
                   <div className="concerts-page__section-heading">
                     <h2 id="upcoming-concerts-title">{<FormattedCopy page="concerts" id="concerts.upcoming" text={t('upcoming')}>{t('upcoming')}</FormattedCopy>}</h2>
-                    <p>{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.89545f172d" text={copyText("concerts", "concerts.fixed.ConcertsPage.89545f172d", "가까운 날짜순 · ")}>{copyText("concerts", "concerts.fixed.ConcertsPage.89545f172d", "가까운 날짜순 · ")}</FormattedCopy>}{filteredSchedule.upcoming.length}{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.a57ab05712" text={copyText("concerts", "concerts.fixed.ConcertsPage.a57ab05712", "개")}>{copyText("concerts", "concerts.fixed.ConcertsPage.a57ab05712", "개")}</FormattedCopy>}</p>
+                    <p>{english ? workflowCopy(translate, '가까운 날짜순 · {count}개', { count: filteredSchedule.upcoming.length }) : <>{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.89545f172d" text={copyText("concerts", "concerts.fixed.ConcertsPage.89545f172d", "가까운 날짜순 · ")}>{copyText("concerts", "concerts.fixed.ConcertsPage.89545f172d", "가까운 날짜순 · ")}</FormattedCopy>}{filteredSchedule.upcoming.length}{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.a57ab05712" text={copyText("concerts", "concerts.fixed.ConcertsPage.a57ab05712", "개")}>{copyText("concerts", "concerts.fixed.ConcertsPage.a57ab05712", "개")}</FormattedCopy>}</>}</p>
                   </div>
                   <div aria-hidden="true" className="concerts-page__section-rule" />
 
@@ -522,8 +531,8 @@ export function ConcertsPage() {
                   <div className="concerts-page__section-heading">
                     <h2 id="past-concerts-title">{<FormattedCopy page="concerts" id="concerts.archive" text={t('archive')}>{t('archive')}</FormattedCopy>}</h2>
                     <p>
-                      {activeArchiveYear ? `${activeArchiveYear}년` : <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.6e8b375a38" text={copyText("concerts", "concerts.fixed.ConcertsPage.6e8b375a38", "기록")}>{copyText("concerts", "concerts.fixed.ConcertsPage.6e8b375a38", "기록")}</FormattedCopy>} ·{' '}
-                      {displayedArchiveRows.length}{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.a57ab05712" text={copyText("concerts", "concerts.fixed.ConcertsPage.a57ab05712", "개")}>{copyText("concerts", "concerts.fixed.ConcertsPage.a57ab05712", "개")}</FormattedCopy>}</p>
+                      {activeArchiveYear ? workflowCopy(translate, '{year}년', { year: activeArchiveYear }) : <FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.6e8b375a38" text={copyText("concerts", "concerts.fixed.ConcertsPage.6e8b375a38", "기록")}>{copyText("concerts", "concerts.fixed.ConcertsPage.6e8b375a38", "기록")}</FormattedCopy>} ·{' '}
+                      {english ? workflowCopy(translate, '{count}개', { count: displayedArchiveRows.length }) : <>{displayedArchiveRows.length}{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.a57ab05712" text={copyText("concerts", "concerts.fixed.ConcertsPage.a57ab05712", "개")}>{copyText("concerts", "concerts.fixed.ConcertsPage.a57ab05712", "개")}</FormattedCopy>}</>}</p>
                   </div>
 
                   {archiveYears.length > 0 ? (

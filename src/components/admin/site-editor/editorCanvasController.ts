@@ -7,6 +7,7 @@ import { CANVAS_PROTOCOL_LIMITS, type CanvasEditGrant, type CanvasFieldGrant, ty
 import { EDITOR_DEVICES, isEditorPageId, resolveEditorCopy, validateSiteEditorDocument } from '../../../lib/siteEditorModel'
 import { canonicalTextStyle, isEditorCopyText, isEditorRecord, rebaseTextRuns, resolveTextRuns, snapTextSelection, supportsTextSegmentation, validateTextStyles } from '../../../lib/siteEditorTextStyles'
 import type { EditorDevice, EditorPageId, EditorTextRun, SiteCopyDefinition, SiteEditorDocument, SiteEditorDocuments } from '../../../types/siteEditor'
+import type { EditorStorageScope } from '../../../lib/siteEditorApi'
 import { validateEditorCopyFields } from './editorSessionModel'
 import { accompanistCopyFallback, accompanistCopyRuns, getAccompanistCopyDefinition } from '../../../lib/accompanistProfileCopy'
 
@@ -20,6 +21,8 @@ export type CanvasGrantContext = {
   defaultsTrusted: boolean
   defaults: Readonly<Record<string, string>>
   baseDraftSequence: number
+  copyDefinitions?: readonly SiteCopyDefinition[]
+  storageScope?: EditorStorageScope
 }
 
 type GrantState = {
@@ -36,7 +39,7 @@ export type CanvasCommitResult = { ok: true; ownerPage: EditorPageId; document: 
 
 const definitions = new Map(siteCopyDefinitions.map(field => [field.key, field]))
 const identity = (source: CanvasSourceIdentity) => JSON.stringify([source.ownerPage, source.scope, source.key])
-const contextIdentity = (context: CanvasGrantContext) => JSON.stringify([context.editorPage, context.previewPage, context.device, context.scope])
+const contextIdentity = (context: CanvasGrantContext) => JSON.stringify([context.editorPage, context.previewPage, context.device, context.scope, context.storageScope ?? 'original'])
 const fail = (reason: CanvasGrantFailure['reason'], message: string): CanvasGrantFailure => ({ ok: false, reason, message })
 const invalid = () => fail('invalid', '선택한 문구의 편집 범위를 확인할 수 없습니다. 다시 선택해 주세요.')
 const stale = () => fail('stale', '이 문구의 원문이나 서식이 변경되었습니다. 현재 입력을 유지하고 최신 초안을 확인해 주세요.')
@@ -87,7 +90,12 @@ function authorizedField(context: CanvasGrantContext, source: CanvasSourceIdenti
     const box = listEditorTextBoxes(context.documents[source.ownerPage], source.ownerPage).find(item => item.id === source.key)
     if (box) return { key: box.id, page: source.ownerPage, section: '추가한 문구 상자', label: box.text.slice(0, 80) || '문구 상자', defaultValue: box.text, multiline: true }
   }
-  const field = definitions.get(source.key)
+  const owner = definitions.get(source.key)
+  const field = context.copyDefinitions ? context.copyDefinitions.find(item => item.key === source.key) : owner
+  // A workspace may adapt wording and length limits, but cannot change a key's
+  // canonical page, device, source identity or editable input kind.
+  if (!owner || !field || owner.page !== field.page || owner.sourceDevice !== field.sourceDevice
+    || owner.sourceKey !== field.sourceKey || owner.inputType !== field.inputType) return null
   if (!field || source.ownerPage !== context.editorPage || field.page !== source.ownerPage || source.scope !== context.scope
     || (field.inputType && !['text', 'textarea'].includes(field.inputType))) return null
   if (field.sourceDevice && (field.sourceDevice !== context.device || field.sourceDevice !== context.scope)) return null
@@ -104,7 +112,7 @@ function fieldSnapshot(context: CanvasGrantContext, source: CanvasSourceIdentity
   const runs = profile ? accompanistCopyRuns(document, context.device, field.key, text) : resolveTextRuns(document, context.device, field.key, text)
   const entry = (values: object | undefined) => values && Object.hasOwn(values, field.key)
     ? { present: true, value: (values as Record<string, unknown>)[field.key] } : { present: false }
-  const snapshot = canonical({ source, fallback: { ...entry(context.defaults), resolved: fallback },
+  const snapshot = canonical({ source, definition: { page: field.page, sourceKey: field.sourceKey, sourceDevice: field.sourceDevice, inputType: field.inputType, maxLength: field.maxLength }, fallback: { ...entry(context.defaults), resolved: fallback },
     sharedCopy: entry(document.copy), deviceCopy: entry(document.deviceCopy[context.device]),
     sharedRuns: entry(document.textStyles?.shared), deviceRuns: entry(document.textStyles?.[context.device]), text, runs })
   return { text, runs, snapshot }
@@ -250,7 +258,7 @@ export function commitCanvasGrant(context: CanvasGrantContext, issued: IssuedCan
         document.textStyles = { ...document.textStyles, [context.scope]: { ...document.textStyles?.[context.scope], [field.source.key]: next } }
       }
     }
-    if (validateSiteEditorDocument(document) || validateEditorCopyFields(document, siteCopyDefinitions.filter(field => field.page === context.editorPage))) return invalid()
+    if (validateSiteEditorDocument(document) || validateEditorCopyFields(document, (context.copyDefinitions ?? siteCopyDefinitions).filter(field => field.page === context.editorPage))) return invalid()
     return { ok: true, ownerPage: context.editorPage, document }
   } catch { return invalid() }
 }

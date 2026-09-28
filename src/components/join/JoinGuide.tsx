@@ -1,3 +1,5 @@
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
+import { workflowRecruitmentPeriod, workflowTextLanguage } from '../common/workflowCopy'
 import { EditableLayout } from '../site-editor/EditableLayout'
 import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
@@ -46,6 +48,14 @@ function targetRows(value: string | null | undefined) {
 export function JoinGuide({ activeSection, applicationHref, faqs, getSectionHref, joinInfo }: JoinGuideProps) {
   const { copy: copyText } = useSiteEditor()
   const t = usePageCopy('join')
+  const { enabled, language, translate } = useSampleLanguage()
+  const english = enabled && language === 'en'
+  const guideDescription = publicCopy(joinInfo.description, translate('모집 대상과 오디션, 연습 안내를 확인하고 지원서를 작성해 주세요.'))
+  const partsText = publicCopy(joinInfo.parts, translate('모집 파트는 입단 문의를 통해 확인해 주세요.'))
+  const processText = publicCopy(joinInfo.audition_process, translate('오디션 절차와 일정은 입단 문의를 통해 확인해 주세요.'))
+  const preparationText = publicCopy(joinInfo.preparation, translate('필요한 준비사항은 입단 문의를 통해 확인해 주세요.'))
+  const rehearsalTime = publicCopy(joinInfo.rehearsal_time, translate('연습 시간은 입단 문의를 통해 확인해 주세요.'))
+  const rehearsalLocation = publicCopy(joinInfo.rehearsal_location, translate('연습 장소는 입단 문의를 통해 확인해 주세요.'))
   const faqPrefix = useId()
   const [openFaqId, setOpenFaqId] = useState<string | null>(null)
   const [periodNow, setPeriodNow] = useState(() => Date.now())
@@ -83,18 +93,18 @@ export function JoinGuide({ activeSection, applicationHref, faqs, getSectionHref
     <div className="join-guide">
       <section aria-labelledby="join-guide-title" className="join-guide__intro join-guide__container">
         <div className="join-guide__invitation">
-          <p className="join-guide__eyebrow">{joinInfo.title?.trim() || <FormattedCopy page="join" id="join.fixed.JoinGuide.bcacfc4004" text={copyText("join", "join.fixed.JoinGuide.bcacfc4004", "입단 안내")}>{copyText("join", "join.fixed.JoinGuide.bcacfc4004", "입단 안내")}</FormattedCopy>}</p>
+          <p className="join-guide__eyebrow" lang={workflowTextLanguage(joinInfo.title ?? '', english)}>{joinInfo.title?.trim() || <FormattedCopy page="join" id="join.fixed.JoinGuide.bcacfc4004" text={copyText("join", "join.fixed.JoinGuide.bcacfc4004", "입단 안내")}>{copyText("join", "join.fixed.JoinGuide.bcacfc4004", "입단 안내")}</FormattedCopy>}</p>
           <EditableLayout id="join.intro.title"><h1 id="join-guide-title"><FormattedCopy page="join" id="join.guideTitle" text={t('guideTitle')} lineBreaks><CopyLines text={t('guideTitle')} /></FormattedCopy></h1></EditableLayout>
-          <EditableLayout id="join.intro.description"><p className="join-guide__description">
-            {publicCopy(joinInfo.description, '모집 대상과 오디션, 연습 안내를 확인하고 지원서를 작성해 주세요.')}
+          <EditableLayout id="join.intro.description"><p className="join-guide__description" lang={workflowTextLanguage(guideDescription, english)}>
+            {guideDescription}
           </p></EditableLayout>
         </div>
         <div className="join-guide__intro-action">
           <p>{<FormattedCopy page="join" id="join.fixed.JoinGuide.9bb6e639c7" text={copyText("join", "join.fixed.JoinGuide.9bb6e639c7", "서울모테트청소년합창단")}>{copyText("join", "join.fixed.JoinGuide.9bb6e639c7", "서울모테트청소년합창단")}</FormattedCopy>}</p>
           {recruitment.label ? (
             <p className="join-guide__recruitment" role="status">
-              <strong>{recruitment.label}</strong>
-              {recruitment.periodLabel ? <span>{recruitment.periodLabel}</span> : null}
+              <strong>{translate(recruitment.label)}</strong>
+              {recruitment.periodLabel ? <span>{workflowRecruitmentPeriod(recruitment.periodLabel, translate)}</span> : null}
             </p>
           ) : null}
           {applicationLink}
@@ -124,15 +134,15 @@ export function JoinGuide({ activeSection, applicationHref, faqs, getSectionHref
               <ul className="join-guide__targets">
                 {targets.map((target, index) => (
                   <li key={`${target.label}-${index}`}>
-                    {target.label ? <strong>{target.label}</strong> : null}
-                    <p className={target.label ? undefined : 'join-guide__target-full'}>{target.content}</p>
+                    {target.label ? <strong lang={workflowTextLanguage(target.label, english)}>{target.label}</strong> : null}
+                    <p className={target.label ? undefined : 'join-guide__target-full'} lang={workflowTextLanguage(target.content, english)}>{target.content}</p>
                   </li>
                 ))}
               </ul>
             ) : <p className="join-guide__body">{<FormattedCopy page="join" id="join.fixed.JoinGuide.43f2c51475" text={copyText("join", "join.fixed.JoinGuide.43f2c51475", "모집 대상은 입단 문의를 통해 확인해 주세요.")}>{copyText("join", "join.fixed.JoinGuide.43f2c51475", "모집 대상은 입단 문의를 통해 확인해 주세요.")}</FormattedCopy>}</p>}
             <div className="join-guide__subsection">
               <h3>{<FormattedCopy page="join" id="join.parts" text={t('parts')}>{t('parts')}</FormattedCopy>}</h3>
-              <p className="join-guide__lead">{publicCopy(joinInfo.parts, '모집 파트는 입단 문의를 통해 확인해 주세요.')}</p>
+              <p className="join-guide__lead" lang={workflowTextLanguage(partsText, english)}>{partsText}</p>
             </div>
           </div>
         </div>
@@ -143,10 +153,10 @@ export function JoinGuide({ activeSection, applicationHref, faqs, getSectionHref
           <h2 id="join-process-title">{<FormattedCopy page="join" id="join.process" text={t('process')}>{t('process')}</FormattedCopy>}</h2>
           <div className="join-guide__content" id="audition-guide">
             <p className="join-guide__lead join-guide__steps">{<FormattedCopy page="join" id="join.steps" text={t('steps')}>{t('steps')}</FormattedCopy>}</p>
-            <p className="join-guide__body">{publicCopy(joinInfo.audition_process, '오디션 절차와 일정은 입단 문의를 통해 확인해 주세요.')}</p>
+            <p className="join-guide__body" lang={workflowTextLanguage(processText, english)}>{processText}</p>
             <div className="join-guide__subsection">
               <h3>{<FormattedCopy page="join" id="join.preparation" text={t('preparation')}>{t('preparation')}</FormattedCopy>}</h3>
-              <p className="join-guide__lead">{publicCopy(joinInfo.preparation, '필요한 준비사항은 입단 문의를 통해 확인해 주세요.')}</p>
+              <p className="join-guide__lead" lang={workflowTextLanguage(preparationText, english)}>{preparationText}</p>
             </div>
           </div>
         </div>
@@ -157,8 +167,8 @@ export function JoinGuide({ activeSection, applicationHref, faqs, getSectionHref
           <h2 id="join-practice-title">{<FormattedCopy page="join" id="join.practice" text={t('practice')}>{t('practice')}</FormattedCopy>}</h2>
           <div className="join-guide__content join-guide__practice">
             <h3>{<FormattedCopy page="join" id="join.regular" text={t('regular')}>{t('regular')}</FormattedCopy>}</h3>
-            <p className="join-guide__schedule">{publicCopy(joinInfo.rehearsal_time, '연습 시간은 입단 문의를 통해 확인해 주세요.')}</p>
-            <p className="join-guide__body">{publicCopy(joinInfo.rehearsal_location, '연습 장소는 입단 문의를 통해 확인해 주세요.')}</p>
+            <p className="join-guide__schedule" lang={workflowTextLanguage(rehearsalTime, english)}>{rehearsalTime}</p>
+            <p className="join-guide__body" lang={workflowTextLanguage(rehearsalLocation, english)}>{rehearsalLocation}</p>
             <TransitionLink className="join-guide__text-link" to="/contact?section=location">
               {<FormattedCopy page="join" id="join.location" text={t('location')}>{t('location')}</FormattedCopy>} <span aria-hidden="true">↗</span>
             </TransitionLink>
@@ -185,11 +195,11 @@ export function JoinGuide({ activeSection, applicationHref, faqs, getSectionHref
                       onClick={() => setOpenFaqId(isOpen ? null : faq.id)}
                       type="button"
                     >
-                      <span>{faq.question}</span>
+                      <span lang={workflowTextLanguage(faq.question, english)}>{faq.question}</span>
                       <span aria-hidden="true" className="join-guide__faq-chevron">⌄</span>
                     </button>
                   </h3>
-                  <div aria-labelledby={questionId} className="join-guide__faq-answer" hidden={!isOpen} id={answerId}>
+                  <div aria-labelledby={questionId} className="join-guide__faq-answer" lang={workflowTextLanguage(faq.answer, english)} hidden={!isOpen} id={answerId}>
                     {faq.answer}
                   </div>
                 </div>

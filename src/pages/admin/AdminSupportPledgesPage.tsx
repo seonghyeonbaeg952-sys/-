@@ -158,6 +158,7 @@ export function AdminSupportPledgesPage() {
       canCreate={false}
       columns={columns}
       description="방문자가 제출한 후원약정 정보를 확인하고 처리 상태를 변경합니다."
+      editActionLabel="상세·인쇄"
       emptyMessage="접수된 후원약정이 없습니다."
       fields={fields}
       filters={[

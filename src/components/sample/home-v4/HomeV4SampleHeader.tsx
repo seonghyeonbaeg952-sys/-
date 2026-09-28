@@ -4,6 +4,8 @@ import { useLocation } from 'react-router'
 import { usePublicNavigation } from '../../site-editor/usePublicNavigation'
 import { useSiteEditor } from '../../site-editor/useSiteEditor'
 import { FormattedCopy } from '../../site-editor/FormattedCopy'
+import { SampleLanguageSwitch } from '../../../features/sample-language/SampleLanguageSwitch'
+import { useSampleLanguage } from '../../../features/sample-language/useSampleLanguage'
 import { HomeV4SampleMegaMenu } from './HomeV4SampleMegaMenu'
 import { HomeV4SampleMobileMenu } from './HomeV4SampleMobileMenu'
 import { HomeV4SampleImage } from './HomeV4SampleImage'
@@ -22,12 +24,13 @@ export function HomeV4SampleHeader({
   transparentAtTop = true,
 }: HomeV4SampleHeaderProps) {
   const { copy: copyText } = useSiteEditor()
+  const { href: sampleHref } = useSampleLanguage()
   const location = useLocation()
   const publicNavigation = usePublicNavigation()
   const { copy } = useSiteEditor()
   const routePrefix = mode === 'sample' ? '/sample' : ''
-  const homeHref = mode === 'sample' ? '/sample/home-v4' : '/'
-  const joinApplicationHref = `${routePrefix}/join?section=contact#application`
+  const homeHref = sampleHref(mode === 'sample' ? '/sample/home-v4' : '/')
+  const joinApplicationHref = sampleHref(`${routePrefix}/join?section=contact#application`)
   const currentPathname =
     mode === 'sample'
       ? location.pathname.replace(/^\/sample(?=\/|$)/, '') || '/'
@@ -305,6 +308,8 @@ export function HomeV4SampleHeader({
             )
           })}
         </nav>
+
+        <SampleLanguageSwitch />
 
         <a
           className="home-v4-sample-header__cta"

@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
 
 type JsonLdEntry = Record<string, unknown>
 
@@ -46,12 +47,17 @@ export function SeoHead({
   title,
   type = 'website',
 }: SeoHeadProps) {
+  const { enabled, isSample, language, translate, href: sampleHref } = useSampleLanguage()
   useEffect(() => {
     const origin = window.location.origin
-    const canonicalUrl = toAbsoluteUrl(path || window.location.pathname, origin)
+    const canonicalPath = path || window.location.pathname
+    const canonicalUrl = toAbsoluteUrl(enabled ? sampleHref(canonicalPath) : canonicalPath, origin)
     const imageUrl = toAbsoluteUrl(image || defaultImagePath, origin)
-    const pageTitle = title.includes(siteName) ? title : `${title} | ${siteName}`
-    const pageDescription = normalizeDescription(description)
+    const displaySiteName = translate(siteName)
+    const displayTitle = translate(title)
+    const pageTitle = displayTitle.includes(displaySiteName) || displayTitle.includes(siteName)
+      ? displayTitle : `${displayTitle} | ${displaySiteName}`
+    const pageDescription = normalizeDescription(translate(description.trim() ? description : defaultDescription))
     const originalTitle = document.title
     const restorers: Array<() => void> = []
 
@@ -104,7 +110,8 @@ export function SeoHead({
 
     document.title = pageTitle
     setMeta('name', 'description', pageDescription)
-    setMeta('name', 'robots', noIndex ? 'noindex, nofollow' : 'index, follow')
+    setMeta('name', 'robots', noIndex || isSample ? 'noindex, nofollow' : 'index, follow')
+    if (enabled) setMeta('property', 'og:locale', language === 'en' ? 'en_GB' : 'ko_KR')
     setMeta('property', 'og:title', pageTitle)
     setMeta('property', 'og:description', pageDescription)
     setMeta('property', 'og:type', type)
@@ -131,7 +138,7 @@ export function SeoHead({
       structuredDataScript.remove()
       restorers.reverse().forEach((restore) => restore())
     }
-  }, [description, image, jsonLd, noIndex, path, title, type])
+  }, [description, enabled, isSample, image, jsonLd, language, noIndex, path, sampleHref, title, translate, type])
 
   return null
 }

@@ -43,7 +43,7 @@ function parseStructuredItems(value?: string | null) {
 
 function parseBioSections(bio?: string | null): AccompanistProfileModel {
   const lines = (bio ?? '').split(/\r?\n/)
-  const currentStart = lines.findIndex((line) => /^\s*현\)\s*/.test(line))
+  const currentStart = lines.findIndex((line) => /^\s*(?:현\)|Currently\b)/i.test(line))
 
   if (currentStart < 0) {
     return {

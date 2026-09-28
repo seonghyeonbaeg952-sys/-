@@ -59,6 +59,9 @@ const fixed = [
 ] as const
 
 export const commonCopyDefinitions: SiteCopyDefinition[] = [
+  { key: 'common.languageContentError', page: 'common', section: '영문 샘플 안내', label: '영문 자료 불러오기 실패 안내', defaultValue: 'Some English content could not be loaded. Available content is still shown.' },
+  { key: 'common.languageContentRetry', page: 'common', section: '영문 샘플 안내', label: '영문 자료 재시도 버튼', defaultValue: 'Retry' },
+  { key: 'common.languageContentRetrying', page: 'common', section: '영문 샘플 안내', label: '영문 자료 재시도 중', defaultValue: 'Retrying…' },
   ...new Map(navigationDefinitions.map(field => [field.key, field])).values(),
   ...fixed.map(([key, section, label, defaultValue]) => ({ key, page: 'common' as const, section, label, defaultValue })),
   ...variantDefinitions, ...megaGroupDefinitions,
@@ -66,6 +69,9 @@ export const commonCopyDefinitions: SiteCopyDefinition[] = [
 
 const catalogueOnlyKeys = new Set([
   'common.skip', 'common.header.open', 'common.header.close',
+  // Sample feedback controls are editable ordinary copy, like native menu
+  // labels; they are not character-formatting leaves on the original site.
+  'common.languageContentError', 'common.languageContentRetry', 'common.languageContentRetrying',
   // Retained legacy keys without a current visible consumer. Actual short or
   // contextual labels now use the explicit variant keys above.
   navigationCopyKey('/about?section=overview#spirit'), navigationCopyKey('/about?section=conductor'),

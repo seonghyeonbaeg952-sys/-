@@ -14,7 +14,7 @@ export function applyHomeEditorOverrides(raw: HomeContentFlatRecord, documents: 
   return next
 }
 
-function setHomeTextValue(content: HomeContentV2, sourceKey: string, value: string) {
+function homeTextSlot(content: HomeContentV2, sourceKey: string) {
   let key = sourceKey.replace(/^home\./, '')
   key = key.replace(/^responsive\.(about|join)\.(.)/, (_, section: string, first: string) => `${section === 'join' ? 'joinLetter' : section}.responsive${first.toUpperCase()}`)
   key = key.replace(/^current\.join\./, 'joinLetter.').replace(/^current\./, '')
@@ -40,8 +40,26 @@ function setHomeTextValue(content: HomeContentV2, sourceKey: string, value: stri
   }
   const property = path[path.length - 1]
   const existing: unknown = Reflect.get(parent, property)
+  return { parent, property, existing }
+}
+
+function setHomeTextValue(content: HomeContentV2, sourceKey: string, value: string) {
+  const slot = homeTextSlot(content, sourceKey)
+  if (!slot) return
+  const { parent, property, existing } = slot
   if (typeof existing === 'string') Reflect.set(parent, property, value)
   else if (Array.isArray(existing)) Reflect.set(parent, property, value.split(/\r?\n/))
+}
+
+export function mapHomeContentCopy(content: HomeContentV2, device: EditorDevice, translate: (key: string, sourceKey: string, source: string) => string): HomeContentV2 {
+  const next = structuredClone(content)
+  for (const field of homeAllEditorFields) {
+    if (field.device !== device || (field.inputType !== 'text' && field.inputType !== 'textarea')) continue
+    const value = homeTextSlot(content, field.sourceKey)?.existing
+    if (typeof value === 'string') setHomeTextValue(next, field.sourceKey, translate(field.key, field.sourceKey, value))
+    else if (Array.isArray(value) && value.every(item => typeof item === 'string')) setHomeTextValue(next, field.sourceKey, translate(field.key, field.sourceKey, value.join('\n')))
+  }
+  return next
 }
 
 /** Normalize existing content and structural controls first, then preserve exact editor text. */

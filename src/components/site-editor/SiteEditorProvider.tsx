@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router'
-import { loadPublicEditorPages } from '../../lib/siteEditorApi'
+import { loadPublicEditorPages, loadPublicSampleEnglishEditorPages } from '../../lib/siteEditorApi'
 import { loadPublishedEditorDocuments } from '../../lib/siteEditorPublication'
 import { buildEditorCss, getEditorDevice, resolveEditorCopy } from '../../lib/siteEditorModel'
 import {
@@ -19,14 +19,21 @@ import { AddedTextBoxes } from './AddedTextBoxes'
 import { chooseEditorSectionAnchors } from '../../lib/siteEditorAddedBoxes'
 import { getEditorSectionLabel } from '../../lib/editorSectionLabel'
 import { isPreviewControlActivation } from './previewInteraction'
+import { SampleLanguageContext, useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
+import { sampleEnglishDocuments } from '../../features/sample-language/sampleEnglishDocuments'
+import { sampleContentKey, translateDisplayData } from '../../features/sample-language/sampleLanguageModel'
+import { mapHomeContentCopy } from '../../lib/homeEditorOverrides'
 
 export function SiteEditorProvider({ children }: { children: ReactNode }) {
   const location = useLocation()
   const navigate = useNavigate()
+  const sample = useSampleLanguage()
+  const isEnglish = sample.enabled && sample.language === 'en'
   const page = getSiteEditorPage(location.pathname, location.search)
   const nonce = getActiveSiteEditorPreviewNonce(location.search)
   const isPreview = Boolean(page && nonce && typeof window !== 'undefined' && window.parent !== window)
   const [published, setPublished] = useState<SiteEditorDocuments>({})
+  const [englishPublished, setEnglishPublished] = useState<SiteEditorDocuments>({})
   const [preview, setPreview] = useState<{ nonce: string; page: string; sequence: number; documents: SiteEditorDocuments } | null>(null)
   const [device, setDevice] = useState(() => getEditorDevice(typeof window === 'undefined' ? 1440 : window.innerWidth))
   const [notice, setNotice] = useState('')
@@ -35,15 +42,55 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
   const frozen = useRef(false)
   const queuedPreview = useRef<typeof preview>(null)
   const queuedPublished = useRef<SiteEditorDocuments | null>(null)
+  const queuedEnglishPublished = useRef<SiteEditorDocuments | null>(null)
   const [canvas, setCanvas] = useState<ReturnType<typeof createCanvasRuntime> | null>(null)
   const [placement, setPlacement] = useState<ReturnType<typeof createCanvasPlacementRuntime> | null>(null)
-  const documents = useMemo(() => isPreview && preview?.nonce === nonce && preview.page === page
-    ? { ...published, ...preview.documents } : published, [isPreview, nonce, page, preview, published])
-  const copy = useCallback((target: Parameters<typeof resolveEditorCopy>[1], key: string, fallback: string) =>
-    resolveEditorCopy(documents, target, key, fallback, device), [documents, device])
+  const hasPreview = isPreview && preview?.nonce === nonce && preview.page === page
+  const sourceDocuments = useMemo(() => !isEnglish && hasPreview
+    ? { ...published, ...preview.documents } : published, [isEnglish, hasPreview, preview, published])
+  const englishDocuments = useMemo(() => isEnglish && hasPreview
+    ? { ...englishPublished, ...preview.documents } : englishPublished, [isEnglish, hasPreview, preview, englishPublished])
+  const documents = useMemo(() => isEnglish ? sampleEnglishDocuments(sourceDocuments, englishDocuments) : sourceDocuments,
+    [isEnglish, sourceDocuments, englishDocuments])
+  const copy = useCallback((target: Parameters<typeof resolveEditorCopy>[1], key: string, fallback: string) => {
+    const source = resolveEditorCopy(sourceDocuments, target, key, fallback, device)
+    return isEnglish ? resolveEditorCopy(englishDocuments, target, key, sample.translate(source, key), device) : source
+  }, [sourceDocuments, englishDocuments, isEnglish, sample, device])
+  const languageContext = useMemo(() => !isEnglish ? sample : {
+    ...sample,
+    translate: (source: string, key?: string) => {
+      const translated = sample.translate(source, key)
+      // Catalogue IDs belong to their page; uncatalogued/source-bound copy is
+      // edited independently in the English common-copy workspace.
+      return key ? translated : resolveEditorCopy(englishDocuments, 'common', sampleContentKey(source), translated, device)
+    },
+    translateData: <T,>(data: T, cacheKey?: string): T => sample.translateData(translateDisplayData(data, source =>
+      resolveEditorCopy(englishDocuments, 'common', sampleContentKey(source), sample.translate(source), device)), cacheKey),
+    translateHome: (data: Parameters<typeof mapHomeContentCopy>[0], _documents: SiteEditorDocuments, viewport: typeof device) =>
+      mapHomeContentCopy(data, viewport, (key, sourceKey, source) =>
+        resolveEditorCopy(englishDocuments, 'home', key, sample.translate(source, sourceKey), viewport)),
+  }, [sample, isEnglish, englishDocuments, device])
   const hasTextStyles = page ? [documents.common, documents[page]].some(document => Object.values(document?.textStyles ?? {}).some(values => Object.values(values ?? {}).some(copy => copy.runs.length > 0))) : false
   const css = useMemo(() => page ? buildEditorCss(documents, page) + (hasTextStyles ? textStyleCss : '') : '', [documents, page, hasTextStyles])
-  const context = useMemo(() => ({ copy, documents, device, isPreview, canvas: isPreview ? canvas?.registry : undefined }), [copy, documents, device, isPreview, canvas])
+  const context = useMemo(() => ({ copy, documents, sourceDocuments, device, isPreview, canvas: isPreview ? canvas?.registry : undefined }), [copy, documents, sourceDocuments, device, isPreview, canvas])
+
+  useEffect(() => {
+    if (!isEnglish || !page) return
+    let disposed = false
+    const load = async () => {
+      const result = await loadPublishedEditorDocuments(loadPublicSampleEnglishEditorPages)
+      if (!disposed && result) {
+        if (frozen.current) queuedEnglishPublished.current = result
+        else setEnglishPublished(result)
+      }
+    }
+    void load()
+    const refresh = () => { if (!document.hidden && !frozen.current) void load() }
+    window.addEventListener('focus', refresh)
+    window.addEventListener('sample-english-published', refresh)
+    const timer = window.setInterval(refresh, 30000)
+    return () => { disposed = true; window.clearInterval(timer); window.removeEventListener('focus', refresh); window.removeEventListener('sample-english-published', refresh) }
+  }, [isEnglish, page])
 
   useEffect(() => {
     if (!isPreview || !nonce || !page) return
@@ -55,6 +102,7 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
           frozen.current = active
           if (!active) {
             if (queuedPublished.current) { setPublished(queuedPublished.current); queuedPublished.current = null }
+            if (queuedEnglishPublished.current) { setEnglishPublished(queuedEnglishPublished.current); queuedEnglishPublished.current = null }
             if (queuedPreview.current) { setPreview(queuedPreview.current); queuedPreview.current = null }
           }
       }
@@ -67,7 +115,7 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
       const unmountPlacement = placementRuntime.mount()
       cleanup = () => { unmountPlacement(); unmountCanvas() }
     }).catch(() => { if (!disposed) setNotice('화면 편집을 불러오지 못했습니다. 관리자 문구 목록을 이용하거나 미리보기를 새로고침해 주세요.') })
-    return () => { disposed = true; cleanup?.(); frozen.current = false; queuedPreview.current = null; queuedPublished.current = null }
+    return () => { disposed = true; cleanup?.(); frozen.current = false; queuedPreview.current = null; queuedPublished.current = null; queuedEnglishPublished.current = null }
   }, [isPreview, nonce, page])
 
   useEffect(() => {
@@ -181,7 +229,7 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
       if (!anchor) return
       event.preventDefault()
       const target = anchor.hasAttribute('download') ? null : getPreviewNavigationTarget(anchor.href, window.location.href, nonce, page)
-      if (target) { navigate(target); setNotice('') }
+      if (target) { navigate(sample.isSample ? target.replace(/^\/sample(?=\/|\?|#|$)/, '') || '/' : target); setNotice('') }
       else {
         event.stopPropagation()
         const intent = !anchor.hasAttribute('download') ? getPreviewPageIntent(anchor.href, window.location.href) : null
@@ -198,16 +246,16 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
       document.removeEventListener('submit', submit, true)
       document.removeEventListener('click', click, true)
     }
-  }, [isPreview, navigate, nonce, page])
+  }, [isPreview, navigate, nonce, page, sample.isSample])
 
   if (!page) return children
 
   return (
-    <SiteEditorContext value={context}>
+    <SampleLanguageContext value={languageContext}><SiteEditorContext value={context}>
       {css || isPreview ? <style>{css.includes('"Gothic A1"') || hasTextStyles || isPreview ? editorFontFaces : ''}{isPreview ? previewCss : ''}{css}</style> : null}
       {isPreview ? <div className="site-editor-preview-banner" role="status">초안 미리보기 · 실제 접수는 차단됩니다.{notice ? <span>{notice}</span> : null}</div> : null}
       {children}
       <AddedTextBoxes page={page} document={documents[page]} />
-    </SiteEditorContext>
+    </SiteEditorContext></SampleLanguageContext>
   )
 }

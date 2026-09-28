@@ -161,6 +161,7 @@ export function AdminConductorPage() {
           role: '지휘자',
         }}
         fields={fields}
+        englishResource="conductor"
         table="conductor"
         title="지휘자 프로필"
       />

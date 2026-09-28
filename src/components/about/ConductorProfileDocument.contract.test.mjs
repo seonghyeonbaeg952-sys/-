@@ -23,6 +23,8 @@ const vite = await createServer({
 const { ConductorProfileDocument } = await vite.ssrLoadModule(
   '/src/components/about/ConductorProfileDocument.tsx',
 )
+const { SampleLanguageContext } = await vite.ssrLoadModule('/src/features/sample-language/useSampleLanguage.ts')
+const { translateEnglish } = await vite.ssrLoadModule('/src/features/sample-language/englishRegistry.ts')
 
 after(async () => {
   await vite.close()
@@ -33,6 +35,42 @@ function render(person = null) {
     React.createElement(ConductorProfileDocument, { person }),
   )
 }
+
+function renderEnglish(person = null) {
+  return renderToStaticMarkup(React.createElement(SampleLanguageContext, { value: {
+    enabled: true, language: 'en', setLanguage() {}, translate: translateEnglish,
+    translateData: value => value, translateHome: value => value, href: href => href,
+  } }, React.createElement(ConductorProfileDocument, { person })))
+}
+
+test('sample English translates known fallback biography and roles while retaining both approved images', () => {
+  const html = renderEnglish()
+  assert.ok(html.includes('Conductor Kim Hyung-su leads Seoul Motet Youth Choir'))
+  assert.ok(html.includes('Executive director, Seoul Motet Music Foundation'))
+  assert.ok(html.includes('KIM HYUNG-SU'))
+  assert.match(html, /<h2 lang="ko">김형수<\/h2>/)
+  assert.match(html, /src="\/images\/about\/conductor\/kim-hyung-su-profile.jpg"/)
+  assert.match(html, /src="\/images\/about\/conductor\/smyc-performance-2026.jpg"/)
+})
+
+test('sample English keeps unknown CMS wording and names without inventing an English identity', () => {
+  const person = { name: '확인 전 이름', profile_summary: '새 지휘자의 승인 전 약력', current_roles: '현재 역할 원문', photo_url: '/images/profile-fixture.jpg' }
+  const before = JSON.stringify(person)
+  const html = renderEnglish(person)
+  assert.match(html, /<h2 lang="ko">확인 전 이름<\/h2>/)
+  assert.match(html, /<p lang="ko">새 지휘자의 승인 전 약력<\/p>/)
+  assert.match(html, /<li lang="ko">현재 역할 원문<\/li>/)
+  assert.doesNotMatch(html, /KIM HYUNG-SU|2014 — PRESENT/)
+  assert.ok(html.includes('/images/profile-fixture.jpg'))
+  assert.equal(JSON.stringify(person), before)
+})
+
+test('sample English never assigns the default conductor biography or portrait to a different person', () => {
+  const html = renderEnglish({ name: '다른 지휘자' })
+  assert.ok(html.includes('No public biography is available.'))
+  assert.ok(html.includes('No public information about current roles is available.'))
+  assert.doesNotMatch(html, /Kim Hyung-su|KIM HYUNG-SU|kim-hyung-su-profile|Executive director|2014 — PRESENT/)
+})
 
 test('CMS 내용이 없으면 승인된 두 문단을 글자 그대로 표시한다', () => {
   const markup = render()

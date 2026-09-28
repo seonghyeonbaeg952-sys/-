@@ -1,3 +1,5 @@
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
+import { workflowCopy, workflowDate, workflowTextLanguage } from '../../components/common/workflowCopy'
 import { FormattedCopy } from '../../components/site-editor/FormattedCopy'
 import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 import { useState } from 'react'
@@ -13,6 +15,8 @@ import { usePageCopy } from '../../components/site-editor/usePageCopy'
 import '../../styles/notices-page.css'
 
 export function NoticeDetailPage() {
+  const { enabled, language, translate } = useSampleLanguage()
+  const english = enabled && language === 'en'
   const { copy: copyText } = useSiteEditor()
   const t = usePageCopy('notice-detail')
   const { noticeId } = useParams()
@@ -26,11 +30,11 @@ export function NoticeDetailPage() {
   return (
     <div className="notices-page">
       <SeoHead
-        description={notice?.content || '서울모테트청소년합창단 공지 상세'}
+        description={notice?.content || translate('서울모테트청소년합창단 공지 상세')}
         image={notice?.cover_image_url}
         noIndex={!noticeData.isLoading && !notice}
         path={noticeId ? `/notices/${encodeURIComponent(noticeId)}` : '/notices'}
-        title={notice?.title || '공지 상세'}
+        title={notice?.title || translate('공지 상세')}
         type="article"
       />
       <div className="notices-page__detail notices-page__shell">
@@ -58,9 +62,9 @@ export function NoticeDetailPage() {
             <div className="notices-page__meta">
               <span>{notice.is_important ? <FormattedCopy page="notice-detail" id="notice-detail.fixed.NoticeDetailPage.39b62d01a5" text={copyText("notice-detail", "notice-detail.fixed.NoticeDetailPage.39b62d01a5", "중요 공지")}>{copyText("notice-detail", "notice-detail.fixed.NoticeDetailPage.39b62d01a5", "중요 공지")}</FormattedCopy> : <FormattedCopy page="notice-detail" id={`notice-detail.category.${notice.category}`} text={copyText('notice-detail', `notice-detail.category.${notice.category}`, getNoticeCategoryLabel(notice.category))}>{copyText('notice-detail', `notice-detail.category.${notice.category}`, getNoticeCategoryLabel(notice.category))}</FormattedCopy>}</span>
               <span aria-hidden="true">·</span>
-              <time dateTime={notice.created_at}>{formatNoticeDate(notice.created_at)}</time>
+              <time dateTime={notice.created_at}>{workflowDate(notice.created_at, formatNoticeDate(notice.created_at), english)}</time>
             </div>
-            <h1 className="notices-page__detail-title">{notice.title}</h1>
+            <h1 className="notices-page__detail-title" lang={workflowTextLanguage(notice.title, english)}>{notice.title}</h1>
             {notice.cover_image_url ? (
               failedImage === notice.cover_image_url ? (
                 <div className="notices-page__image-error" role="status">
@@ -68,7 +72,7 @@ export function NoticeDetailPage() {
                   <button className="notices-page__action" onClick={() => setFailedImage('')} type="button">{<FormattedCopy page="notice-detail" id="notice-detail.imageRetry" text={t('imageRetry')}>{t('imageRetry')}</FormattedCopy>}</button>
                 </div>
               ) : <OptimizedImage
-                alt={`${notice.title} 대표 이미지`}
+                alt={workflowCopy(translate, '{title} 대표 이미지', { title: notice.title })}
                 className="notices-page__image"
                 imageClassName="notices-page__detail-image"
                 objectFit="contain"
@@ -78,7 +82,7 @@ export function NoticeDetailPage() {
                 transform={{ quality: 85, resize: 'contain', width: 1280, widths: [640, 960, 1280] }}
               />
             ) : null}
-            <div className="notices-page__body">{notice.content || <FormattedCopy page="notice-detail" id="notice-detail.bodyEmpty" text={t('bodyEmpty')}>{t('bodyEmpty')}</FormattedCopy>}</div>
+            <div className="notices-page__body" lang={workflowTextLanguage(notice.content, english)}>{notice.content || <FormattedCopy page="notice-detail" id="notice-detail.bodyEmpty" text={t('bodyEmpty')}>{t('bodyEmpty')}</FormattedCopy>}</div>
           </article>
         )}
         <div className="notices-page__back">

@@ -5,15 +5,39 @@ import type { EditorPageId, SiteEditorDocument, SiteEditorPageRecord, SiteEditor
 
 export type EditorApiResult<T> = { data: T | null; error: string | null }
 export type PublicEditorPage = { page_key: EditorPageId; document: SiteEditorDocument; published_at: string }
+export type EditorStorageScope = 'original' | 'sample-english'
+
+const editorStorage = {
+  original: {
+    pageTable: 'site_editor_pages',
+    revisionTable: 'site_editor_revisions',
+    saveRpc: 'save_site_editor_draft',
+    publishRpc: 'publish_site_editor_page',
+    restoreRpc: 'restore_site_editor_revision',
+    publicRpc: 'get_public_site_editor_pages',
+  },
+  'sample-english': {
+    pageTable: 'sample_english_editor_pages',
+    revisionTable: 'sample_english_editor_revisions',
+    saveRpc: 'save_sample_english_editor_draft',
+    publishRpc: 'publish_sample_english_editor_page',
+    restoreRpc: 'restore_sample_english_editor_revision',
+    publicRpc: 'get_public_sample_english_editor_pages',
+  },
+} as const
+type EditorStorage = (typeof editorStorage)[EditorStorageScope]
+type EditorMutationRpc = EditorStorage['saveRpc' | 'publishRpc' | 'restoreRpc']
+
+function storageForScope(scope: EditorStorageScope): EditorStorage | null {
+  return scope === 'original' || scope === 'sample-english' ? editorStorage[scope] : null
+}
 
 const pageColumns = 'page_key,draft,published,version,updated_at,published_at'
 const revisionColumns = 'id,page_key,document,published_at'
 const invalidResponse = '서버 응답을 확인하지 못했습니다. 입력 내용은 유지한 채 다시 시도해 주세요.'
 const connectionError = '편집 서버에 연결하지 못했습니다. 인터넷 연결을 확인한 뒤 다시 시도해 주세요.'
+const invalidStorage = '편집 저장 위치를 확인해 주세요.'
 const publicCacheTtl = 30000
-let publicCache: { expires: number; pages: PublicEditorPage[] } | null = null
-let publicRequest: Promise<EditorApiResult<PublicEditorPage[]>> | null = null
-let cacheGeneration = 0
 
 function failure<T>(error: string): EditorApiResult<T> { return { data: null, error } }
 function clone<T>(value: T): T { return JSON.parse(JSON.stringify(value)) as T }
@@ -68,9 +92,11 @@ function normalizePage(value: unknown, expectedPage?: EditorPageId): SiteEditorP
   }
 }
 
-export async function loadEditorPage(page: EditorPageId): Promise<EditorApiResult<SiteEditorPageRecord>> {
+export async function loadEditorPage(page: EditorPageId, scope: EditorStorageScope = 'original'): Promise<EditorApiResult<SiteEditorPageRecord>> {
+  const storage = storageForScope(scope)
+  if (!storage) return failure(invalidStorage)
   if (!isEditorPageId(page)) return failure('편집할 페이지를 확인해 주세요.')
-  const response = await request(client => client.from('site_editor_pages').select(pageColumns).eq('page_key', page).maybeSingle())
+  const response = await request(client => client.from(storage.pageTable).select(pageColumns).eq('page_key', page).maybeSingle())
   if (response.error) return failure(response.error)
   if (response.data === null || (Array.isArray(response.data) && response.data.length === 0)) {
     return { data: { page_key: page, draft: emptySiteEditorDocument(), published: null, version: 0, updated_at: '', published_at: null }, error: null }
@@ -80,7 +106,7 @@ export async function loadEditorPage(page: EditorPageId): Promise<EditorApiResul
 }
 
 async function mutatePage(
-  name: string, parameters: Record<string, string | number | SiteEditorDocument>, version: number, page?: EditorPageId,
+  name: EditorMutationRpc, parameters: Record<string, string | number | SiteEditorDocument>, version: number, page?: EditorPageId,
 ): Promise<EditorApiResult<SiteEditorPageRecord>> {
   const response = await request(client => client.rpc(name, parameters))
   if (response.error) return failure(response.error)
@@ -89,24 +115,33 @@ async function mutatePage(
   return { data: record, error: null }
 }
 
-export async function saveEditorDraft(page: EditorPageId, document: SiteEditorDocument, version: number): Promise<EditorApiResult<SiteEditorPageRecord>> {
+export async function saveEditorDraft(page: EditorPageId, document: SiteEditorDocument, version: number, scope: EditorStorageScope = 'original'): Promise<EditorApiResult<SiteEditorPageRecord>> {
+  const storage = storageForScope(scope)
+  if (!storage) return failure(invalidStorage)
   if (!isEditorPageId(page) || !validVersion(version) || version === Number.MAX_SAFE_INTEGER) return failure('페이지와 편집 버전을 확인해 주세요.')
   const validationError = validateSiteEditorDocument(document)
   if (validationError) return failure(validationError)
-  return mutatePage('save_site_editor_draft', { p_page_key: page, p_document: clone(document), p_expected_version: version }, version, page)
+  return mutatePage(storage.saveRpc, { p_page_key: page, p_document: clone(document), p_expected_version: version }, version, page)
 }
 
-export async function publishEditorPage(page: EditorPageId, version: number): Promise<EditorApiResult<SiteEditorPageRecord>> {
+export async function publishEditorPage(page: EditorPageId, version: number, scope: EditorStorageScope = 'original'): Promise<EditorApiResult<SiteEditorPageRecord>> {
+  const storage = storageForScope(scope)
+  if (!storage) return failure(invalidStorage)
   if (!isEditorPageId(page) || !validVersion(version) || version === Number.MAX_SAFE_INTEGER) return failure('페이지와 편집 버전을 확인해 주세요.')
-  const result = await mutatePage('publish_site_editor_page', { p_page_key: page, p_expected_version: version }, version, page)
+  const result = await mutatePage(storage.publishRpc, { p_page_key: page, p_expected_version: version }, version, page)
   if (result.data && result.data.published === null) return failure(invalidResponse)
-  if (result.data) invalidateEditorCache()
+  if (result.data) {
+    if (scope === 'sample-english') invalidateSampleEnglishEditorCache()
+    else invalidateEditorCache()
+  }
   return result
 }
 
-export async function loadEditorRevisions(page: EditorPageId): Promise<EditorApiResult<SiteEditorRevision[]>> {
+export async function loadEditorRevisions(page: EditorPageId, scope: EditorStorageScope = 'original'): Promise<EditorApiResult<SiteEditorRevision[]>> {
+  const storage = storageForScope(scope)
+  if (!storage) return failure(invalidStorage)
   if (!isEditorPageId(page)) return failure('게시 이력을 확인할 페이지를 선택해 주세요.')
-  const response = await request(client => client.from('site_editor_revisions').select(revisionColumns).eq('page_key', page).order('published_at', { ascending: false }))
+  const response = await request(client => client.from(storage.revisionTable).select(revisionColumns).eq('page_key', page).order('published_at', { ascending: false }))
   if (response.error) return failure(response.error)
   if (!Array.isArray(response.data)) return failure(invalidResponse)
   const revisions: SiteEditorRevision[] = []
@@ -118,13 +153,15 @@ export async function loadEditorRevisions(page: EditorPageId): Promise<EditorApi
   return { data: revisions, error: null }
 }
 
-export async function restoreEditorRevision(id: string, version: number): Promise<EditorApiResult<SiteEditorPageRecord>> {
+export async function restoreEditorRevision(id: string, version: number, scope: EditorStorageScope = 'original'): Promise<EditorApiResult<SiteEditorPageRecord>> {
+  const storage = storageForScope(scope)
+  if (!storage) return failure(invalidStorage)
   if (!validUuid(id) || !validVersion(version) || version === Number.MAX_SAFE_INTEGER) return failure('복원할 게시 이력과 편집 버전을 확인해 주세요.')
-  return mutatePage('restore_site_editor_revision', { p_revision_id: id, p_expected_version: version }, version)
+  return mutatePage(storage.restoreRpc, { p_revision_id: id, p_expected_version: version }, version)
 }
 
-async function fetchPublicEditorPages(): Promise<EditorApiResult<PublicEditorPage[]>> {
-  const response = await request(client => client.rpc('get_public_site_editor_pages', {}, { get: true }))
+async function fetchPublicEditorPages(name: EditorStorage['publicRpc']): Promise<EditorApiResult<PublicEditorPage[]>> {
+  const response = await request(client => client.rpc(name, {}, { get: true }))
   if (response.error) return failure(response.error)
   if (!Array.isArray(response.data)) return failure(invalidResponse)
   const pages: PublicEditorPage[] = []
@@ -138,23 +175,52 @@ async function fetchPublicEditorPages(): Promise<EditorApiResult<PublicEditorPag
   return { data: pages, error: null }
 }
 
-export async function loadPublicEditorPages(): Promise<EditorApiResult<PublicEditorPage[]>> {
-  if (publicCache && Date.now() < publicCache.expires) return { data: clone(publicCache.pages), error: null }
-  if (!publicRequest) {
-    const generation = cacheGeneration
-    publicRequest = fetchPublicEditorPages().then(result => {
-      if (generation === cacheGeneration && result.data) publicCache = { expires: Date.now() + publicCacheTtl, pages: result.data }
-      return result
-    }).finally(() => {
-      if (generation === cacheGeneration) publicRequest = null
-    })
+function createPublicEditorReader(name: EditorStorage['publicRpc'], eventName: 'site-editor-published' | 'sample-english-published') {
+  let publicCache: { expires: number; pages: PublicEditorPage[] } | null = null
+  let publicRequest: Promise<EditorApiResult<PublicEditorPage[]>> | null = null
+  let cacheGeneration = 0
+
+  async function load(): Promise<EditorApiResult<PublicEditorPage[]>> {
+    if (publicCache && Date.now() < publicCache.expires) return { data: clone(publicCache.pages), error: null }
+    if (!publicRequest) {
+      const generation = cacheGeneration
+      publicRequest = fetchPublicEditorPages(name).then(result => {
+        if (generation === cacheGeneration && result.data) publicCache = { expires: Date.now() + publicCacheTtl, pages: result.data }
+        return result
+      }).finally(() => {
+        if (generation === cacheGeneration) publicRequest = null
+      })
+    }
+    return clone(await publicRequest)
   }
-  return clone(await publicRequest)
+
+  function invalidate(): void {
+    cacheGeneration += 1
+    publicCache = null
+    publicRequest = null
+    if (typeof window !== 'undefined') window.dispatchEvent(new Event(eventName))
+  }
+
+  return { load, invalidate }
+}
+
+// Each reader owns its cache, pending GET and generation. Publication in one
+// workspace must never invalidate or replace the other workspace’s snapshot.
+const originalPublicReader = createPublicEditorReader(editorStorage.original.publicRpc, 'site-editor-published')
+const sampleEnglishPublicReader = createPublicEditorReader(editorStorage['sample-english'].publicRpc, 'sample-english-published')
+
+export function loadPublicEditorPages(): Promise<EditorApiResult<PublicEditorPage[]>> {
+  return originalPublicReader.load()
+}
+
+export function loadPublicSampleEnglishEditorPages(): Promise<EditorApiResult<PublicEditorPage[]>> {
+  return sampleEnglishPublicReader.load()
 }
 
 export function invalidateEditorCache(): void {
-  cacheGeneration += 1
-  publicCache = null
-  publicRequest = null
-  if (typeof window !== 'undefined') window.dispatchEvent(new Event('site-editor-published'))
+  originalPublicReader.invalidate()
+}
+
+export function invalidateSampleEnglishEditorCache(): void {
+  sampleEnglishPublicReader.invalidate()
 }
