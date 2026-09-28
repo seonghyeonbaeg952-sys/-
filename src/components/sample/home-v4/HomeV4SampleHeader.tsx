@@ -78,7 +78,7 @@ export function HomeV4SampleHeader({
   }, [cancelDesktopClose])
 
   const scheduleDesktopClose = useCallback(() => {
-    if (desktopMenuPinned) {
+    if (!desktopMenuOpen || desktopMenuPinned) {
       return
     }
 
@@ -87,7 +87,7 @@ export function HomeV4SampleHeader({
       setActiveDesktopMenuHref(null)
       desktopCloseTimerRef.current = null
     }, 160)
-  }, [cancelDesktopClose, desktopMenuPinned])
+  }, [cancelDesktopClose, desktopMenuOpen, desktopMenuPinned])
 
   const closeMobileMenu = useCallback((restoreFocus = true) => {
     setMobileMenuOpen(false)
@@ -221,6 +221,7 @@ export function HomeV4SampleHeader({
       data-mobile-menu-open={mobileMenuOpen}
       data-transparent={isTransparent}
       onBlur={(event) => {
+        if (!desktopMenuOpen) return
         const nextFocus = event.relatedTarget
 
         if (
@@ -309,8 +310,6 @@ export function HomeV4SampleHeader({
           })}
         </nav>
 
-        <SampleLanguageSwitch />
-
         <a
           className="home-v4-sample-header__cta"
           href={joinApplicationHref}
@@ -332,6 +331,7 @@ export function HomeV4SampleHeader({
           <span aria-hidden="true" />
           <span aria-hidden="true" />
         </button>
+        <SampleLanguageSwitch />
       </div>
 
       {desktopMenuItem ? (

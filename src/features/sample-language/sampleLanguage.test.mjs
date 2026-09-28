@@ -150,12 +150,11 @@ test('08 — all native sample links stay in sample; external and CMS links stay
   assert.equal(model.sampleLanguageHref('/sample/spirit', 'ko'), '/sample/spirit?lang=ko')
   for (const href of ['https://example.com', '//example.com', 'mailto:a@b.test', 'tel:123', '/admin/editor', '#same']) assert.equal(model.sampleLanguageHref(href, 'en'), href)
 })
-test('09 — native language buttons expose names, language and current selection', () => {
+test('09 — compact language trigger exposes a label and expanded state', () => {
   const html = render(createElement(SampleLanguageSwitch))
-  assert.match(html, /lang="ko"/)
-  assert.match(html, /lang="en"/)
-  assert.match(html, /aria-pressed="true"/)
-  assert.match(html, /aria-label="English"/)
+  assert.match(html, /aria-expanded="false"/)
+  assert.match(html, /aria-label="Language: English"/)
+  assert.match(html, /ENG/)
   assert.equal(renderToStaticMarkup(createElement(MemoryRouter, null, createElement(SampleLanguageSwitch))), '')
 })
 test('10 — source match prevents stale and contextually wrong translations', () => {

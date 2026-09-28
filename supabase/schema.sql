@@ -273,6 +273,7 @@ create table if not exists public.accompanist (
 create table if not exists public.members (
   id uuid primary key default gen_random_uuid(),
   name text,
+  name_en text,
   part text not null default 'other',
   group_type text not null default 'middle',
   member_status text not null default 'active',
@@ -285,6 +286,14 @@ create table if not exists public.members (
       when name_display_type = 'full' then nullif(btrim(name), '')
       when name_display_type = 'partial' and nullif(btrim(name), '') is not null
         then left(btrim(name), 1) || '○'
+      else null
+    end
+  ) stored,
+  public_display_name_en text generated always as (
+    case
+      when name_display_type = 'full' then nullif(btrim(name_en), '')
+      when name_display_type = 'partial' and nullif(btrim(name_en), '') is not null
+        then left(btrim(name_en), 1) || '○'
       else null
     end
   ) stored,
@@ -553,6 +562,7 @@ create or replace function public.get_public_members()
 returns table (
   id uuid,
   public_display_name text,
+  public_display_name_en text,
   part text,
   group_type text,
   member_status text,
@@ -566,6 +576,7 @@ as $$
   select
     member.id,
     member.public_display_name,
+    member.public_display_name_en,
     member.part,
     member.group_type,
     member.member_status,
@@ -607,6 +618,7 @@ revoke select on public.members from public, anon;
 grant select (
   id,
   public_display_name,
+  public_display_name_en,
   part,
   group_type,
   member_status,

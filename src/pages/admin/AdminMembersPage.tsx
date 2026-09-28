@@ -36,7 +36,8 @@ const displayOptions = [
 ]
 
 const fields = [
-  { name: 'name', label: '이름', type: 'text' },
+  { name: 'name', label: '한국어 이름', type: 'text' },
+  { name: 'name_en', label: '영문 이름', type: 'text', description: '공식 영문 표기를 확인한 뒤 입력하세요. 공개 화면에는 한국어 이름과 동일한 이름 공개 방식이 적용됩니다.' },
   { name: 'part', label: '파트', type: 'select', options: partOptions, required: true },
   {
     name: 'group_type',
@@ -69,6 +70,7 @@ const columns = [
     header: '공개 이름',
     render: (row) => getProtectedMemberName(row),
   },
+  { header: '영문 이름', render: (row) => row.name_en?.trim() || '미입력' },
   {
     header: '그룹',
     render: (row) => getMemberGroupLabel(row.group_type),
@@ -102,7 +104,7 @@ export function AdminMembersPage() {
         name_display_type: 'hidden',
         part: 'soprano',
       }}
-      description="현재단원, 스태프, 역대단원의 이름 공개 방식을 관리합니다. 청소년 개인정보 보호를 위해 이름 공개 방식은 기본 비공개입니다."
+      description="현재단원, 스태프, 역대단원의 한국어·영문 이름과 공개 방식을 관리합니다. 청소년 개인정보 보호를 위해 이름 공개 방식은 기본 비공개입니다."
       emptyMessage="등록된 단원이 없습니다."
       fields={fields}
       filters={[
@@ -134,7 +136,7 @@ export function AdminMembersPage() {
           ],
         },
       ]}
-      info="방문자 화면에는 공개 상태가 켜진 단원만 표시되며, 이름은 full, partial, hidden 설정에 따라 보호 표시됩니다. 공개 화면의 역대단원 탭은 현재단원까지 포함한 전체 공개 단원 명단으로 표시되고, 활동 상태의 역대단원 값은 과거 활동 단원을 구분해 관리하는 용도입니다."
+      info="방문자 화면에는 공개 상태가 켜진 단원만 표시됩니다. 한국어·영문 이름 모두 같은 전체·부분·비공개 설정을 따릅니다. 영문 이름이 없으면 영어 화면도 보호된 한국어 이름을 표시합니다. 공개 화면의 역대단원 탭은 현재단원까지 포함한 전체 공개 단원 명단입니다."
       order={{ column: 'display_order', ascending: true }}
       searchColumn="name"
       searchPlaceholder="단원 이름 검색"

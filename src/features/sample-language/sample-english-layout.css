@@ -118,6 +118,16 @@ html[data-sample-language='en'] .public-shell .home-spirit-chorus-orbit__headlin
 html[data-sample-language='en'] .public-shell .home-spirit-chorus-orbit__eyebrow { margin-bottom: 16px; }
 html[data-sample-language='en'] .public-shell .home-spirit-chorus-orbit__signature { margin-top: 16px; }
 html[data-sample-language='en'] .public-shell .home-spirit-chorus-orbit__action { margin-top: 32px; }
+html[data-sample-language='en'] .public-shell .spirit-heritage__origin-card {
+  grid-template-columns: auto minmax(0, 1fr);
+  height: auto;
+  min-height: 78px;
+}
+html[data-sample-language='en'] .public-shell .spirit-heritage__origin-card p {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: break-word;
+}
 html[data-sample-language='en'] .public-shell :is(
   .home-about-portrait__copy > p, .about-overview__intro-body,
   .about-overview__founding-body, .about-overview__spirit-body,

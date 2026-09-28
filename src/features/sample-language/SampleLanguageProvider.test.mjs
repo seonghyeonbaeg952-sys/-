@@ -57,16 +57,23 @@ function harness({ path = '/gallery', search = '', remembered = 'ko', publicReme
   return { render, root, navigations, writes, publicWrites, get output() { return output }, get saved() { return saved }, get publicSaved() { return savedPublic }, setSearch(value) { location = { ...location, search: value } }, destroy() { slots.forEach(slot => slot?.cleanup?.()) } }
 }
 
-test('original English selection uses its own preference and keeps original links and live-form mode', () => {
+test('original English selection uses an explicit URL and keeps original links and live-form mode', () => {
   const h = harness({ isSample: false, search: '?lang=en' })
   const value = h.render()
   assert.equal(value.language, 'en')
   assert.equal(value.isSample, false)
   assert.equal(value.href('/join'), '/join?lang=en')
-  assert.equal(h.publicSaved, 'en')
+  assert.equal(h.publicSaved, 'ko')
   assert.equal(h.saved, 'ko')
   h.render().setLanguage('ko')
   assert.equal(h.navigations[0].url, '/gallery?lang=ko#archive')
+  h.destroy()
+})
+
+test('opening the original homepage without a language parameter always starts in Korean', () => {
+  const h = harness({ path: '/', isSample: false, publicRemembered: 'en' })
+  assert.equal(h.render().language, 'ko')
+  assert.equal(h.root.lang, 'ko')
   h.destroy()
 })
 

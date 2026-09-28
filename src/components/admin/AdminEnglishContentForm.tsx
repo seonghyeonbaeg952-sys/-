@@ -9,12 +9,12 @@ import { AdminRecordForm, type AdminFieldConfig } from './AdminRecordForm'
 import { OptimizedImage } from '../common/OptimizedImage'
 import { getEnglishChanges, getEnglishInputProgress, getEnglishTextStats, recommendedEnglishCharacters } from '../../features/sample-language/sampleContentGuidance'
 
-type Props = { resource: SampleContentResource; row: CmsRecord; onClose: () => void }
+type Props = { resource: SampleContentResource; row: CmsRecord; onClose: () => void; onEditBase?: () => void }
 function asFields(payload: CmsMutationPayload): EnglishContentFields {
   return Object.fromEntries(Object.entries(payload).filter((entry): entry is [string, string] => typeof entry[1] === 'string' && Boolean(entry[1].trim())).map(([key, value]) => [key, value.trim()]))
 }
 
-export function AdminEnglishContentForm({ resource, row, onClose }: Props) {
+export function AdminEnglishContentForm({ resource, row, onClose, onEditBase }: Props) {
   const [record, setRecord] = useState<EnglishContentRecord | null>(null)
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
@@ -53,6 +53,11 @@ export function AdminEnglishContentForm({ resource, row, onClose }: Props) {
     if (dirty && !window.confirm('저장하지 않은 영문 입력이 있습니다. 편집을 종료할까요?')) return
     onClose()
   }
+  const editBase = () => {
+    if (lock.current) return
+    if (dirty && !window.confirm('저장하지 않은 영문 입력이 있습니다. 단원 기본정보로 이동할까요?')) return
+    onEditBase?.()
+  }
   const save = async (payload: CmsMutationPayload) => {
     if (!record || lock.current) return false
     const draft = asFields(payload)
@@ -90,6 +95,10 @@ export function AdminEnglishContentForm({ resource, row, onClose }: Props) {
       </div>
     ) : null}>
       <p className="mb-5 text-sm leading-6 text-text-muted">한국어와 English를 각각 작성할 수 있습니다. 날짜·분류·연결된 공연·공개 여부는 한국어 항목에서 함께 관리합니다. 게시한 영어 버전은 공개 홈페이지와 /sample/의 English 화면에 표시됩니다.</p>
+      {resource === 'members' && onEditBase ? <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-button border border-line-default bg-bg-ivory p-4">
+        <p className="max-w-xl text-sm leading-6 text-text-muted">영문 이름은 공개 설명과 별개로 단원 기본정보에서 입력합니다. 기존 이름 공개 방식이 영문 이름에도 적용됩니다.</p>
+        <Button onClick={editBase} variant="secondary">영문 이름 입력하기</Button>
+      </div> : null}
       {error ? <div className="mb-4 rounded-button bg-state-error/10 p-4 text-sm text-state-error" role="alert"><p>{error}</p>{!record ? <Button onClick={() => { setLoading(true); setError(null); setReload(value => value + 1) }} variant="secondary">다시 불러오기</Button> : null}</div> : null}
       {feedback ? <p className="mb-4 rounded-button bg-state-success/10 p-4 text-sm text-state-success" role="status">{feedback}</p> : null}
       {progress ? <p className="mb-5 rounded-button border border-line-default bg-bg-ivory px-4 py-3 text-sm text-navy-deep" role="status">저장된 영어 문구 {progress.completed}/{progress.total}{progress.missingLabels.length ? ` · 원본 사용: ${progress.missingLabels.join(', ')}` : ''}</p> : null}

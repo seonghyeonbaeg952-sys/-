@@ -45,10 +45,11 @@ test('original header keeps original destinations and has no language controls',
   assert.doesNotMatch(html, /sample-language-switch|lang=en/)
 })
 
-test('sample header offers named language buttons and keeps its native links inside the sample', () => {
+test('sample header offers a language dropdown at the far right and keeps its links inside the sample', () => {
   const html = render(HomeV4SampleHeader, { mode: 'production' })
-  assert.match(html, /aria-label="한국어" aria-pressed="false"/)
-  assert.match(html, /aria-label="English" aria-pressed="true"/)
+  assert.match(html, /aria-label="Language: English"/)
+  assert.match(html, /aria-expanded="false"/)
+  assert.ok(html.indexOf('home-v4-mobile-trigger') < html.indexOf('sample-language-switch'))
   assert.ok(hrefs(html).includes('/sample/?lang=en'))
   assert.ok(hrefs(html).includes('/sample/join?section=contact&lang=en#application'))
 })

@@ -375,7 +375,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
           validateFields={validateFields}
         />
       </AdminModal>
-      {englishRow && isSampleContentResource(table) ? <AdminEnglishContentForm key={`${table}:${englishRow.id}`} resource={table} row={englishRow} onClose={() => { setEnglishRow(null); setEnglishReload(value => value + 1) }} /> : null}
+      {englishRow && isSampleContentResource(table) ? <AdminEnglishContentForm key={`${table}:${englishRow.id}`} resource={table} row={englishRow} onClose={() => { setEnglishRow(null); setEnglishReload(value => value + 1) }} onEditBase={table === 'members' ? () => { setEnglishRow(null); setEditingRow(englishRow); setFormError(null); setIsFormDirty(false); setIsFormOpen(true) } : undefined} /> : null}
 
       <DeleteConfirmDialog
         error={deleteError}

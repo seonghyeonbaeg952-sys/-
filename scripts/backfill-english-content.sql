@@ -69,6 +69,23 @@ insert into public.sample_english_content(resource,record_id,draft,published,ver
 select 'accompanist',id,fields,fields,1,now() from source
 on conflict (resource,record_id) do nothing;
 
+-- Previously published accompanist biographies lacked the CMS English-name
+-- field. Use the spellings already documented in the project's copybook,
+-- leaving any administrator-entered name untouched.
+with spellings(source_name, english_name) as (
+  values ('길주향', 'Gil Ju-hyang'), ('박정화', 'Park Jung-hwa')
+)
+update public.sample_english_content as e
+set draft = coalesce(e.draft, '{}'::jsonb) || jsonb_build_object('name', spellings.english_name),
+    published = e.published || jsonb_build_object('name', spellings.english_name),
+    version = e.version + 1,
+    updated_at = now(),
+    published_at = now()
+from public.accompanist as a, spellings
+where e.resource = 'accompanist' and e.record_id = a.id
+  and a.name = spellings.source_name and e.published is not null
+  and not (e.published ? 'name');
+
 with source as (
   select id,jsonb_build_object(
     'title','Join Us',

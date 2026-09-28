@@ -279,8 +279,9 @@ const SAFE_LEGACY_MEMBER_SELECT = [
   'display_order',
 ].join(',')
 
-type PublicMemberQueryRow = Omit<PublicMemberRow, 'display_name'> & {
+type PublicMemberQueryRow = Omit<PublicMemberRow, 'display_name' | 'display_name_en'> & {
   public_display_name: string | null
+  public_display_name_en?: string | null
 }
 
 const HISTORY_SELECT = [
@@ -898,10 +899,11 @@ async function getPublicMembers(client: SupabaseClient) {
   }
 
   const data = normalizeRows<
-    Omit<PublicMemberRow, 'display_name' | 'member_status'>
+    Omit<PublicMemberRow, 'display_name' | 'display_name_en' | 'member_status'>
   >(legacyMembers.data).map((member) => ({
     display_order: member.display_order,
     display_name: null,
+    display_name_en: null,
     group_type: member.group_type,
     id: member.id,
     member_status: member.group_type === 'alumni' ? ('alumni' as const) : ('active' as const),
@@ -915,6 +917,7 @@ export function mapPublicMember(row: PublicMemberQueryRow): PublicMemberRow {
   return {
     display_order: row.display_order,
     display_name: row.public_display_name?.trim() || null,
+    display_name_en: row.public_display_name_en?.trim() || null,
     group_type: row.group_type,
     id: row.id,
     member_status: row.member_status,

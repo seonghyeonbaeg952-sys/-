@@ -181,6 +181,7 @@ export interface PersonProfileRow extends CmsRecord {
 
 export interface MemberRow extends CmsRecord {
   name: string | null
+  name_en: string | null
   part: 'soprano' | 'alto' | 'tenor' | 'bass' | 'other'
   group_type: 'elementary' | 'middle' | 'high' | 'university' | 'staff' | 'alumni'
   member_status?: 'active' | 'alumni'
@@ -196,6 +197,7 @@ export type PublicMemberRow = Pick<
   'display_order' | 'group_type' | 'id' | 'part'
 > & {
   display_name: string | null
+  display_name_en: string | null
   member_status: NonNullable<MemberRow['member_status']>
 }
 

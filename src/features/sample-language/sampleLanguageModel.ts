@@ -12,17 +12,26 @@ export function resolveSampleLanguage(pathname: string, search: string, saved: u
   return isSampleLanguage(saved) ? saved : 'ko'
 }
 
-export function resolvePublicLanguage(pathname: string, search: string, saved: unknown = 'ko'): SampleLanguage {
+export function resolvePublicLanguage(pathname: string, search: string): SampleLanguage {
   if (/^\/admin(?:\/|$)/.test(pathname)) return 'ko'
   const parameter = new URLSearchParams(search).get('lang')
   if (parameter !== null) return isSampleLanguage(parameter) ? parameter : 'ko'
-  return isSampleLanguage(saved) ? saved : 'ko'
+  return 'ko'
 }
 
 export function languageLocation(location: { pathname: string; search: string; hash: string }, language: SampleLanguage) {
   const search = new URLSearchParams(location.search)
   search.set('lang', language)
   return `${location.pathname}?${search}${location.hash}`
+}
+
+/** Router destinations retain their basename automatically. Preserve English
+ * when redirecting without turning a local route into a /sample-prefixed URL. */
+export function routeLanguageHref(href: string, language: SampleLanguage) {
+  if (language !== 'en' || !href.startsWith('/') || href.startsWith('//')) return href
+  const url = new URL(href, 'https://local.invalid')
+  url.searchParams.set('lang', 'en')
+  return `${url.pathname}${url.search}${url.hash}`
 }
 
 export function publicLanguageHref(href: string, language: SampleLanguage, isSample: boolean) {

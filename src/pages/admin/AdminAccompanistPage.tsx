@@ -44,7 +44,7 @@ export function AdminAccompanistPage() {
     <AdminCrudListPage
       columns={columns}
       defaultValues={{ is_visible: true, role: '반주자' }}
-      description="반주자 소개 정보와 프로필 사진을 여러 명까지 등록하고 수정할 수 있습니다."
+      description="반주자 소개와 사진을 관리합니다. 이름의 영문 표기는 목록에서 ‘English 작성·수정’을 열어 따로 입력·게시하세요."
       emptyMessage="등록된 반주자가 없습니다."
       fields={fields}
       filters={[
@@ -58,7 +58,7 @@ export function AdminAccompanistPage() {
           ],
         },
       ]}
-      info="public 소개 페이지에는 공개 상태가 켜진 반주자만 등록 순서대로 표시됩니다."
+      info="공개 화면에는 공개 상태가 켜진 반주자만 등록 순서대로 표시됩니다. 한국어 이름은 기본정보에서, 영문 이름은 English 버전의 ‘이름의 영문 표기’에서 관리합니다."
       order={{ column: 'created_at', ascending: true }}
       searchColumn="name"
       searchPlaceholder="반주자 이름 검색"

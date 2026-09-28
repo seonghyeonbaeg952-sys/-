@@ -43,6 +43,7 @@ test('original public links retain their path while sample links stay isolated',
   assert.equal(language.publicLanguageHref('/join?section=contact#application', 'ko', false), '/join?section=contact#application')
   assert.equal(language.publicLanguageHref('/join?section=contact#application', 'en', true), '/sample/join?section=contact&lang=en#application')
   assert.equal(language.resolvePublicLanguage('/about', '?lang=en', 'ko'), 'en')
+  assert.equal(language.resolvePublicLanguage('/', '', 'en'), 'ko')
   assert.equal(language.resolvePublicLanguage('/admin/editor', '?lang=en', 'ko'), 'ko')
 })
 

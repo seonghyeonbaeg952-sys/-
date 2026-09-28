@@ -195,10 +195,12 @@ test('maps a public member to the explicit safe field set only', () => {
     part: 'soprano',
     photo_url: 'private-value',
     public_display_name: '김○',
+    public_display_name_en: 'K○',
   })
 
   assert.deepEqual(member, {
     display_name: '김○',
+    display_name_en: 'K○',
     display_order: 3,
     group_type: 'current',
     id: 'member-1',

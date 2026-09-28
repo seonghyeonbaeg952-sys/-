@@ -1,10 +1,12 @@
 import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
+import { routeLanguageHref } from '../../features/sample-language/sampleLanguageModel'
 import { workflowCopy } from '../../components/common/workflowCopy'
 import { EditableLayout } from '../../components/site-editor/EditableLayout'
 import { FormattedCopy } from '../../components/site-editor/FormattedCopy'
 import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 import { useEffect } from 'react'
-import { Link, Navigate, useLocation, useSearchParams } from 'react-router'
+import { Navigate, useLocation, useSearchParams } from 'react-router'
+import { TransitionLink } from '../../components/common/TransitionLink'
 import { ContactInquiryForm } from '../../components/contact/ContactInquiryForm'
 import { SupportPledgeForm } from '../../components/contact/SupportPledgeForm'
 import { getContactSection, getInitialInquiryType, inquiryTypes } from '../../components/contact/contactFormModel'
@@ -29,11 +31,12 @@ const navigation = [
 export function ContactPage() {
   const [searchParams] = useSearchParams()
   const route = useLocation()
+  const { language } = useSampleLanguage()
   if (searchParams.get('section') === 'join') {
-    return <Navigate replace to="/join?section=contact#application" />
+    return <Navigate replace to={routeLanguageHref('/join?section=contact#application', language)} />
   }
   if (searchParams.get('section') === 'support' && route.hash === '#form') {
-    return <Navigate replace to="/contact?section=inquiry&type=support#form" />
+    return <Navigate replace to={routeLanguageHref('/contact?section=inquiry&type=support#form', language)} />
   }
   return <ContactContent />
 }
@@ -68,7 +71,7 @@ function ContactContent() {
     <div className="contact-atelier">
       <SeoHead title={title} path="/contact" description={copyText("contact", "contact.fixed.ContactPage.eccca7b73b", "서울모테트청소년합창단 후원, 공연, 입단과 일반 문의를 공식 채널로 접수합니다.")} />
       <header className="contact-atelier__intro contact-atelier__shell">
-        {activeSection !== 'all' ? <Link className="contact-atelier__back" to="/contact">{<FormattedCopy page="contact" id="contact.back" text={t('back')}>{t('back')}</FormattedCopy>}</Link> : null}
+        {activeSection !== 'all' ? <TransitionLink className="contact-atelier__back" to="/contact">{<FormattedCopy page="contact" id="contact.back" text={t('back')}>{t('back')}</FormattedCopy>}</TransitionLink> : null}
         <p className="contact-atelier__eyebrow">{<FormattedCopy page="contact" id="contact.fixed.ContactPage.f34c03131f" text={copyText("contact", "contact.fixed.ContactPage.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}>{copyText("contact", "contact.fixed.ContactPage.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</FormattedCopy>}</p>
         <div className="contact-atelier__title-row">
           <EditableLayout id="contact.intro.title"><h1>{title}</h1></EditableLayout>
@@ -76,7 +79,7 @@ function ContactContent() {
         </div>
       </header>
       <nav className="contact-atelier__navigation contact-atelier__shell" aria-label={copyText("contact", "contact.fixed.ContactPage.29d1e6fdd4", "후원·문의 섹션 선택")}>
-        {navigation.map(item => <Link key={item.section} to={item.href} aria-current={activeSection === item.section ? 'page' : undefined}>{t(item.section)}</Link>)}
+        {navigation.map(item => <TransitionLink key={item.section} to={item.href} aria-current={activeSection === item.section ? 'page' : undefined}>{t(item.section)}</TransitionLink>)}
       </nav>
 
       {contactData.isLoading ? <div className="contact-atelier__state contact-atelier__shell"><LoadingState label={copyText("contact", "contact.fixed.ContactPage.739ad63f2f", "문의 정보를 불러오는 중입니다")} /></div> : null}
@@ -89,7 +92,7 @@ function ContactContent() {
               <p className="contact-atelier__eyebrow">{<FormattedCopy page="contact" id="contact.support" text={t('support')}>{t('support')}</FormattedCopy>}</p>
               <h2 id="contact-support-title"><FormattedCopy page="contact" id="contact.supportTitle" text={t('supportTitle')} lineBreaks><CopyLines text={t('supportTitle')} /></FormattedCopy></h2>
               <p>{supportSettings?.description || siteSettings.support_text || <FormattedCopy page="contact" id="contact.fixed.ContactPage.a5bc205860" text={copyText("contact", "contact.fixed.ContactPage.a5bc205860", "후원 관련 안내는 문의를 통해 도와드리겠습니다.")}>{copyText("contact", "contact.fixed.ContactPage.a5bc205860", "후원 관련 안내는 문의를 통해 도와드리겠습니다.")}</FormattedCopy>}</p>
-              <Link className="contact-atelier__action contact-atelier__action--primary" to={supportSettings ? '/contact?section=support#support' : '/contact?section=inquiry&type=support#form'}>{supportSettings ? <FormattedCopy page="contact" id="contact.pledgeAction" text={t('pledgeAction')}>{t('pledgeAction')}</FormattedCopy> : <FormattedCopy page="contact" id="contact.supportInquiry" text={t('supportInquiry')}>{t('supportInquiry')}</FormattedCopy>} <span aria-hidden="true">→</span></Link>
+              <TransitionLink className="contact-atelier__action contact-atelier__action--primary" to={supportSettings ? '/contact?section=support#support' : '/contact?section=inquiry&type=support#form'}>{supportSettings ? <FormattedCopy page="contact" id="contact.pledgeAction" text={t('pledgeAction')}>{t('pledgeAction')}</FormattedCopy> : <FormattedCopy page="contact" id="contact.supportInquiry" text={t('supportInquiry')}>{t('supportInquiry')}</FormattedCopy>} <span aria-hidden="true">→</span></TransitionLink>
             </div>
             <div>
               <h3>{<FormattedCopy page="contact" id="contact.regular" text={t('regular')}>{t('regular')}</FormattedCopy>}</h3>
@@ -108,7 +111,7 @@ function ContactContent() {
       ) : null}
 
       {ready && activeSection === 'support' ? (
-        supportSettings ? <div className="contact-atelier__shell"><SupportPledgeForm settings={supportSettings} siteSettings={siteSettings} /><p className="contact-atelier__support-note"><Link className="contact-atelier__action" to="/contact?section=inquiry&type=support#form">{<FormattedCopy page="contact" id="contact.fixed.ContactPage.cb4a92fb56" text={copyText("contact", "contact.fixed.ContactPage.cb4a92fb56", "후원에 대해 문의하기 ")}>{copyText("contact", "contact.fixed.ContactPage.cb4a92fb56", "후원에 대해 문의하기 ")}</FormattedCopy>}<span aria-hidden="true">→</span></Link></p></div>
+        supportSettings ? <div className="contact-atelier__shell"><SupportPledgeForm settings={supportSettings} siteSettings={siteSettings} /><p className="contact-atelier__support-note"><TransitionLink className="contact-atelier__action" to="/contact?section=inquiry&type=support#form">{<FormattedCopy page="contact" id="contact.fixed.ContactPage.cb4a92fb56" text={copyText("contact", "contact.fixed.ContactPage.cb4a92fb56", "후원에 대해 문의하기 ")}>{copyText("contact", "contact.fixed.ContactPage.cb4a92fb56", "후원에 대해 문의하기 ")}</FormattedCopy>}<span aria-hidden="true">→</span></TransitionLink></p></div>
           : <section className="contact-atelier__state contact-atelier__shell"><h2>{<FormattedCopy page="contact" id="contact.fixed.ContactPage.5a0e526131" text={copyText("contact", "contact.fixed.ContactPage.5a0e526131", "후원 약정 접수를 준비하고 있습니다.")}>{copyText("contact", "contact.fixed.ContactPage.5a0e526131", "후원 약정 접수를 준비하고 있습니다.")}</FormattedCopy>}</h2><p>{<FormattedCopy page="contact" id="contact.fixed.ContactPage.a043c327a1" text={copyText("contact", "contact.fixed.ContactPage.a043c327a1", "운영 설정이 확인되기 전에는 온라인 약정서를 표시하지 않습니다. 아래 문의 양식으로 연락해 주세요.")}>{copyText("contact", "contact.fixed.ContactPage.a043c327a1", "운영 설정이 확인되기 전에는 온라인 약정서를 표시하지 않습니다. 아래 문의 양식으로 연락해 주세요.")}</FormattedCopy>}</p></section>
       ) : null}
 

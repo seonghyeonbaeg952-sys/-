@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router'
 import { SampleLanguageContext } from './useSampleLanguage'
 import { translateEnglish } from './englishRegistry'
 import { isSampleLanguage, languageLocation, publicLanguageHref, resolvePublicLanguage, resolveSampleLanguage, translateDisplayData } from './sampleLanguageModel'
-import { getPublicLanguagePreference, getSampleLanguagePreference, rememberPublicLanguage, rememberSampleLanguage, subscribePublicLanguage, subscribeSampleLanguage } from './sampleLanguagePreference'
+import { getSampleLanguagePreference, rememberSampleLanguage, subscribeSampleLanguage } from './sampleLanguagePreference'
 import type { SampleLanguage } from './types'
 import { getActiveSiteEditorPreviewNonce } from '../../lib/siteEditorPreview'
 import './sample-language.css'
@@ -16,10 +16,10 @@ import { loadPublishedEnglishContent } from './sampleContentApi'
 export function SampleLanguageProvider({ children, isSample = true }: { children: ReactNode; isSample?: boolean }) {
   const location = useLocation()
   const navigate = useNavigate()
-  const preference = useSyncExternalStore(isSample ? subscribeSampleLanguage : subscribePublicLanguage, isSample ? getSampleLanguagePreference : getPublicLanguagePreference, () => 'ko' as const)
+  const preference = useSyncExternalStore(subscribeSampleLanguage, getSampleLanguagePreference, () => 'ko' as const)
   const enabled = !/^\/admin(?:\/|$)/.test(location.pathname)
   const preview = typeof window !== 'undefined' && window.parent !== window && Boolean(getActiveSiteEditorPreviewNonce(location.search))
-  const language = enabled ? preview ? 'en' : isSample ? resolveSampleLanguage(`/sample${location.pathname}`, location.search, preference) : resolvePublicLanguage(location.pathname, location.search, preference) : 'ko'
+  const language = enabled ? preview ? 'en' : isSample ? resolveSampleLanguage(`/sample${location.pathname}`, location.search, preference) : resolvePublicLanguage(location.pathname, location.search) : 'ko'
   const [content, setContent] = useState<PublishedEnglishContent[]>([])
   const [contentError, setContentError] = useState(false)
   const [contentRetrying, setContentRetrying] = useState(false)
@@ -59,14 +59,12 @@ export function SampleLanguageProvider({ children, isSample = true }: { children
   const setLanguage = useCallback((next: SampleLanguage) => {
     if (!enabled || preview || next === language) return
     if (isSample) rememberSampleLanguage(next)
-    else rememberPublicLanguage(next)
     navigate(languageLocation(location, next), { preventScrollReset: true })
   }, [enabled, isSample, language, location, navigate, preview])
 
   useEffect(() => {
     if (!enabled || preview || !isSampleLanguage(new URLSearchParams(location.search).get('lang'))) return
     if (isSample) rememberSampleLanguage(language)
-    else rememberPublicLanguage(language)
   }, [enabled, isSample, language, location.search, preview])
 
   useLayoutEffect(() => {

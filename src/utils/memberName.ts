@@ -81,9 +81,12 @@ export function getProtectedMemberName(
 }
 
 export function getPublicMemberName(
-  member: Pick<PublicMemberRow, 'display_name' | 'part'>,
+  member: Pick<PublicMemberRow, 'display_name' | 'display_name_en' | 'part'>,
+  language: 'ko' | 'en' = 'ko',
 ) {
-  return member.display_name?.trim() || `${getMemberPartLabel(member.part)} 단원`
+  const publicName = language === 'en' ? member.display_name_en?.trim() || member.display_name?.trim() : member.display_name?.trim()
+  if (publicName) return publicName
+  return language === 'en' ? member.part === 'other' ? 'Choir member' : `${member.part[0].toUpperCase()}${member.part.slice(1)} member` : `${getMemberPartLabel(member.part)} 단원`
 }
 
 const memberNameCollator = new Intl.Collator('ko-KR', {

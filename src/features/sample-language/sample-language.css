@@ -1,26 +1,57 @@
-/* Sample-only presentation. Existing imagery, object geometry and motion stay
-   in their owning components. These rules accommodate English text length. */
+/* Public bilingual presentation. Existing imagery, object geometry and motion
+   stay in their owning components. These rules accommodate English text length. */
 html[data-sample-language] .sample-language-switch {
-  display: inline-flex;
+  position: relative;
+  z-index: 2;
+  display: flex;
   align-items: center;
   flex: 0 0 auto;
-  color: inherit;
-  font: 600 12px/1 var(--font-sans-kr);
+  color: #4a1e31;
 }
-html[data-sample-language] .sample-language-switch button {
-  min-width: 44px;
+html[data-sample-language] .sample-language-switch__trigger {
+  min-width: 70px;
   min-height: 44px;
+  padding: 0 8px;
   border: 0;
   background: transparent;
   color: inherit;
+  font: 700 12px/1 var(--font-sans-kr);
+  cursor: pointer;
+  pointer-events: auto;
+}
+html[data-sample-language] .sample-language-switch__trigger span { margin-left: 5px; font-size: 11px; }
+html[data-sample-language] .sample-language-switch__options {
+  position: absolute;
+  z-index: 5;
+  top: 100%;
+  right: 0;
+  min-width: 116px;
+  padding: 4px;
+  border: 1px solid #bfa8b1;
+  border-radius: 4px;
+  background: #fffaf5;
+  box-shadow: 0 8px 20px rgb(54 19 40 / 15%);
+}
+html[data-sample-language] .sample-language-switch__options button {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: #4a1e31;
+  font: 600 13px/1.2 var(--font-sans-kr);
+  text-align: left;
   cursor: pointer;
 }
-html[data-sample-language] .sample-language-switch button[aria-pressed='true'] { color: #bd3e14; font-weight: 800; }
-html[data-sample-language] .sample-language-switch button:focus-visible { outline: 2px solid currentColor; outline-offset: -4px; border-radius: 4px; }
+html[data-sample-language] .sample-language-switch__options button:hover,
+html[data-sample-language] .sample-language-switch__options button[aria-pressed='true'] { background: #f1e4df; }
+html[data-sample-language] .sample-language-switch :is(button):focus-visible { outline: 2px solid #bd3e14; outline-offset: 2px; }
 html[data-sample-language='en'] .sample-language-switch__issue { position: fixed; right: 20px; bottom: 20px; z-index: 100; display: flex; align-items: center; gap: 12px; width: min(360px, calc(100vw - 40px)); padding: 14px; border: 1px solid #d8d2c7; border-radius: 8px; background: #fcfaf5; color: #38132f; font-size: 13px; line-height: 1.5; box-shadow: 0 8px 24px #38132f1a; }
 html[data-sample-language='en'] .sample-language-switch__issue p { margin: 0; }
 html[data-sample-language='en'] .sample-language-switch__issue button { flex-shrink: 0; border: 1px solid #d8d2c7; border-radius: 4px; }
-html[data-sample-language] .home-v4-sample-header[data-transparent='true'] .sample-language-switch { color: #fffdf8; }
+html[data-sample-language] .home-v4-sample-header[data-transparent='true'] .sample-language-switch { color: #fffaf5; }
 html[data-sample-language='en'] .public-shell :is(h1, h2, h3, p, label, dt, dd) { word-break: normal; overflow-wrap: break-word; }
 html[data-sample-language='en'] .public-shell :is(input, textarea, button, a) { word-break: normal; }
 html[data-sample-language='en'] .public-shell :is(.home-v4-desktop-nav__link, .home-v4-sample-header__cta) { letter-spacing: 0; }
@@ -41,8 +72,7 @@ html[data-sample-language='en'] .sample-date-input__clear { grid-column: 1 / -1;
 html[data-sample-language='en'] .sample-date-input__clear:focus-visible { outline: 2px solid var(--color-gold-warm, #ad8741); outline-offset: 2px; }
 @media (max-width: 767px) {
   html[data-sample-language] .home-v4-sample-header__bar { column-gap: 6px; }
-  html[data-sample-language] .sample-language-switch { margin-left: auto; font-size: 11px; }
-  html[data-sample-language] .sample-language-switch button { min-width: 44px; min-height: 44px; }
+  html[data-sample-language] .sample-language-switch { margin-left: auto; }
   html[data-sample-language='en'] .home-v4-brand__mobile-name { max-width: 114px; }
   html[data-sample-language='en'] .public-shell .join-open-score__cta { min-width: 0; }
 }

@@ -63,6 +63,7 @@ export function AnimatedSectionTabs<TValue extends string = string>({
   const containerRef = useRef<HTMLDivElement | null>(null)
   const tabRefs = useRef<Record<string, HTMLElement | null>>({})
   const [indicator, setIndicator] = useState<IndicatorState>(initialIndicator)
+  const tabLabelSignature = tabs.map((tab) => `${tab.value}:${tab.label}`).join('|')
 
   const updateIndicator = useCallback(() => {
     const container = containerRef.current
@@ -113,7 +114,7 @@ export function AnimatedSectionTabs<TValue extends string = string>({
   useLayoutEffect(() => {
     keepActiveTabVisible()
     updateIndicator()
-  }, [keepActiveTabVisible, tabs.length, updateIndicator])
+  }, [keepActiveTabVisible, tabLabelSignature, updateIndicator])
 
   useEffect(() => {
     const container = containerRef.current
@@ -132,6 +133,8 @@ export function AnimatedSectionTabs<TValue extends string = string>({
         : new ResizeObserver(handleResize)
 
     resizeObserver?.observe(container)
+    const activeTab = tabRefs.current[activeValue]
+    if (activeTab) resizeObserver?.observe(activeTab)
     window.addEventListener('resize', handleResize)
     container.addEventListener('scroll', handleResize, { passive: true })
 

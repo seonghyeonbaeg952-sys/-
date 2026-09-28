@@ -2,6 +2,7 @@ import { EditableLayout } from '../site-editor/EditableLayout'
 import { SiteCopy } from '../site-editor/SiteCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useMemo, useState } from 'react'
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
 
 import type { PublicMemberRow } from '../../types/cms'
 import {
@@ -47,6 +48,7 @@ export function MembersArchiveExperience({
 }: MembersArchiveExperienceProps) {
   const { copy: copyText } = useSiteEditor()
   const { copy: editorCopy } = useSiteEditor()
+  const { language } = useSampleLanguage()
   const [statusFilter, setStatusFilter] =
     useState<MemberArchiveStatusFilter>('all')
   const [partFilter, setPartFilter] =
@@ -184,7 +186,7 @@ export function MembersArchiveExperience({
                           key={member.id}
                         >
                           <div className="members-archive__member-copy">
-                            <strong>{getPublicMemberName(member)}</strong>
+                            <strong>{getPublicMemberName(member, language)}</strong>
                             <span>
                               {groupLabel}
                               {partLabel ? ` · ${partLabel}` : ''}

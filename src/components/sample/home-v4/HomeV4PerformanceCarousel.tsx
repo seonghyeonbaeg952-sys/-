@@ -45,18 +45,6 @@ const PAPER_TEXTURE_ASSET =
   '/images/sample/performance/template-paper-micrograin.png'
 const SYMBOL_ASSET = '/images/sample/performance/smyc-symbol.png'
 
-function getConcertSummary(concert: Concert) {
-  if (concert.description.trim()) {
-    return concert.description
-  }
-
-  if (concert.program.length > 0) {
-    return concert.program.slice(0, 2).join(' · ')
-  }
-
-  return '서울모테트청소년합창단의 무대를 안내합니다.'
-}
-
 function getTemplatePosition(
   itemIndex: number,
   activeIndex: number,
@@ -176,6 +164,11 @@ function CurrentProgramTemplate({
   const sideTimerRef = useRef<number | null>(null)
   const previousExpandedRef = useRef(expanded)
   const dateText = workflowDate(concert.date, formatKoreanDate(concert.date), english, true)
+  const programmeNote = concert.description.trim()
+    ? translate(concert.description)
+    : concert.program.length > 0
+      ? english ? 'The announced programme is listed below.' : '발표된 공연 프로그램을 아래에서 확인하세요.'
+      : english ? 'Programme details will appear here once confirmed.' : '프로그램이 확정되면 이곳에 안내합니다.'
 
   useLayoutEffect(() => {
     if (sideTimerRef.current !== null) {
@@ -221,44 +214,52 @@ function CurrentProgramTemplate({
           inert={bookState !== 'open'}
         >
           <section className="motion-program-panel motion-program-panel-left">
-            <div>
-              <p className="motion-program-kicker">PROGRAM NOTE</p>
-              <h4><ConcertTitle title={concert.title} /></h4>
-              <p>{translate(getConcertSummary(concert))}</p>
+            <div className="motion-program-panel__content">
+              <p className="motion-program-kicker">{english ? 'Programme notes' : '프로그램 노트'}</p>
+              <h4 className="motion-program-note-title">{english ? 'About this concert' : '공연 소개'}</h4>
+              <p className="motion-program-note-body">{programmeNote}</p>
+              {concert.program.length > 0 ? <div className="motion-program-repertoire">
+                <p>{english ? 'Programme' : '프로그램'}</p>
+                <ul>{concert.program.map((item, index) => <li key={`${index}-${item}`}>{translate(item)}</li>)}</ul>
+              </div> : null}
             </div>
+            <span aria-hidden="true" className="motion-program-folio">01 <i /> 03</span>
           </section>
           <section className="motion-program-panel motion-program-panel-center">
-            <div>
-              <p className="motion-program-kicker">CONCERT</p>
+            <div className="motion-program-panel__content">
+              <p className="motion-program-kicker">{english ? 'Concert information' : '공연 정보'}</p>
               <h3><ConcertTitle title={concert.title} /></h3>
             </div>
             <dl>
               {dateText ? (
                 <div>
-                  <dt>DATE</dt>
+                  <dt>{english ? 'Date' : '날짜'}</dt>
                   <dd>{dateText}</dd>
                 </div>
               ) : null}
               {concert.time ? (
                 <div>
-                  <dt>TIME</dt>
+                  <dt>{english ? 'Time' : '시간'}</dt>
                   <dd>{workflowTime(concert.time, english)}</dd>
                 </div>
               ) : null}
               {concert.location ? (
                 <div>
-                  <dt>PLACE</dt>
+                  <dt>{english ? 'Venue' : '장소'}</dt>
                   <dd>{concert.location}</dd>
                 </div>
               ) : null}
             </dl>
+            <span aria-hidden="true" className="motion-program-folio">02 <i /> 03</span>
           </section>
           <section className="motion-program-panel motion-program-panel-right">
-            <div>
-              <p className="motion-program-kicker">GUIDE</p>
+            <div className="motion-program-panel__content">
+              <p className="motion-program-kicker">{english ? 'Visitor guide' : '관람 안내'}</p>
+              <h4>{english ? 'At a glance' : '공연 안내'}</h4>
               <div className="motion-program-statuses">
                 <span>{translate(statusLabels[concert.status])}</span>
               </div>
+              <p className="motion-program-guide-copy">{english ? 'Find the latest concert information and enquiries through the links below.' : '공연의 자세한 안내와 문의는 아래에서 확인하실 수 있습니다.'}</p>
             </div>
             <div className="motion-program-actions">
               <Button
@@ -276,6 +277,7 @@ function CurrentProgramTemplate({
                 {translate('공연 문의')} <span aria-hidden="true">→</span>
               </Button>
             </div>
+            <span aria-hidden="true" className="motion-program-folio">03 <i /> 03</span>
           </section>
         </div>
       </div>
