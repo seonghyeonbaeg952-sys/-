@@ -1,11 +1,9 @@
 import { getSiteCopyDefaults, siteCopyDefinitions } from '../../content/siteCopyCatalog'
-import { getPublicSiteTexts, getPublicAboutData, getPublicJoinData, getPublicContactData, getPublicConcerts, getPublicNotices, getPublicGalleryImages, getPublicVideos, getPublicPosters, getPublicHeroSlides, getPublicPopupNotices } from '../../lib/publicData'
-import { loadPublicEditorPages } from '../../lib/siteEditorApi'
-import { resolveEditorCopy } from '../../lib/siteEditorModel'
-import { mapHomeContentCopy, resolveHomeEditorContent } from '../../lib/homeEditorOverrides'
-import type { EditorDevice, SiteCopyDefinition, SiteEditorDocuments } from '../../types/siteEditor'
+import { getPublicAboutData, getPublicJoinData, getPublicContactData, getPublicConcerts, getPublicNotices, getPublicGalleryImages, getPublicVideos, getPublicPosters, getPublicHeroSlides, getPublicPopupNotices } from '../../lib/publicData'
+import type { EditorDevice, SiteCopyDefinition } from '../../types/siteEditor'
 import { englishEntries, translateEnglish } from './englishRegistry'
-import { sampleContentKey, sampleLanguageHref, translateDisplayData } from './sampleLanguageModel'
+import { englishEditorialBaseline } from './englishEditorialBaseline'
+import { editorLanguageHref, sampleContentKey, translateDisplayData } from './sampleLanguageModel'
 
 function textField(field: SiteCopyDefinition) {
   return !field.inputType || field.inputType === 'text' || field.inputType === 'textarea'
@@ -20,52 +18,39 @@ export const sampleEnglishDefinitions: SiteCopyDefinition[] = [
     defaultValue: translateEnglish(field.defaultValue, field.sourceKey ?? field.key),
     // English length is not constrained by the number of Korean syllables.
     maxLength: Math.min(10000, Math.max(field.maxLength ?? 1000, 3 * (field.maxLength ?? 0))),
-  })), ...rawDefinitions,
+  })),
+  { key: 'spirit.motetMeaning.englishTitle', page: 'spirit', section: '정신 · 영문 제목', label: '모테트의 의미 · 영문 제목',
+    defaultValue: 'Different voices make one piece of music.', multiline: false, maxLength: 160 },
+  ...rawDefinitions,
 ]
 
-export function sampleEnglishPreviewPath(path: string) { return sampleLanguageHref(path, 'en') }
+export function sampleEnglishPreviewPath(path: string) { return editorLanguageHref(path, 'en') }
 
 type SampleEnglishDefaults = {
   defaults: Record<string, string>
   deviceDefaults: Record<EditorDevice, Record<string, string>>
 }
 
-/** The same original publication can have different ordinary copy on each
- * device. Preserve those baselines without creating English draft overrides. */
-export function buildSampleEnglishDefaults(raw: Record<string, string>, source: SiteEditorDocuments): SampleEnglishDefaults {
-  const originalDefaults = getSiteCopyDefaults(raw)
+/** Stable English defaults do not depend on live Korean drafts or publications. */
+export function buildSampleEnglishDefaults(): SampleEnglishDefaults {
+  const originalDefaults = getSiteCopyDefaults()
   const defaults = { ...originalDefaults, ...Object.fromEntries(rawDefinitions.map(field => [field.key, field.defaultValue])) }
   const deviceDefaults: SampleEnglishDefaults['deviceDefaults'] = { mobile: {}, tablet: {}, desktop: {} }
   for (const field of siteCopyDefinitions.filter(textField)) {
-    const fallback = originalDefaults[field.key] ?? field.defaultValue
-    const translated = (device: EditorDevice) => translateEnglish(
-      resolveEditorCopy(source, field.page, field.key, fallback, device), field.sourceKey ?? field.key,
-    )
-    if (field.sourceDevice) defaults[field.key] = translated(field.sourceDevice)
+    const translated = Object.hasOwn(englishEditorialBaseline, field.key)
+      ? englishEditorialBaseline[field.key] : translateEnglish(field.defaultValue, field.sourceKey ?? field.key)
+    if (field.sourceDevice) defaults[field.key] = translated
     else {
-      for (const device of ['mobile', 'tablet', 'desktop'] as const) deviceDefaults[device][field.key] = translated(device)
+      for (const device of ['mobile', 'tablet', 'desktop'] as const) deviceDefaults[device][field.key] = translated
       defaults[field.key] = deviceDefaults.desktop[field.key]
     }
-  }
-  // Home owns explicit per-device source keys. Keep their established mapping.
-  for (const device of ['mobile', 'tablet', 'desktop'] as const) {
-    mapHomeContentCopy(resolveHomeEditorContent(raw, source, device), device, (key, sourceKey, value) => {
-      defaults[key] = translateEnglish(value, sourceKey)
-      return value
-    })
   }
   return { defaults, deviceDefaults }
 }
 
-/** Read the original publication and site texts once for all three devices. */
+/** Reading English editor defaults never depends on a Korean publication. */
 async function loadSampleEnglishBaseline(): Promise<SampleEnglishDefaults> {
-  const [texts, publications] = await Promise.all([getPublicSiteTexts(), loadPublicEditorPages()])
-  if (texts.error || !texts.data || publications.error || !publications.data) {
-    throw new Error('한국어 게시본을 확인하지 못했습니다. 연결을 확인한 뒤 영문 초안을 다시 불러오세요.')
-  }
-  const raw = Object.fromEntries(texts.data.filter(row => row.is_active).map(row => [row.key, row.value ?? '']))
-  const source: SiteEditorDocuments = Object.fromEntries(publications.data.map(row => [row.page_key, row.document]))
-  return buildSampleEnglishDefaults(raw, source)
+  return buildSampleEnglishDefaults()
 }
 
 /** Compatibility for callers that only need the shared/desktop baseline. */

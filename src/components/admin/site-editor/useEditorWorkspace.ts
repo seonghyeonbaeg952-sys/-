@@ -3,8 +3,9 @@ import { loadEditorPage, loadEditorRevisions, publishEditorPage, restoreEditorRe
 import type { EditorStorageScope } from '../../../lib/siteEditorApi'
 import { EDITOR_PAGE_IDS, validateSiteEditorDocument } from '../../../lib/siteEditorModel'
 import { siteCopyDefinitions } from '../../../content/siteCopyCatalog'
+import { repairLegacyEnglishDocument } from '../../../features/sample-language/englishLegacyRepair'
 import type { EditorPageId, SiteCopyDefinition, SiteEditorPageRecord, SiteEditorRevision } from '../../../types/siteEditor'
-import { acceptEditorRestore, acceptEditorSave, createEditorSession, getEditorStatus, reconcileEditorSession, validateEditorCopyFields, type EditorSession } from './editorSessionModel'
+import { acceptEditorRestore, acceptEditorSave, createEditorSession, getEditorStatus, reconcileEditorSession, replaceEditorDocument, validateEditorCopyFields, type EditorSession } from './editorSessionModel'
 
 type Sessions = Partial<Record<EditorPageId, EditorSession>>
 type Action = { page: EditorPageId; kind: 'save' | 'publish' | 'restore' } | null
@@ -48,7 +49,9 @@ export function useEditorWorkspace(page: EditorPageId, storageScope: EditorStora
         return
       }
       const current = sessionsRef.current[target]
-      const next = { ...sessionsRef.current, [target]: current ? reconcileEditorSession(current, result.data) : createEditorSession(result.data) }
+      const loaded = current ? reconcileEditorSession(current, result.data) : createEditorSession(result.data)
+      const repair = storageScope === 'sample-english' ? repairLegacyEnglishDocument(target, loaded.document) : loaded.document
+      const next = { ...sessionsRef.current, [target]: repair === loaded.document ? loaded : replaceEditorDocument(loaded, repair) }
       sessionsRef.current = next
       setSessions(next)
       setErrors((currentErrors) => ({ ...currentErrors, [target]: null }))

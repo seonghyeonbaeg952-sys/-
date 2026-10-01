@@ -158,7 +158,7 @@ test('반응형 스타일은 동적 높이와 reduced-motion 안전장치를 유
     'utf8',
   )
 
-  assert.match(css, /@media \(max-width: 900px\)/)
+  assert.match(css, /@media \(max-width: 1365px\)/)
   assert.match(css, /@media \(max-width: 620px\)/)
   assert.match(css, /prefers-reduced-motion: reduce/)
   assert.doesNotMatch(css, /\.conductor-profile__document\s*\{[^}]*height:\s*\d+px/s)

@@ -44,6 +44,16 @@ export function publicLanguageHref(href: string, language: SampleLanguage, isSam
   return `${url.pathname}${url.search}${url.hash}`
 }
 
+/** CMS canvases must ignore the visitor's current language and always render
+ * the explicitly selected Korean or English public page. */
+export function editorLanguageHref(href: string, language: SampleLanguage) {
+  if (!href.startsWith('/') || href.startsWith('//') || /^\/admin(?:[/?#]|$)/.test(href)) return href
+  const url = new URL(href, 'https://local.invalid')
+  if (isColorSamplePath(url.pathname)) url.pathname = url.pathname.replace(/^\/sample(?=\/|$)/, '') || '/'
+  url.searchParams.set('lang', language)
+  return `${url.pathname}${url.search}${url.hash}`
+}
+
 export const sampleLanguageHref = (href: string, language: SampleLanguage) => publicLanguageHref(href, language, true)
 
 const englishMonths = ['January','February','March','April','May','June','July','August','September','October','November','December'] as const

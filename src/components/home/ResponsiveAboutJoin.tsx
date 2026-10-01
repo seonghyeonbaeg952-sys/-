@@ -1,4 +1,5 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { SiteImage } from '../../features/site-photos/SiteImage'
 import { EditableLayout } from '../site-editor/EditableLayout'
 import { HomeCopy } from './HomeCopy'
 import { SiteCopy } from '../site-editor/SiteCopy'
@@ -179,7 +180,7 @@ export function ResponsiveJoinInvitation({
       data-responsive-viewport={viewport}
       id="home-responsive-join"
     >
-      {!tablet ? <img alt="" aria-hidden="true" className="responsive-join__motif" height={30} src="/images/home/responsive-join-motif.svg" width={342} /> : null}
+      {!tablet ? <SiteImage alt="" aria-hidden="true" className="responsive-join__motif" height={30} src="/images/home/responsive-join-motif.svg" width={342} /> : null}
       <p className="responsive-about-join__eyebrow">
         <span aria-hidden="true">{tablet ? '02' : '02 /'}</span> <HomeCopy sourceKey="home.current.join.eyebrowEn" text={content.eyebrowEn} />
       </p>

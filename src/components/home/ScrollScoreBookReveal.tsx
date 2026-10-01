@@ -1,4 +1,5 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { SiteImage } from '../../features/site-photos/SiteImage'
 import { HomeCopy } from './HomeCopy'
 import {
   useEffect,
@@ -679,10 +680,10 @@ export function ScrollScoreBookReveal({
                   style={getFlutterPageStyle(progress, index)}
                 >
                   <div className="motet-score-flutter-face">
-                    <img alt="" src="/images/effects/home-score-m-staff.png" />
+                    <SiteImage alt="" src="/images/effects/home-score-m-staff.png" />
                   </div>
                   <div className="motet-score-flutter-face motet-score-flutter-face-back">
-                    <img alt="" src="/images/effects/home-score-m-staff.png" />
+                    <SiteImage alt="" src="/images/effects/home-score-m-staff.png" />
                   </div>
                 </div>
               ))
@@ -693,7 +694,7 @@ export function ScrollScoreBookReveal({
           aria-hidden={!isFinalInteractive}
           className={`motet-score-final-sheet${isFinalInteractive ? ' is-interactive' : ''}`}
         >
-          <img
+          <SiteImage
             alt=""
             aria-hidden="true"
             className="motet-score-final-paper"
@@ -717,7 +718,7 @@ export function ScrollScoreBookReveal({
               ))}
             </div>
 
-            <img
+            <SiteImage
               alt=""
               aria-hidden="true"
               className="motet-score-final-staff"

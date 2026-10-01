@@ -51,7 +51,7 @@ test('V4 can serve production home while preserving an isolated sample mode', ()
   )
   assert.match(
     cssSource,
-    /@media \(min-width: 1024px\) \{[\s\S]*\.home-flow-body \{[\s\S]*--home-hero-handoff-start: clamp\(184px, 15vw, 208px\);[\s\S]*\.home-flow-body::before \{[\s\S]*background: var\(--home-v4-panel-ivory\) !important;/,
+    /@media \(min-width: 1366px\) and \(pointer: fine\) \{[\s\S]*\.home-flow-body \{[\s\S]*--home-hero-handoff-start: clamp\(184px, 15vw, 208px\);[\s\S]*\.home-flow-body::before \{[\s\S]*background: var\(--home-v4-panel-ivory\) !important;/,
   )
 })
 
@@ -79,7 +79,7 @@ test('desktop mega menu supports hover, pinned click, Escape, and focus return',
 
 test('V4 header preserves the production header density and pill CTA contract', () => {
   assert.match(headerSource, /home-v4-sample-header__bar max-w-content/)
-  assert.match(headerSource, /window\.matchMedia\('\(min-width: 1024px\)'\)/)
+  assert.match(headerSource, /window\.matchMedia\('\(min-width: 1366px\) and \(pointer: fine\)'\)/)
   assert.match(headerSource, /className="home-v4-sample-header__cta"/)
   assert.match(
     headerSource,
@@ -187,7 +187,7 @@ test('the promoted V4 header and mega menu are shared by every production public
   assert.match(headerSource, /useLocation\(\)/)
   assert.match(headerSource, /currentPathname\.startsWith/)
   assert.match(sharedHeaderCssSource, /\.home-v4-mega-menu \{[\s\S]*position: absolute;/)
-  assert.match(sharedHeaderCssSource, /@media \(max-width: 1023px\)/)
+  assert.match(sharedHeaderCssSource, /@media \(max-width: 1365px\), \(pointer: coarse\)/)
   assert.match(sharedHeaderCssSource, /prefers-reduced-motion: reduce/)
 })
 
@@ -232,14 +232,14 @@ test('V4 shell does not override the production wave track box model', () => {
 test('V4 finale wave settles the spirit panel before synchronized archive travel', () => {
   assert.match(
     cssSource,
-    /@media \(min-width: 1024px\) \{[\s\S]*home-flow-sample-chunk--stage[\s\S]*home-flow-sample-chunk--finale[\s\S]*data-v4-hold-state='fixed'[\s\S]*@supports \(animation-timeline: view\(\)\)/,
+    /@media \(min-width: 1366px\) and \(pointer: fine\) \{[\s\S]*home-flow-sample-chunk--stage[\s\S]*home-flow-sample-chunk--finale[\s\S]*data-v4-hold-state='fixed'[\s\S]*@supports \(animation-timeline: view\(\)\)/,
   )
   assert.match(pageSource, /data-v4-hold-state/)
   assert.match(pageSource, /sampleHeader\.getBoundingClientRect\(\)\.bottom/)
   assert.match(pageSource, /flowRoot\.style\.setProperty/)
   assert.match(pageSource, /window\.addEventListener\('pageshow', syncRestoredScroll\)/)
   assert.match(pageSource, /window\.setTimeout\(update, 240\)/)
-  assert.match(pageSource, /window\.addEventListener\('scroll', update/)
+  assert.match(pageSource, /window\.addEventListener\('scroll', queueUpdate/)
   assert.match(pageSource, /const syncRestoredScroll = \(\) => \{[\s\S]*update\(\)/)
   assert.match(pageSource, /const fixedStart = trackTop - safeHeaderOffset/)
   assert.doesNotMatch(pageSource, /fixedBeforeWave/)
@@ -288,7 +288,7 @@ test('V4 keeps the Figma-height Join panel eligible for the first wave hold', ()
 test('V4 mobile disables both wave transitions and returns panels to normal flow', () => {
   assert.match(
     cssSource,
-    /@media \(max-width: 1023px\) \{[\s\S]*timeline-scope: none;[\s\S]*:is\(\.home-flow-sample-chunk--stage, \.home-flow-sample-chunk--finale\)[\s\S]*margin-top: 0;[\s\S]*view-timeline-name: none;/,
+    /@media \(max-width: 1365px\), \(pointer: coarse\) \{[\s\S]*timeline-scope: none;[\s\S]*:is\(\.home-flow-sample-chunk--stage, \.home-flow-sample-chunk--finale\)[\s\S]*margin-top: 0;[\s\S]*view-timeline-name: none;/,
   )
   assert.match(
     cssSource,

@@ -138,7 +138,7 @@ test('responsive CSS protects long copy, touch targets, image fit, and reduced m
   assert.match(css, /object-fit:\s*contain/)
   assert.match(css, /overflow-wrap:\s*anywhere/)
   assert.match(css, /@media\s*\(min-width:\s*768px\)/)
-  assert.match(css, /@media\s*\(min-width:\s*1200px\)/)
+  assert.match(css, /@media\s*\(min-width:\s*1366px\)/)
   assert.match(css, /prefers-reduced-motion:\s*reduce/)
   assert.doesNotMatch(css, /\.history-cue__panel\s*\{[^}]*height:\s*\d+px/s)
 })

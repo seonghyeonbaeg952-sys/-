@@ -9,7 +9,7 @@ import { Navigate, useLocation, useSearchParams } from 'react-router'
 import { TransitionLink } from '../../components/common/TransitionLink'
 import { ContactInquiryForm } from '../../components/contact/ContactInquiryForm'
 import { SupportPledgeForm } from '../../components/contact/SupportPledgeForm'
-import { getContactSection, getInitialInquiryType, inquiryTypes } from '../../components/contact/contactFormModel'
+import { formatSupportAmounts, getContactSection, getInitialInquiryType, inquiryTypes } from '../../components/contact/contactFormModel'
 import { LoadingState } from '../../components/common/LoadingState'
 import { OptimizedImage } from '../../components/common/OptimizedImage'
 import { SeoHead } from '../../components/common/SeoHead'
@@ -42,8 +42,10 @@ export function ContactPage() {
 }
 
 function ContactContent() {
-  const { translate } = useSampleLanguage()
-  const displaySupportAmounts = (amounts: readonly number[]) => amounts.map(amount => workflowCopy(translate, '{amount}원', { amount: amount.toLocaleString('ko-KR') })).join(' · ')
+  const { language, translate } = useSampleLanguage()
+  const displaySupportAmounts = (amounts: readonly number[]) => language === 'ko'
+    ? formatSupportAmounts(amounts)
+    : amounts.map(amount => workflowCopy(translate, '{amount}원', { amount: amount.toLocaleString('ko-KR') })).join(' · ')
   const { copy: copyText } = useSiteEditor()
   const t = usePageCopy('contact')
   const contactData = useContactData()

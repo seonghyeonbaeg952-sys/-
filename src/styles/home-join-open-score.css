@@ -963,6 +963,37 @@
   }
 }
 
+@media (orientation: landscape) and (min-width: 768px) and (max-width: 1023px) and (max-height: 820px) {
+  .join-open-score__layout {
+    display: block;
+    width: min(calc(100% - 48px), 700px);
+    min-height: 0;
+    margin-inline: auto;
+    padding: 58px 0 64px;
+  }
+
+  .join-open-score__intro,
+  .join-open-score__process { min-width: 0; }
+  .join-open-score__title,
+  .join-open-score__description { width: auto; max-width: 100%; }
+
+  .join-open-score__actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .join-open-score .join-open-score__cta {
+    flex: 1 1 220px;
+    width: auto;
+    min-width: 0;
+    min-height: 48px;
+    white-space: normal;
+  }
+
+  .join-open-score__process { margin-top: 42px; }
+  .join-open-score__fact dd { display: block; overflow: visible; -webkit-line-clamp: unset; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .join-open-score__reveal,
   .join-open-score__reveal--line,

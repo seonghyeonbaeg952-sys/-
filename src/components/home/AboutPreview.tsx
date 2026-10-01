@@ -1,5 +1,6 @@
 import { useLayoutEffect } from 'react'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { SiteImage } from '../../features/site-photos/SiteImage'
 import { EditableLayout } from '../site-editor/EditableLayout'
 import { HomeCopy } from './HomeCopy'
 import { useHomeTitleCanvasTarget } from './useHomeTitleCanvasTarget'
@@ -283,7 +284,7 @@ function CollectivePortrait({
             aria-hidden="true"
             className="home-about-portrait__transition"
           >
-            <img alt="" src="/images/sample/about-join-boundary.svg" />
+            <SiteImage alt="" src="/images/sample/about-join-boundary.svg" />
           </span>
         </div>
       </Container>

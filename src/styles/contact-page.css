@@ -85,7 +85,7 @@
 .contact-atelier__state h2 { font: 600 28px/1.5 var(--font-heading-kr); margin: 0 0 16px; }
 .contact-atelier__state p { line-height: 1.9; color: var(--contact-muted); margin-bottom: 24px; }
 .contact-atelier__back { display: inline-flex; min-height: 44px; align-items: center; margin-bottom: 24px; color: var(--contact-muted); text-decoration: none; }
-@media (max-width: 1023px) {
+@media (max-width: 1365px), (min-height: 551px) and (max-width: 1600px) and (any-pointer: coarse) {
   .contact-atelier__shell { width: calc(100% - 80px); }
   .contact-atelier__intro { padding-block: 56px 28px; }
   .contact-atelier__title-row { gap: 32px; grid-template-columns: 1fr; padding-bottom: 32px; }

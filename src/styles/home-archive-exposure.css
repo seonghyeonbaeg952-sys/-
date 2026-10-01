@@ -59,7 +59,7 @@
   inset: 0;
   z-index: 20;
   opacity: 0.075;
-  background-image: url('/images/textures/smyc-paper-grain.png');
+  background-image: var(--site-photo-archive-paper,url('/images/textures/smyc-paper-grain.png'));
   background-size: 540px 540px;
   content: '';
   mix-blend-mode: multiply;
@@ -420,7 +420,7 @@
   position: absolute;
   inset: 0;
   opacity: 0.08;
-  background-image: url('/images/textures/smyc-paper-grain.png');
+  background-image: var(--site-photo-archive-paper,url('/images/textures/smyc-paper-grain.png'));
   background-size: 470px;
   content: '';
   mix-blend-mode: multiply;
@@ -606,7 +606,7 @@
   inset: 0;
   z-index: 9;
   opacity: 0.055;
-  background-image: url('/images/textures/smyc-paper-grain.png');
+  background-image: var(--site-photo-archive-paper,url('/images/textures/smyc-paper-grain.png'));
   background-size: 320px;
   content: '';
   mix-blend-mode: multiply;
@@ -690,7 +690,7 @@
       rgba(238, 229, 216, 0.96),
       rgba(57, 19, 47, 0.23)
     ),
-    url('/images/textures/smyc-paper-grain.png');
+    var(--site-photo-archive-paper,url('/images/textures/smyc-paper-grain.png'));
   content: '';
   opacity: 0.96;
   clip-path: inset(0 0 0 var(--fallback-mask-left, 0%));

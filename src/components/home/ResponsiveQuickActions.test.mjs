@@ -3,6 +3,7 @@ import { after, test } from 'node:test'
 
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
+import { MemoryRouter } from 'react-router'
 import { createServer } from 'vite'
 
 const vite = await createServer({
@@ -17,6 +18,7 @@ const { FloatingInfoCards } = await vite.ssrLoadModule(
   '/src/components/home/FloatingInfoCards.tsx',
 )
 const { normalizeHomeContentV2 } = await vite.ssrLoadModule('/src/lib/homeContent.ts')
+const { SampleLanguageProvider } = await vite.ssrLoadModule('/src/features/sample-language/SampleLanguageProvider.tsx')
 
 after(() => vite.close())
 
@@ -28,22 +30,28 @@ const cms = {
   'home.quickActions.support.title': 'CMS 후원 제목',
 }
 
-function render(width, values = cms, pathname = '/') {
+function render(width, values = cms, pathname = '/', height = 900) {
   const originalWindow = globalThis.window
   globalThis.window = {
+    innerWidth: width,
+    innerHeight: height,
     location: { pathname },
     matchMedia: query => ({ matches: query === '(min-width: 1024px)' && width >= 1024 }),
   }
   try {
     const cards = normalizeHomeContentV2(values).quickActions.items
-    return renderToStaticMarkup(createElement(FloatingInfoCards, { cards }))
+    const content = createElement(FloatingInfoCards, { cards })
+    return renderToStaticMarkup(pathname.startsWith('/sample')
+      ? createElement(MemoryRouter, { initialEntries: [pathname] },
+          createElement(SampleLanguageProvider, { isSample: true }, content))
+      : content)
   } finally {
     if (originalWindow === undefined) delete globalThis.window
     else globalThis.window = originalWindow
   }
 }
 
-for (const width of [390, 834, 1023]) {
+for (const width of [390]) {
   test(`${width}px quick menu keeps only CMS titles, codes and one real link per compact row`, () => {
     const html = render(width)
     for (const title of ['CMS 입단 제목', 'CMS 공연 제목', 'CMS 후원 제목']) {
@@ -76,20 +84,27 @@ test('responsive rows preserve CMS visibility and reordered destinations without
   }), '')
 })
 
-for (const width of [1024, 1440]) {
-  test(`${width}px preserves the existing desktop card contents and presentation`, () => {
-    const html = render(width)
+test('tablet retains the current CMS quick destinations without reverting to desktop cards', () => {
+  for (const width of [834, 1023, 1180]) {
+    assert.match(render(width), /home-responsive-quick/)
+  }
+  const html = render(1460, cms, '/', 1024)
+  assert.match(html, /home-responsive-quick/)
+  assert.doesNotMatch(html, /home-quick-action-card group/)
+})
+
+test('a 1440×900 desktop preserves the existing card contents and presentation', () => {
+    const html = render(1440)
     assert.ok(html.includes('CMS 입단 제목'))
     assert.ok(html.includes('CMS 입단 상세 설명'))
     assert.ok(html.includes('CMS 입단 별도 CTA'))
     assert.match(html, /home-quick-action-card group/)
     assert.doesNotMatch(html, /home-responsive-quick/)
-  })
-}
+})
 
 test('compact links preserve the existing sample-route prefix convention', () => {
   const html = render(390, cms, '/sample/home-v4')
-  assert.match(html, /href="\/sample\/join"/)
-  assert.match(html, /href="\/sample\/concerts"/)
-  assert.match(html, /href="\/sample\/contact\?section=support#form"/)
+  assert.match(html, /href="\/sample\/join\?lang=ko"/)
+  assert.match(html, /href="\/sample\/concerts\?lang=ko"/)
+  assert.match(html, /href="\/sample\/contact\?section=support&amp;lang=ko#form"/)
 })

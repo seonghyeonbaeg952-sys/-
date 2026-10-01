@@ -1,5 +1,4 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
-import { useEffect, useState } from 'react'
 
 import type { GalleryImage, Poster, VideoItem } from '../../types/content'
 import { Container } from '../common/Container'
@@ -7,28 +6,7 @@ import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 import { ArchivePageStack } from './ArchivePageStack'
 import { ArchivePageStackLegacy } from './ArchivePageStackLegacy'
 import { ResponsiveArchive } from './ResponsiveArchive'
-
-const desktopArchiveQuery = '(min-width: 1024px)'
-
-function useDesktopArchiveLayout() {
-  const [isDesktop, setIsDesktop] = useState(() =>
-    typeof window === 'undefined'
-      ? false
-      : window.matchMedia(desktopArchiveQuery).matches,
-  )
-
-  useEffect(() => {
-    const query = window.matchMedia(desktopArchiveQuery)
-    const update = () => setIsDesktop(query.matches)
-
-    update()
-    query.addEventListener('change', update)
-
-    return () => query.removeEventListener('change', update)
-  }, [])
-
-  return isDesktop
-}
+import { useHomeResponsiveViewport } from './useHomeResponsiveViewport'
 
 type GalleryPreviewProps = {
   approvedResponsive?: boolean
@@ -64,7 +42,7 @@ export function GalleryPreview({
   videos = [],
 }: GalleryPreviewProps) {
   const { copy: copyText } = useSiteEditor()
-  const isDesktop = useDesktopArchiveLayout()
+  const isDesktop = useHomeResponsiveViewport() === 'desktop'
 
   if (approvedResponsive && !isDesktop) {
     return <ResponsiveArchive buttonLabel={buttonLabel} categoryLabel={title} emptyDescription={emptyDescription} emptyTitle={emptyTitle} eyebrow={eyebrow} images={images} posters={posters} title={desktopTitle} videos={videos} />

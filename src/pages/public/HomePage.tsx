@@ -245,10 +245,12 @@ export function HomePage({
         ) : null}
 
         <div className="home-flow-body flow-root relative z-30 isolate overflow-visible">
-          <StaffFlowRail
-            className="hidden lg:block lg:-top-72 lg:bottom-24 lg:left-[max(1.25rem,calc(50%_-_760px))] lg:z-20 lg:opacity-75 xl:left-[max(2rem,calc(50%_-_840px))]"
-            tone="light"
-          />
+          {viewport === 'desktop' ? (
+            <StaffFlowRail
+              className="hidden lg:block lg:-top-72 lg:bottom-24 lg:left-[max(1.25rem,calc(50%_-_760px))] lg:z-20 lg:opacity-75 xl:left-[max(2rem,calc(50%_-_840px))]"
+              tone="light"
+            />
+          ) : null}
           <div className="relative z-10">
             <HomeFlowSampleChunk
               enabled={mode === 'section-flow-sample'}

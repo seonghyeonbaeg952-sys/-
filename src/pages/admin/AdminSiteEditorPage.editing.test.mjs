@@ -11,6 +11,7 @@ const vite = await createServer({ configFile: false, envDir: false, appType: 'cu
 after(() => vite.close())
 const real = {}
 for (const path of ['content/siteEditorCatalog', 'content/siteCopyCatalog', 'lib/siteEditorModel', 'lib/siteEditorTextStyles', 'lib/siteEditorAddedBoxes',
+  'features/sample-language/sampleLanguageModel',
   'components/admin/site-editor/editorSessionModel', 'components/admin/site-editor/editorCanvasHistory', 'components/admin/site-editor/editorCanvasController',
   'components/admin/site-editor/editorUiOptions', 'components/admin/site-editor/editorCopyTools']) real[path.split('/').at(-1)] = await vite.ssrLoadModule(`/src/${path}.ts`)
 const code = ts.transpileModule(await readFile(new URL('./AdminSiteEditorPage.tsx', import.meta.url), 'utf8'), {

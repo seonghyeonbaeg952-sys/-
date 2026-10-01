@@ -1,5 +1,5 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, Suspense } from 'react'
 
 import type { Concert, Notice } from '../../types/content'
 import { selectUpcomingConcerts } from '../../lib/publicData'
@@ -13,6 +13,7 @@ import { BenchmarkConcertTemplate } from './benchmark/BenchmarkConcertTemplate'
 import { KineticHeadline } from './KineticHeadline'
 import { NoticeProgramNotes } from './NoticeProgramNotes'
 import { ResponsiveConcertNews } from './ResponsiveConcertNews'
+import { useHomeResponsiveViewport } from './useHomeResponsiveViewport'
 import '../../styles/home-motion-benchmark.css'
 
 const HomeV4PerformanceCarousel = lazy(() =>
@@ -20,28 +21,6 @@ const HomeV4PerformanceCarousel = lazy(() =>
     default: module.HomeV4PerformanceCarousel,
   })),
 )
-
-const desktopPerformanceQuery = '(min-width: 1024px)'
-
-function useDesktopPerformanceLayout() {
-  const [isDesktop, setIsDesktop] = useState(() =>
-    typeof window === 'undefined'
-      ? true
-      : window.matchMedia(desktopPerformanceQuery).matches,
-  )
-
-  useEffect(() => {
-    const query = window.matchMedia(desktopPerformanceQuery)
-    const update = () => setIsDesktop(query.matches)
-
-    update()
-    query.addEventListener('change', update)
-
-    return () => query.removeEventListener('change', update)
-  }, [])
-
-  return isDesktop
-}
 
 type PerformanceNewsPreviewProps = {
   concertButtonLabel?: string
@@ -101,7 +80,7 @@ export function PerformanceNewsPreview({
   title = '공연과 소식',
 }: PerformanceNewsPreviewProps) {
   const { copy: copyText } = useSiteEditor()
-  const isDesktopPerformanceLayout = useDesktopPerformanceLayout()
+  const isDesktopPerformanceLayout = useHomeResponsiveViewport() === 'desktop'
   const useFigmaDesktopLayout =
     presentation === 'figma-template-carousel' && isDesktopPerformanceLayout
   const useEditorialResponsiveLayout =

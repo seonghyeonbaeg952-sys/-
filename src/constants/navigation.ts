@@ -151,6 +151,7 @@ export const adminNavigationGroups: AdminNavigationGroup[] = [
     items: [
       { label: '관리 홈', href: '/admin', resource: 'site_settings' },
       { label: '홈페이지 편집 · 미리보기', href: '/admin/editor', resource: 'site_texts' },
+      { label: '홈페이지 사진 관리', href: '/admin/photos', resource: 'site_photos' },
       { label: '영어 버전 변경', href: '/admin/editor-english', resource: 'site_texts' },
     ],
   },

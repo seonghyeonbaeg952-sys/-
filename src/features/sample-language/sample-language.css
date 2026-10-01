@@ -2,7 +2,7 @@
    stay in their owning components. These rules accommodate English text length. */
 html[data-sample-language] .sample-language-switch {
   position: relative;
-  z-index: 2;
+  z-index: 40;
   display: flex;
   align-items: center;
   flex: 0 0 auto;

@@ -1112,7 +1112,8 @@
   right: 0;
 }
 
-@media (min-width: 768px) and (max-width: 1099px) {
+@media (min-width: 768px) and (max-width: 1365px),
+  (min-width: 768px) and (min-height: 551px) and (max-width: 1600px) and (any-pointer: coarse) {
   .about-overview__shell {
     height: auto;
     width: calc(100% - 44px);
@@ -2058,4 +2059,46 @@
   .about-overview__program-grid article {
     transform: none !important;
   }
+}
+
+@media (orientation: landscape) and (min-width: 768px) and (max-width: 1365px) and (max-height: 820px),
+  (orientation: landscape) and (min-width: 768px) and (min-height: 551px) and (max-width: 1600px) and (any-pointer: coarse) {
+  .about-overview__intro-stage,
+  .about-overview__founding-stage,
+  .about-overview__spirit-stage,
+  .about-overview__education-stage {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .about-overview__intro-stage > *,
+  .about-overview__founding-stage > *,
+  .about-overview__spirit-stage > *,
+  .about-overview__education-stage > * { min-width: 0; grid-column: 1 / -1; }
+
+  .about-overview__intro-figure,
+  .about-overview__intro-image,
+  .about-overview__founding-visual,
+  .about-overview__founding-visual figure,
+  .about-overview__founding-image,
+  .about-overview__education-visual,
+  .about-overview__education-visual figure,
+  .about-overview__education-image {
+    width: 100%;
+    height: clamp(300px, 43vw, 480px);
+  }
+
+  .about-overview__intro h1,
+  .about-overview__founding-heading h2,
+  .about-overview__education-heading h2 {
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+
+  .about-overview__practice-caption {
+    right: 0;
+    max-width: min(284px, 85%);
+  }
+
+  .about-overview__spirit-values button { height: auto; min-height: 120px; }
 }

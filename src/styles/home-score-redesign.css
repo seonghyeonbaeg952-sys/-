@@ -3,7 +3,7 @@
 .motet-score-scroll-section {
   overflow: clip;
   border-block: 0;
-  background: #fbf8f3 url("/images/textures/home-score-paper-background.png") center / cover no-repeat;
+  background: #fbf8f3 var(--site-photo-score-paper,url("/images/textures/home-score-paper-background.png")) center / cover no-repeat;
 }
 
 .motet-score-scroll-section .motet-score-sticky-stage {
@@ -40,7 +40,7 @@
 }
 
 .motet-score-scroll-section .motet-score-page {
-  background: #fbf8f3 url("/images/textures/home-score-paper-background.png") center / cover no-repeat;
+  background: #fbf8f3 var(--site-photo-score-paper,url("/images/textures/home-score-paper-background.png")) center / cover no-repeat;
 }
 
 .motet-score-scroll-section .motet-score-page::before,
@@ -237,7 +237,7 @@
 .motet-score-scroll-section .motet-score-flutter-face {
   border-color: #e9c8b8;
   border-radius: 0;
-  background: #fbf8f3 url("/images/textures/home-score-paper-background.png") center / cover no-repeat;
+  background: #fbf8f3 var(--site-photo-score-paper,url("/images/textures/home-score-paper-background.png")) center / cover no-repeat;
 }
 
 .motet-score-scroll-section .motet-score-flutter-face::before,

@@ -28,6 +28,7 @@ import { emptySiteEditorDocument, isEditorPageId, validateSiteEditorDocument } f
 import { resolveTextRuns } from '../../lib/siteEditorTextStyles'
 import { addEditorTextBox, listEditorTextBoxes, removeEditorTextBox } from '../../lib/siteEditorAddedBoxes'
 import { getAccompanistCopyDefinition } from '../../lib/accompanistProfileCopy'
+import { editorLanguageHref } from '../../features/sample-language/sampleLanguageModel'
 import type { EditorDevice, EditorPageId, EditorTextRun, EditorTextLayout, SiteCopyDefinition, SiteEditorDocument, SiteEditorDocuments, SiteEditorRevision } from '../../types/siteEditor'
 import '../../styles/admin-site-editor.css'
 import '../../components/site-editor/site-editor-fonts.css'
@@ -50,7 +51,7 @@ async function loadOriginalDefaults(): Promise<Record<string, string>> {
   if (result.error || !result.data) throw new Error(originalDefaultsUnavailable)
   return getSiteCopyDefaults(Object.fromEntries(result.data.filter(row => row.is_active).map(row => [row.key, row.value ?? ''])))
 }
-const originalPreviewPath = (path: string) => path
+const originalPreviewPath = (path: string) => editorLanguageHref(path, 'ko')
 
 export function AdminSiteEditorPage(props: AdminSiteEditorPageProps) {
   // Separate route workspaces must not reuse one another's sessions, in-flight
@@ -327,6 +328,7 @@ function AdminEditorWorkspace({ initialPage = 'home', storageScope = 'original',
     <nav className="site-editor__inline-actions" aria-label="편집 작업 공간">
       <Button href={`/admin/editor?${switchParams}`} size="sm" variant={english ? 'secondary' : 'primary'} showArrow={false} disabled={interactionLocked} aria-current={!english ? 'page' : undefined}>한글 원본</Button>
       <Button href={`/admin/editor-english?${switchParams}`} size="sm" variant={english ? 'primary' : 'secondary'} showArrow={false} disabled={interactionLocked} aria-current={english ? 'page' : undefined}>영어 버전</Button>
+      <Button href="/admin/photos" size="sm" variant="secondary" showArrow={false} disabled={interactionLocked}>사진 관리</Button>
     </nav>
     <div className="site-editor__layout">
       <fieldset className="site-editor__selectors" disabled={interactionLocked}>
@@ -370,7 +372,7 @@ function AdminEditorWorkspace({ initialPage = 'home', storageScope = 'original',
             <p className="site-editor__help">화면에서 선택되지 않는 문구, 여러 조각으로 나뉜 제목, 입력창 안내는 여기에서 수정하세요.</p>
             <fieldset disabled={canvasActive || busy}>
             <div className="site-editor__panel-tabs" role="group" aria-label="편집 종류">{([{ id: 'copy', label: '문구' }, { id: 'appearance', label: '페이지 전체 서식' }, { id: 'history', label: '게시 이력' }] as const).map((item) => <button key={item.id} type="button" disabled={copyComposing} aria-pressed={panel === item.id} onClick={() => setPanel(item.id)}>{item.label}</button>)}</div>
-{panel === 'copy' ? isHomeDefaultsUnavailable ? <p role="status" className="site-editor__empty">{english ? '영어 버전의 기본 문구를 확인한 뒤 편집할 수 있습니다.' : '기존 홈 문구를 확인한 뒤 편집할 수 있습니다.'}</p> : <EditorCopyPanel key={`${page}:${scope}:${requestedField}`} initialKey={requestedField} definitions={definitions} document={session.document} baseline={session.baseline} scope={scope} defaults={defaults} onReplace={replaceCopy} onCompositionChange={changeCopyComposition} emptyMessage={page === 'home' && scope === 'shared' ? '기존 홈 문구는 기기별로 관리됩니다. 모바일·태블릿·데스크톱을 골라 수정하세요. 모든 기기의 글꼴과 색상은 공통 디자인에서 설정할 수 있습니다.' : undefined} onChange={(key, value) => editWithHistory((current) => editSessionCopy(current, scope, key, value))} onFormat={editFormattedCopy} /> : panel === 'appearance' ? <EditorAppearancePanel value={session.document.appearance[scope] ?? {}} onChange={(key, value) => workspace.edit(page, (current) => editSessionAppearance(current, scope, key, value))} onReset={() => setConfirmation({ kind: 'reset-appearance' })} /> : <EditorPublishHistory revisions={workspace.revisions} loading={workspace.historyLoading} error={workspace.historyError} disabled={interactionLocked || status.unsavedCount > 0 || session.conflicts.length > 0} onReload={() => void workspace.refreshHistory()} onRestore={(revision) => setConfirmation({ kind: 'restore', revision })} />}
+{panel === 'copy' ? isHomeDefaultsUnavailable ? <p role="status" className="site-editor__empty">{english ? '영어 버전의 기본 문구를 확인한 뒤 편집할 수 있습니다.' : '기존 홈 문구를 확인한 뒤 편집할 수 있습니다.'}</p> : <EditorCopyPanel key={`${page}:${scope}:${requestedField}`} initialKey={requestedField} definitions={definitions} document={session.document} baseline={session.baseline} scope={scope} defaults={defaults} englishTranslation={english} onReplace={replaceCopy} onCompositionChange={changeCopyComposition} emptyMessage={page === 'home' && scope === 'shared' ? '기존 홈 문구는 기기별로 관리됩니다. 모바일·태블릿·데스크톱을 골라 수정하세요. 모든 기기의 글꼴과 색상은 공통 디자인에서 설정할 수 있습니다.' : undefined} onChange={(key, value) => editWithHistory((current) => editSessionCopy(current, scope, key, value))} onFormat={editFormattedCopy} /> : panel === 'appearance' ? <EditorAppearancePanel value={session.document.appearance[scope] ?? {}} onChange={(key, value) => workspace.edit(page, (current) => editSessionAppearance(current, scope, key, value))} onReset={() => setConfirmation({ kind: 'reset-appearance' })} /> : <EditorPublishHistory revisions={workspace.revisions} loading={workspace.historyLoading} error={workspace.historyError} disabled={interactionLocked || status.unsavedCount > 0 || session.conflicts.length > 0} onReload={() => void workspace.refreshHistory()} onRestore={(revision) => setConfirmation({ kind: 'restore', revision })} />}
             {panel === 'history' && status.unsavedCount ? <p className="site-editor__notice">현재 입력을 먼저 임시저장하면 이전 게시본을 불러올 수 있습니다.</p> : null}
             <div className="site-editor__reset-actions"><Button size="sm" variant="ghost" disabled={busy || copyComposing} onClick={() => setConfirmation({ kind: 'reset-scope' })}>{scopeLabels[scope]} 편집값 초기화</Button><Button size="sm" variant="ghost" disabled={busy || copyComposing} onClick={() => setConfirmation({ kind: 'reset-page' })}>이 화면 전체 초기화</Button></div>
             </fieldset>

@@ -1,5 +1,6 @@
-/* Approved About and Join frames, mounted only below the desktop breakpoint. */
-@media (max-width: 1023px) {
+/* These frames mount for phone and tablet modes, including landscape rotation. */
+@media (max-width: 1439px), (any-pointer: coarse),
+  (min-width: 1440px) and (max-width: 1600px) and (max-aspect-ratio: 3/2) {
   #home-responsive-about.home-responsive-about,
   #home-responsive-join.home-responsive-join {
     display: grid;
@@ -178,7 +179,7 @@
 
   #home-responsive-join.home-responsive-join {
     padding-top: 20px !important;
-    background: #fbf8f2 url('/images/home/responsive-score-paper.png') center / cover !important;
+    background: #fbf8f2 var(--site-photo-responsive-paper,url('/images/home/responsive-score-paper.png')) center / cover !important;
   }
 
   #home-responsive-join .responsive-join__motif {
@@ -254,7 +255,9 @@
   }
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
+@media (min-width: 768px) and (max-width: 1439px) and (min-height: 551px),
+  (any-pointer: coarse) and (min-width: 768px) and (min-height: 551px),
+  (min-width: 1440px) and (max-width: 1600px) and (max-aspect-ratio: 3/2) {
   #home-responsive-about.home-responsive-about {
     gap: 28px;
     padding: 48px 48px 64px !important;
@@ -313,7 +316,7 @@
     border-block: 1px solid #f0d5c8;
     background:
       linear-gradient(rgb(251 248 242 / 0.92), rgb(251 248 242 / 0.92)),
-      url('/images/home/responsive-score-paper.png') center / cover,
+      var(--site-photo-responsive-paper,url('/images/home/responsive-score-paper.png')) center / cover,
       #fbf8f2 !important;
   }
 
@@ -367,5 +370,28 @@
   #home-responsive-join .responsive-join__guardian li {
     font-size: 12px;
     line-height: 1.8;
+  }
+}
+
+/* Scale the approved 834px tablet composition up for landscape without
+   turning its uncropped portrait into a desktop-sized wall of imagery. */
+@media (min-width: 1100px) and (max-width: 1365px),
+  (any-pointer: coarse) and (min-width: 1100px),
+  (min-width: 1366px) and (max-width: 1600px) and (max-aspect-ratio: 3/2) {
+  #home-responsive-about.home-responsive-about {
+    max-width: 1260px;
+    margin-inline: auto !important;
+    padding-block: 56px 56px !important;
+  }
+
+  #home-responsive-about .responsive-about__portrait {
+    width: min(100%, 960px);
+    height: auto;
+    aspect-ratio: 3 / 2;
+    justify-self: center;
+  }
+
+  #home-responsive-about .responsive-about__tablet-facts {
+    width: 100%;
   }
 }

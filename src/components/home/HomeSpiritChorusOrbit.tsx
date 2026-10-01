@@ -16,6 +16,7 @@ import { Button } from '../common/Button'
 import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
 import { ResponsiveSpiritList } from './ResponsiveSpiritList'
+import { useHomeResponsiveViewport } from './useHomeResponsiveViewport'
 import '../../styles/home-spirit-chorus-orbit.css'
 
 type HomeSpiritChorusOrbitProps = {
@@ -31,7 +32,6 @@ type OrbitHeadlineStyle = CSSProperties & {
   '--orbit-line-delay': string
 }
 
-const desktopSpiritQuery = '(min-width: 1024px)'
 const reducedMotionQuery = '(prefers-reduced-motion: reduce)'
 
 const movementLabels = [
@@ -56,26 +56,6 @@ function createPages(
       title: page.title,
     }),
   )
-}
-
-function useDesktopSpiritLayout() {
-  const [isDesktop, setIsDesktop] = useState(() =>
-    typeof window === 'undefined'
-      ? false
-      : window.matchMedia(desktopSpiritQuery).matches,
-  )
-
-  useEffect(() => {
-    const query = window.matchMedia(desktopSpiritQuery)
-    const update = () => setIsDesktop(query.matches)
-
-    update()
-    query.addEventListener('change', update)
-
-    return () => query.removeEventListener('change', update)
-  }, [])
-
-  return isDesktop
 }
 
 function usePrefersReducedMotion() {
@@ -400,7 +380,7 @@ function HomeSpiritChorusOrbitDesktop({
 }
 
 export function HomeSpiritChorusOrbit(props: HomeSpiritChorusOrbitProps) {
-  const isDesktop = useDesktopSpiritLayout()
+  const isDesktop = useHomeResponsiveViewport() === 'desktop'
 
   if (!isDesktop) {
     return <ResponsiveSpiritList wrapper={props.wrapper} />

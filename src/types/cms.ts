@@ -238,6 +238,7 @@ export interface GalleryRow extends CmsRecord {
 }
 
 export interface VideoRow extends CmsRecord {
+  thumbnail_url?: string | null
   title: string
   youtube_url: string | null
   youtube_id: string | null

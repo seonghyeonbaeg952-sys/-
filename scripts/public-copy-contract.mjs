@@ -7,6 +7,10 @@ import { originalSampleSource } from './public-copy-sample-adapters.mjs'
 export function publicMarkupSource(source, file) {
   source = originalSampleSource(source, file)
   const tree = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+  const managedImages = new Set(tree.statements.filter(node => ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)
+    && node.moduleSpecifier.text.endsWith('/features/site-photos/SiteImage')).flatMap(node =>
+    node.importClause?.namedBindings && ts.isNamedImports(node.importClause.namedBindings)
+      ? node.importClause.namedBindings.elements.filter(binding => (binding.propertyName?.text || binding.name.text) === 'SiteImage').map(binding => binding.name.text) : []))
   const roots = []
   const collect = node => {
     if (ts.isJsxElement(node) || ts.isJsxSelfClosingElement(node) || ts.isJsxFragment(node)) { roots.push(node); return }
@@ -16,6 +20,11 @@ export function publicMarkupSource(source, file) {
   const normalized = roots.map(root => {
     const result = ts.transform(root, [context => {
       const visit = node => {
+        // This explicitly imported media boundary renders a plain img at defaults.
+        // Source, fit, intrinsic dimensions, classes and all other props stay checked.
+        if (ts.isJsxSelfClosingElement(node) && managedImages.has(node.tagName.getText(tree))) {
+          return ts.factory.updateJsxSelfClosingElement(node, ts.factory.createIdentifier('img'), node.typeArguments, ts.visitEachChild(node.attributes, visit, context))
+        }
         if (ts.isJsxElement(node) && ['FormattedCopy', 'HomeCopy', 'EditableLayout'].includes(node.openingElement.tagName.getText(tree))) {
           const children = node.children.filter(child => !ts.isJsxText(child) || cookJsx(source.slice(child.getFullStart(), child.end)))
           if (children.length === 1) {

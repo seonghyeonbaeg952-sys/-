@@ -1,4 +1,5 @@
 import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
+import { SiteImage } from '../../features/site-photos/SiteImage'
 import { workflowCopy, workflowDate, workflowTime, workflowTextLanguage } from '../../components/common/workflowCopy'
 import { EditableLayout } from '../../components/site-editor/EditableLayout'
 import { FormattedCopy } from '../../components/site-editor/FormattedCopy'
@@ -124,7 +125,7 @@ function FeaturedStage({ concert, today }: { concert: Concert | null; today: str
   if (!concert) {
     return (
       <div className="concerts-page__stage concerts-page__stage--empty">
-        <img alt="" aria-hidden="true" src={FEATURED_ARCHIVE_IMAGE} />
+        <SiteImage alt="" aria-hidden="true" src={FEATURED_ARCHIVE_IMAGE} />
         <div className="concerts-page__stage-wash" />
         <div className="concerts-page__stage-empty-copy">
           <span>{<FormattedCopy page="concerts" id="concerts.fixed.ConcertsPage.01d1d0ac27" text={copyText("concerts", "concerts.fixed.ConcertsPage.01d1d0ac27", "CONCERT PROGRAM")}>{copyText("concerts", "concerts.fixed.ConcertsPage.01d1d0ac27", "CONCERT PROGRAM")}</FormattedCopy>}</span>
@@ -139,7 +140,7 @@ function FeaturedStage({ concert, today }: { concert: Concert | null; today: str
 
   return (
     <div className="concerts-page__stage">
-      <img alt="" aria-hidden="true" src={FEATURED_ARCHIVE_IMAGE} />
+      <SiteImage alt="" aria-hidden="true" src={FEATURED_ARCHIVE_IMAGE} />
       <div className="concerts-page__stage-wash" />
       <div aria-hidden="true" className="concerts-page__stage-orbit" />
       <div className="concerts-page__stage-copy">

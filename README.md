@@ -61,6 +61,8 @@ pnpm check:supabase-live
 
 ## 배포 전 주의
 
+- 전체 공개 사진 교체: 관리자 메뉴 **홈페이지 사진 관리** (`/admin/photos`). 사용 방법과 초안·게시·언어 분리는 `docs/site-photo-cms-guide.md`를 참고합니다.
+
 - 실제 운영 사진과 콘텐츠를 CMS에 등록한 뒤 배포합니다.
 - `is_visible=false` 데이터가 public 페이지에 보이지 않는지 확인합니다.
 - `site-images` Storage 업로드, public read, admin-only mutation 정책을 확인합니다.

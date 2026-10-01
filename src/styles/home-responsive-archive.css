@@ -1,4 +1,5 @@
-@media (max-width: 1023px) {
+@media (max-width: 1365px), (any-pointer: coarse),
+  (min-width: 1366px) and (max-width: 1600px) and (max-aspect-ratio: 3/2) {
   .public-shell-home-sample-v4 #home-responsive-archive {
     display: flex; flex-direction: column; gap: 20px;
     margin: 0 !important; padding: 48px 24px !important;
@@ -28,7 +29,9 @@
   }
   #home-responsive-archive .btn-arrow { font-size: 18px; font-weight: 700; }
 }
-@media (min-width: 768px) and (max-width: 1023px) {
+@media (min-width: 768px) and (max-width: 1365px) and (min-height: 551px),
+  (any-pointer: coarse) and (min-width: 768px) and (min-height: 551px),
+  (min-width: 1366px) and (max-width: 1600px) and (max-aspect-ratio: 3/2) {
   .public-shell-home-sample-v4 #home-responsive-archive { padding: 24px 48px 64px !important; gap: 28px; }
   #home-responsive-archive .home-responsive-archive__eyebrow { color: #ff601a; font-size: 12px; line-height: 18px; }
   #home-responsive-archive .home-responsive-archive__eyebrow span { margin-right: 10px; }

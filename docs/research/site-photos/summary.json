@@ -1,0 +1,329 @@
+{
+  "count": 2000,
+  "counts": {
+    "replacement": 544,
+    "upload": 1112,
+    "responsive": 1000,
+    "accessibility": 308,
+    "preview": 667
+  },
+  "sample": [
+    {
+      "url": "https://github.com/WordPress/gutenberg/issues/82295",
+      "title": "Cropping / mirroring image strips gain maps from HDR JPG",
+      "createdAt": "2026-09-01T15:59:32Z",
+      "labels": [
+        "[Type] Bug",
+        "[Status] In Progress",
+        "[Feature] Media"
+      ],
+      "topics": [
+        "replacement",
+        "upload",
+        "responsive",
+        "preview"
+      ]
+    },
+    {
+      "url": "https://github.com/WordPress/gutenberg/issues/82252",
+      "title": "Gallery block: \"Fill\" crop broken in editor canvas since WP 7.1 - images get baseline style=\"height: auto\" overriding .is-cropped height",
+      "createdAt": "2026-08-31T13:59:53Z",
+      "labels": [
+        "[Type] Bug",
+        "[Status] In Progress"
+      ],
+      "topics": [
+        "replacement",
+        "upload",
+        "responsive",
+        "preview"
+      ]
+    },
+    {
+      "url": "https://github.com/WordPress/gutenberg/issues/82033",
+      "title": "Media: EXIF and IPTC metadata is lost when HEIC images are converted by client-side media",
+      "createdAt": "2026-08-25T17:22:01Z",
+      "labels": [
+        "[Type] Bug",
+        "[Status] In Progress",
+        "[Feature] Media",
+        "[Feature] Client Side Media"
+      ],
+      "topics": [
+        "upload",
+        "responsive",
+        "accessibility",
+        "preview"
+      ]
+    },
+    {
+      "url": "https://github.com/WordPress/gutenberg/issues/81844",
+      "title": "Image block hides Resolution because media REST response contains empty media_details.sizes in WordPress 7.1",
+      "createdAt": "2026-08-20T00:46:53Z",
+      "labels": [
+        "[Type] Bug",
+        "[Status] In Progress",
+        "[Feature] Client Side Media"
+      ],
+      "topics": [
+        "replacement",
+        "upload",
+        "responsive",
+        "preview"
+      ]
+    },
+    {
+      "url": "https://github.com/WordPress/gutenberg/issues/81720",
+      "title": "Image block: Placeholder is broken when an image has an already set height.",
+      "createdAt": "2026-08-16T22:04:05Z",
+      "labels": [
+        "[Type] Bug",
+        "[Status] In Progress",
+        "Needs Dev",
+        "[Block] Image"
+      ],
+      "topics": [
+        "replacement",
+        "upload",
+        "responsive",
+        "preview"
+      ]
+    },
+    {
+      "url": "https://github.com/WordPress/gutenberg/issues/81706",
+      "title": "Media: Use libvips smart crop to position hard-cropped image sizes when confidence is high",
+      "createdAt": "2026-08-16T16:54:20Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Media",
+        "[Feature] Client Side Media"
+      ],
+      "topics": [
+        "replacement",
+        "upload",
+        "responsive",
+        "accessibility"
+      ]
+    },
+    {
+      "url": "https://github.com/WordPress/gutenberg/issues/81573",
+      "title": "Post Featured Image: editor crashes to a blank screen when adding an image via the block if the template sets `\"isLink\":true`",
+      "createdAt": "2026-08-13T11:16:28Z",
+      "labels": [
+        "[Type] Bug",
+        "[Status] In Progress",
+        "[Block] Post Featured Image"
+      ],
+      "topics": [
+        "replacement",
+        "upload",
+        "responsive",
+        "preview"
+      ]
+    },
+    {
+      "url": "https://github.com/WordPress/gutenberg/issues/81479",
+      "title": "Identity: cropping an image via the media library selector does not update the canvas preview",
+      "createdAt": "2026-08-12T09:13:46Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Media"
+      ],
+      "topics": [
+        "replacement",
+        "upload",
+        "responsive",
+        "preview"
+      ]
+    },
+    {
+      "url": "https://github.com/WordPress/gutenberg/issues/81270",
+      "title": "Icons: Move \"inline image\" to icon library",
+      "createdAt": "2026-08-06T08:16:47Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Status] In Progress"
+      ],
+      "topics": [
+        "replacement",
+        "upload",
+        "responsive",
+        "preview"
+      ]
+    },
+    {
+      "url": "https://github.com/WordPress/gutenberg/issues/80210",
+      "title": "Audit hooks fired during media upload - server vs client path, per image type",
+      "createdAt": "2026-07-13T17:27:14Z",
+      "labels": [
+        "[Type] Task",
+        "[Feature] Client Side Media"
+      ],
+      "topics": [
+        "replacement",
+        "upload",
+        "responsive",
+        "accessibility",
+        "preview"
+      ]
+    },
+    {
+      "url": "https://github.com/WordPress/gutenberg/issues/79820",
+      "title": "Featured image panel still shows a deleted image until the editor is reloaded",
+      "createdAt": "2026-07-02T12:30:32Z",
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Media"
+      ],
+      "topics": [
+        "replacement",
+        "upload",
+        "responsive",
+        "preview"
+      ]
+    },
+    {
+      "url": "https://github.com/WordPress/gutenberg/issues/79541",
+      "title": "Pasting from Google Docs nests images inside heading/paragraph blocks.",
+      "createdAt": "2026-06-25T13:09:32Z",
+      "labels": [
+        "[Type] Bug",
+        "[Status] In Progress",
+        "[Feature] Paste"
+      ],
+      "topics": [
+        "replacement",
+        "upload",
+        "responsive",
+        "preview"
+      ]
+    },
+    {
+      "url": "https://github.com/WordPress/gutenberg/issues/79368",
+      "title": "Image block: `$`/`\\` in img alt or src corrupted in lightbox markup (preg_replace backreference)",
+      "createdAt": "2026-06-20T09:48:16Z",
+      "labels": [
+        "[Type] Bug",
+        "[Status] In Progress",
+        "[Block] Image"
+      ],
+      "topics": [
+        "replacement",
+        "upload",
+        "accessibility",
+        "preview"
+      ]
+    },
+    {
+      "url": "https://github.com/WordPress/gutenberg/issues/78950",
+      "title": "Client-side media: very large (especially interlaced) images fail processing instead of falling back to the server",
+      "createdAt": "2026-06-04T13:26:06Z",
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Client Side Media"
+      ],
+      "topics": [
+        "replacement",
+        "upload",
+        "responsive",
+        "preview"
+      ]
+    },
+    {
+      "url": "https://github.com/WordPress/gutenberg/issues/78889",
+      "title": "Client-side media: high-bit-depth (10/12-bit) AVIF images fail to upload (bundled wasm-vips libaom built without high-bit-depth support)",
+      "createdAt": "2026-06-02T19:45:57Z",
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Client Side Media"
+      ],
+      "topics": [
+        "replacement",
+        "upload",
+        "responsive",
+        "accessibility",
+        "preview"
+      ]
+    },
+    {
+      "url": "https://github.com/WordPress/gutenberg/issues/78506",
+      "title": "Allow users and themes to customize the Image/Gallery Lightbox background color",
+      "createdAt": "2026-05-21T11:35:12Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Status] In Progress",
+        "[Block] Image",
+        "[Block] Gallery"
+      ],
+      "topics": [
+        "upload",
+        "responsive",
+        "accessibility",
+        "preview"
+      ]
+    },
+    {
+      "url": "https://github.com/WordPress/gutenberg/issues/78077",
+      "title": "Media: Tracking the relationship between original images and their cropped derivatives",
+      "createdAt": "2026-05-08T01:26:42Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Status] In Progress",
+        "[Feature] Media"
+      ],
+      "topics": [
+        "replacement",
+        "upload",
+        "responsive",
+        "accessibility"
+      ]
+    },
+    {
+      "url": "https://github.com/WordPress/gutenberg/issues/76720",
+      "title": "Duotone affects the image block media placeholder",
+      "createdAt": "2026-03-20T09:46:13Z",
+      "labels": [
+        "[Type] Bug",
+        "[Block] Image"
+      ],
+      "topics": [
+        "upload",
+        "responsive",
+        "accessibility",
+        "preview"
+      ]
+    },
+    {
+      "url": "https://github.com/WordPress/gutenberg/issues/76706",
+      "title": "Investigate and fix crashes and console errors during client-side image upload processing",
+      "createdAt": "2026-03-19T23:07:16Z",
+      "labels": [
+        "[Type] Bug",
+        "[Status] In Progress"
+      ],
+      "topics": [
+        "upload",
+        "responsive",
+        "accessibility",
+        "preview"
+      ]
+    },
+    {
+      "url": "https://github.com/WordPress/gutenberg/issues/76476",
+      "title": "Image previews are not displayed in the sidebar of image blocks in a WordPress 7.0 + wp-env environment.",
+      "createdAt": "2026-03-13T06:56:57Z",
+      "labels": [
+        "[Type] Bug",
+        "[Status] In Progress",
+        "[Feature] Media",
+        "[Block] Image"
+      ],
+      "topics": [
+        "replacement",
+        "upload",
+        "responsive",
+        "preview"
+      ]
+    }
+  ]
+}

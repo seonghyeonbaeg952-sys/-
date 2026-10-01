@@ -1,67 +1,5 @@
 /* Translation changes line length. English titles and neighbouring content
    must reserve their actual height rather than reuse Korean pixel offsets. */
-/* The opened concert brochure is editorial paper, not three empty white cards.
-   Keep its frame and folding geometry; only refine the interior English face. */
-html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel {
-  justify-content: flex-start;
-  gap: 1.35rem;
-  overflow-x: hidden;
-  overflow-y: auto;
-  background: linear-gradient(165deg, #fffdf9, #f8f1e9);
-  scrollbar-width: thin;
-  scrollbar-color: #8b6875 transparent;
-}
-html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-center {
-  background: linear-gradient(160deg, #fffaf2, #f4e9e1);
-}
-html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel::before {
-  content: '';
-  display: block;
-  flex: 0 0 auto;
-  width: 2.5rem;
-  height: 2px;
-  background: #ec4b1f;
-}
-html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel > div:first-of-type {
-  min-width: 0;
-}
-html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-kicker {
-  margin: 0 0 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid rgb(110 37 65 / 20%);
-  color: #74334d;
-  letter-spacing: 0.16em;
-}
-html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel :is(h3, h4) {
-  margin: 0 0 0.85rem;
-  font-size: clamp(1.05rem, 1.45vw, 1.45rem);
-  line-height: 1.25;
-  overflow-wrap: normal;
-  text-wrap: balance;
-}
-html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-left > div > p:last-child {
-  max-width: 30ch;
-  line-height: 1.7;
-}
-html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-center dl {
-  width: 100%;
-  margin-top: auto;
-  gap: 0;
-}
-html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-center dl > div {
-  padding: 0.65rem 0;
-  border-top: 1px solid rgb(110 37 65 / 18%);
-}
-html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-right .motion-program-statuses span {
-  border-color: rgb(236 75 31 / 34%);
-  background: rgb(236 75 31 / 8%);
-  color: #773047;
-}
-html[data-sample-language='en'] .public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-right .motion-program-actions {
-  margin-top: auto;
-  padding-top: 0.8rem;
-  border-top: 1px solid rgb(110 37 65 / 18%);
-}
 html[data-sample-language='en'] .public-shell .motet-score-final-sheet-content {
   position: relative;
   display: flex;
@@ -159,6 +97,9 @@ html[data-sample-language='en'] .public-shell :is(
   .spirit-heritage__faith-line, .spirit-heritage__values-line,
   .spirit-heritage__education-line, .spirit-heritage__community-line
 ) { display: inline; white-space: normal; }
+html[data-sample-language='en'] .public-shell .spirit-heritage__manifesto-line--listen { margin-inline-start: .19em; }
+html[data-sample-language='en'] .public-shell .spirit-heritage__manifesto-line--listen strong { margin-inline: .12em; }
+html[data-sample-language='en'] .public-shell .spirit-heritage__manifesto-line--final { margin-inline-start: .12em; }
 html[data-sample-language='en'] .public-shell :is(
   .spirit-heritage__motet-title em, .spirit-heritage__manifesto-heading h2 strong,
   .spirit-heritage__faith-title h2 strong, .spirit-heritage__faith-title h2 em,

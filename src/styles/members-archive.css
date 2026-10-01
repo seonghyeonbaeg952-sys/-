@@ -528,7 +528,7 @@
   }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1366px) and (pointer: fine) and (not (any-pointer: coarse)) {
   .members-archive__intro-inner {
     gap: 64px;
     grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);

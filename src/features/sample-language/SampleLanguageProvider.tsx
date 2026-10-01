@@ -19,7 +19,7 @@ export function SampleLanguageProvider({ children, isSample = true }: { children
   const preference = useSyncExternalStore(subscribeSampleLanguage, getSampleLanguagePreference, () => 'ko' as const)
   const enabled = !/^\/admin(?:\/|$)/.test(location.pathname)
   const preview = typeof window !== 'undefined' && window.parent !== window && Boolean(getActiveSiteEditorPreviewNonce(location.search))
-  const language = enabled ? preview ? 'en' : isSample ? resolveSampleLanguage(`/sample${location.pathname}`, location.search, preference) : resolvePublicLanguage(location.pathname, location.search) : 'ko'
+  const language = enabled ? isSample ? resolveSampleLanguage(`/sample${location.pathname}`, location.search, preference) : resolvePublicLanguage(location.pathname, location.search) : 'ko'
   const [content, setContent] = useState<PublishedEnglishContent[]>([])
   const [contentError, setContentError] = useState(false)
   const [contentRetrying, setContentRetrying] = useState(false)
@@ -45,6 +45,8 @@ export function SampleLanguageProvider({ children, isSample = true }: { children
     const refresh = () => { void load() }
     window.addEventListener('focus', refresh)
     window.addEventListener('sample-english-content-published', refresh)
+    const photoPublication = (event: StorageEvent) => { if (event.key === 'smyc-photos-published') refresh() }
+    window.addEventListener('storage', photoPublication)
     document.addEventListener('visibilitychange', refresh)
     const timer = window.setInterval(refresh, 30000)
     return () => {
@@ -52,6 +54,7 @@ export function SampleLanguageProvider({ children, isSample = true }: { children
       window.clearInterval(timer)
       window.removeEventListener('focus', refresh)
       window.removeEventListener('sample-english-content-published', refresh)
+      window.removeEventListener('storage', photoPublication)
       document.removeEventListener('visibilitychange', refresh)
     }
   }, [enabled, language, contentAttempt])

@@ -1,6 +1,7 @@
 import type { PlacementBlock } from '../../../lib/siteEditorPlacementProtocol'
 import type { EditorTextLayout } from '../../../types/siteEditor'
 import { EDITOR_TEXT_WIDTH_MIN, EDITOR_TEXT_WIDTH_MAX } from '../../../lib/siteEditorLayout'
+import { placementTravelRange } from '../../../lib/siteEditorPlacementBounds'
 
 /** Geometry is display-only; the controller separately validates IDs and saved-value CAS. */
 export function constrainLayoutInput(block: PlacementBlock, next: EditorTextLayout | undefined): { value: EditorTextLayout | undefined; limited: boolean } {
@@ -17,9 +18,10 @@ export function constrainLayoutInput(block: PlacementBlock, next: EditorTextLayo
     for (const [key, axis, size] of [['offsetX', 'left', 'width'], ['offsetY', 'top', 'height']] as const) {
       if (value[key] === undefined) continue
       const rendered = key === 'offsetX' ? block.renderedOffsets?.x : block.renderedOffsets?.y
-      const original = block.rect[axis] - (rendered ?? block.value[key] ?? 0)
-      const min = block.bounds[axis] - original
-      const max = Math.max(min, block.bounds[axis] + block.bounds[size] - original - block.rect[size])
+      const current = rendered ?? block.value[key] ?? 0
+      const range = placementTravelRange(block.rect, block.bounds, axis, size)
+      const min = current + range.min
+      const max = current + range.max
       const constrained = Math.max(-2000, Math.min(2000, Math.max(min, Math.min(max, value[key]))))
       limited ||= constrained !== value[key]
       value[key] = Math.round(constrained * 10) / 10

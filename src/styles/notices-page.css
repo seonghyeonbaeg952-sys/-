@@ -454,7 +454,7 @@
   }
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1365px), (min-height: 551px) and (max-width: 1600px) and (any-pointer: coarse) {
   .notices-page__shell {
     width: calc(100% - 64px);
   }

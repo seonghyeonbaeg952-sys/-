@@ -25,6 +25,7 @@ type Props = {
   onReplace?: (plan: CopyReplacementPlan, keys: string[]) => string | null
   initialKey?: string
   onCompositionChange?: (active: boolean) => void
+  englishTranslation?: boolean
 }
 
 function readKeys(storage: 'localStorage' | 'sessionStorage', name: string): string[] {
@@ -34,7 +35,7 @@ function readKeys(storage: 'localStorage' | 'sessionStorage', name: string): str
   } catch { return [] }
 }
 
-export function EditorCopyPanel({ definitions, document, baseline, scope, defaults, emptyMessage, onChange, onFormat, onReplace, initialKey = '', onCompositionChange }: Props) {
+export function EditorCopyPanel({ definitions, document, baseline, scope, defaults, emptyMessage, onChange, onFormat, onReplace, initialKey = '', onCompositionChange, englishTranslation = false }: Props) {
   const id = useId().replaceAll(':', '')
   const [search, setSearch] = useState('')
   const [matchedKeys, setMatchedKeys] = useState<Set<string> | null>(null)
@@ -66,6 +67,8 @@ export function EditorCopyPanel({ definitions, document, baseline, scope, defaul
     (activeSection === 'all' || field.section === activeSection) && (!matchedKeys || matchedKeys.has(field.key)) && (!filterKeys || filterKeys.has(field.key)))
   const field = filtered.find(item => item.key === selectedKey) ?? filtered[0]
   const value = field ? overrides[field.key] ?? fallback(field) : ''
+  const savedTranslation = field ? defaults[field.key] ?? field.defaultValue : ''
+  const canUseSavedTranslation = englishTranslation && Boolean(savedTranslation.trim()) && !/[가-힣]/u.test(savedTranslation) && savedTranslation !== value
   const canFormat = Boolean(supportsTextSegmentation && field && (!field.inputType || ['text', 'textarea'].includes(field.inputType)) &&
     (richCopyKeys.has(field.key) || isEditorAddedBoxId(field.key) || getAccompanistCopyDefinition(field.key)
       || (field.sourceDevice && field.sourceKey && homeRichCopySourceKeys[field.sourceDevice].has(field.sourceKey))))
@@ -148,8 +151,10 @@ export function EditorCopyPanel({ definitions, document, baseline, scope, defaul
             )}
             <div className="site-editor__field-actions">
               <span className="site-editor__help">{Array.from(value).length.toLocaleString('ko-KR')}자</span>
+              {englishTranslation ? <Button variant="secondary" size="sm" disabled={composing || !canUseSavedTranslation} onClick={() => { if (field) { remember(field.key); onChange(field.key, savedTranslation) } }}>기존 영어 번역 넣기</Button> : null}
               <Button variant="ghost" size="sm" disabled={composing || !isOverride} aria-label={`${field.label} ${scope === 'shared' ? '원문으로 되돌리기' : '공통값 또는 기기 원문 사용'}`} onClick={() => onChange(field.key, undefined)}>{scope === 'shared' ? '원문으로 되돌리기' : '공통값 사용'}</Button>
             </div>
+            {englishTranslation && !canUseSavedTranslation && /[가-힣]/u.test(value) ? <p className="site-editor__help" role="status">이 문구의 저장된 영어 번역이 없습니다. 영어 문장을 직접 입력하면 영문 초안에만 반영됩니다.</p> : null}
             <fieldset disabled={composing}><EditorCopyActions field={field} definitions={filtered} document={document} baseline={baseline} scope={scope} defaults={defaults} query={search} options={options} onReplace={onReplace ? (plan, keys) => { const error = onReplace(plan, keys); if (!error) { rememberMany(keys); searchFor(search) } return error } : undefined} /></fieldset>
           </div> : null}
       </>}

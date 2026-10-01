@@ -26,3 +26,8 @@ test('numeric widening uses the measured content-width basis and stops at the se
   assert.deepEqual(constrainLayoutInput(measured, { width: 150 }), { value: { width: 150 }, limited: false })
   assert.deepEqual(constrainLayoutInput(measured, { width: 400 }), { value: { width: 340 }, limited: true })
 })
+test('an oversized mobile text box can be moved across the preview while keeping part visible', () => {
+  const mobile = { ...block, value: {}, renderedOffsets: { x: 0, y: 0 }, rect: { left: 0, top: 100, width: 600, height: 80 }, bounds: { left: 0, top: 0, width: 390, height: 800 } }
+  assert.deepEqual(constrainLayoutInput(mobile, { offsetX: 200 }), { value: { offsetX: 200 }, limited: false })
+  assert.deepEqual(constrainLayoutInput(mobile, { offsetX: -400 }), { value: { offsetX: -400 }, limited: false })
+})

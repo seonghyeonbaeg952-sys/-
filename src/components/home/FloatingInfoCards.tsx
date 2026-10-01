@@ -1,6 +1,5 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { HomeCopy } from './HomeCopy'
-import { useEffect, useState } from 'react'
 import type { HomeQuickActionItem } from '../../types/homeContent'
 import { Container } from '../common/Container'
 import { HomeSectionStaffCue } from '../common/HomeSectionStaffCue'
@@ -8,24 +7,7 @@ import { Reveal } from '../common/Reveal'
 import { StaffLines } from '../common/StaffLines'
 import '../../styles/home-responsive-quick.css'
 import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
-
-const desktopQuickQuery = '(min-width: 1024px)'
-
-function useDesktopQuickLayout() {
-  const [isDesktop, setIsDesktop] = useState(() =>
-    typeof window !== 'undefined' && window.matchMedia(desktopQuickQuery).matches,
-  )
-
-  useEffect(() => {
-    const query = window.matchMedia(desktopQuickQuery)
-    const update = () => setIsDesktop(query.matches)
-    update()
-    query.addEventListener('change', update)
-    return () => query.removeEventListener('change', update)
-  }, [])
-
-  return isDesktop
-}
+import { useHomeResponsiveViewport } from './useHomeResponsiveViewport'
 
 function ResponsiveQuickActions({ cards }: { cards: HomeQuickActionItem[] }) {
   const { copy: copyText } = useSiteEditor()
@@ -63,9 +45,9 @@ export function FloatingInfoCards({
 }) {
   const { copy: copyText } = useSiteEditor()
   const { href: sampleHref } = useSampleLanguage()
-  const isDesktop = useDesktopQuickLayout()
+  const viewport = useHomeResponsiveViewport()
 
-  if (!isDesktop) return <ResponsiveQuickActions cards={cards} />
+  if (viewport !== 'desktop') return <ResponsiveQuickActions cards={cards} />
 
   return (
     <section

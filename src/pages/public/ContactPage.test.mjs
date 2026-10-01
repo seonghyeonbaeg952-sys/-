@@ -6,14 +6,14 @@ test('legacy application bookmarks use the same new admission form without rende
   const source = readFileSync(new URL('./ContactPage.tsx', import.meta.url), 'utf8')
   assert.doesNotMatch(source, /JoinInquiryForm/)
   assert.match(source, /searchParams\.get\('section'\) === 'join'/)
-  assert.match(source, /<Navigate replace to="\/join\?section=contact#application"/)
+  assert.match(source, /<Navigate replace to=\{routeLanguageHref\('\/join\?section=contact#application', language\)\}/)
   assert.match(source, /<ContactContent\s*\/>/)
 })
 
 test('legacy support inquiry bookmarks still open the inquiry form', () => {
   const source = readFileSync(new URL('./ContactPage.tsx', import.meta.url), 'utf8')
   assert.match(source, /searchParams\.get\('section'\) === 'support' && route\.hash === '#form'/)
-  assert.match(source, /<Navigate replace to="\/contact\?section=inquiry&type=support#form"/)
+  assert.match(source, /<Navigate replace to=\{routeLanguageHref\('\/contact\?section=inquiry&type=support#form', language\)\}/)
 })
 
 test('contact anchors are restored after public data loads and hidden forms do not claim the anchor', () => {

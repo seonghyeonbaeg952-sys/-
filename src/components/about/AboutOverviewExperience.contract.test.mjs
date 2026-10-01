@@ -101,7 +101,7 @@ test('responsive styling protects typography, touch targets, and reduced motion'
   assert.match(css, /#f04b23/i)
   assert.match(css, /#68233a/i)
   assert.match(css, /@media \(max-width: 767px\)/)
-  assert.match(css, /@media \(min-width: 768px\) and \(max-width: 1099px\)/)
+  assert.match(css, /@media \(min-width: 768px\) and \(max-width: 1365px\)/)
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/)
   assert.match(css, /min-height:\s*44px/)
   assert.match(css, /text-wrap:\s*balance/)

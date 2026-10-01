@@ -209,7 +209,7 @@
 .join-guide__ready { padding-block: 48px; }
 .join-guide__ready-grid > div { display: grid; gap: 12px; }
 
-@media (max-width: 1099px) {
+@media (max-width: 1365px), (min-height: 551px) and (max-width: 1600px) and (any-pointer: coarse) {
   .join-guide__container { width: calc(100% - 64px); }
   .join-guide__intro,
   .join-guide__ready-grid,
@@ -257,7 +257,7 @@
 .join-page-state__skeleton-lines span { height: 28px; border-radius: 4px; background: var(--join-cool); }
 .join-page-state__skeleton-lines span:last-child { width: 72%; }
 
-@media (max-width: 1099px) {
+@media (max-width: 1365px), (min-height: 551px) and (max-width: 1600px) and (any-pointer: coarse) {
   .join-page-state__heading { padding-block: 48px 32px; }
   .join-page-state__skeleton-content { grid-template-columns: minmax(0, 1fr); gap: 32px; padding-top: 32px; }
   .join-page-state__skeleton-title { max-width: 240px; }

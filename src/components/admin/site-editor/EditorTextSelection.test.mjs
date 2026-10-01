@@ -103,7 +103,7 @@ test('moving focus into the font toolbar keeps the selected range and changes on
 test('invalid size gives a visible error without changing text or creating an undo entry', () => {
   const p = editor()
   p.select(0, 2)
-  p.size('121')
+  p.size('301')
   p.click('크기 적용')
   assert.deepEqual(p.snapshot(), { text: '함께 노래해요', runs: [] })
   assert.equal(p.input().props['aria-invalid'], true)
@@ -113,6 +113,19 @@ test('invalid size gives a visible error without changing text or creating an un
   p.click('크기 적용')
   assert.deepEqual(p.snapshot().runs, [{ start: 0, end: 2, style: { fontSize: 30 } }])
   assert.equal(p.input().props['aria-invalid'], false)
+})
+
+test('a selected mobile headline can reach 300px and choose a custom color', () => {
+  const p = editor()
+  p.select(0, 2)
+  p.size('300')
+  p.click('크기 적용')
+  assert.deepEqual(p.snapshot().runs, [{ start: 0, end: 2, style: { fontSize: 300 } }])
+  const picker = p.find(node => node.type === 'input' && node.props.type === 'color')[0]
+  assert.ok(picker)
+  picker.props.onChange({ target: { value: '#c9a45c' } })
+  p.render()
+  assert.deepEqual(p.snapshot().runs, [{ start: 0, end: 2, style: { fontSize: 300, color: '#c9a45c' } }])
 })
 
 test('undo and redo distinguish different formatting snapshots even when their text is identical', () => {

@@ -7,8 +7,11 @@ export const EDITOR_FONT_FAMILIES: Record<EditorFont, string> = {
   'arita-buri': '"AritaBuri",serif',
   'gowun-batang': '"Gowun Batang",serif',
   grandiflora: '"Grandiflora One",serif',
+  'cormorant-garamond': '"Cormorant Garamond",Georgia,serif',
+  georgia: 'Georgia,"Times New Roman",serif',
 }
 export const EDITOR_FONTS = Object.keys(EDITOR_FONT_FAMILIES) as EditorFont[]
+export const EDITOR_FONT_SIZE_MAX = 300
 const scopes = ['shared', 'mobile', 'tablet', 'desktop']
 const textStyleKeys = ['fontFamily', 'fontSize', 'color', 'fontWeight', 'fontStyle', 'textDecoration'] as const
 const unsafeSegments = new Set(['__proto__', 'prototype', 'constructor'])
@@ -53,7 +56,7 @@ function validStyle(value: unknown, patch = false): value is EditorTextStyle {
       if (!textStyleKeys.some(property => property === key)) return false
       if (patch && entry === undefined) return true
       if (key === 'fontFamily') return EDITOR_FONTS.some(font => font === entry)
-      if (key === 'fontSize') return typeof entry === 'number' && Number.isFinite(entry) && entry >= 10 && entry <= 120
+      if (key === 'fontSize') return typeof entry === 'number' && Number.isFinite(entry) && entry >= 10 && entry <= EDITOR_FONT_SIZE_MAX
       if (key === 'color') return typeof entry === 'string' && /^#[0-9a-f]{6}$/i.test(entry)
       if (key === 'fontWeight') return [400, 500, 600, 700, 800].some(weight => weight === entry)
       if (key === 'fontStyle') return entry === 'normal' || entry === 'italic'

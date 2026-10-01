@@ -20,6 +20,8 @@ const { HOME_CONTENT_DEFAULTS_V2 } = await vite.ssrLoadModule('/src/constants/ho
 function renderHeadline(text, { formatted = false, preview = false, reducedMotion = false } = {}) {
   const originalWindow = globalThis.window
   globalThis.window = {
+    innerWidth: 1440,
+    innerHeight: 900,
     matchMedia: query => ({ matches: query === '(min-width: 1024px)' || (reducedMotion && query === '(prefers-reduced-motion: reduce)') }),
   }
   const textStyles = formatted ? { shared: {

@@ -1748,7 +1748,7 @@
   display: block;
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1366px) and (pointer: fine) and (not (any-pointer: coarse)) {
   .spirit-heritage__faith-copy {
     position: relative;
     height: 688px;
@@ -1781,7 +1781,7 @@
   }
 }
 
-@media (max-width: 1199px) {
+@media (max-width: 1365px), (min-height: 551px) and (max-width: 1600px) and (any-pointer: coarse) {
   .spirit-heritage__lineage-grid,
   .spirit-heritage__values-grid,
   .spirit-heritage__education-grid {
@@ -1817,7 +1817,7 @@
   }
 }
 
-@media (min-width: 1340px) {
+@media (min-width: 1366px) and (pointer: fine) and (not (any-pointer: coarse)) {
   .spirit-heritage__lineage-grid {
     position: relative;
     display: block;
@@ -2795,5 +2795,192 @@
   .spirit-heritage__button,
   .spirit-heritage__value-tab {
     transform: none !important;
+  }
+}
+
+/* Short landscape viewport: the portrait hero's absolute copy/photo offsets
+   cannot accommodate either language after a rotation. Let content set height. */
+@media (orientation: landscape) and (max-width: 1365px) and (max-height: 820px),
+  (orientation: landscape) and (min-height: 551px) and (max-width: 1600px) and (any-pointer: coarse) {
+  .spirit-heritage__hero {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .spirit-heritage__hero-inner {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: clamp(14px, 2.4vw, 26px);
+    padding: 48px clamp(24px, 5vw, 60px) 28px;
+  }
+
+  .spirit-heritage__hero-photo {
+    position: relative;
+    top: auto;
+    right: auto;
+    left: auto;
+    order: 2;
+    width: min(calc(100% - 48px), 720px);
+    height: clamp(260px, 34vw, 420px);
+    margin: 0 auto 36px;
+    border-radius: 12px;
+  }
+
+  .spirit-heritage__hero-veil,
+  .spirit-heritage__reading-stroke { display: none; }
+
+  .spirit-heritage__eyebrow--hero,
+  .spirit-heritage__display-title,
+  .spirit-heritage__hero-heading--desktop,
+  .spirit-heritage__hero-body,
+  .spirit-heritage__origin-card {
+    position: relative;
+    inset: auto;
+    max-width: 100%;
+  }
+
+  .spirit-heritage__eyebrow--hero::before { height: 24px; }
+
+  .spirit-heritage__display-title {
+    font-size: clamp(76px, 11vw, 130px);
+    line-height: 0.9;
+    white-space: normal;
+  }
+
+  .spirit-heritage__hero-heading--desktop { display: block; }
+  .spirit-heritage__hero-heading--mobile { display: none; }
+  .spirit-heritage__hero-heading > p:first-child { font-size: clamp(23px, 3vw, 34px); }
+  .spirit-heritage__hero-promise { font-size: clamp(32px, 4vw, 46px); }
+  .spirit-heritage__hero-promise > span { padding-left: 0; }
+
+  .spirit-heritage__hero-body {
+    width: min(65ch, 100%);
+    font-size: clamp(13px, 1.5vw, 16px);
+    line-height: 1.65;
+  }
+
+  .spirit-heritage__origin-card {
+    grid-template-columns: auto minmax(0, 1fr);
+    width: min(500px, 100%);
+    height: auto;
+    min-height: 78px;
+    margin-top: 0;
+  }
+
+  .spirit-heritage__origin-card p { min-width: 0; overflow-wrap: break-word; }
+}
+
+/* A landscape tablet has less reading width than the original fixed columns. */
+@media (min-width: 900px) and (max-width: 1439px) {
+  .spirit-heritage__faith-grid {
+    grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr);
+    gap: clamp(28px, 4vw, 56px);
+  }
+
+  .spirit-heritage__faith-copy {
+    min-width: 0;
+    height: auto;
+  }
+
+  .spirit-heritage__faith-copy > p,
+  .spirit-heritage__faith-copy > .spirit-heritage__faith-lead {
+    position: relative;
+    top: auto;
+    width: auto;
+    max-width: 100%;
+    margin-top: 32px !important;
+  }
+
+  .spirit-heritage__scripture-list,
+  .spirit-heritage__scripture-card {
+    min-width: 0;
+  }
+
+  .spirit-heritage__scripture-card {
+    display: flex;
+    height: auto;
+    min-height: 250px;
+    flex-direction: column;
+    gap: 22px;
+    padding: 28px;
+  }
+
+  .spirit-heritage__scripture-card > p,
+  .spirit-heritage__scripture-card blockquote,
+  .spirit-heritage__scripture-card small {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: auto;
+    max-width: 100%;
+    margin: 0 !important;
+  }
+
+  .spirit-heritage__scripture-card small {
+    margin-top: auto !important;
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1365px),
+  (min-width: 900px) and (min-height: 551px) and (max-width: 1600px) and (any-pointer: coarse) {
+  .spirit-heritage__closing-card {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    padding: 42px clamp(28px, 5vw, 52px);
+  }
+
+  .spirit-heritage__closing-copy {
+    width: min(100%, 640px);
+  }
+
+  .spirit-heritage__closing-copy .spirit-heritage__eyebrow,
+  .spirit-heritage__closing-copy h2,
+  .spirit-heritage__closing-copy > p:not(.spirit-heritage__eyebrow),
+  .spirit-heritage__closing-actions {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: auto;
+    max-width: 100%;
+  }
+
+  .spirit-heritage__closing-copy h2 {
+    margin-top: 24px;
+    font-size: clamp(36px, 4.4vw, 52px);
+    line-height: 1.12;
+  }
+
+  .spirit-heritage__closing-copy h2 span,
+  .spirit-heritage__closing-copy h2 strong {
+    padding-left: 0;
+    font-size: 0.85em;
+    line-height: 1.18;
+  }
+
+  .spirit-heritage__closing-copy > p:not(.spirit-heritage__eyebrow) {
+    margin-top: 22px;
+  }
+
+  .spirit-heritage__closing-actions {
+    margin-top: 24px;
+  }
+
+  .spirit-heritage__one-voice {
+    position: relative;
+    top: auto;
+    left: auto;
+    align-self: flex-end;
+    margin-top: 42px;
+    font-size: clamp(72px, 10vw, 112px);
+  }
+
+  .spirit-heritage__one-voice::before,
+  .spirit-heritage__one-voice::after {
+    top: -20px;
   }
 }

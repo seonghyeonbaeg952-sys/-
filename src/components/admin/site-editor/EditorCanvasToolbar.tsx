@@ -5,6 +5,7 @@ import type { EditorTextStyle } from '../../../types/siteEditor'
 import { Button } from '../../common/Button'
 import { FilterSelect } from '../../common/FilterSelect'
 import { editorFontOptions } from './editorUiOptions'
+import { EDITOR_FONT_SIZE_MAX } from '../../../lib/siteEditorTextStyles'
 import './editor-canvas-toolbar.css'
 
 export type EditorCanvasToolbarProps = {
@@ -16,12 +17,16 @@ export type EditorCanvasToolbarProps = {
   onBegin: () => void
   onFormat: (patch: EditorTextStyle | null) => void
   onAction: (action: CanvasAction) => void
+  canPlace?: boolean
 }
 
 const palette = [
   { name: '먹색', value: '#17171a' }, { name: '버건디', value: '#68233a' },
   { name: '오렌지', value: '#ff601a' }, { name: '네이비', value: '#10233f' },
   { name: '아이보리', value: '#fcfaf5' }, { name: '흰색', value: '#ffffff' },
+  { name: '짙은 버건디', value: '#3b1733' }, { name: '따뜻한 금색', value: '#c9a45c' },
+  { name: '연한 금색', value: '#ead6a5' }, { name: '살구색', value: '#ffab7e' },
+  { name: '종이색', value: '#f0d5c8' }, { name: '진한 네이비', value: '#071526' },
 ]
 const styleKeys = ['fontFamily', 'fontSize', 'color', 'fontWeight', 'fontStyle', 'textDecoration'] as const
 type PanelPosition = { x: number; y: number }
@@ -42,7 +47,7 @@ function closeDisclosure(event: KeyboardEvent<HTMLDetailsElement>) {
   event.currentTarget.querySelector('summary')?.focus()
 }
 
-export function EditorCanvasToolbar({ blockLabel, selection, summary, active, busy, onBegin, onFormat, onAction }: EditorCanvasToolbarProps) {
+export function EditorCanvasToolbar({ blockLabel, selection, summary, active, busy, onBegin, onFormat, onAction, canPlace = false }: EditorCanvasToolbarProps) {
   const id = useId()
   const [sizeDraft, setSizeDraft] = useState({ key: '', value: '' })
   const [colorDraft, setColorDraft] = useState({ key: '', value: '' })
@@ -133,8 +138,8 @@ export function EditorCanvasToolbar({ blockLabel, selection, summary, active, bu
   function applySize() {
     if (formatDisabled || sizeDraft.key !== selectionKey) return
     const value = Number(sizeValue)
-    if (!sizeValue.trim() || !Number.isFinite(value) || value < 10 || value > 120) {
-      setError({ field: 'size', message: '글자 크기는 10–120px 사이로 입력해 주세요.' })
+    if (!sizeValue.trim() || !Number.isFinite(value) || value < 10 || value > EDITOR_FONT_SIZE_MAX) {
+      setError({ field: 'size', message: `글자 크기는 10–${EDITOR_FONT_SIZE_MAX}px 사이로 입력해 주세요.` })
       return
     }
     format({ fontSize: value })
@@ -211,7 +216,7 @@ export function EditorCanvasToolbar({ blockLabel, selection, summary, active, bu
             }} />
         </div>
         <label className="canvas-toolbar__size" htmlFor={`${id}-size`}><span className="canvas-toolbar__label">크기 (px)</span>
-          <input id={`${id}-size`} type="number" min={10} max={120} step="any" value={sizeValue}
+          <input id={`${id}-size`} type="number" min={10} max={EDITOR_FONT_SIZE_MAX} step="any" value={sizeValue}
             placeholder={style.fontSize === 'mixed' ? '혼합' : '기본값'} aria-invalid={error?.field === 'size'}
             aria-describedby={error?.field === 'size' ? `${id}-error` : `${id}-help`}
             onChange={event => setSizeDraft({ key: selectionKey, value: event.target.value })} onBlur={applySize}
@@ -266,7 +271,7 @@ export function EditorCanvasToolbar({ blockLabel, selection, summary, active, bu
     <div className="canvas-toolbar__footer" role="group" aria-label="편집 실행">
       <Button size="sm" variant="ghost" disabled={locked || !summary?.canUndo} onClick={() => action('undo')}>실행 취소</Button>
       <Button size="sm" variant="ghost" disabled={locked || !summary?.canRedo} onClick={() => action('redo')}>다시 실행</Button>
-      <Button className="canvas-toolbar__finish" size="sm" disabled={locked} onClick={() => action('finish')}>편집 마침</Button>
+      <Button className="canvas-toolbar__finish" size="sm" disabled={locked} onClick={() => action('finish')}>{canPlace ? '글자 편집 마침 · 위치 이동' : '편집 마침'}</Button>
     </div>
   </section>
 }

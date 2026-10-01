@@ -49,7 +49,7 @@
 .concert-poster-viewer__canvas.is-zoomed .concert-poster__media { width: 200%; }
 .concert-poster-viewer__canvas.is-zoomed .concert-poster__image { width: 100%; max-height: none; }
 .concert-poster-viewer__hint { margin: 16px 0 0; color: var(--concert-muted); font-size: 13px; line-height: 1.7; }
-@media (max-width: 1099px) {
+@media (max-width: 1365px), (min-height: 551px) and (max-width: 1600px) and (any-pointer: coarse) {
   .concert-detail__article--with-poster { column-gap: 36px; grid-template-columns: minmax(220px, .8fr) minmax(0, 1fr); }
   .concert-detail__summary { gap: 24px; }
   .concert-detail__date { font-size: 24px; }

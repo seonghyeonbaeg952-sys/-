@@ -5,6 +5,7 @@ import { acceptPlacementMessage, parsePlacementMessage, PLACEMENT_PROTOCOL_CHANN
 import { getCanvasScaleMetrics } from './canvasLayout'
 import { getTextBoxWidthBasis } from './textBoxGeometry'
 import { isPreviewControlActivation } from './previewInteraction'
+import { placementTravelRange } from '../../lib/siteEditorPlacementBounds'
 
 const same = (a: EditorTextLayout, b: EditorTextLayout) => JSON.stringify(canonicalTextLayout(a)) === JSON.stringify(canonicalTextLayout(b))
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(value, Math.max(min, max)))
@@ -16,8 +17,10 @@ export function constrainPlacement(block: PlacementBlock, dx: number, dy: number
       .map(peer => peer.rect[axis] + peer.rect[size] / 2 - centre).filter(value => Math.abs(value) <= 6).sort((a, b) => Math.abs(a) - Math.abs(b))[0]
     return delta + (distance ?? 0)
   }
-  const x = clamp(snap(dx, 'left', 'width'), block.bounds.left - block.rect.left, block.bounds.left + block.bounds.width - block.rect.left - block.rect.width)
-  const y = clamp(snap(dy, 'top', 'height'), block.bounds.top - block.rect.top, block.bounds.top + block.bounds.height - block.rect.top - block.rect.height)
+  const horizontal = placementTravelRange(block.rect, block.bounds, 'left', 'width')
+  const vertical = placementTravelRange(block.rect, block.bounds, 'top', 'height')
+  const x = clamp(snap(dx, 'left', 'width'), horizontal.min, horizontal.max)
+  const y = clamp(snap(dy, 'top', 'height'), vertical.min, vertical.max)
   return { ...block.value, offsetX: clamp(Math.round(((block.value.offsetX ?? 0) + x / scale.x) * 10) / 10, -2000, 2000), offsetY: clamp(Math.round(((block.value.offsetY ?? 0) + y / scale.y) * 10) / 10, -2000, 2000) }
 }
 /** A width drag stays inside the current section/viewport and uses the same percent contract as the toolbar. */
@@ -80,6 +83,8 @@ function readRenderedOffsets(element: HTMLElement, stored: EditorTextLayout): Pl
 export function createCanvasPlacementRuntime(config: Config) {
   let entries = new Map<string, Entry>(), selected: string | null = null, mode = false, device: EditorDevice = 'desktop'
   let pending: Gesture | null = null, active: Active | null = null, handoff: Handoff | null = null, mounted = false, sent = 0, received = 0, retryTimer = 0, beginTimer = 0
+  let directDrag: { pointerId: number; x: number; y: number; screenOrigin: ScreenOrigin | null } | null = null
+  let suppressDragClick = false
   let geometryFrame = 0, registration = '', resizeObserver: ResizeObserver | null = null, mutationObserver: MutationObserver | null = null
   const observed = new Set<Element>()
   let handle: HTMLButtonElement | null = null, resizeHandle: HTMLButtonElement | null = null, outline: HTMLDivElement | null = null, status: HTMLDivElement | null = null
@@ -414,6 +419,15 @@ export function createCanvasPlacementRuntime(config: Config) {
     }
   }
   const pointer = (event: PointerEvent) => {
+    if (directDrag?.pointerId === event.pointerId) {
+      if (event.type === 'pointermove' && Math.hypot(event.clientX - directDrag.x, event.clientY - directDrag.y) >= 6) {
+        const start = directDrag
+        directDrag = null
+        suppressDragClick = true
+        event.preventDefault()
+        begin(start.pointerId, start.x, start.y, event.clientX - start.x, event.clientY - start.y, false, 'move', false, start.screenOrigin)
+      } else if (event.type !== 'pointermove') directDrag = null
+    }
     const gesture = active ?? pending
     if (!gesture && handoff && handoff.pointerId === event.pointerId) {
       event.preventDefault()
@@ -437,7 +451,27 @@ export function createCanvasPlacementRuntime(config: Config) {
     else if (active) move()
     else previewPending()
   }
+  const pointerDown = (event: PointerEvent) => {
+    directDrag = null
+    suppressDragClick = false
+    if (!mode || blocked() || active || pending || event.button !== 0 || event.isPrimary === false || event.pointerType === 'touch'
+      || !(event.target instanceof Element) || event.target.closest('a,button,input,textarea,select,[contenteditable]')) return
+    let candidate = event.target.closest<HTMLElement>('[data-site-layout]')
+    let element: HTMLElement | null = null
+    while (candidate) {
+      const id = candidate.getAttribute('data-site-layout')
+      if (id && entries.get(id)?.element === candidate && (!element || /^H[1-6]$/.test(candidate.tagName))) element = candidate
+      candidate = candidate.parentElement?.closest<HTMLElement>('[data-site-layout]') ?? null
+    }
+    const id = element?.getAttribute('data-site-layout')
+    if (!id) return
+    selected = id
+    selection()
+    position()
+    directDrag = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, screenOrigin: pointerScreenOrigin(event) }
+  }
   const click = (event: MouseEvent) => {
+    if (suppressDragClick) { suppressDragClick = false; event.preventDefault(); event.stopImmediatePropagation(); return }
     if (!mode || blocked() || active || pending || !(event.target instanceof Element)) return
     if (isPreviewControlActivation(event)) return
     let candidate = event.target.closest<HTMLElement>('[data-site-layout]')
@@ -476,18 +510,18 @@ export function createCanvasPlacementRuntime(config: Config) {
         })
         mutationObserver.observe(document.body, { childList: true, subtree: true })
       }
-      window.addEventListener('message', receive); document.addEventListener('click', click, true); document.addEventListener('keydown', keydown, true)
+      window.addEventListener('message', receive); document.addEventListener('click', click, true); document.addEventListener('keydown', keydown, true); document.addEventListener('pointerdown', pointerDown, true)
       for (const type of ['pointermove', 'pointerup', 'pointercancel']) document.addEventListener(type, pointer as EventListener)
       window.addEventListener('resize', refreshRegistry); window.addEventListener('scroll', position, true); send({ type: 'placement-ready' }); refreshRegistry()
       return () => {
         resizeObserver?.disconnect(); mutationObserver?.disconnect(); resizeObserver = null; mutationObserver = null; observed.clear()
         window.cancelAnimationFrame(geometryFrame); geometryFrame = 0
-        mounted = false; window.clearTimeout(retryTimer); window.clearTimeout(beginTimer); window.removeEventListener('message', receive); document.removeEventListener('click', click, true); document.removeEventListener('keydown', keydown, true)
+        mounted = false; window.clearTimeout(retryTimer); window.clearTimeout(beginTimer); window.removeEventListener('message', receive); document.removeEventListener('click', click, true); document.removeEventListener('keydown', keydown, true); document.removeEventListener('pointerdown', pointerDown, true)
         for (const type of ['pointermove', 'pointerup', 'pointercancel']) document.removeEventListener(type, pointer as EventListener)
         window.removeEventListener('resize', refreshRegistry); window.removeEventListener('scroll', position, true)
         if (active) { if (!active.restored) restore(active); if (active.ownsFreeze) config.freeze(false) }
         if (pending) restore(pending)
-        active = null; pending = null; handoff = null; handle?.remove(); resizeHandle?.remove(); outline?.remove(); status?.remove(); Object.values(guides).forEach(guide => guide.remove()); delete document.body.dataset.canvasPlacementMode; delete document.body.dataset.canvasPlacementActive
+        active = null; pending = null; handoff = null; directDrag = null; handle?.remove(); resizeHandle?.remove(); outline?.remove(); status?.remove(); Object.values(guides).forEach(guide => guide.remove()); delete document.body.dataset.canvasPlacementMode; delete document.body.dataset.canvasPlacementActive
       }
     },
   }

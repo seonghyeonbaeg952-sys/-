@@ -33,8 +33,10 @@ test('contact payload preserves multiline original copy and uses only existing i
   assert.deepEqual(model.buildContactMessageInput(valid), { name: '김후원', email: 'reply@example.com', phone: null, title: null, message: '첫 문단\n\n둘째 문단', privacy_agreed: true, type: 'support', website: '' })
 })
 
-test('support amount presentation uses CMS amounts without inventing preset amounts', () => {
+test('Korean support amount presentation spells CMS amounts without changing their values', () => {
   assert.equal(typeof model.formatSupportAmounts, 'function')
-  assert.equal(model.formatSupportAmounts([12000, 25000, 50000]), '12,000원 · 25,000원 · 50,000원')
+  assert.equal(model.formatSupportAmounts([10000, 20000, 30000, 50000]), '만 원 · 이만 원 · 삼만 원 · 오만 원')
+  assert.equal(model.formatSupportAmounts([100000, 200000, 300000, 500000, 1000000]), '십만 원 · 이십만 원 · 삼십만 원 · 오십만 원 · 백만 원')
+  assert.equal(model.formatSupportAmounts([12000, 25000]), '만 이천 원 · 이만 오천 원')
   assert.equal(model.formatSupportAmounts([]), '')
 })

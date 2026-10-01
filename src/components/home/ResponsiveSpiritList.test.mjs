@@ -41,12 +41,14 @@ const wrapper = {
   responsiveLabel5: '편집한 다음 세대',
 }
 
-function renderAtWidth(width) {
+function renderAtWidth(width, height = 900) {
   const originalWindow = globalThis.window
   globalThis.window = {
-    matchMedia(query) {
+    innerWidth: width,
+    innerHeight: height,
+    matchMedia() {
       return {
-        matches: query === '(min-width: 1024px)' && width >= 1024,
+        matches: false,
       }
     },
   }
@@ -68,7 +70,7 @@ function renderAtWidth(width) {
   }
 }
 
-for (const width of [390, 834, 1023]) {
+for (const width of [390, 834, 1023, 1024]) {
   test(`${width}px에서는 CMS 반응형 문구와 다섯 정신을 함께 표시한다`, () => {
     const markup = renderAtWidth(width)
 
@@ -93,7 +95,7 @@ for (const width of [390, 834, 1023]) {
   })
 }
 
-for (const width of [1024, 1440]) {
+for (const width of [1440]) {
   test(`${width}px에서는 반응형 CMS 변경이 기존 영상과 원형 정신 표현에 영향을 주지 않는다`, () => {
     const markup = renderAtWidth(width)
 

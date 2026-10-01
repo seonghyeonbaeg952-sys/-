@@ -22,7 +22,7 @@
   --v4-program-note-sans: var(--home-v4-sans);
   padding-bottom: 0 !important;
   background: #fbf8f2
-    url('/images/sample/performance/performance-section-paper.webp') center
+    var(--site-photo-concert-section-paper,url('/images/sample/performance/performance-section-paper.webp')) center
     center / cover no-repeat !important;
 }
 
@@ -942,7 +942,7 @@
   overflow: hidden;
   background:
     linear-gradient(rgb(255 250 243 / 91%), rgb(255 250 243 / 91%)),
-    url('/images/sample/performance/template-paper-micrograin.png'),
+    var(--site-photo-brochure-paper,url('/images/sample/performance/template-paper-micrograin.png')),
     #fffaf3;
   background-size: auto, 9rem 9rem, auto;
 }
@@ -990,7 +990,7 @@
   border-radius: 0;
   background:
     linear-gradient(rgb(255 250 243 / 91%), rgb(255 250 243 / 91%)),
-    url('/images/sample/performance/template-paper-micrograin.png'),
+    var(--site-photo-brochure-paper,url('/images/sample/performance/template-paper-micrograin.png')),
     #fffaf3;
   background-size: auto, 9rem 9rem, auto;
   color: var(--v4-performance-ink);
@@ -1336,7 +1336,10 @@
   height: 48.82%;
   transform: translateX(-50%) rotateY(0deg);
   transform-style: preserve-3d;
-  transition: transform 780ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    transform 780ms cubic-bezier(0.16, 1, 0.3, 1),
+    top 780ms cubic-bezier(0.16, 1, 0.3, 1),
+    height 780ms cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform;
 }
 
@@ -1357,7 +1360,9 @@
 .public-shell-home-sample-v4
   .home-v4-current-program
   .motion-program-book[data-state='open'] {
+  top: 18%;
   width: 100%;
+  height: 63%;
   transform: translateX(-50%) rotateY(0deg);
 }
 
@@ -1426,7 +1431,7 @@
   background-color: #fffaf3;
   background-image:
     linear-gradient(rgb(255 250 243 / 88%), rgb(255 250 243 / 88%)),
-    url('/images/sample/performance/template-paper-micrograin.png');
+    var(--site-photo-brochure-paper,url('/images/sample/performance/template-paper-micrograin.png'));
   background-position: center;
   background-size: auto, 9rem 9rem;
 }
@@ -1687,18 +1692,6 @@
   word-break: keep-all;
 }
 
-.public-shell-home-sample-v4
-  .home-v4-current-program
-  .motion-program-panel
-  p,
-.public-shell-home-sample-v4
-  .home-v4-current-program
-  .motion-program-panel
-  dd {
-  color: rgb(61 11 47 / 72%);
-  font-size: clamp(0.6rem, 0.86vw, 0.82rem);
-}
-
 .public-shell-home-sample-v4 .home-v4-template-face {
   will-change: left, top, transform, opacity, filter;
   transition:
@@ -1817,7 +1810,7 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   background:
     linear-gradient(rgb(255 250 243 / 91%), rgb(255 250 243 / 91%)),
-    url('/images/sample/performance/template-paper-micrograin.png'),
+    var(--site-photo-brochure-paper,url('/images/sample/performance/template-paper-micrograin.png')),
     #fffaf3;
   background-size: auto, 9rem 9rem, auto;
 }
@@ -1900,7 +1893,7 @@
   border: 0;
   background:
     linear-gradient(rgb(255 250 243 / 90%), rgb(255 250 243 / 90%)),
-    url('/images/sample/performance/template-paper-micrograin.png'),
+    var(--site-photo-brochure-paper,url('/images/sample/performance/template-paper-micrograin.png')),
     #fffaf3;
   background-size: auto, 9rem 9rem, auto;
   color: var(--v4-performance-ink);
@@ -2137,7 +2130,8 @@
   transform: translateX(-50%);
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 1365px), (any-pointer: coarse),
+  (min-width: 1366px) and (max-width: 1600px) and (max-aspect-ratio: 3/2) {
   .public-shell-home-sample-v4 .home-section--v4-mobile-original *,
   .public-shell-home-sample-v4 .home-section--v4-mobile-original *::before,
   .public-shell-home-sample-v4 .home-section--v4-mobile-original *::after {
@@ -2374,4 +2368,355 @@
   .public-shell-home-sample-v4 .home-v4-architecture__controls button {
     transition-duration: 0.01ms;
   }
+}
+
+/* Contemporary editorial spread. The online detail page holds full CMS copy. */
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel {
+  justify-content: flex-start;
+  gap: 0;
+  padding: clamp(0.85rem, 1.7vw, 1.5rem);
+  overflow: hidden;
+  border-color: rgb(22 23 23 / 11%);
+  background: #fff;
+  box-shadow: 0 1rem 2.4rem rgb(15 20 20 / 12%);
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: block;
+  height: 1px;
+  background: #1a1c1d;
+  content: '';
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-left {
+  isolation: isolate;
+  border-color: #202122;
+  background: #202122;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-right {
+  background: #fff;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-cover-image {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 55% center;
+  filter: grayscale(1);
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-left::before {
+  z-index: -1;
+  height: 100%;
+  background: linear-gradient(180deg, rgb(0 0 0 / 65%) 0%, rgb(0 0 0 / 29%) 44%, rgb(0 0 0 / 83%) 100%);
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel__content {
+  position: relative;
+  min-width: 0;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-kicker,
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-cover-label {
+  margin: 0;
+  color: #45494a;
+  font-family: var(--v4-program-note-sans, sans-serif);
+  font-size: clamp(0.52rem, 0.73vw, 0.68rem);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-kicker {
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid rgb(25 30 30 / 24%);
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-left :is(.motion-program-kicker, .motion-program-cover-label) {
+  color: #fff;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-left .motion-program-kicker {
+  border-color: rgb(255 255 255 / 63%);
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-edition {
+  position: absolute;
+  top: clamp(1.9rem, 3vw, 2.7rem);
+  right: 0;
+  color: #fff;
+  font-family: var(--v4-program-note-sans, sans-serif);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-cover-label {
+  position: relative;
+  margin-top: clamp(4rem, 8vw, 7rem);
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel .motion-program-cover-title {
+  position: relative;
+  margin: 0.45rem 0 0;
+  color: #fff;
+  font-family: var(--home-v4-heading, Hahmlet, Georgia, serif);
+  font-size: clamp(1.25rem, 2.2vw, 2.3rem);
+  font-weight: 600;
+  line-height: 1.22;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-cover-subtitle,
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-cover-imprint {
+  position: relative;
+  color: rgb(255 255 255 / 88%);
+  font-size: clamp(0.63rem, 0.85vw, 0.8rem);
+  line-height: 1.5;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-cover-subtitle {
+  margin-top: 0.8rem;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-cover-archive {
+  position: relative;
+  margin: auto 0 0;
+  color: rgb(255 255 255 / 85%);
+  font-size: 0.61rem;
+  letter-spacing: 0.08em;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-cover-imprint {
+  margin: 0.6rem 0 0;
+  font-size: 0.57rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-date-number {
+  margin: clamp(0.2rem, 1vw, 0.8rem) 0 -0.15em;
+  color: #15191a;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(4.6rem, 7vw, 8rem);
+  font-weight: 600;
+  letter-spacing: -0.08em;
+  line-height: 0.9;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-date-caption {
+  margin: 0;
+  color: #222728;
+  font-size: clamp(0.75rem, 1.15vw, 1.05rem);
+  font-weight: 700;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-date-caption span {
+  color: #565c5d;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-center h4 {
+  margin: clamp(0.45rem, 1.1vw, 1.1rem) 0 0;
+  color: #15191a;
+  font-size: clamp(0.85rem, 1.05vw, 1.1rem);
+  font-weight: 600;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-center dl {
+  display: grid;
+  width: 100%;
+  gap: 0;
+  margin: auto 0 0;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-center dl > div {
+  padding: 0.32rem 0;
+  border-top: 1px solid rgb(25 30 30 / 16%);
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-center dt {
+  color: #606668;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-center dd {
+  margin: 0.1rem 0 0;
+  color: #1e2324;
+  font-size: clamp(0.66rem, 0.82vw, 0.82rem);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-right .motion-program-note-title {
+  margin: 0.6rem 0 0;
+  color: #15191a;
+  font-size: clamp(1rem, 1.5vw, 1.5rem);
+  line-height: 1.22;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-note-body,
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-guide-copy {
+  margin: 0.45rem 0 0;
+  color: #363c3d;
+  font-size: clamp(0.64rem, 0.81vw, 0.82rem);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-repertoire {
+  margin-top: 0.55rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgb(25 30 30 / 16%);
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-repertoire > p {
+  margin: 0 0 0.25rem;
+  color: #606668;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-repertoire ul {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-repertoire li {
+  color: #252b2c;
+  font-size: 0.65rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-right .motion-program-statuses {
+  margin-top: 0.45rem;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-right .motion-program-statuses span {
+  border-color: rgb(25 30 30 / 24%);
+  border-radius: 2px;
+  background: rgb(25 30 30 / 4%);
+  color: #252b2c;
+  font-size: 0.6rem;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-right .motion-program-actions {
+  display: grid;
+  gap: 0.1rem;
+  width: 100%;
+  margin-top: auto;
+  border-top: 1px solid rgb(25 30 30 / 16%);
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-right .motion-program-actions a {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.2rem 0.25rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #15191a;
+  font-size: clamp(0.62rem, 0.78vw, 0.75rem);
+  line-height: 1.25;
+  text-align: left;
+  white-space: normal;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-right .motion-program-actions a:hover,
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-right .motion-program-actions a:focus-visible {
+  color: #15191a;
+  text-decoration: underline;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-folio {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0;
+  padding-top: 0.35rem;
+  border-top: 1px solid rgb(25 30 30 / 18%);
+  color: #606668;
+  font-size: 0.55rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.16em;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-left .motion-program-folio {
+  border-color: rgb(255 255 255 / 55%);
+  color: #fff;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-folio i {
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.35;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program :is(.motion-program-panel-left, .motion-program-panel-center)::after {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: block;
+  width: 12px;
+  background: linear-gradient(90deg, transparent, rgb(20 24 24 / 12%));
+  content: '';
+  pointer-events: none;
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-kicker,
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-cover-label {
+  font-size: clamp(0.65rem, 0.73vw, 0.75rem);
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-center dd,
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-note-body,
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-guide-copy {
+  font-size: clamp(0.82rem, 0.95vw, 0.95rem);
+}
+
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-repertoire li,
+.public-shell-home-sample-v4 .home-v4-current-program .motion-program-panel-right .motion-program-actions a {
+  font-size: clamp(0.8rem, 0.92vw, 0.9rem);
+}
+
+.public-shell-home-sample-v4 .home-v4-architecture:has(.motion-program-book[data-state='open']) .home-v4-architecture__controls button {
+  border-color: rgb(22 26 27 / 25%);
+  background: #fff;
+  color: #1a1e1f;
+}
+
+.public-shell-home-sample-v4 .home-v4-architecture:has(.motion-program-book[data-state='open']) .home-v4-architecture__controls .home-v4-architecture__expand {
+  border-color: #1a1e1f;
+  background: #1a1e1f;
+  color: #fff;
 }

@@ -35,11 +35,13 @@ const firstSlide = {
   is_visible: true,
 }
 
-function render(width, slides = [firstSlide]) {
+function render(width, slides = [firstSlide], { coarse = false, height = 900 } = {}) {
   const originalWindow = globalThis.window
   globalThis.window = {
+    innerWidth: width,
+    innerHeight: height,
     location: { pathname: '/' },
-    matchMedia: query => ({ matches: query === '(min-width: 1024px)' ? width >= 1024 : width >= 768 }),
+    matchMedia: query => ({ matches: query === '(pointer: coarse)' || query === '(any-pointer: coarse)' ? coarse : query === '(min-width: 1024px)' ? width >= 1024 : false }),
   }
   try {
     return renderToStaticMarkup(createElement(MemoryRouter, null,
@@ -55,7 +57,7 @@ function heroImage(html) {
   return html.match(/<img\b[^>]*class="size-full object-cover object-center"[^>]*>/)?.[0] ?? ''
 }
 
-for (const width of [390, 519, 834, 1023]) {
+for (const width of [390, 519, 834, 1023, 1024, 1180, 1365]) {
   test(`${width}px hero uses the same CMS original without a width-only downsample`, () => {
     const image = heroImage(render(width))
     assert.ok(image.includes(`src="${originalUrl}"`), image)
@@ -65,7 +67,13 @@ for (const width of [390, 519, 834, 1023]) {
   })
 }
 
-for (const width of [1024, 1440]) {
+test('1366px touch tablet keeps the original image and tablet composition', () => {
+  const image = heroImage(render(1366, [firstSlide], { coarse: true, height: 1024 }))
+  assert.ok(image.includes(`src="${originalUrl}"`), image)
+  assert.doesNotMatch(image, /srcSet=|render\/image/)
+})
+
+for (const width of [1366, 1440]) {
   test(`${width}px hero retains the desktop responsive transform and image selection`, () => {
     const image = heroImage(render(width))
     assert.match(image, /sizes="100vw"/)
@@ -84,4 +92,10 @@ test('original-image selection still filters hidden slides and does not eagerly 
   assert.equal((html.match(/class="size-full object-cover object-center"/g) ?? []).length, 1)
   assert.match(html, /다음 Hero 슬라이드 보기/)
   assert.match(html, /이전 Hero 슬라이드 보기/)
+})
+
+test('tablet hero keeps an accessible playback control when multiple CMS slides are visible', () => {
+  const html = render(1180, [firstSlide, { ...firstSlide, id: 'next', display_order: 2 }], { height: 820 })
+  assert.match(html, /Hero 슬라이드 자동 재생 일시정지/)
+  assert.match(html, /다음 Hero 슬라이드 보기/)
 })

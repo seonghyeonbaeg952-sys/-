@@ -235,6 +235,29 @@ function usePublicLoader<TData>(
     }
   }, [cacheKey, fallbackData, loader, reloadToken])
 
+  useEffect(() => {
+    let lastPhotoPublication = ''
+    const publicationMarker = () => {
+      try { return window.localStorage.getItem('smyc-photos-published') || '' } catch { return '' }
+    }
+    lastPhotoPublication = publicationMarker()
+    const refreshPhotos = () => {
+      lastPhotoPublication = publicationMarker()
+      invalidatePublicDataCache()
+      refetch()
+    }
+    const storage = (event: StorageEvent) => { if (event.key === 'smyc-photos-published') refreshPhotos() }
+    const focus = () => { if (publicationMarker() !== lastPhotoPublication) refreshPhotos() }
+    window.addEventListener('site-photos-published', refreshPhotos)
+    window.addEventListener('storage', storage)
+    window.addEventListener('focus', focus)
+    return () => {
+      window.removeEventListener('site-photos-published', refreshPhotos)
+      window.removeEventListener('storage', storage)
+      window.removeEventListener('focus', focus)
+    }
+  }, [refetch])
+
   const visibleState =
     state.cacheKey === cacheKey
       ? state

@@ -297,7 +297,7 @@
   width: 1px;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1365px), (min-height: 551px) and (max-width: 1600px) and (any-pointer: coarse) {
   .conductor-profile__shell {
     padding-bottom: 42px;
     width: calc(100% - 80px);

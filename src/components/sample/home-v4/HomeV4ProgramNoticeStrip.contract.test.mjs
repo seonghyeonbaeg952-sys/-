@@ -5,10 +5,11 @@ import test from 'node:test'
 const read = (relativePath) =>
   readFile(new URL(relativePath, import.meta.url), 'utf8')
 
-const [stripSource, previewSource, cssSource] = await Promise.all([
+const [stripSource, previewSource, cssSource, responsiveCssSource] = await Promise.all([
   read('./HomeV4ProgramNoticeStrip.tsx'),
   read('../../home/PerformanceNewsPreview.tsx'),
   read('./HomeV4PerformanceCarousel.css'),
+  read('../../../styles/home-responsive-concerts.css'),
 ])
 
 test('V4 프로그램 노트는 CMS 공지를 최대 세 칸으로만 표시한다', () => {
@@ -50,23 +51,14 @@ test('V4 프로그램 노트는 Figma 데스크톱 기하를 유지한다', () =
   assert.match(cssSource, /border: 1px solid rgb\(246 76 14 \/ 22%\);/)
 })
 
-test('V4 performance uses the original static section below desktop width', () => {
-  assert.match(previewSource, /const desktopPerformanceQuery = '\(min-width: 1024px\)'/)
+test('V4 performance uses the responsive section on phones and touch tablets', () => {
+  assert.match(previewSource, /useHomeResponsiveViewport\(\) === 'desktop'/)
   assert.match(previewSource, /useFigmaDesktopLayout/)
-  assert.match(previewSource, /useOriginalResponsiveLayout/)
-  assert.match(previewSource, /home-section--v4-mobile-original/)
-  assert.match(previewSource, /useOriginalResponsiveLayout \? 'none' : 'card-rise'/)
+  assert.match(previewSource, /useEditorialResponsiveLayout/)
+  assert.match(previewSource, /if \(useEditorialResponsiveLayout\) \{[\s\S]*<ResponsiveConcertNews/)
   assert.match(
-    cssSource,
-    /@media \(max-width: 1023px\) \{[\s\S]*home-section--v4-mobile-original[\s\S]*animation: none !important;/,
-  )
-  assert.match(
-    cssSource,
-    /home-section--v4-mobile-original[\s\S]*kinetic-headline__line[\s\S]*overflow: visible;/,
-  )
-  assert.match(
-    cssSource,
-    /kinetic-headline__line[\s\S]*> span \{[\s\S]*transform: none !important;/,
+    responsiveCssSource,
+    /@media \(max-width: 1365px\), \(pointer: coarse\) \{[\s\S]*home-responsive-concerts/,
   )
 })
 

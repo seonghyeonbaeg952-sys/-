@@ -23,7 +23,8 @@
 }
 
 /* This presentation is mounted only below the unchanged desktop breakpoint. */
-@media (max-width: 1023px) {
+@media (max-width: 1365px), (any-pointer: coarse),
+  (min-width: 1366px) and (max-width: 1600px) and (max-aspect-ratio: 3/2) {
   .home-flow-root .home-flow-body #home-responsive-concerts.home-section--responsive-concerts {
     --responsive-concert-paper: #fbf8f2;
     --responsive-concert-ink: #3b1733;
@@ -295,7 +296,9 @@
   }
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
+@media (min-width: 768px) and (max-width: 1365px) and (min-height: 551px),
+  (any-pointer: coarse) and (min-width: 768px) and (min-height: 551px),
+  (min-width: 1366px) and (max-width: 1600px) and (max-aspect-ratio: 3/2) {
   .home-section--responsive-concerts .responsive-concerts__notice-arrow--mobile {
     display: none;
   }
@@ -332,7 +335,7 @@
     padding: 32px 28px;
     background:
       linear-gradient(rgb(251 248 242 / 0.84), rgb(251 248 242 / 0.84)),
-      url('/images/home/responsive-concert-paper.png') center / cover,
+      var(--site-photo-responsive-concert-paper,url('/images/home/responsive-concert-paper.png')) center / cover,
       var(--responsive-concert-paper);
   }
 

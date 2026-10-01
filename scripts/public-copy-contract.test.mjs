@@ -10,12 +10,11 @@ test('visitor JSX labels have explicit editor adapters or a documented source ex
   const remaining = files.flatMap(({ file, candidates }) => candidates.filter(candidate => !exclusion(file, candidate)).map(candidate => `${file}:${candidate.line} ${candidate.value}`))
   assert.deepEqual(remaining, [], 'These fixed visitor strings still cannot be edited')
 })
-test('only the four native sample language-control identities are fixed source exceptions', () => {
+test('only the four functional language-choice identities are fixed source exceptions', () => {
   const file = 'src/features/sample-language/SampleLanguageSwitch.tsx'
   for (const candidate of [
-    { kind: 'text', value: 'KR' }, { kind: 'text', value: 'EN' },
-    { kind: 'attribute', attribute: 'aria-label', value: '한국어' },
-    { kind: 'attribute', attribute: 'aria-label', value: 'English' },
+    { kind: 'text', value: '한국어' }, { kind: 'text', value: 'English' },
+    { kind: 'text', value: 'KOR' }, { kind: 'text', value: 'ENG' },
   ]) assert.ok(exclusion(file, candidate))
   assert.equal(exclusion(file, { kind: 'text', value: 'New unchecked label' }), null)
   assert.equal(exclusion(file, { kind: 'attribute', attribute: 'title', value: 'English' }), null)
@@ -89,6 +88,16 @@ test('default-markup verification ignores explicit copy adapters but detects lay
 test('adding copy adapters preserves every existing JSX default in the captured source set', () => {
   const baseline = JSON.parse(readFileSync(new URL('../docs/public-copy-default-baseline.json', import.meta.url), 'utf8'))
   for (const [file, fingerprint] of Object.entries(baseline)) assert.equal(publicMarkupFingerprint(readFileSync(file, 'utf8'), file), fingerprint, file)
+})
+
+test('the managed-photo boundary preserves intrinsic img markup while still detecting artwork and layout changes', () => {
+  const original = 'function A(){return <img alt="Choir" className="portrait" src="/images/choir.webp" width={600}/> }'
+  const managed = `import {SiteImage} from '../features/site-photos/SiteImage'; function A(){return <SiteImage alt="Choir" className="portrait" src="/images/choir.webp" width={600}/> }`
+  const expected = publicMarkupFingerprint(original, 'fixture.tsx')
+  assert.equal(publicMarkupFingerprint(managed, 'fixture.tsx'), expected)
+  for (const change of [managed.replace('/images/choir.webp', '/images/other.webp'), managed.replace('portrait', 'changed'), managed.replace('width={600}', 'width={400}'), managed.replace('/site-photos/SiteImage', '/other/SiteImage')]) {
+    assert.notEqual(publicMarkupFingerprint(change, 'fixture.tsx'), expected)
+  }
 })
 
 test('explicit editorial source adapters preserve expression fallbacks without masking real public changes', () => {

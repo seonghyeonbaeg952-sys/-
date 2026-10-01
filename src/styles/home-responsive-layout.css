@@ -1,5 +1,6 @@
 /* Compact quick links sit below the preserved hero, unlike desktop glass cards. */
-@media (max-width: 1023px) {
+@media (max-width: 1365px), (any-pointer: coarse),
+  (min-width: 1366px) and (max-width: 1600px) and (max-aspect-ratio: 3/2) {
   .public-shell-home-sample-v4[data-design-candidate='home-v4'] .home-flow-root .home-flow-body {
     margin-top: 0 !important;
     background: #fbf8f2 !important;

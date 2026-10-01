@@ -68,7 +68,7 @@ test('contact map actions and brochure controls translate fixed labels', async (
   const contact = await source('../../pages/public/ContactPage.tsx')
   const brochure = await source('../../components/sample/home-v4/HomeV4PerformanceCarousel.tsx')
   assert.match(contact, /translate\(action\.label\)/)
-  assert.match(brochure, /translate\('템플릿 접기'\)/)
+  assert.match(brochure, /english \? 'Close brochure' : '브로슈어 접기'/)
   assert.match(brochure, /translate\('공연 문의'\)/)
 })
 

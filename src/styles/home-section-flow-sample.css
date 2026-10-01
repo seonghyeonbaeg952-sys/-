@@ -196,7 +196,7 @@
 .home-flow-sample-chunk__surface::after {
   position: absolute;
   inset: 0;
-  background-image: url("/images/textures/smyc-paper-grain.png");
+  background-image: var(--site-photo-archive-paper,url("/images/textures/smyc-paper-grain.png"));
   background-repeat: repeat;
   background-size: 360px 360px;
   content: "";
@@ -418,7 +418,8 @@
   }
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 1365px), (any-pointer: coarse),
+  (min-width: 1366px) and (max-width: 1600px) and (max-aspect-ratio: 3/2) {
   .home-section-flow-sample {
     --sample-header-offset: 72px;
   }

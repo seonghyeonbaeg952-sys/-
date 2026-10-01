@@ -1,6 +1,7 @@
 /* Figma 10:20: compact code/title rows. The tablet extends the same pattern
    with 48px side padding; desktop retains its original floating cards. */
-@media (max-width: 1023px) {
+@media (max-width: 1365px), (any-pointer: coarse),
+  (min-width: 1366px) and (max-width: 1600px) and (max-aspect-ratio: 3/2) {
   .public-shell-home-sample-v4[data-design-candidate='home-v4'].color-sample-theme.public-shell-home
     .home-flow-body #home-responsive-quick.home-responsive-quick.home-quick-actions[data-flow-section='quick'] {
     height: auto;
@@ -67,6 +68,7 @@
     flex: 0 0 auto;
   }
 
+
   .home-responsive-quick .home-responsive-quick__title {
     min-width: 0;
     overflow-wrap: anywhere;
@@ -84,7 +86,9 @@
   }
 }
 
-@media (min-width: 640px) and (max-width: 1023px) {
+@media (min-width: 640px) and (max-width: 1365px),
+  (any-pointer: coarse) and (min-width: 640px),
+  (min-width: 1366px) and (max-width: 1600px) and (max-aspect-ratio: 3/2) {
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-responsive-quick .home-responsive-quick__container {
     padding-inline: 48px;

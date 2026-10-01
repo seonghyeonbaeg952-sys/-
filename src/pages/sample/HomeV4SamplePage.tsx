@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 
 import { HomeV4SampleHeader } from '../../components/sample/home-v4/HomeV4SampleHeader'
+import { useHomeResponsiveViewport } from '../../components/home/useHomeResponsiveViewport'
 import { Footer } from '../../components/layout/Footer'
 import { SiteCopy } from '../../components/site-editor/SiteCopy'
 import { HomeRoute } from '../public/HomeRoute'
@@ -8,6 +9,7 @@ import '../../styles/color-sample-theme.css'
 import './HomeV4SamplePage.css'
 import '../../styles/home-responsive-fonts.css'
 import '../../styles/home-responsive-layout.css'
+import '../../styles/home-tablet-figma.css'
 
 type HomeV4ExperienceProps = {
   mode: 'production' | 'sample'
@@ -15,6 +17,7 @@ type HomeV4ExperienceProps = {
 
 function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
   const isSample = mode === 'sample'
+  const viewport = useHomeResponsiveViewport()
   const shellRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -67,7 +70,7 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
       return
     }
 
-    const desktopQuery = window.matchMedia('(min-width: 1024px)')
+    const desktopQuery = window.matchMedia('(min-width: 1366px) and (min-aspect-ratio: 151/100) and (pointer: fine) and (not (any-pointer: coarse))')
     const reducedMotionQuery = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
     )
@@ -179,7 +182,7 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
       return
     }
 
-    const desktopQuery = window.matchMedia('(min-width: 1024px)')
+    const desktopQuery = window.matchMedia('(min-width: 1366px) and (min-aspect-ratio: 151/100) and (pointer: fine) and (not (any-pointer: coarse))')
     const reducedMotionQuery = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
     )
@@ -524,6 +527,7 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
       data-design-candidate="home-v4"
       data-public-theme="white-orange"
       data-home-mode={mode}
+      data-home-viewport={viewport}
       data-sample-mirror={isSample ? 'production-home' : undefined}
       data-surface-rule="rectilinear"
       ref={shellRef}
@@ -534,7 +538,7 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
       >
         <SiteCopy page="common" id="common.skip" fallback="본문으로 바로가기" />
       </a>
-      <HomeV4SampleHeader mode={mode} />
+      <HomeV4SampleHeader mode={mode} transparentAtTop={viewport === 'desktop'} />
       <main id="main-content" tabIndex={-1}>
         <HomeRoute
           aboutPresentation="collective-portrait"

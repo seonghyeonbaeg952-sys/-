@@ -26,6 +26,11 @@ test('a box can grow beyond its original column but never beyond the section edg
   assert.deepEqual(api.constrainPlacementWidth(column, 100, 200), { width: 150 })
   assert.deepEqual(api.constrainPlacementWidth(column, 1000, 200), { width: 350 })
 })
+test('dragging an oversized mobile headline stays movable while a readable part remains visible', () => {
+  const mobile = { ...block, value: {}, rect: { left: 0, top: 100, width: 600, height: 80 }, bounds: { left: 0, top: 0, width: 390, height: 800 } }
+  assert.equal(api.constrainPlacement(mobile, 200, 0, []).offsetX, 200)
+  assert.equal(api.constrainPlacement(mobile, -400, 0, []).offsetX, -400)
+})
 test('choosing an off-screen text box reveals it without requiring repeated scrolling', t => {
   const f = fixture(t)
   f.target.rect = { ...block.rect, top: 1400 }
@@ -118,6 +123,23 @@ test('handle drag previews locally before a parent grant and produces one commit
   assert.equal(f.target.style.translate, '')
   assert.equal(f.latest('placement-selection').editId, null)
   assert.equal(f.frozen.at(-1), false)
+})
+test('a text box starts dragging directly without first using a direction button', t => {
+  const f = fixture(t); f.mode()
+  f.document.dispatch('pointerdown', { target: f.target, pointerId: 51, button: 0, isPrimary: true, clientX: 120, clientY: 120 })
+  f.document.dispatch('pointermove', { pointerId: 51, clientX: 150, clientY: 140 })
+  assert.equal(f.latest('placement-begin')?.id, block.id)
+  f.grant()
+  f.document.dispatch('pointerup', { pointerId: 51, clientX: 150, clientY: 140 })
+  assert.deepEqual(f.latest('placement-commit').value, { offsetX: 30, offsetY: 20 })
+})
+test('a stationary text click stays available for text selection instead of starting placement', t => {
+  const f = fixture(t); f.mode()
+  f.document.dispatch('pointerdown', { target: f.target, pointerId: 52, button: 0, isPrimary: true, clientX: 120, clientY: 120 })
+  f.document.dispatch('pointermove', { pointerId: 52, clientX: 123, clientY: 122 })
+  f.document.dispatch('pointerup', { pointerId: 52, clientX: 123, clientY: 122 })
+  assert.equal(f.latest('placement-begin'), undefined)
+  assert.equal(f.latest('placement-selection').id, block.id)
 })
 test('a rejected drag grant restores the optimistic visual change without saving it', t => {
   const f = fixture(t); f.mode()

@@ -913,7 +913,7 @@
   }
 }
 
-@media (max-width: 1099px) {
+@media (max-width: 1365px), (min-height: 551px) and (max-width: 1600px) and (any-pointer: coarse) {
   .concerts-page__hero-inner,
   .concerts-page__discovery-inner,
   .concerts-page__section-inner,

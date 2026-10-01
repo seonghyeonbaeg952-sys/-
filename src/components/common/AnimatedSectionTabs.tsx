@@ -143,7 +143,7 @@ export function AnimatedSectionTabs<TValue extends string = string>({
       window.removeEventListener('resize', handleResize)
       container.removeEventListener('scroll', handleResize)
     }
-  }, [keepActiveTabVisible, updateIndicator])
+  }, [activeValue, keepActiveTabVisible, updateIndicator])
 
   const activateTab = (tab: AnimatedSectionTab<TValue>) => {
     if (tab.disabled) {

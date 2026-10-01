@@ -1,4 +1,5 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { SiteImage } from '../../features/site-photos/SiteImage'
 import { HomeCopy } from './HomeCopy'
 import { SiteCopy } from '../site-editor/SiteCopy'
 import { useEffect, useMemo, useState } from 'react'
@@ -245,11 +246,12 @@ function PlaybackIcon({ isPaused }: { isPaused: boolean }) {
 
 function MottoChips({ chips }: { chips: readonly string[] }) {
   const { copy: copyText } = useSiteEditor()
+  const { translate } = useSampleLanguage()
   return (
     <div aria-label={copyText("home", "home.fixed.HomeHeroSlideshow.e03b479e2d", "합창단 핵심 가치")} className="home-hero-motto-chips">
       {chips.map((chip, index) => (
         <span className="home-hero-motto-chip" key={chip}>
-          <HomeCopy sourceKey={`home.heroSupplement.mottoChips.${index + 1}`} text={chip} />
+          <HomeCopy sourceKey={`home.heroSupplement.mottoChips.${index + 1}`} text={translate(chip)} />
         </span>
       ))}
     </div>
@@ -271,7 +273,8 @@ export function HomeHeroSlideshow({
   const prefersReducedMotion = usePrefersReducedMotion()
   // A width-only srcset undersamples a landscape photo covering a tall hero.
   // Keep the same CMS original on smaller screens and desktop selection intact.
-  const useOriginalImage = useHomeResponsiveViewport() !== 'desktop'
+  const viewport = useHomeResponsiveViewport()
+  const useOriginalImage = viewport !== 'desktop'
   const visibleSlides = useMemo(() => {
     return [...slides]
       .filter((slide) => slide.is_visible)
@@ -402,7 +405,7 @@ export function HomeHeroSlideshow({
             key={pieceId}
           >
             {pieceId === 26 ? (
-              <img
+              <SiteImage
                 alt=""
                 className="home-hero-paper-piece__logo"
                 src="/images/brand/smyc-logo-transparent.png"

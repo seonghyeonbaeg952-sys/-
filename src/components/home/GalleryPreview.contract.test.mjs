@@ -11,7 +11,7 @@ const [previewSource, legacySource] = await Promise.all([
 ])
 
 test('기록 모션은 데스크톱에서만 렌더링한다', () => {
-  assert.match(previewSource, /const desktopArchiveQuery = '\(min-width: 1024px\)'/)
+  assert.match(previewSource, /useHomeResponsiveViewport\(\) === 'desktop'/)
   assert.match(previewSource, /isDesktop \? \(/)
   assert.match(previewSource, /<ArchivePageStack \{\.\.\.archiveProps\} \/>/)
   assert.match(previewSource, /<ArchivePageStackLegacy \{\.\.\.archiveProps\} \/>/)

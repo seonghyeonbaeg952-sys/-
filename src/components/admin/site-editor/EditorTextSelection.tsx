@@ -4,6 +4,7 @@ import type { EditorTextRun, EditorTextStyle } from '../../../types/siteEditor'
 import { TextRunContent } from '../../site-editor/FormattedCopy'
 import { Button } from '../../common/Button'
 import { editorFontOptions } from './editorUiOptions'
+import { EDITOR_FONT_SIZE_MAX } from '../../../lib/siteEditorTextStyles'
 
 type Snapshot = { text: string; runs: EditorTextRun[] }
 type Props = {
@@ -86,13 +87,16 @@ export function EditorTextSelection({ label, value, runs, maxLength = 10000, all
         </select>
       </label>
       <label htmlFor={`${id}-size`}>크기 (px)
-        <input id={`${id}-size`} type="number" min={10} max={120} step="any" disabled={!selected} value={size} placeholder={sizeValues.size > 1 ? '혼합' : '기존값'} onChange={event => setSizeDraft({ key: sizeKey, value: event.target.value })} />
+        <input id={`${id}-size`} type="number" min={10} max={EDITOR_FONT_SIZE_MAX} step="any" disabled={!selected} value={size} placeholder={sizeValues.size > 1 ? '혼합' : '기존값'} onChange={event => setSizeDraft({ key: sizeKey, value: event.target.value })} />
       </label>
       <Button variant="secondary" size="sm" disabled={!selected} onClick={() => {
         const number = Number(size)
-        if (size !== '' && (!Number.isFinite(number) || number < 10 || number > 120)) { setError('글자 크기는 10–120px 사이로 입력해 주세요.'); return }
+        if (size !== '' && (!Number.isFinite(number) || number < 10 || number > EDITOR_FONT_SIZE_MAX)) { setError(`글자 크기는 10–${EDITOR_FONT_SIZE_MAX}px 사이로 입력해 주세요.`); return }
         format({ fontSize: size === '' ? undefined : number })
       }}>크기 적용</Button>
+      <label htmlFor={`${id}-color`}>글자색
+        <input id={`${id}-color`} type="color" aria-label="선택한 글자색" disabled={!selected} value={styles[0]?.color && /^#[\da-f]{6}$/i.test(styles[0].color) ? styles[0].color : '#68233a'} onChange={event => format({ color: event.target.value })} />
+      </label>
       <Button variant="ghost" size="sm" disabled={!selected} onClick={() => format(null)}>선택 서식 지우기</Button>
     </div> : null}
     {allowFormatting ? <p className="site-editor__selection-status" role="status">{selected ? <>선택: <strong>“{selectedText.length > 35 ? `${selectedText.slice(0, 35)}…` : selectedText}”</strong> · 이 글자에만 적용</> : '먼저 아래에서 바꿀 글자를 선택하세요.'}</p> : null}

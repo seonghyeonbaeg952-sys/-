@@ -61,7 +61,7 @@ test('평면형 디렉터리는 반응형·접근성·감속 모션 계약을 �
   assert.match(css, /background:\s*#e8ecea/)
   assert.match(css, /min-height:\s*44px/)
   assert.match(css, /@media\s*\(min-width:\s*768px\)/)
-  assert.match(css, /@media\s*\(min-width:\s*1200px\)/)
+  assert.match(css, /@media\s*\(min-width:\s*1366px\)/)
   assert.match(css, /prefers-reduced-motion:\s*reduce/)
   assert.doesNotMatch(css, /#000(?:000)?\b|background:\s*(?:black|#17191d)/i)
 })

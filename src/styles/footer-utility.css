@@ -347,7 +347,7 @@
   outline-offset: 4px;
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 1365px), (min-height: 551px) and (max-width: 1600px) and (any-pointer: coarse) {
   .site-footer--utility .footer-utility__frame {
     padding: 34px 48px 24px !important;
   }

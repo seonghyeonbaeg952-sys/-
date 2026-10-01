@@ -28,6 +28,26 @@ const context = (language = 'en') => ({ enabled: true, language, setLanguage() {
   translateData: value => model.translateDisplayData(value, t), translateHome: value => value, href: href => model.sampleLanguageHref(href, language) })
 const render = (child, language = 'en') => renderToStaticMarkup(createElement(MemoryRouter, null, createElement(SampleLanguageContext, { value: context(language) }, child)))
 
+test('published Spirit heading variants stay entirely English when Korean CMS wording changes', () => {
+  assert.equal(t('음악을', 'spirit.faithSection.text1'), 'Our approach')
+  assert.equal(t(' 대하는 태도가', 'spirit.faithSection.text2'), ' to music ')
+  assert.equal(t('함께 만들어 갈', 'spirit.closingCta.text1'), 'Join')
+  assert.equal(t('참여해 주세요.', 'spirit.closingCta.text4'), 'with us.')
+  assert.equal(t('서로 다른 ', 'spirit.motetMeaning.text2'), 'Different ')
+  assert.equal(t('하나의 음악을', 'spirit.motetMeaning.text5'), 'one piece of music')
+  assert.equal(t('합창을 통해 경험하는', 'spirit.educationSection.text1'), 'Through choral singing:')
+})
+
+test('English CMS preview uses the promoted public route, not the old sample route', () => {
+  assert.equal(sampleEnglishPreviewPath('/spirit'), '/spirit?lang=en')
+})
+
+test('Korean and English CMS canvases retain their own language across section and route links', () => {
+  assert.equal(model.editorLanguageHref('/spirit?lang=en#spirit-overview', 'ko'), '/spirit?lang=ko#spirit-overview')
+  assert.equal(model.editorLanguageHref('/sample/about?section=conductor&lang=ko', 'en'), '/about?section=conductor&lang=en')
+  assert.equal(model.editorLanguageHref('/contact?section=support#support', 'ko'), '/contact?section=support&lang=ko#support')
+})
+
 test('English Join secondary action names dates and steps within a compact button', () => {
   const label = t('모집 일정·절차 확인')
   assert.match(label, /dates/i)
@@ -187,16 +207,21 @@ test('12 — original title accents keep their DOM and translated accents retain
   ] })
   assert.match(render(headline), /home-type-accent--emphasis">Harmony<\/span>/)
 })
-test('13 — English CMS inherits visual layout but never Korean copy or character offsets', () => {
+test('13 — English CMS inherits page appearance but never Korean copy or text movement', () => {
   const ko = { ...emptySiteEditorDocument(), copy: { title: '원본' }, appearance: { desktop: { h1Size: 55 } }, textLayouts: { desktop: { title: { width: 90 } } }, textStyles: { shared: { title: { text: '원본', runs: [{ start: 0, end: 1, style: { fontSize: 70 } }] } } } }
   const en = { ...emptySiteEditorDocument(), copy: { title: 'English' }, appearance: { desktop: { h1Size: 50 } } }
   const result = sampleEnglishDocuments({ home: ko }, { home: en })
   assert.equal(result.home.copy.title, 'English')
   assert.equal(result.home.appearance.desktop.h1Size, 50)
-  assert.equal(result.home.textLayouts.desktop.title.width, 90)
+  assert.equal(result.home.textLayouts?.desktop?.title, undefined)
   assert.equal(result.home.textStyles, undefined)
   assert.equal(ko.copy.title, '원본')
   assert.equal(validateSiteEditorDocument(result.home), null)
+})
+test('13b — an added Korean text box never appears or changes in the English workspace', () => {
+  const ko = { ...emptySiteEditorDocument(), copy: { 'home.box.fixture.text': '한글 전용 문구', 'home.box.fixture.anchor': 'home-responsive-about' } }
+  const result = sampleEnglishDocuments({ home: ko }, { home: emptySiteEditorDocument() })
+  assert.deepEqual(result.home.copy, {})
 })
 test('14 — English override resolves independently for each page/device', () => {
   const en = { home: { ...emptySiteEditorDocument(), copy: { title: 'Shared' }, deviceCopy: { mobile: { title: 'Mobile' } } } }
@@ -212,7 +237,7 @@ test('15 — sample preview protocol accepts visitor routes, never CMS/external 
   const base = `https://site.test/sample/join?lang=en&site-editor-preview=${nonce}`
   assert.equal(getPreviewNavigationTarget('/join?section=contact#application', base, nonce, 'join'), `/sample/join?section=contact&lang=en&site-editor-preview=${nonce}#application`)
   assert.deepEqual(getPreviewPageIntent('/sample/gallery?tab=videos&lang=en', base), { page: 'gallery', path: '/gallery?tab=videos&lang=en' })
-  assert.equal(sampleEnglishPreviewPath('/contact?section=support#support'), '/sample/contact?section=support&lang=en#support')
+  assert.equal(sampleEnglishPreviewPath('/contact?section=support#support'), '/contact?section=support&lang=en#support')
 })
 test('16 — missing translations are labelled Korean without affecting original markup', () => {
   const child = createElement(SiteCopy, { page: 'notices', id: 'notices.new', fallback: '새로운 원문' })

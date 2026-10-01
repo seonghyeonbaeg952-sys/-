@@ -21,8 +21,8 @@ import { getEditorSectionLabel } from '../../lib/editorSectionLabel'
 import { isPreviewControlActivation } from './previewInteraction'
 import { SampleLanguageContext, useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
 import { sampleEnglishDocuments } from '../../features/sample-language/sampleEnglishDocuments'
+import { resolveEnglishHomeCopy, resolveEnglishPageCopy } from '../../features/sample-language/sampleEnglishCopy'
 import { sampleContentKey, translateDisplayData } from '../../features/sample-language/sampleLanguageModel'
-import { mapHomeContentCopy } from '../../lib/homeEditorOverrides'
 
 export function SiteEditorProvider({ children }: { children: ReactNode }) {
   const location = useLocation()
@@ -53,23 +53,22 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
   const documents = useMemo(() => isEnglish ? sampleEnglishDocuments(sourceDocuments, englishDocuments) : sourceDocuments,
     [isEnglish, sourceDocuments, englishDocuments])
   const copy = useCallback((target: Parameters<typeof resolveEditorCopy>[1], key: string, fallback: string) => {
-    const source = resolveEditorCopy(sourceDocuments, target, key, fallback, device)
-    return isEnglish ? resolveEditorCopy(englishDocuments, target, key, sample.translate(source, key), device) : source
-  }, [sourceDocuments, englishDocuments, isEnglish, sample, device])
+    if (isEnglish) return resolveEnglishPageCopy(documents, target, key, fallback, device, sample.translate)
+    return resolveEditorCopy(sourceDocuments, target, key, fallback, device)
+  }, [sourceDocuments, documents, isEnglish, sample, device])
   const languageContext = useMemo(() => !isEnglish ? sample : {
     ...sample,
     translate: (source: string, key?: string) => {
       const translated = sample.translate(source, key)
       // Catalogue IDs belong to their page; uncatalogued/source-bound copy is
       // edited independently in the English common-copy workspace.
-      return key ? translated : resolveEditorCopy(englishDocuments, 'common', sampleContentKey(source), translated, device)
+      return key ? translated : resolveEditorCopy(documents, 'common', sampleContentKey(source), translated, device)
     },
     translateData: <T,>(data: T, cacheKey?: string): T => sample.translateData(translateDisplayData(data, source =>
-      resolveEditorCopy(englishDocuments, 'common', sampleContentKey(source), sample.translate(source), device)), cacheKey),
-    translateHome: (data: Parameters<typeof mapHomeContentCopy>[0], _documents: SiteEditorDocuments, viewport: typeof device) =>
-      mapHomeContentCopy(data, viewport, (key, sourceKey, source) =>
-        resolveEditorCopy(englishDocuments, 'home', key, sample.translate(source, sourceKey), viewport)),
-  }, [sample, isEnglish, englishDocuments, device])
+      resolveEditorCopy(documents, 'common', sampleContentKey(source), sample.translate(source), device)), cacheKey),
+    translateHome: (data: Parameters<typeof resolveEnglishHomeCopy>[0], _documents: SiteEditorDocuments, viewport: typeof device) =>
+      resolveEnglishHomeCopy(data, documents, viewport, sample.translate),
+  }, [sample, isEnglish, documents, device])
   const hasTextStyles = page ? [documents.common, documents[page]].some(document => Object.values(document?.textStyles ?? {}).some(values => Object.values(values ?? {}).some(copy => copy.runs.length > 0))) : false
   const css = useMemo(() => page ? buildEditorCss(documents, page) + (hasTextStyles ? textStyleCss : '') : '', [documents, page, hasTextStyles])
   const context = useMemo(() => ({ copy, documents, sourceDocuments, device, isPreview, canvas: isPreview ? canvas?.registry : undefined }), [copy, documents, sourceDocuments, device, isPreview, canvas])

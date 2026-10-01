@@ -125,7 +125,7 @@
 .gallery-viewer__navigation { display: grid; grid-template-columns: 152px minmax(0,1fr) 152px; align-items: center; gap: 24px; }
 .gallery-viewer__navigation p { margin: 0; font-size: 14px; line-height: 24px; text-align: center; }
 
-@media (max-width: 1199px) {
+@media (max-width: 1365px), (min-height: 551px) and (max-width: 1600px) and (any-pointer: coarse) {
   .gallery-journal__shell { width: calc(100% - 64px); }
   .gallery-journal__intro-row { grid-template-columns: minmax(0,292fr) minmax(0,380fr); }
   .gallery-journal__intro h1 { font-size: 48px; line-height: 58px; }

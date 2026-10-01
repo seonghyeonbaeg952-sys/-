@@ -574,7 +574,7 @@
   }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1366px) and (pointer: fine) and (not (any-pointer: coarse)) {
   .history-cue__hero-inner {
     align-items: start;
     gap: clamp(48px, 4.7vw, 72px);

@@ -1,4 +1,5 @@
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { SiteImage } from '../../features/site-photos/SiteImage'
 import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
 import { EditableLayout } from '../site-editor/EditableLayout'
 import { HomeCopy } from './HomeCopy'
@@ -241,7 +242,7 @@ export function JoinOpenScoreCTA({
           className="join-open-score__transition join-open-score__reveal join-open-score__reveal--line"
           style={getRevealStyle(0)}
         >
-          <img
+          <SiteImage
             alt=""
             decoding="async"
             src="/images/sample/join-open-score-m.svg"

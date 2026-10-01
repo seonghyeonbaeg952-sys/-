@@ -1,4 +1,5 @@
 import { EditableLayout } from '../site-editor/EditableLayout'
+import { SiteImage } from '../../features/site-photos/SiteImage'
 import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { SiteCopy } from '../site-editor/SiteCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
@@ -31,6 +32,8 @@ import {
 } from '../../lib/spiritHeritage'
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion'
 import { OptimizedImage } from '../common/OptimizedImage'
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
+import { routeLanguageHref } from '../../features/sample-language/sampleLanguageModel'
 
 import '../../styles/spirit-heritage.css'
 
@@ -528,6 +531,7 @@ function HeritageTimeline() {
 
 function MotetMeaning({ copy }: { copy: SpiritCopy }) {
   const { copy: editorCopy } = useSiteEditor()
+  const { enabled, language } = useSampleLanguage()
   return (
     <section className="spirit-heritage__motet" id="spirit-motet" tabIndex={-1}>
       <motion.p
@@ -547,9 +551,13 @@ function MotetMeaning({ copy }: { copy: SpiritCopy }) {
           </Reveal>
           <Reveal className="spirit-heritage__motet-title" delay={0.08} y={42}>
             <h2>
+              {enabled && language === 'en' ? (
+                <SiteCopy page="spirit" id="spirit.motetMeaning.englishTitle" fallback="Different voices make one piece of music." />
+              ) : <>
               <span className="spirit-heritage__motet-line"><SiteCopy page="spirit" id="spirit.motetMeaning.text2" fallback={"여러 "} /><em><SiteCopy page="spirit" id="spirit.motetMeaning.text3" fallback={"목소리"} /></em><SiteCopy page="spirit" id="spirit.motetMeaning.text4" fallback={"로,"} /></span>
               <span className="spirit-heritage__motet-line spirit-heritage__motet-line--middle"><SiteCopy page="spirit" id="spirit.motetMeaning.text5" fallback={"하나의 원칙을"} /></span>
               <span className="spirit-heritage__motet-line spirit-heritage__motet-line--last"><SiteCopy page="spirit" id="spirit.motetMeaning.text6" fallback={"만듭니다."} /></span>
+              </>}
             </h2>
           </Reveal>
           <motion.span
@@ -880,6 +888,7 @@ function EducationSection() {
 
 function ClosingCta({ copy }: { copy: SpiritCopy }) {
   const { copy: editorCopy } = useSiteEditor()
+  const { language, translate } = useSampleLanguage()
   const reducedMotion = usePrefersReducedMotion()
 
   return (
@@ -893,7 +902,7 @@ function ClosingCta({ copy }: { copy: SpiritCopy }) {
         transition={{ duration: 0.86, ease: EASE_OUT }}
       />
       <Reveal className="spirit-heritage__closing-card spirit-heritage__open-frame" scale={0.985} y={44}>
-        <img
+        <SiteImage
           alt=""
           aria-hidden="true"
           className="spirit-heritage__closing-logo"
@@ -901,18 +910,18 @@ function ClosingCta({ copy }: { copy: SpiritCopy }) {
         />
         <div className="spirit-heritage__closing-copy">
           <p className="spirit-heritage__eyebrow">{copy.eyebrow || editorCopy('spirit', 'spirit.action.eyebrowFallback', 'JOIN THE HARMONY')}</p>
-          <h2 aria-label={copy.title}><SiteCopy page="spirit" id="spirit.closingCta.text1" fallback={"함께 부르는"} /><span><SiteCopy page="spirit" id="spirit.closingCta.text2" fallback={"다음 세대의"} /></span>
+          <h2 aria-label={translate(copy.title)}><SiteCopy page="spirit" id="spirit.closingCta.text1" fallback={"함께 부르는"} /><span><SiteCopy page="spirit" id="spirit.closingCta.text2" fallback={"다음 세대의"} /></span>
             <span><SiteCopy page="spirit" id="spirit.closingCta.text3" fallback={"울림에"} /></span>
             <strong><SiteCopy page="spirit" id="spirit.closingCta.text4" fallback={"동참하세요."} /></strong>
           </h2>
           <p><SiteCopy page="spirit" id="spirit.content.cta.body" fallback={copy.body} /></p>
           <div className="spirit-heritage__closing-actions">
-            <Link className="spirit-heritage__button spirit-heritage__button--primary" to={copy.ctaUrl || '/join'}>
-              {copy.ctaLabel || editorCopy('spirit', 'spirit.action.joinFallback', '입단 안내')}
+            <Link className="spirit-heritage__button spirit-heritage__button--primary" to={routeLanguageHref(copy.ctaUrl || '/join', language)}>
+              {translate(copy.ctaLabel || editorCopy('spirit', 'spirit.action.joinFallback', '입단 안내'))}
             </Link>
             <Link
               className="spirit-heritage__button spirit-heritage__button--secondary"
-              to={copy.secondaryCtaUrl || '/contact?section=support'}
+              to={routeLanguageHref(copy.secondaryCtaUrl || '/contact?section=support', language)}
             >
               <SiteCopy page="spirit" id="spirit.content.cta.supportLabel" fallback={copy.secondaryCtaLabel || editorCopy('spirit', 'spirit.action.supportFallback', '후원 참여')} />
             </Link>

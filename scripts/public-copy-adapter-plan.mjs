@@ -15,9 +15,8 @@ const excludedFiles = new Map([
 export function exclusion(file, candidate) {
   if (excludedFiles.has(file)) return excludedFiles.get(file)
   if (file === 'src/features/sample-language/SampleLanguageSwitch.tsx' && (
-    candidate.kind === 'text' && ['KR', 'EN'].includes(candidate.value)
-    || candidate.kind === 'attribute' && candidate.attribute === 'aria-label' && ['한국어', 'English'].includes(candidate.value)
-  )) return 'Fixed native language identities in the sample-only language selector; the four labels describe functional locale choices, not CMS editorial copy.'
+    candidate.kind === 'text' && ['한국어', 'English', 'ENG', 'KOR'].includes(candidate.value)
+  )) return 'Fixed language identities in the public language selector; these choices are functional controls, not CMS editorial copy.'
   if (candidate.value === '웹사이트') return 'Honeypot field; not a visitor instruction.'
   if (/개인정보.*동의/.test(candidate.value)) return 'Consent statement: preserve the legal source, not an appearance override.'
   return null

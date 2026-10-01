@@ -64,6 +64,14 @@ test('active text editing exposes a labelled nonmodal floating panel without req
   assert.match(html, /서식 창 접기/)
   assert.doesNotMatch(html, /autofocus|aria-modal="true"/i)
 })
+test('canvas formatting presents the 300px ceiling and expanded editorial palette', () => {
+  const html = render()
+  assert.match(html, /max="300"/)
+  assert.match(html, /따뜻한 금색/)
+})
+test('the text editing panel offers a clear handoff back to box movement', () => {
+  assert.match(render({ canPlace: true }), /글자 편집 마침 · 위치 이동/)
+})
 
 test('finish and undo remain outside optional formatting disclosures', () => {
   const html = render().replace(/<details\b[\s\S]*?<\/details>/g, '')
@@ -111,14 +119,14 @@ test('real browser keeps selected-range commands, validates values and refuses m
     await page.getByRole('button', { name: '굵게', exact: true }).click()
     assert.deepEqual(await page.evaluate(() => window.toolbarEvents), [['format', { fontWeight: 700 }]])
     await page.getByRole('button', { name: /^글꼴:/ }).click()
-    for (const name of ['기본 산세리프', '고딕 A1', '함렛', '아리따 부리', '고운 바탕', '그란디플로라']) {
+    for (const name of ['기본 산세리프', '고딕 A1', '함렛', '아리따 부리', '고운 바탕', '그란디플로라', 'Cormorant Garamond', 'Georgia']) {
       assert.equal(await page.getByRole('group', { name: '글꼴 선택' }).getByRole('button', { name, exact: false }).count(), 1)
     }
     await page.getByRole('group', { name: '글꼴 선택' }).getByRole('button', { name: '고운 바탕', exact: false }).click()
     assert.deepEqual(await page.evaluate(() => window.toolbarEvents.at(-1)), ['format', { fontFamily: 'gowun-batang' }])
-    await page.getByRole('spinbutton', { name: '크기 (px)' }).fill('121')
+    await page.getByRole('spinbutton', { name: '크기 (px)' }).fill('301')
     await page.getByRole('spinbutton', { name: '크기 (px)' }).press('Enter')
-    assert.match(await page.getByRole('alert').innerText(), /10–120/)
+    assert.match(await page.getByRole('alert').innerText(), /10–300/)
     assert.equal(await page.evaluate(() => window.toolbarEvents.length), 2)
     await page.getByRole('spinbutton', { name: '크기 (px)' }).fill('45.5')
     await page.getByRole('spinbutton', { name: '크기 (px)' }).press('Enter')

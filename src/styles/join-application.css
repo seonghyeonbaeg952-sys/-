@@ -74,7 +74,7 @@ html[data-sample-language='en'] .join-application__field .sample-date-input sele
 .join-application__skeleton { display: grid; gap: 24px; }
 .join-application__skeleton span { height: 48px; border-radius: 4px; background: #e8ecea; }
 
-@media(max-width:1099px) {
+@media (max-width: 1365px), (min-height: 551px) and (max-width: 1600px) and (any-pointer: coarse) {
   .join-application__container { width: calc(100% - 64px); }
   .join-application__body { grid-template-columns: minmax(0,1fr); gap: 0; padding-bottom: 48px; }
   .join-application__sidebar { display: none; }

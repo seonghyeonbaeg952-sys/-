@@ -42,7 +42,7 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background-image: url("/images/textures/smyc-paper-grain.png");
+  background-image: var(--site-photo-archive-paper,url("/images/textures/smyc-paper-grain.png"));
   background-repeat: repeat;
   background-size: 360px 360px;
   content: "";

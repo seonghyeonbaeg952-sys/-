@@ -1,5 +1,6 @@
 import { useSiteEditor } from '../../site-editor/useSiteEditor'
 import { useState } from 'react'
+import { SiteImage } from '../../../features/site-photos/SiteImage'
 
 type HomeV4SampleImageProps = {
   alt: string
@@ -15,9 +16,9 @@ export function HomeV4SampleImage({
   src,
 }: HomeV4SampleImageProps) {
   const { copy: copyText } = useSiteEditor()
-  const [hasError, setHasError] = useState(false)
+  const [failedSource, setFailedSource] = useState('')
 
-  if (hasError) {
+  if (failedSource === src) {
     return (
       <div
         aria-label={fallbackLabel}
@@ -31,12 +32,12 @@ export function HomeV4SampleImage({
   }
 
   return (
-    <img
+    <SiteImage
       alt={alt}
       className={className}
       decoding="async"
       loading="lazy"
-      onError={() => setHasError(true)}
+      onError={() => setFailedSource(src)}
       src={src}
     />
   )

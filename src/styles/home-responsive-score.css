@@ -1,4 +1,6 @@
-@media (min-width: 768px) and (max-width: 1023px) {
+@media (min-width: 768px) and (max-width: 1365px) and (min-height: 551px),
+  (any-pointer: coarse) and (min-width: 768px) and (min-height: 551px),
+  (min-width: 1366px) and (max-width: 1600px) and (max-aspect-ratio: 3/2) {
   .home-flow-root .home-flow-body #home-responsive-score.home-responsive-score {
     display: grid;
     gap: 28px;
@@ -42,7 +44,7 @@
     gap: 32px;
     padding-block: 24px;
     border-block: 1px solid #f0d5c8;
-    background: linear-gradient(rgb(251 248 242 / 0.86), rgb(251 248 242 / 0.86)), url('/images/home/responsive-score-paper.png') center / cover, #fbf8f2;
+    background: linear-gradient(rgb(251 248 242 / 0.86), rgb(251 248 242 / 0.86)), var(--site-photo-responsive-paper,url('/images/home/responsive-score-paper.png')) center / cover, #fbf8f2;
   }
 
   #home-responsive-score .home-responsive-score__page {

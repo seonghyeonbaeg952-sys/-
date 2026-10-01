@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { SiteImage } from '../../features/site-photos/SiteImage'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { FormattedCopy } from '../site-editor/FormattedCopy'
 
@@ -127,7 +128,7 @@ export function BrandLogo({
         className,
       )}
     >
-      <img
+      <SiteImage
         alt={copyText('common', `common.brand.${brand}.alt`, brandConfig.alt)}
         className={classNames(
           'block max-w-full w-auto object-contain',

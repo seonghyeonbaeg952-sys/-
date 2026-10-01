@@ -3,7 +3,9 @@ import { useSampleLanguage } from './useSampleLanguage'
 import { useLocation } from 'react-router'
 import { useSiteEditor } from '../../components/site-editor/useSiteEditor'
 
-export function SampleLanguageSwitch() {
+const LANGUAGE_CODES = { ko: 'KOR', en: 'ENG' } as const
+
+export function SampleLanguageSwitch({ onLanguageChange }: { onLanguageChange?: () => void } = {}) {
   const { enabled, language, setLanguage, contentError, contentRetrying, retryContent } = useSampleLanguage()
   const { copy: copyText } = useSiteEditor()
   const location = useLocation()
@@ -30,14 +32,20 @@ export function SampleLanguageSwitch() {
     }
   }, [open])
 
+  const chooseLanguage = (next: 'ko' | 'en') => {
+    setLanguage(next)
+    setOpen(false)
+    onLanguageChange?.()
+  }
+
   if (!enabled || new URLSearchParams(location.search).has('site-editor-preview')) return null
   return <div className="sample-language-switch" ref={rootRef}>
     <button aria-controls={optionsId} aria-expanded={open} aria-label={language === 'en' ? 'Language: English' : '언어 선택: 한국어'} className="sample-language-switch__trigger" onClick={() => setOpen(value => !value)} ref={triggerRef} type="button">
-      {language === 'en' ? 'ENG' : 'KOR'} <span aria-hidden="true">▾</span>
+      {LANGUAGE_CODES[language]} <span aria-hidden="true">▾</span>
     </button>
     {open ? <div aria-label={language === 'en' ? 'Choose language' : '언어 선택'} className="sample-language-switch__options" id={optionsId} role="group">
-      <button aria-pressed={language === 'ko'} lang="ko" onClick={() => { setLanguage('ko'); setOpen(false) }} type="button">한국어</button>
-      <button aria-pressed={language === 'en'} lang="en" onClick={() => { setLanguage('en'); setOpen(false) }} type="button">English</button>
+      <button aria-pressed={language === 'ko'} lang="ko" onClick={() => chooseLanguage('ko')} type="button">한국어</button>
+      <button aria-pressed={language === 'en'} lang="en" onClick={() => chooseLanguage('en')} type="button">English</button>
     </div> : null}
     {contentError ? <div className="sample-language-switch__issue" lang="en" role="status">
       <p>{copyText('common', 'common.languageContentError', 'Some English content could not be loaded. Available content is still shown.')}</p>

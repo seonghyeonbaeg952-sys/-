@@ -181,7 +181,6 @@
     .home-global-identity-plate,
     .home-flow-sample-chunk__surface,
     .motion-program-mobile-card,
-    .motion-program-panel,
     .notice-program-notes,
     .spirit-scorebook,
     .spirit-scorebook-shell,
@@ -233,7 +232,6 @@
 .color-sample-theme.public-shell-home :is(
     .home-global-identity-plate,
     .motion-program-mobile-card,
-    .motion-program-panel,
     .spirit-scorebook,
     .spirit-scorebook-shell,
     .archive-folder-back,
@@ -541,7 +539,7 @@
   height: 76px !important;
   transform: translateX(-50%) !important;
   background-color: transparent !important;
-  background-image: url('/images/sample/symmetric-m-rail.svg') !important;
+  background-image: var(--site-photo-sample-m-rail,url('/images/sample/symmetric-m-rail.svg')) !important;
   background-repeat: no-repeat !important;
   background-position: center !important;
   background-size: 100% 100% !important;
@@ -676,7 +674,7 @@
   left: clamp(18px, 4vw, 64px);
   height: 68px;
   pointer-events: none;
-  background: url('/images/sample/symmetric-m-rail.svg') center / 100% 100% no-repeat;
+  background: var(--site-photo-sample-m-rail,url('/images/sample/symmetric-m-rail.svg')) center / 100% 100% no-repeat;
 }
 
 @media (max-width: 767px) {

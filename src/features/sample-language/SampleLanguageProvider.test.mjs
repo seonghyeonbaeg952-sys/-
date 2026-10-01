@@ -101,14 +101,22 @@ test('explicit URLs and back/forward update language without changing a remember
   h.setSearch(''); assert.equal(h.render().language, 'en')
   h.destroy()
 })
-test('English CMS preview stays English across nonce-stripping redirects and never saves visitor preference', () => {
-  const h = harness({ preview: true, remembered: 'ko' })
+test('CMS preview follows its explicit language without changing the visitor preference', () => {
+  const h = harness({ preview: true, remembered: 'ko', search: '?lang=en' })
   assert.equal(h.render().language, 'en')
   h.render().setLanguage('ko')
   assert.deepEqual(h.navigations, [])
   assert.deepEqual(h.writes, [])
-  h.setSearch('?section=contact'); assert.equal(h.render().language, 'en')
+  h.setSearch('?section=contact&lang=en'); assert.equal(h.render().language, 'en')
+  h.setSearch('?section=contact&lang=ko'); assert.equal(h.render().language, 'ko')
   h.destroy()
+
+  const korean = harness({ preview: true, isSample: false, search: '?lang=ko', publicRemembered: 'en' })
+  assert.equal(korean.render().language, 'ko')
+  assert.equal(korean.root.lang, 'ko')
+  korean.render().setLanguage('en')
+  assert.deepEqual(korean.navigations, [])
+  korean.destroy()
 })
 test('sample administrator routes do not change document language, preference or navigation', () => {
   const h = harness({ path: '/admin/editor', search: '?lang=en' })

@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useSitePhoto } from '../../features/site-photos/useSitePhoto'
 import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
 
 type JsonLdEntry = Record<string, unknown>
@@ -47,12 +48,13 @@ export function SeoHead({
   title,
   type = 'website',
 }: SeoHeadProps) {
+  const photo = useSitePhoto(image || defaultImagePath)
   const { enabled, isSample, language, translate, href: sampleHref } = useSampleLanguage()
   useEffect(() => {
     const origin = window.location.origin
     const canonicalPath = path || window.location.pathname
     const canonicalUrl = toAbsoluteUrl(enabled ? sampleHref(canonicalPath) : canonicalPath, origin)
-    const imageUrl = toAbsoluteUrl(image || defaultImagePath, origin)
+    const imageUrl = toAbsoluteUrl(photo.src, origin)
     const displaySiteName = translate(siteName)
     const displayTitle = translate(title)
     const pageTitle = displayTitle.includes(displaySiteName) || displayTitle.includes(siteName)
@@ -138,7 +140,7 @@ export function SeoHead({
       structuredDataScript.remove()
       restorers.reverse().forEach((restore) => restore())
     }
-  }, [description, enabled, isSample, image, jsonLd, language, noIndex, path, sampleHref, title, translate, type])
+  }, [description, enabled, isSample, image, photo.src, jsonLd, language, noIndex, path, sampleHref, title, translate, type])
 
   return null
 }

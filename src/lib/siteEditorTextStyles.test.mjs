@@ -61,6 +61,13 @@ test('version-one documents accept bounded styles without changing legacy docume
   assert.equal(documentModel.validateSiteEditorDocument({ ...empty(), textStyles: { shared: { title: { text: 'A😀B', runs: [size(1, 3)] } } } }), null)
   assert.equal(documentModel.validateSiteEditorDocument({ ...empty(), textStyles: {} }), null)
 })
+test('a selected headline accepts 300px and the added editorial fonts but rejects 301px', () => {
+  assert.deepEqual(model.applyTextStyle('Title', [], 0, 5, { fontSize: 300, fontFamily: 'cormorant-garamond' }), [
+    { start: 0, end: 5, style: { fontFamily: 'cormorant-garamond', fontSize: 300 } },
+  ])
+  assert.equal(model.validateTextStyles({ mobile: { title: { text: 'Title', runs: [{ start: 0, end: 5, style: { fontFamily: 'georgia', fontSize: 300 } }] } } }), null)
+  assert.ok(model.validateTextStyles({ mobile: { title: { text: 'Title', runs: [size(0, 5, 301)] } } }))
+})
 
 test('serialized styles reject injection, ambiguous ranges, partial graphemes, invalid size and unknown properties', () => {
   assert.equal(typeof model.validateTextStyles, 'function')
@@ -70,7 +77,7 @@ test('serialized styles reject injection, ambiguous ranges, partial graphemes, i
     { text: valid.text, runs: [size(0, 2)] }, { text: valid.text, runs: [size(4, 5)] },
     { text: valid.text, runs: [size(0, 4), size(3, 4)] }, { text: valid.text, runs: [size(3, 4), size(0, 1)] },
     { text: valid.text, runs: [size(1, 1)] }, { text: valid.text, runs: [size(-1, 1)] }, { text: valid.text, runs: [size(0, 99)] },
-    { text: valid.text, runs: [size(0, 1, 9)] }, { text: valid.text, runs: [size(0, 1, 121)] }, { text: valid.text, runs: [size(0, 1, NaN)] },
+    { text: valid.text, runs: [size(0, 1, 9)] }, { text: valid.text, runs: [size(0, 1, 301)] }, { text: valid.text, runs: [size(0, 1, NaN)] },
     { text: valid.text, runs: [{ start: 0, end: 1, style: { fontFamily: 'url(evil)' } }] },
     { text: valid.text, runs: [{ start: 0, end: 1, style: { color: 'red' } }] },
     { text: valid.text, runs: [{ start: 0, end: 1, style: {} }] },

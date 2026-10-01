@@ -38,26 +38,30 @@ const { sampleContentKey } = await vite.ssrLoadModule('/src/features/sample-lang
 const { resolveEditorCopy } = await vite.ssrLoadModule('/src/lib/siteEditorModel.ts')
 const { makeCanvasGrant, commitCanvasGrant } = await vite.ssrLoadModule('/src/components/admin/site-editor/editorCanvasController.ts')
 
-test('ordinary English defaults retain each original device baseline without mutating source documents', () => {
+test('English defaults remain independent when Korean site text and published copy change', () => {
   const raw = { 'home.current.about.title': '함께 빚어가는 화음,\n다음 세대의 노래', 'home.mobile.current.about.title': '함께 빚어가는 화음,\n세대의 노래' }
   const snapshot = structuredClone({ raw, source })
-  const { defaults, deviceDefaults } = buildSampleEnglishDefaults(raw, source)
+  const { defaults, deviceDefaults } = buildSampleEnglishDefaults()
   assert.equal(defaults['notices.title'], 'Notices')
   assert.equal(deviceDefaults.desktop['notices.title'], 'Notices')
-  assert.equal(deviceDefaults.mobile['notices.title'], 'Choir news')
-  assert.equal(deviceDefaults.tablet['notices.title'], translateEnglish('공연 소식', 'notices.title'))
-  assert.equal(defaults['home.mobile.current.about.title'], translateEnglish(raw['home.mobile.current.about.title'], 'home.current.about.title'))
+  assert.equal(deviceDefaults.mobile['notices.title'], 'Notices')
+  assert.equal(deviceDefaults.tablet['notices.title'], 'Notices')
+  raw['home.mobile.current.about.title'] = '한글 새 제목'
+  source.notices.copy['notices.title'] = '한글 새 공지 제목'
+  const changed = buildSampleEnglishDefaults()
+  assert.deepEqual(changed, { defaults, deviceDefaults })
+  assert.notDeepEqual({ raw, source }, snapshot)
+  source.notices.copy['notices.title'] = snapshot.source.notices.copy['notices.title']
   const sharedKey = sampleContentKey('공연')
   assert.equal(defaults[sharedKey], translateEnglish('공연'))
   for (const map of Object.values(deviceDefaults)) assert.equal(Object.hasOwn(map, sharedKey), false)
-  assert.deepEqual({ raw, source }, snapshot)
 })
 
 test('device-aware English defaults issue matching grants on mobile, tablet and desktop, including shared editing', () => {
-  const baseline = buildSampleEnglishDefaults({}, source)
+  const baseline = buildSampleEnglishDefaults()
   const document = empty()
   for (const device of ['mobile', 'tablet', 'desktop']) {
-    const displayed = translateEnglish(resolveEditorCopy(source, 'notices', 'notices.title', '공지사항', device), 'notices.title')
+    const displayed = translateEnglish('공지사항', 'notices.title')
     for (const scope of [device, 'shared']) {
       const ctx = { editorPage: 'notices', previewPage: 'notices', device, scope, storageScope: 'sample-english',
         documents: { notices: document }, loadedOwners: new Set(['notices']), defaultsTrusted: true,
@@ -77,14 +81,14 @@ test('device-aware English defaults issue matching grants on mobile, tablet and 
   assert.deepEqual(document, empty())
 })
 
-test('resource loading reads the baseline once and inventories public popup copy without exposing its URL', async () => {
+test('resource loading uses independent English defaults and inventories public popup copy without exposing its URL', async () => {
   calls.length = 0
   const before = structuredClone({ source, popup })
   const result = await loadSampleEnglishResources()
-  assert.equal(calls.filter(name => name === 'getPublicSiteTexts').length, 1)
-  assert.equal(calls.filter(name => name === 'loadPublicEditorPages').length, 1)
+  assert.equal(calls.filter(name => name === 'getPublicSiteTexts').length, 0)
+  assert.equal(calls.filter(name => name === 'loadPublicEditorPages').length, 0)
   assert.equal(calls.filter(name => name === 'getPublicPopupNotices').length, 1)
-  assert.equal(result.deviceDefaults.mobile['notices.title'], 'Choir news')
+  assert.equal(result.deviceDefaults.mobile['notices.title'], 'Notices')
   for (const text of [popup.title, popup.content, popup.button_label]) {
     const key = sampleContentKey(text)
     assert.ok(result.definitions.some(field => field.key === key && field.page === 'common'))

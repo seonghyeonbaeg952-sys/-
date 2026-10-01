@@ -5,6 +5,7 @@ export const editorFontOptions: Array<{ value: EditorFont; label: string }> = [
   { value: 'system', label: '기본 산세리프' }, { value: 'gothic-a1', label: '고딕 A1' },
   { value: 'hahmlet', label: '함렛' }, { value: 'arita-buri', label: '아리따 부리' },
   { value: 'gowun-batang', label: '고운 바탕' }, { value: 'grandiflora', label: '그란디플로라' },
+  { value: 'cormorant-garamond', label: 'Cormorant Garamond' }, { value: 'georgia', label: 'Georgia' },
 ]
 
 export const editorViewports = [
@@ -12,6 +13,13 @@ export const editorViewports = [
   { id: 'tablet', label: '태블릿', width: 768, height: 1024 },
   { id: 'desktop', label: '데스크톱', width: 1440, height: 900 },
 ] as const
+
+export function getEditorPreviewScale(device: 'mobile' | 'tablet' | 'desktop', available: number, fit: boolean): number {
+  if (!fit || available <= 0) return 1
+  const viewport = editorViewports.find(item => item.id === device) ?? editorViewports[0]
+  const availableScale = available / viewport.width
+  return device === 'mobile' ? Math.min(2, availableScale) : Math.min(1, availableScale)
+}
 
 export function formatEditorTime(value: string | null) {
   if (!value) return '없음'

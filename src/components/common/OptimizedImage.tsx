@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useSitePhoto } from '../../features/site-photos/useSitePhoto'
 import type { CSSProperties, ReactNode } from 'react'
 
 import { classNames } from '../../utils/classNames'
@@ -111,6 +112,7 @@ export function OptimizedImage({
   transform,
   width,
 }: OptimizedImageProps) {
+  const photo = useSitePhoto(src, alt)
   const [failureState, setFailureState] = useState<ImageFailureState>({
     activeSourceIndex: 0,
     failedOriginalSrc: '',
@@ -119,9 +121,9 @@ export function OptimizedImage({
   })
   const sourceCandidates = useMemo(() => {
     return Array.from(
-      new Set([src, ...fallbackSrcs].map((source) => source?.trim() ?? '').filter(Boolean)),
+      new Set([photo.src, ...(photo.overridden ? [src] : []), ...fallbackSrcs].map((source) => source?.trim() ?? '').filter(Boolean)),
     )
-  }, [fallbackSrcs, src])
+  }, [fallbackSrcs, src, photo.src, photo.overridden])
   const sourceCandidatesKey = sourceCandidates.join('\n')
   const activeFailureState =
     failureState.sourceCandidatesKey === sourceCandidatesKey
@@ -176,7 +178,7 @@ export function OptimizedImage({
     >
       {shouldRenderImage ? (
         <img
-          alt={getRenderedAlt(alt, decorative)}
+          alt={getRenderedAlt(activeSourceIndex === 0 ? photo.alt : alt, decorative)}
           aria-hidden={decorative || undefined}
           className={classNames(
             'size-full',
@@ -184,6 +186,8 @@ export function OptimizedImage({
             imageClassName,
           )}
           decoding="async"
+          data-site-photo={photo.overridden ? photo.key : undefined}
+          style={photo.objectPosition && activeSourceIndex === 0 ? { objectPosition: photo.objectPosition } : undefined}
           crossOrigin={crossOrigin}
           fetchPriority={priority ? 'high' : 'auto'}
           height={height}

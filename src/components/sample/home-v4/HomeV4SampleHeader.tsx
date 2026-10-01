@@ -177,7 +177,7 @@ export function HomeV4SampleHeader({
   }, [mobileMenuOpen])
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(min-width: 1024px)')
+    const mediaQuery = window.matchMedia('(min-width: 1366px) and (pointer: fine)')
     const handleViewportChange = () => {
       if (mediaQuery.matches && mobileMenuOpen) {
         closeMobileMenu(false)
@@ -331,7 +331,7 @@ export function HomeV4SampleHeader({
           <span aria-hidden="true" />
           <span aria-hidden="true" />
         </button>
-        <SampleLanguageSwitch />
+        <SampleLanguageSwitch onLanguageChange={() => { setMobileMenuOpen(false); closeDesktopMenu(false) }} />
       </div>
 
       {desktopMenuItem ? (

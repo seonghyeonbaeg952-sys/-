@@ -1,0 +1,229 @@
+/* Tablet 834 · Home / Editorial Score (Figma 4:2), extended as a centered
+   editorial canvas in landscape. The live CMS supplies all copy and imagery. */
+.public-shell-home-sample-v4[data-home-viewport='tablet'] {
+  --tablet-editorial-paper: #fbf8f2;
+  --tablet-editorial-ink: #3b1733;
+  --tablet-editorial-orange: #ff601a;
+  --tablet-editorial-line: #f0d5c8;
+  --tablet-editorial-gutter: max(48px, calc((100vw - 1040px) / 2));
+  background: var(--tablet-editorial-paper);
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-v4-sample-header,
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-v4-sample-header[data-transparent='true'] {
+  background: #fff !important;
+  border-bottom: 1px solid var(--tablet-editorial-line) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-v4-sample-header__bar {
+  max-width: 1136px;
+  min-height: 72px;
+  padding-inline: clamp(28px, 5.75vw, 48px);
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-flow-root {
+  padding-top: 72px;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-intro-real-sample,
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-hero-section {
+  height: auto !important;
+  min-height: clamp(760px, calc(100svh - 72px), 880px) !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-hero-layout {
+  align-items: flex-start !important;
+  width: 100%;
+  max-width: none;
+  min-height: clamp(760px, calc(100svh - 72px), 880px) !important;
+  padding: clamp(108px, 15.4svh, 144px) var(--tablet-editorial-gutter) 64px !important;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-hero-copy {
+  width: min(100%, 600px);
+  max-width: 600px;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-hero-copy .type-hero-title.home-hero-title-en {
+  max-width: 426px !important;
+  font-size: clamp(68px, 9.6vw, 80px) !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.055em !important;
+  line-height: 0.85 !important;
+  color: var(--tablet-editorial-paper) !important;
+  text-shadow: none !important;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-hero-copy .type-body {
+  max-width: 590px;
+  margin-top: 28px !important;
+  color: var(--tablet-editorial-paper) !important;
+  font-size: 17px;
+  line-height: 1.7 !important;
+  text-shadow: none;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-hero-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 24px !important;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-hero-cta-row > a {
+  display: flex;
+  justify-content: space-between;
+  width: min(236px, 100%);
+  min-height: 52px;
+  margin: 0;
+  padding-inline: 20px;
+  border-radius: 26px;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-hero-overlay {
+  background: rgb(8 6 10 / 0.48) !important;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-hero-background-image img {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-hero-motto-chips {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 0;
+  margin-top: 24px;
+  padding: 0;
+  overflow: visible;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-hero-motto-chip {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--tablet-editorial-paper);
+  font: 400 12px/1.5 'Home Responsive Gothic', sans-serif;
+  backdrop-filter: none;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-hero-motto-chip + .home-hero-motto-chip::before {
+  content: ' · ';
+  white-space: pre;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] :is(.home-spotlight-glow, .stage-staff-lines-hero) {
+  display: none !important;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-hero-controls {
+  position: absolute;
+  right: var(--tablet-editorial-gutter);
+  bottom: 28px;
+  z-index: 30;
+  display: flex;
+  margin: 0 !important;
+  opacity: 1;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-hero-controls :is(button, [role='tab']) {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-hero-autoplay-progress {
+  height: 2px;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] #home-responsive-quick.home-responsive-quick {
+  border-bottom: 1px solid var(--tablet-editorial-line);
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] #home-responsive-quick .home-responsive-quick__container {
+  max-width: none;
+  padding-inline: var(--tablet-editorial-gutter);
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] #home-responsive-quick .home-responsive-quick__list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] #home-responsive-quick .home-responsive-quick__row {
+  min-height: 60px;
+  padding: 8px 0;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-flow-body,
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-flow-sample-chunk--warm,
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-flow-sample-chunk--stage,
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-flow-sample-chunk--finale {
+  margin: 0 !important;
+  background: var(--tablet-editorial-paper) !important;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] :is(.home-flow-sample-chunk__surface, .home-flow-sample-chunk__edge, .home-flow-sample-chunk--warm::before) {
+  display: none !important;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-section-flow-sample .home-flow-sample-chunk--warm [data-flow-section='about'] {
+  translate: none !important;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-flow-body [data-flow-section]::after {
+  display: none !important;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] :is(#home-responsive-about, #home-responsive-join, #home-responsive-concerts, #home-responsive-score, #home-responsive-archive, #home-responsive-support) {
+  padding-right: var(--tablet-editorial-gutter) !important;
+  padding-left: var(--tablet-editorial-gutter) !important;
+}
+
+/* Concert, score, and support have deeper component-level selectors. Keep
+   their shared canvas aligned with About, Join, and Archive in landscape. */
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-flow-root .home-flow-body #home-responsive-concerts,
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-flow-root .home-flow-body #home-responsive-score,
+.public-shell-home-sample-v4[data-home-viewport='tablet'] .home-flow-root .home-flow-body #home-responsive-support {
+  padding-right: var(--tablet-editorial-gutter) !important;
+  padding-left: var(--tablet-editorial-gutter) !important;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] #home-responsive-about.home-responsive-about {
+  max-width: none;
+  padding-top: 48px !important;
+  padding-bottom: 64px !important;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] #home-responsive-about .responsive-about__portrait {
+  width: 100%;
+  max-width: none;
+  aspect-ratio: 3 / 2;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] #home-responsive-join.home-responsive-join {
+  padding-top: 50px !important;
+  padding-bottom: 64px !important;
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] #home-responsive-archive .home-responsive-archive__pair {
+  grid-template-columns: minmax(0, 0.44fr) minmax(0, 0.56fr);
+}
+
+.public-shell-home-sample-v4[data-home-viewport='tablet'] #home-responsive-spirit.home-responsive-spirit {
+  margin-right: var(--tablet-editorial-gutter) !important;
+  margin-left: var(--tablet-editorial-gutter) !important;
+}
+
+@media (max-height: 820px) {
+  .public-shell-home-sample-v4[data-home-viewport='tablet'] .home-hero-layout {
+    padding-top: 108px !important;
+  }
+}

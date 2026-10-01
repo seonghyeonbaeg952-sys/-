@@ -31,6 +31,7 @@ export function AdminVideosPage() {
   const fields = useMemo<Array<AdminFieldConfig<VideoRow>>>(() => [
     { name: 'title', label: '제목', type: 'text', required: true },
     { name: 'youtube_url', label: 'YouTube URL', type: 'url' },
+    { name: 'thumbnail_url', label: '영상 썸네일 사진', type: 'image', folder: 'gallery', description: '비워 두면 YouTube의 기본 썸네일을 사용합니다.' },
     {
       name: 'youtube_id',
       label: 'YouTube ID',

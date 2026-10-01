@@ -4,6 +4,7 @@ import { createBrowserRouter, Navigate, Route, RouterProvider, Routes } from 're
 import { PublicLayout } from './components/layout/PublicLayout'
 import { RouteScrollManager } from './components/layout/RouteScrollManager'
 import { SiteEditorProvider } from './components/site-editor/SiteEditorProvider'
+import { SitePhotosProvider } from './features/site-photos/SitePhotosProvider'
 import { useSiteEditor } from './components/site-editor/useSiteEditor'
 import { FormattedCopy } from './components/site-editor/FormattedCopy'
 import {
@@ -92,6 +93,7 @@ const AdminSiteEditorPage = lazy(() =>
     default: module.AdminSiteEditorPage,
   })),
 )
+const AdminSitePhotosPage = lazy(() => import('./pages/admin/AdminSitePhotosPage').then(module => ({ default: module.AdminSitePhotosPage })))
 const SampleLanguageProvider = lazy(() => import('./features/sample-language/SampleLanguageProvider').then(module => ({ default: module.SampleLanguageProvider })))
 const AdminSampleEnglishEditorPage = lazy(() => import('./pages/admin/AdminSampleEnglishEditorPage').then(module => ({ default: module.AdminSampleEnglishEditorPage })))
 const AdminAboutPage = lazy(() =>
@@ -232,7 +234,7 @@ function AppRouteContent() {
   const isColorSample = isColorSamplePath(window.location.pathname)
 
   return (
-      <SiteEditorProvider>
+      <SitePhotosProvider><SiteEditorProvider>
       <RouteScrollManager />
       <Suspense fallback={<RouteFallback />}>
         <Routes>
@@ -267,6 +269,7 @@ function AppRouteContent() {
             <Route index element={<AdminDashboardPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
             <Route path="editor" element={<AdminSiteEditorPage />} />
+            <Route path="photos" element={<AdminSitePhotosPage />} />
             <Route path="editor-english" element={<AdminSampleEnglishEditorPage />} />
             <Route path="home" element={<Navigate replace to="/admin/editor?page=home" />} />
             <Route path="site-texts" element={<Navigate replace to="/admin/editor?page=home" />} />
@@ -293,7 +296,7 @@ function AppRouteContent() {
           </Route>
         </Routes>
       </Suspense>
-      </SiteEditorProvider>
+      </SiteEditorProvider></SitePhotosProvider>
   )
 }
 

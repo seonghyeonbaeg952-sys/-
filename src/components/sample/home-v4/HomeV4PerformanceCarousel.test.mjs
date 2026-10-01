@@ -49,7 +49,7 @@ test('one CMS concert renders exactly one choice and one programme without fabri
   assert.deepEqual(choices(html), ['CMS 공연 A'])
   assert.equal((html.match(/data-template-position="/g) ?? []).length, 1)
   assert.match(html, /1\s*\/\s*1/)
-  for (const label of ['이전 공연 템플릿', '다음 공연 템플릿']) {
+  for (const label of ['이전 공연 브로슈어', '다음 공연 브로슈어']) {
     const button = html.match(new RegExp(`<button[^>]*aria-label="${label}"[^>]*>`))?.[0]
     assert.ok(button?.includes('disabled=""'), `${label} must be disabled for one concert`)
   }
@@ -68,7 +68,7 @@ test('no CMS concert renders the editable empty state and no event controls or d
     assert.ok(html.includes(text), `missing empty-state copy: ${text}`)
   }
   assert.deepEqual(choices(html), [])
-  assert.doesNotMatch(html, /data-template-position=|이전 공연 템플릿|다음 공연 템플릿|href="[^"]*concerts\//)
+  assert.doesNotMatch(html, /data-template-position=|이전 공연 브로슈어|다음 공연 브로슈어|href="[^"]*concerts\//)
 })
 
 test('hidden records do not render and the existing three-concert limit uses only CMS records', () => {

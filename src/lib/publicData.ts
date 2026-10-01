@@ -1,4 +1,5 @@
 import { SUPABASE_SETUP_MESSAGE, getSupabaseClientSafe } from './auth'
+import { videoArtworkSources } from '../features/site-photos/videoArtwork'
 import { submitContactIntake, submitSupportIntake } from './intakeApi'
 import { isSiteEditorPreview, PREVIEW_SUBMISSION_MESSAGE } from './siteEditorPreview'
 import {
@@ -251,6 +252,7 @@ const VIDEO_SELECT = [
   'title',
   'youtube_url',
   'youtube_id',
+  'thumbnail_url',
   'description',
   'is_visible',
   'display_order',
@@ -816,13 +818,7 @@ function mapGalleryImage(row: GalleryRow): GalleryImage {
 
 function mapVideo(row: VideoRow): VideoItem {
   const youtubeId = nullableString(row.youtube_id)
-  const youtubeThumbnailUrls = youtubeId
-    ? [
-        `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`,
-        `https://img.youtube.com/vi/${youtubeId}/sddefault.jpg`,
-        `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`,
-      ]
-    : []
+  const youtubeThumbnailUrls = videoArtworkSources(youtubeId, nullableString(row.thumbnail_url))
 
   return {
     id: row.id,
@@ -1355,20 +1351,20 @@ export async function getPublicVideos(
     return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
   }
 
-  let query = clientResult.data
-    .from('videos')
-    .select(VIDEO_SELECT)
-    .eq('is_visible', true)
-    .order('display_order', { ascending: true })
-    .order('created_at', { ascending: false })
-
   const limit = normalizeLimit(options.limit)
-
-  if (limit) {
-    query = query.limit(limit)
+  const client = clientResult.data
+  const videoQuery = (columns: string) => {
+    let query = client.from('videos').select(columns).eq('is_visible', true)
+      .order('display_order', { ascending: true }).order('created_at', { ascending: false })
+    if (limit) query = query.limit(limit)
+    return query
   }
-
-  const { data, error } = await query
+  let { data, error } = await videoQuery(VIDEO_SELECT)
+  if (error && getErrorMessage(error).includes('thumbnail_url') && ['42703', 'PGRST204'].includes(String(error.code))) {
+    // Sites that have not applied the additive media migration keep their video list.
+    const legacy = await videoQuery(VIDEO_SELECT.split(',').filter(column => column !== 'thumbnail_url').join(','))
+    data = legacy.data; error = legacy.error
+  }
 
   if (error) {
     return { data: null, error: toPublicError(error, '영상 목록을 불러오지 못했습니다.') }

@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useHomeResponsiveViewport } from './useHomeResponsiveViewport'
 
 const desktopIntroQuery =
   '(min-width: 1024px) and (prefers-reduced-motion: no-preference)'
@@ -6,6 +7,7 @@ const introScrollTolerance = 8
 const introLockDeadline = 6000
 
 export function HomeHeroIntroOverlay() {
+  const viewport = useHomeResponsiveViewport()
   const launchRef = useRef<HTMLDivElement>(null)
   const [shouldRenderIntro, setShouldRenderIntro] = useState(() =>
     typeof window === 'undefined' ? false : window.matchMedia(desktopIntroQuery).matches,
@@ -14,7 +16,7 @@ export function HomeHeroIntroOverlay() {
   const [isDismissed, setIsDismissed] = useState(() =>
     typeof window !== 'undefined' && window.scrollY > introScrollTolerance,
   )
-  const canShowIntro = shouldRenderIntro && !isDismissed
+  const canShowIntro = viewport === 'desktop' && shouldRenderIntro && !isDismissed
 
   useEffect(() => {
     const query = window.matchMedia(desktopIntroQuery)

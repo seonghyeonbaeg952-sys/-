@@ -5,7 +5,7 @@ export type EditorPageId =
   | 'members' | 'history' | 'concerts' | 'concert-detail' | 'notices'
   | 'notice-detail' | 'gallery' | 'join' | 'contact'
 
-export type EditorFont = 'system' | 'gothic-a1' | 'hahmlet' | 'arita-buri' | 'gowun-batang' | 'grandiflora'
+export type EditorFont = 'system' | 'gothic-a1' | 'hahmlet' | 'arita-buri' | 'gowun-batang' | 'grandiflora' | 'cormorant-garamond' | 'georgia'
 
 export type EditorTextStyle = {
   fontFamily?: EditorFont

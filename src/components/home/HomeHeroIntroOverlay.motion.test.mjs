@@ -8,7 +8,7 @@ const source = ts.transpileModule(await readFile(new URL('./HomeHeroIntroOverlay
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
 }).outputText
 
-function mount({ scrollY = 0, animate = true, fontsPending = false } = {}) {
+function mount({ scrollY = 0, animate = true, fontsPending = false, viewport = 'desktop' } = {}) {
   const slots = [], effects = [], frames = new Map(), timers = new Map(), listeners = new Map()
   let cursor = 0, serial = 0, dirty = false, tree, resolveFonts
   const fontsReady = fontsPending ? new Promise(resolve => { resolveFonts = resolve }) : Promise.resolve()
@@ -66,6 +66,7 @@ function mount({ scrollY = 0, animate = true, fontsPending = false } = {}) {
     require(name) {
       if (name === 'react') return react
       if (name === 'react/jsx-runtime') return { jsx, jsxs: jsx }
+      if (name === './useHomeResponsiveViewport') return { useHomeResponsiveViewport: () => viewport }
       throw new Error(`Unexpected import ${name}`)
     },
   })
@@ -171,11 +172,12 @@ test('animation cancellation and unmount restore the root without changing a sep
 })
 
 test('remaining at the top retains the normal intro, and reduced-motion/mobile visitors get no overlay', async () => {
-  const h = mount(), staticPage = mount({ animate: false })
+  const h = mount(), staticPage = mount({ animate: false }), tabletPage = mount({ viewport: 'tablet' })
   try {
     await h.prepare(); assert.match(h.tree.props.className, /--ready/)
     h.scroll(0); assert.ok(h.tree)
     assert.equal(staticPage.tree, null)
     assert.equal(staticPage.documentElement.style.overflow, 'auto')
-  } finally { h.cleanup(); staticPage.cleanup() }
+    assert.equal(tabletPage.tree, null)
+  } finally { h.cleanup(); staticPage.cleanup(); tabletPage.cleanup() }
 })

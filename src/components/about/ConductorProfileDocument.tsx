@@ -1,4 +1,5 @@
 import { EditableLayout } from '../site-editor/EditableLayout'
+import { SiteImage } from '../../features/site-photos/SiteImage'
 import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { SiteCopy } from '../site-editor/SiteCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
@@ -197,7 +198,7 @@ export function ConductorProfileDocument({ person }: { person?: PersonProfileRow
             <figure className="conductor-profile__portrait-matte">
               <span aria-hidden="true" className="conductor-profile__media-rule" />
               <div className="conductor-profile__portrait-frame">
-                {profileImage ? <img
+                {profileImage ? <SiteImage
                   alt={displayedProfileImageAlt}
                   lang={sourceLanguage(profileImageAlt, displayedProfileImageAlt)}
                   decoding="async"
@@ -209,7 +210,7 @@ export function ConductorProfileDocument({ person }: { person?: PersonProfileRow
 
             <figure className="conductor-profile__performance">
               <span aria-hidden="true" className="conductor-profile__media-rule" />
-              <img
+              <SiteImage
                 alt={displayedPerformanceImageAlt}
                 lang={sourceLanguage(performanceImage.alt, displayedPerformanceImageAlt)}
                 decoding="async"

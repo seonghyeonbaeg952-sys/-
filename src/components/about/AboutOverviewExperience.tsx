@@ -1,4 +1,5 @@
 import { EditableLayout } from '../site-editor/EditableLayout'
+import { SiteImage } from '../../features/site-photos/SiteImage'
 import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { SiteCopy } from '../site-editor/SiteCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
@@ -409,7 +410,7 @@ function Education() {
 
         <div className="about-overview__learning-sequence" ref={sequenceRef}>
           <div aria-hidden="true" className="about-overview__journey-curve">
-            <img alt="" src="/images/about/learning-journey-curve.svg" />
+            <SiteImage alt="" src="/images/about/learning-journey-curve.svg" />
             <motion.img
               alt=""
               className="about-overview__journey-progress"

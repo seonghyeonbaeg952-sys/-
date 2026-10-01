@@ -34,7 +34,7 @@ function HomeSectionFlowExperience({
       return
     }
 
-    const desktopQuery = window.matchMedia('(min-width: 1024px)')
+    const desktopQuery = window.matchMedia('(min-width: 1366px) and (min-aspect-ratio: 151/100) and (pointer: fine) and (not (any-pointer: coarse))')
     const reducedMotionQuery = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
     )

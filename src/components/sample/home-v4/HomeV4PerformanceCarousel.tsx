@@ -6,6 +6,7 @@ import {
 } from 'react'
 
 import type { Concert } from '../../../types/content'
+import { SiteImage } from '../../../features/site-photos/SiteImage'
 import { useSampleLanguage } from '../../../features/sample-language/useSampleLanguage'
 import { workflowDate, workflowTime } from '../../common/workflowCopy'
 import { HomeCopy } from '../../home/HomeCopy'
@@ -13,6 +14,7 @@ import { formatKoreanDate } from '../../../utils/formatDate'
 import { Button } from '../../common/Button'
 import { Container } from '../../common/Container'
 import { EmptyState } from '../../common/EmptyState'
+import { buildBrochurePreview, readBrochureDate } from './brochureContent'
 import './HomeV4PerformanceCarousel.css'
 
 type HomeV4PerformanceCarouselProps = {
@@ -44,6 +46,7 @@ const ARCHITECTURE_ASSET =
 const PAPER_TEXTURE_ASSET =
   '/images/sample/performance/template-paper-micrograin.png'
 const SYMBOL_ASSET = '/images/sample/performance/smyc-symbol.png'
+const BROCHURE_COVER_ASSET = '/images/home-v6/hero-performance.jpg'
 
 function getTemplatePosition(
   itemIndex: number,
@@ -114,7 +117,7 @@ function TemplateFace({
         <time className="home-v4-template-face__date" dateTime={concert.date}>
           {workflowDate(concert.date, formatKoreanDate(concert.date), english, true)}
         </time>
-        <img
+        <SiteImage
           alt=""
           aria-hidden="true"
           className="home-v4-template-face__symbol"
@@ -164,11 +167,13 @@ function CurrentProgramTemplate({
   const sideTimerRef = useRef<number | null>(null)
   const previousExpandedRef = useRef(expanded)
   const dateText = workflowDate(concert.date, formatKoreanDate(concert.date), english, true)
-  const programmeNote = concert.description.trim()
-    ? translate(concert.description)
-    : concert.program.length > 0
-      ? english ? 'The announced programme is listed below.' : '발표된 공연 프로그램을 아래에서 확인하세요.'
-      : english ? 'Programme details will appear here once confirmed.' : '프로그램이 확정되면 이곳에 안내합니다.'
+  const brochureDate = readBrochureDate(concert.date, english)
+  const preview = buildBrochurePreview(
+    translate(concert.description),
+    concert.program.map((item) => translate(item)),
+    english,
+  )
+  const edition = concert.title.match(/(?:제\s*)?(\d{1,2})(?:회|st|nd|rd|th)/iu)?.[1]
 
   useLayoutEffect(() => {
     if (sideTimerRef.current !== null) {
@@ -203,7 +208,7 @@ function CurrentProgramTemplate({
 
   return (
     <div
-      aria-label={`${concert.title} ${english ? 'concert brochure' : '프로그램 템플릿'}`}
+      aria-label={`${concert.title} ${english ? 'concert brochure' : '공연 브로슈어'}`}
       className="home-v4-current-program"
     >
       <div className="motion-program-book" data-state={bookState}>
@@ -214,21 +219,29 @@ function CurrentProgramTemplate({
           inert={bookState !== 'open'}
         >
           <section className="motion-program-panel motion-program-panel-left">
+            <SiteImage
+              alt=""
+              aria-hidden="true"
+              className="motion-program-cover-image"
+              src={BROCHURE_COVER_ASSET}
+            />
             <div className="motion-program-panel__content">
-              <p className="motion-program-kicker">{english ? 'Programme notes' : '프로그램 노트'}</p>
-              <h4 className="motion-program-note-title">{english ? 'About this concert' : '공연 소개'}</h4>
-              <p className="motion-program-note-body">{programmeNote}</p>
-              {concert.program.length > 0 ? <div className="motion-program-repertoire">
-                <p>{english ? 'Programme' : '프로그램'}</p>
-                <ul>{concert.program.map((item, index) => <li key={`${index}-${item}`}>{translate(item)}</li>)}</ul>
-              </div> : null}
+              <p className="motion-program-kicker">{english ? 'Seoul Motet Youth Choir' : '서울모테트청소년합창단'}</p>
+              <span aria-hidden="true" className="motion-program-edition">{edition ? `NO. ${edition}` : 'SMYC'}</span>
+              <p className="motion-program-cover-label">{english ? 'Concert programme' : '공연 프로그램'}</p>
+              <h3 className="motion-program-cover-title"><ConcertTitle title={concert.title} /></h3>
+              <p className="motion-program-cover-subtitle">{english ? 'A stage for voices to meet.' : '함께 부르는 목소리의 무대.'}</p>
             </div>
+            <p className="motion-program-cover-archive">{english ? 'Choir rehearsal archive' : '합창단 연습 기록'}</p>
+            <p className="motion-program-cover-imprint">SEOUL MOTET<br />YOUTH CHOIR</p>
             <span aria-hidden="true" className="motion-program-folio">01 <i /> 03</span>
           </section>
           <section className="motion-program-panel motion-program-panel-center">
             <div className="motion-program-panel__content">
-              <p className="motion-program-kicker">{english ? 'Concert information' : '공연 정보'}</p>
-              <h3><ConcertTitle title={concert.title} /></h3>
+              <p className="motion-program-kicker">{english ? 'Performance details' : '공연 정보'}</p>
+              <p className="motion-program-date-number" aria-hidden="true">{brochureDate.day}</p>
+              <p className="motion-program-date-caption">{brochureDate.month} <span>{brochureDate.year}</span></p>
+              <h4>{english ? 'On stage' : '무대 안내'}</h4>
             </div>
             <dl>
               {dateText ? (
@@ -246,7 +259,7 @@ function CurrentProgramTemplate({
               {concert.location ? (
                 <div>
                   <dt>{english ? 'Venue' : '장소'}</dt>
-                  <dd>{concert.location}</dd>
+                  <dd>{translate(concert.location)}</dd>
                 </div>
               ) : null}
             </dl>
@@ -255,11 +268,18 @@ function CurrentProgramTemplate({
           <section className="motion-program-panel motion-program-panel-right">
             <div className="motion-program-panel__content">
               <p className="motion-program-kicker">{english ? 'Visitor guide' : '관람 안내'}</p>
-              <h4>{english ? 'At a glance' : '공연 안내'}</h4>
+              <h4 className="motion-program-note-title">{english ? 'Programme notes' : '프로그램 노트'}</h4>
+              <p className="motion-program-note-body">{preview.note}</p>
+              {preview.program.length > 0 ? <div className="motion-program-repertoire">
+                <p>{english ? 'Selected programme' : '주요 프로그램'}</p>
+                <ul>{preview.program.map((item, index) => <li key={`${index}-${item}`}>{item}</li>)}</ul>
+              </div> : null}
               <div className="motion-program-statuses">
                 <span>{translate(statusLabels[concert.status])}</span>
               </div>
-              <p className="motion-program-guide-copy">{english ? 'Find the latest concert information and enquiries through the links below.' : '공연의 자세한 안내와 문의는 아래에서 확인하실 수 있습니다.'}</p>
+              <p className="motion-program-guide-copy">{preview.hasMore
+                ? english ? 'Read the full programme and concert information online.' : '전체 프로그램과 자세한 공연 안내는 온라인에서 확인하세요.'
+                : english ? 'For the latest concert information, visit the details page.' : '최신 공연 안내는 상세 페이지에서 확인하세요.'}</p>
             </div>
             <div className="motion-program-actions">
               <Button
@@ -296,7 +316,7 @@ function ArchitectureForeground() {
   return (
     <div aria-hidden="true" className="home-v4-architecture__foreground">
       {clipNames.map((clipName) => (
-        <img
+        <SiteImage
           alt=""
           className={`home-v4-architecture__clip home-v4-architecture__clip--${clipName}`}
           key={clipName}
@@ -492,7 +512,7 @@ export function HomeV4PerformanceCarousel({
           </Button>
         </div>
         <ol
-          aria-label={english ? 'Choose a concert brochure' : '공연 템플릿 선택'}
+          aria-label={english ? 'Choose a concert brochure' : '공연 브로슈어 선택'}
           className="home-v4-performance-carousel__timeline"
         >
           {visibleConcerts.map((concert, index) => (
@@ -527,7 +547,7 @@ export function HomeV4PerformanceCarousel({
             programBookState === 'front' ? 'false' : 'true'
           }
         >
-          <img
+          <SiteImage
             alt=""
             aria-hidden="true"
             className="home-v4-architecture__rear"
@@ -556,7 +576,7 @@ export function HomeV4PerformanceCarousel({
             })}
           </div>
           <button
-            aria-label={english ? `Open brochure for ${activeConcert.title}` : `${activeConcert.title} 템플릿 펼치기`}
+            aria-label={english ? `Open brochure for ${activeConcert.title}` : `${activeConcert.title} 브로슈어 펼치기`}
             className="home-v4-architecture__center-trigger"
             disabled={isCarouselTransitioning}
             onClick={() => setIsTemplateOpen(true)}
@@ -573,7 +593,7 @@ export function HomeV4PerformanceCarousel({
           <ArchitectureBlueprintFrame />
           <div className="home-v4-architecture__controls">
             <button
-              aria-label={english ? 'Previous concert brochure' : '이전 공연 템플릿'}
+              aria-label={english ? 'Previous concert brochure' : '이전 공연 브로슈어'}
               disabled={
                 visibleConcerts.length < 2 ||
                 programBookState !== 'front' ||
@@ -587,17 +607,21 @@ export function HomeV4PerformanceCarousel({
             <button
               aria-expanded={isTemplateOpen}
               aria-controls={`concert-template-details-${activeConcert.id}`}
-              aria-label={isTemplateOpen ? translate('공연 템플릿 접기') : translate('공연 템플릿 펼치기')}
+              aria-label={isTemplateOpen
+                ? english ? 'Close concert brochure' : '공연 브로슈어 접기'
+                : english ? 'Open concert brochure' : '공연 브로슈어 펼치기'}
               className="home-v4-architecture__expand"
               disabled={isCarouselTransitioning}
               onClick={() => setIsTemplateOpen((current) => !current)}
               type="button"
             >
-              {isTemplateOpen ? translate('템플릿 접기') : translate('템플릿 펼치기')}{' '}
+              {isTemplateOpen
+                ? english ? 'Close brochure' : '브로슈어 접기'
+                : english ? 'Open brochure' : '브로슈어 펼치기'}{' '}
               <span aria-hidden="true">{isTemplateOpen ? '×' : '↗'}</span>
             </button>
             <button
-              aria-label={english ? 'Next concert brochure' : '다음 공연 템플릿'}
+              aria-label={english ? 'Next concert brochure' : '다음 공연 브로슈어'}
               disabled={
                 visibleConcerts.length < 2 ||
                 programBookState !== 'front' ||

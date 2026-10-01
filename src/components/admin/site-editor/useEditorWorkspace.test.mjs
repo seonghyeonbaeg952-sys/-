@@ -10,6 +10,7 @@ after(() => vite.close())
 const sessionModel = await vite.ssrLoadModule('/src/components/admin/site-editor/editorSessionModel.ts')
 const model = await vite.ssrLoadModule('/src/lib/siteEditorModel.ts')
 const catalog = await vite.ssrLoadModule('/src/content/siteCopyCatalog.ts')
+const englishRepair = await vite.ssrLoadModule('/src/features/sample-language/englishLegacyRepair.ts')
 const code = ts.transpileModule(await readFile(new URL('./useEditorWorkspace.ts', import.meta.url), 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText
 
 function harness({ storageScope, copyDefinitions, mutable = false } = {}) {
@@ -52,7 +53,8 @@ function harness({ storageScope, copyDefinitions, mutable = false } = {}) {
       records.set('notices', record); return { data: record, error: null }
     },
   }
-  const dependencies = { react: hooks, './editorSessionModel': sessionModel, '../../../lib/siteEditorModel': model, '../../../content/siteCopyCatalog': catalog, '../../../lib/siteEditorApi': api }
+  const dependencies = { react: hooks, './editorSessionModel': sessionModel, '../../../lib/siteEditorModel': model, '../../../content/siteCopyCatalog': catalog, '../../../lib/siteEditorApi': api,
+    '../../../features/sample-language/englishLegacyRepair': englishRepair }
   const exported = {}
   vm.runInThisContext(`(function(exports, require) { ${code}\n})`)(exported, name => { assert.ok(dependencies[name], name); return dependencies[name] })
   const render = () => { cursor = 0; output = exported.useEditorWorkspace('notices', storageScope, copyDefinitions); for (const effect of effects.splice(0)) effect() }
