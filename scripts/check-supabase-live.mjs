@@ -62,6 +62,10 @@ const privateTableChecks = [
     target: 'private-column:members raw name',
   },
   {
+    path: '/rest/v1/members?select=name_en&limit=0',
+    target: 'private-column:members raw English name',
+  },
+  {
     path: '/rest/v1/members?select=photo_url&limit=0',
     target: 'private-column:members photo URL',
   },
@@ -248,6 +252,7 @@ const publicMemberFields = new Set([
   'member_status',
   'part',
   'public_display_name',
+  'public_display_name_en',
 ])
 const publicMembersResult = await requestJson({
   anonKey: supabaseAnonKey,

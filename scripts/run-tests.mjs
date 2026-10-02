@@ -73,6 +73,7 @@ const tests = [
   'src/components/contact/contactFormModel.test.mjs',
   'src/components/contact/SupportPledgeForm.test.mjs',
   'src/lib/homeContent.contract.test.mjs',
+  'src/lib/vercelDeployment.contract.test.mjs',
   'src/lib/homeDeviceContent.test.mjs',
   'src/lib/homeResponsiveContent.test.mjs',
   'src/lib/homePreviewMode.test.mjs',

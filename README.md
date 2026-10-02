@@ -61,6 +61,15 @@ pnpm check:supabase-live
 
 ## 배포 전 주의
 
+### Vercel 준비
+
+- GitHub 저장소를 연결할 때 프로젝트 루트를 이 폴더로 지정하고, Framework Preset은 **Vite**, Build Command는 `pnpm build`, Output Directory는 `dist`로 확인합니다. `pnpm-lock.yaml`을 함께 사용합니다.
+- `vercel.json`은 React Router의 `/spirit`, `/join`, `/sample/`, `/admin/login` 같은 주소를 직접 열거나 새로고침해도 Vite의 `index.html`로 들어가게 합니다.
+- Vercel 프로젝트의 Environment Variables에 `VITE_SUPABASE_URL`과 `VITE_SUPABASE_ANON_KEY`를 Production과 필요한 Preview 환경별로 등록합니다. `.env.local`은 업로드되지 않습니다. `VITE_SITE_NAME`, `VITE_SITE_URL`도 해당 환경의 실제 값으로 설정할 수 있으며, 주소가 정해지기 전에는 임의 URL을 넣지 않습니다.
+- `VITE_` 접두사 변수는 브라우저 번들에 포함되므로 `service_role` 또는 다른 비밀키를 넣지 않습니다. Supabase RLS, 공개 데이터, Storage 권한은 별도로 확인합니다.
+- Vercel의 기본 Production Branch가 `main`인지 확인합니다. 작업 브랜치를 연결하면 먼저 Preview로 점검하고, 운영 반영은 검증 후 Production Branch에서 결정합니다. 저장소 연결·환경변수 등록·배포는 이 코드 설정만으로 자동 수행되지 않습니다.
+- Preview에서 홈뿐 아니라 `/spirit`, `/join`, `/sample/`, `/admin/login`을 각각 직접 열고 새로고침한 뒤 관리자 로그인·CMS 게시·사진 업로드를 확인합니다.
+
 - 전체 공개 사진 교체: 관리자 메뉴 **홈페이지 사진 관리** (`/admin/photos`). 사용 방법과 초안·게시·언어 분리는 `docs/site-photo-cms-guide.md`를 참고합니다.
 
 - 실제 운영 사진과 콘텐츠를 CMS에 등록한 뒤 배포합니다.
