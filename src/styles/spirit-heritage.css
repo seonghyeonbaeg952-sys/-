@@ -2989,3 +2989,55 @@
     top: -20px;
   }
 }
+
+/* Full desktop copy needs real flow on portrait tablets and phones. Fixed
+   title/body/button coordinates collide as soon as a paragraph wraps. */
+@media (max-width: 899px) {
+  .spirit-heritage__closing-card {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+  }
+
+  .spirit-heritage__closing-copy {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .spirit-heritage__closing-copy .spirit-heritage__eyebrow,
+  .spirit-heritage__closing-copy h2,
+  .spirit-heritage__closing-copy > p:not(.spirit-heritage__eyebrow),
+  .spirit-heritage__closing-actions {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .spirit-heritage__closing-copy .spirit-heritage__eyebrow {
+    max-width: calc(100% - 100px);
+  }
+
+  .spirit-heritage__closing-copy h2 {
+    margin-top: 64px;
+  }
+
+  .spirit-heritage__closing-copy > p:not(.spirit-heritage__eyebrow),
+  .spirit-heritage__closing-actions {
+    margin-top: 24px;
+  }
+
+  .spirit-heritage__closing-logo {
+    right: 27px;
+    left: auto;
+  }
+
+  .spirit-heritage__one-voice {
+    position: relative;
+    inset: auto;
+    align-self: flex-end;
+    max-width: 100%;
+    margin-top: 48px;
+  }
+}
