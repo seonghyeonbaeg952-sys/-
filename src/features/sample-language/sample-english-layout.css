@@ -66,6 +66,26 @@ html[data-sample-language='en'] .public-shell .spirit-heritage__origin-card p {
   margin: 0;
   overflow-wrap: break-word;
 }
+/* The reviewed English promise is a sentence, not two manually joined word
+   fragments. Keep it inside the copy column and reserve room for the body. */
+html[data-sample-language='en'] .public-shell .spirit-heritage__hero-heading--desktop {
+  max-width: min(640px, calc(100% - 48px));
+}
+html[data-sample-language='en'] .public-shell .spirit-heritage__hero-heading--desktop .spirit-heritage__hero-promise {
+  min-width: 0;
+  font-size: clamp(32px, 4vw, 58px);
+  line-height: 1.16;
+}
+html[data-sample-language='en'] .public-shell .spirit-heritage__hero-promise > span {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+html[data-sample-language='en'] .public-shell .spirit-heritage__milestone:nth-child(n + 3) .spirit-heritage__milestone-year {
+  font-size: clamp(49px, 6.4vw, 84px);
+  padding-inline-end: .12em;
+}
 html[data-sample-language='en'] .public-shell :is(
   .home-about-portrait__copy > p, .about-overview__intro-body,
   .about-overview__founding-body, .about-overview__spirit-body,
@@ -157,6 +177,12 @@ html[data-sample-language='en'] .public-shell .about-overview__title-focus { fon
    Opacity on the animated child still hides it before the entrance. */
 html[data-sample-language='en'] .public-shell .about-overview__title-mask { overflow: visible; }
 html[data-sample-language='en'] .public-shell .about-overview__intro h1 { font-size: clamp(38px, 4vw, 58px); line-height: 1.22; }
+@media (min-width: 768px) and (max-width: 1099px) {
+  html[data-sample-language='en'] .public-shell .about-overview__glass-caption {
+    left: 0;
+    max-width: 100%;
+  }
+}
 html[data-sample-language='en'] .public-shell :is(
   .about-overview__glass-caption, .about-overview__archive-caption,
   .about-overview__practice-caption, .about-overview__program-grid article
@@ -212,6 +238,10 @@ html[data-sample-language='en'] .public-shell .join-open-score .join-open-score_
   html[data-sample-language='en'] .public-shell .about-overview__founding-copy { grid-area: copy; }
   html[data-sample-language='en'] .public-shell .about-overview__founding-meta { grid-area: meta; }
   html[data-sample-language='en'] .public-shell .about-overview__education-heading { grid-area: heading; }
+  html[data-sample-language='en'] .public-shell .about-overview__education-statement {
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr);
+    gap: 72px;
+  }
   html[data-sample-language='en'] .public-shell .about-overview__learning-script { grid-area: script; }
   html[data-sample-language='en'] .public-shell .about-overview__education-visual { grid-area: photo; }
   html[data-sample-language='en'] .public-shell .about-overview__learning-sequence { grid-area: sequence; }
