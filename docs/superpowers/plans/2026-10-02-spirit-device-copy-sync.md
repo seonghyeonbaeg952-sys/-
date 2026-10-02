@@ -40,7 +40,7 @@
 
 - [x] User selected `RESIDENT ACCOMPANIST` for the profile currently labelled principal accompanist, then requested all devices and English too.
 - [x] Snapshot both independent documents, validate/preflight, then publish only that profile-specific label to shared+three device scopes. Keep the other accompanist, names, portraits, biographies and existing placement untouched.
-- [ ] Verify the label on both languages at all five dimensions.
+- [x] Verify the label on both languages at all five dimensions; the other profile remains ACCOMPANIST.
 
 ## Task 3: Wrapping and regression checks
 
@@ -48,8 +48,18 @@
 
 - [x] Reproduced: published provider chose tablet for 844×390 and desktop for 1180×820 while the page composition chose mobile/tablet. Added failing provider render test, then reused the existing responsive hook; nonce-bound CMS iframe still uses its explicitly selected width. Added preview-isolation test.
 - [x] Reproduced marker text overflow at 1180px (NEXT 214px inside 190px). Reduced marker font size only in the existing tablet media rule, then all four markers fit 190px exactly in the IAB check. Korean desktop manual offsets remain unchanged.
+- [x] Full mobile CTA prose exposed an actual 18px button overlap; portrait tablet heading/body also collided. Browser assertions failed before the fix. Made only the ≤899px CTA use normal document flow, then both languages have 24px title/body/button spacing and no clipping. Removed the old Korean tablet CTA fragment's 20.7px shift using a version-66 guard; final Korean spirit version is 68, and actual text-to-button gap is 24px.
 
-- [ ] Check all spirit sections, values/growth tabs, CTA links and language switching at all five dimensions in both languages.
-- [ ] Check history/members/concerts copied headings at all five dimensions in both languages.
-- [ ] Run related tests, `pnpm lint`, `pnpm build`, and `git diff --check`.
-- [ ] Restore QA emulation and report actual-device limitations without claiming physical-device testing.
+- [x] Check all spirit sections and copied headings at five dimensions in both languages: 390×844, 768×1024, 844×390, 1180×820, 1440×900. Fifty scenes including the added accompanist page have zero document-width overflow; the small-screen spirit layout/CTA received extra checks after fixes. Desktop Korean authored text deliberately extends some local boxes through its saved translations, but remains readable inside the viewport; left those offsets intact.
+- [x] Exercise Korean and English values/growth tabs, English→Korean switching, and English Supporting the Choir link. The link opens the English Support Pledge page, preserving lang=en. No submissions or private data changes.
+- [x] Smoke check home, legacy about/spirit, conductor, join and support routes at the restored native mobile viewport; meaningful headings, no framework overlay or horizontal document overflow.
+- [x] Run 82 related tests, `pnpm lint`, `pnpm build` (TypeScript included), and `git diff --check`; all pass. Browser runtime error log is empty. No new dependencies.
+- [x] Final exact database readback matches all ten intended draft/publication documents. Korean desktop copy/styles/layout/appearance unchanged on spirit/history/members/concerts. The selected accompanist role label is the only intentional desktop text change.
+- [x] Restore tab-specific device metrics, touch, and reduced-motion emulation. Native browser viewport is the user's existing 430px mode, left unchanged. Save native screenshot evidence outside the repository. Physical iOS/Android devices not tested.
+
+## Evidence and research
+
+- MDN `overflow-wrap` and `white-space`; Supabase official documentation; existing responsive-hook and publication-RPC behavior. Supabase changelog markdown was not fetchable via the web tool; no schema/API changes were made.
+- React best-practices skill informed reusing the responsive hook and deriving the active public/preview device without changing admin route state.
+- The exploratory CMS viewport edits were completely reverted after the user's clarification.
+- Screenshots: `C:/Users/seong/AppData/Local/Temp/motet-resident-accompanist-20261002.jpg`, `C:/Users/seong/AppData/Local/Temp/motet-spirit-copy-mobile-20261002.jpg`.
