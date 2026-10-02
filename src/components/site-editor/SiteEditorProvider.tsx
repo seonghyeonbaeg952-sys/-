@@ -23,6 +23,7 @@ import { SampleLanguageContext, useSampleLanguage } from '../../features/sample-
 import { sampleEnglishDocuments } from '../../features/sample-language/sampleEnglishDocuments'
 import { resolveEnglishHomeCopy, resolveEnglishPageCopy } from '../../features/sample-language/sampleEnglishCopy'
 import { sampleContentKey, translateDisplayData } from '../../features/sample-language/sampleLanguageModel'
+import { useHomeResponsiveViewport } from '../home/useHomeResponsiveViewport'
 
 export function SiteEditorProvider({ children }: { children: ReactNode }) {
   const location = useLocation()
@@ -35,7 +36,11 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
   const [published, setPublished] = useState<SiteEditorDocuments>({})
   const [englishPublished, setEnglishPublished] = useState<SiteEditorDocuments>({})
   const [preview, setPreview] = useState<{ nonce: string; page: string; sequence: number; documents: SiteEditorDocuments } | null>(null)
-  const [device, setDevice] = useState(() => getEditorDevice(typeof window === 'undefined' ? 1440 : window.innerWidth))
+  const responsiveDevice = useHomeResponsiveViewport()
+  const [previewDevice, setPreviewDevice] = useState(() => getEditorDevice(typeof window === 'undefined' ? 1440 : window.innerWidth))
+  // Public composition follows the same orientation/pointer rules as the page.
+  // A CMS iframe remains tied to its explicitly chosen editing viewport.
+  const device = isPreview ? previewDevice : responsiveDevice
   const [notice, setNotice] = useState('')
   const sequence = useRef(0)
   const appliedSequence = useRef(0)
@@ -134,7 +139,7 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
     }
     void load()
     const refresh = () => { if (!document.hidden) void load() }
-    const resize = () => setDevice(getEditorDevice(window.innerWidth))
+    const resize = () => setPreviewDevice(getEditorDevice(window.innerWidth))
     window.addEventListener('focus', refresh)
     window.addEventListener('site-editor-published', refresh)
     window.addEventListener('resize', resize)

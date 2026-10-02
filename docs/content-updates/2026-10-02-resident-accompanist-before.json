@@ -1,0 +1,80 @@
+[
+  {
+    "language": "ko",
+    "page_key": "accompanist",
+    "draft": {
+      "copy": {},
+      "appearance": {},
+      "deviceCopy": {
+        "desktop": {
+          "accompanist.profile.c465ce1e-1078-4de1-b39e-00e703be0446.role": "PRINCIPAL ACCOMPANIST"
+        }
+      },
+      "schemaVersion": 1
+    },
+    "published": {
+      "copy": {},
+      "appearance": {},
+      "deviceCopy": {
+        "desktop": {
+          "accompanist.profile.c465ce1e-1078-4de1-b39e-00e703be0446.role": "PRINCIPAL ACCOMPANIST"
+        }
+      },
+      "schemaVersion": 1
+    },
+    "version": 2,
+    "updated_at": "2026-09-26 07:04:09.957064+00",
+    "published_at": "2026-09-26 07:04:09.957064+00"
+  },
+  {
+    "language": "en",
+    "page_key": "accompanist",
+    "draft": {
+      "copy": {},
+      "appearance": {},
+      "deviceCopy": {
+        "tablet": {
+          "accompanist.profile.c465ce1e-1078-4de1-b39e-00e703be0446.role": "PRINCIPAL ACCOMPANIST"
+        }
+      },
+      "textLayouts": {
+        "tablet": {
+          "accompanist.accompanistProfiles.english2": {
+            "offsetX": -5.6,
+            "offsetY": -18.4
+          },
+          "accompanist.profile.c465ce1e-1078-4de1-b39e-00e703be0446.role": {
+            "offsetX": -6.4,
+            "offsetY": 1.6
+          }
+        }
+      },
+      "schemaVersion": 1
+    },
+    "published": {
+      "copy": {},
+      "appearance": {},
+      "deviceCopy": {
+        "tablet": {
+          "accompanist.profile.c465ce1e-1078-4de1-b39e-00e703be0446.role": "PRINCIPAL ACCOMPANIST"
+        }
+      },
+      "textLayouts": {
+        "tablet": {
+          "accompanist.accompanistProfiles.english2": {
+            "offsetX": -5.6,
+            "offsetY": -18.4
+          },
+          "accompanist.profile.c465ce1e-1078-4de1-b39e-00e703be0446.role": {
+            "offsetX": -6.4,
+            "offsetY": 1.6
+          }
+        }
+      },
+      "schemaVersion": 1
+    },
+    "version": 4,
+    "updated_at": "2026-10-02 07:29:33.265491+00",
+    "published_at": "2026-10-02 07:29:33.265491+00"
+  }
+]

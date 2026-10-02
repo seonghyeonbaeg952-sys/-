@@ -2927,6 +2927,11 @@
 
 @media (min-width: 900px) and (max-width: 1365px),
   (min-width: 900px) and (min-height: 551px) and (max-width: 1600px) and (any-pointer: coarse) {
+  .spirit-heritage__milestone-year {
+    font-size: clamp(49px, 6.4vw, 78px);
+    padding-inline-end: 0.12em;
+  }
+
   .spirit-heritage__closing-card {
     display: flex;
     min-height: 0;
