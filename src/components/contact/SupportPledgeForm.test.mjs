@@ -66,7 +66,7 @@ async function loadForm(overrides = {}, submit = async () => ({ data: true, erro
   let tree
   function render() {
     cursor = 0
-    tree = exports.SupportPledgeForm({ settings: { ...settings, ...overrides }, siteSettings: { phone: 'fallback', email: 'fallback' } })
+    tree = exports.SupportPledgeForm({ settings: Object.freeze({ ...settings, ...overrides }), siteSettings: { phone: 'fallback', email: 'fallback' } })
   }
   function find(predicate, node = tree) {
     if (!node || typeof node !== 'object') return []
@@ -234,6 +234,62 @@ test('original CMS text, all input fields, privacy agreement and signature remai
   const fullAccount = await loadForm({ bank_account_holder: '원본 예금주' })
   for (const value of ['fixture-only-account', '테스트은행', '원본 예금주', '계좌 안내 원문']) assert.ok(fullAccount.text().includes(value), value)
 })
+
+const pendingBankNoteCases = [
+  ['Korean admin default', 'ko', '후원 계좌 정보는 관리자 CMS에서 등록한 뒤 표시됩니다.'],
+  ['Korean fallback', 'ko', '후원 계좌 정보는 관리자 CMS에서 등록하면 표시됩니다.'],
+  ['English stock translation', 'en', 'Support bank account details will appear once they have been added in the administration system.'],
+  ['English published scaffold', 'en', 'Bank account details will appear after they are entered in the administrator CMS.'],
+  ['English scaffold with surrounding whitespace and uppercase', 'en', '  BANK ACCOUNT DETAILS WILL APPEAR AFTER THEY ARE ENTERED IN THE ADMINISTRATOR CMS.\n'],
+]
+
+for (const [name, language, bankNote] of pendingBankNoteCases) {
+  for (const stage of ['editing', 'review']) {
+    test(`${name}: a complete account hides only the pending bank note during ${stage}`, async () => {
+      const overrides = Object.freeze({ bank_account_holder: 'fixture-holder', bank_note: bankNote })
+      const form = await loadForm(overrides, undefined, {}, { enabled: language === 'en', language })
+      if (stage === 'review') { fillRequired(form); await form.submitForm() }
+      const panel = form.find(node => node.props?.className?.split(' ').includes(stage === 'review' ? 'support-pledge__review' : 'support-pledge__bank'))[0]
+      assert.ok(panel, `${stage} must retain the account section`)
+      for (const value of ['테스트은행', 'fixture-only-account', 'fixture-holder']) assert.ok(form.text(panel).includes(value))
+      assert.ok(!form.text(panel).includes(bankNote.trim()), 'a ready account must not claim its details are still awaiting registration')
+      assert.equal(overrides.bank_note, bankNote)
+      assert.equal(form.writes.length, 0)
+    })
+  }
+}
+
+for (const [language, customNote] of [
+  ['ko', 'CMS 계좌 안내를 확인하고 입금 후 담당자에게 연락해 주세요.'],
+  ['en', 'Bank account details will appear after they are entered in the administrator CMS. Contact our team before changing a transfer.'],
+]) {
+  test(`${language}: custom bank guidance remains unchanged in editing and review`, async () => {
+    const form = await loadForm({ bank_account_holder: 'fixture-holder', bank_note: customNote }, undefined, {}, { enabled: language === 'en', language })
+    const bank = form.find(node => node.props?.className === 'support-pledge__bank')[0]
+    assert.ok(form.text(bank).includes(customNote))
+    fillRequired(form)
+    await form.submitForm()
+    const review = form.find(node => node.props?.className?.split(' ').includes('support-pledge__review'))[0]
+    assert.ok(review)
+    assert.ok(form.text(review).includes(customNote))
+    assert.equal(form.writes.length, 0)
+  })
+
+  test(`${language}: an incomplete account keeps its existing hidden-bank flow`, async () => {
+    for (const missingField of ['bank_name', 'bank_account_number', 'bank_account_holder']) {
+      const form = await loadForm({ bank_account_holder: 'fixture-holder', bank_note: customNote, [missingField]: '' }, undefined, {}, { enabled: language === 'en', language })
+      assert.equal(form.find(node => node.props?.className === 'support-pledge__bank').length, 0)
+      assert.ok(!form.text().includes(customNote))
+      fillRequired(form)
+      await form.submitForm()
+      const review = form.find(node => node.props?.className?.split(' ').includes('support-pledge__review'))[0]
+      assert.ok(review, 'missing account details must not block pledge review')
+      assert.ok(!form.text(review).includes(customNote))
+      assert.ok(!form.text(review).includes('fixture-only-account'))
+      assert.equal(form.writes.length, 0)
+    }
+  })
+}
 
 test('custom corporate amount and the original signature bitmap reach the payload without an external write', async () => {
   const form = await loadForm()

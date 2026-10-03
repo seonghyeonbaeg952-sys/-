@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 // included through a broad glob; their status is tracked separately.
 const tests = [
   'src/styles/publicRefinement.browser.test.mjs',
+  'src/pages/sample/homeHeroHandoff.test.mjs',
   'src/components/common/publicFlowRefinement.test.mjs',
   'src/features/sample-language/sampleContentModel.test.mjs',
   'src/features/sample-language/sampleContentGuidance.test.mjs',

@@ -358,8 +358,8 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
 
     const applyProgress = (progress: number) => {
       const handoffHold = Math.min(
-        260,
-        Math.max(200, window.innerHeight * 0.26),
+        96,
+        Math.max(64, window.innerHeight * 0.08),
       )
       const curtainProgress = progress * progress * (3 - 2 * progress)
       const guideProgress = Math.max(
@@ -461,7 +461,7 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
     }
 
     const animate = (time: number) => {
-      const duration = targetProgress > animationFrom ? 3280 : 960
+      const duration = targetProgress > animationFrom ? 1400 : 600
       const elapsed = Math.min(1, (time - animationStart) / duration)
 
       renderedProgress =
@@ -480,6 +480,8 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
 
     const queueUpdate = () => {
       if (!desktopQuery.matches || reducedMotionQuery.matches) {
+        window.cancelAnimationFrame(frame)
+        frame = 0
         targetProgress = 0
         renderedProgress = 0
         reset()

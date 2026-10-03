@@ -30,6 +30,8 @@ ${styles.map(href => `<link rel="stylesheet" href="${href}">`).join('\n')}
 <style>*,*::before,*::after { box-sizing: border-box; } body { --font-sans-kr: 'Join Gothic A1', sans-serif; } .size-full { width: 100%; height: 100%; } .object-cover { object-fit: cover; }</style>
 </head><body class="public-shell">
 <div class="public-shell-home-sample-v4 color-sample-theme public-shell-home" data-design-candidate="home-v4" data-home-viewport="desktop">
+  <div class="home-intro-real-sample" style="position:absolute;left:-10000px;width:100%"><section class="home-hero-section" style="height:100svh;min-height:0"></section></div>
+  <div class="home-flow-body" data-handoff-flow-probe style="position:absolute;left:-10000px;width:100%;visibility:hidden"></div>
   <header class="home-v4-sample-header"><div class="home-v4-sample-header__bar"><button>메뉴 열기</button></div></header>
   <!-- The photo/scroll hero is absent in this isolated surface fixture. Give
        its following flow a visible origin without changing card sizing. -->
@@ -283,6 +285,21 @@ test('public visual surfaces preserve restrained, legible navigation without dec
           assert.ok(Math.abs(geometry.width / geometry.height - geometry.naturalWidth / geometry.naturalHeight) < 0.01, `${language} overview at ${width}px must follow the source photo ratio`)
           assert.ok(geometry.captionTop >= geometry.imageBottom + 8, `${language} overview at ${width}px caption must not cover people`)
         }
+      }
+    })
+
+    await t.test('the desktop hero releases its sticky handoff within one viewport while compact modes keep normal flow', async () => {
+      for (const viewport of [{ width: 1366, height: 768 }, { width: 1440, height: 900 }, { width: 1920, height: 1080 }]) {
+        await page.setViewportSize(viewport)
+        const sizes = await page.evaluate(() => ({ intro: document.querySelector('.home-intro-real-sample').getBoundingClientRect().height, hero: document.querySelector('.home-intro-real-sample .home-hero-section').getBoundingClientRect().height, flowMargin: Number.parseFloat(getComputedStyle(document.querySelector('[data-handoff-flow-probe]')).marginTop) }))
+        assert.ok(sizes.intro > sizes.hero, 'Retain a short authored handoff instead of removing the composition')
+        assert.ok(sizes.intro - sizes.hero < viewport.height, `The ${viewport.width}px hero must not hold for another full screen of empty travel`)
+        const nextPlaneGap = sizes.intro + sizes.flowMargin - sizes.hero
+        assert.ok(nextPlaneGap >= 0 && nextPlaneGap <= 97, 'Shortening the pin must preserve the following plane/quick-menu origin, not pull it into the middle of the hero')
+      }
+      for (const viewport of [{ width: 1180, height: 820 }, { width: 390, height: 844 }]) {
+        await page.setViewportSize(viewport)
+        assert.doesNotMatch(await page.locator('.home-intro-real-sample .home-hero-section').evaluate(element => getComputedStyle(element).position), /sticky|fixed/, 'Do not introduce desktop pinning into tablet or phone modes')
       }
     })
 

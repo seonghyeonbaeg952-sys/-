@@ -27,6 +27,7 @@ function mount({ scrollY = 0, animate = true, fontsPending = false, viewport = '
     addEventListener(type, callback) { if (!animationListeners.has(type)) animationListeners.set(type, new Set()); animationListeners.get(type).add(callback) },
     removeEventListener(type, callback) { animationListeners.get(type)?.delete(callback) },
   }
+  class Element { constructor(interactive = false) { this.interactive = interactive } closest() { return this.interactive ? this : null } }
   const window = {
     scrollY, scrollX: 0, matchMedia: () => query,
     scrollTo({ top, left }) { window.scrollY = top; window.scrollX = left },
@@ -61,7 +62,7 @@ function mount({ scrollY = 0, animate = true, fontsPending = false, viewport = '
   const jsx = (type, props, key) => ({ type, props, key })
   const module = { exports: {} }
   vm.runInNewContext(source, { module, exports: module.exports, window,
-    document: { documentElement, body, fonts: { ready: fontsReady, load: () => fontsReady } },
+    document: { documentElement, body, fonts: { ready: fontsReady, load: () => fontsReady } }, Element,
     ResizeObserver: class { observe() {} disconnect() {} },
     require(name) {
       if (name === 'react') return react
@@ -83,6 +84,8 @@ function mount({ scrollY = 0, animate = true, fontsPending = false, viewport = '
   return {
     get tree() { return tree },
     get pendingFrames() { return frames.size },
+    get pendingTimers() { return timers.size },
+    get listenerCount() { return [...listeners.values()].reduce((count, callbacks) => count + callbacks.size, 0) },
     get scrollY() { return window.scrollY },
     documentElement, body,
     scroll(next) { window.scrollY = next; listeners.get('scroll')?.forEach(callback => callback()); settle() },
@@ -90,7 +93,10 @@ function mount({ scrollY = 0, animate = true, fontsPending = false, viewport = '
       animationListeners.get(type)?.forEach(callback => callback({ animationName })); settle()
     },
     escape() { listeners.get('keydown')?.forEach(callback => callback({ key: 'Escape' })); settle() },
-    timeout() { [...timers.values()].filter(timer => timer.delay >= 6000).forEach(timer => timer.callback()); settle() },
+    intent(type, event = {}, settleNow = true) { listeners.get(type)?.forEach(callback => callback(event)); if (settleNow) settle() },
+    interactiveTarget() { return new Element(true) },
+    settle,
+    timeout(duration = 2400) { [...timers.values()].filter(timer => timer.delay <= duration).forEach(timer => timer.callback()); settle() },
     reduceMotion() { query.matches = false; preferenceListeners.forEach(callback => callback()); settle() },
     async prepare() {
       resolveFonts?.()
@@ -108,19 +114,17 @@ test('a reload at an already scrolled position never covers the hero with a late
   try { assert.equal(h.tree, null) } finally { h.cleanup() }
 })
 
-test('scroll is locked from the first frame through font preparation and the last intro animation', async () => {
+test('the retained visible field completes an unblocked intro even when the decorative sweep never runs', async () => {
   const h = mount({ fontsPending: true })
   try {
     assert.ok(h.tree)
-    assert.equal(h.documentElement.style.overflow, 'hidden')
-    assert.equal(h.documentElement.style.scrollbarGutter, 'stable')
-    h.scroll(40)
-    assert.equal(h.scrollY, 0, 'Early scroll must not move the page while the intro is preparing')
+    assert.equal(h.documentElement.style.overflow, 'auto', 'Font preparation must not suppress native scrolling')
+    assert.equal(h.documentElement.style.scrollbarGutter, '')
     await h.prepare()
     assert.match(h.tree.props.className, /--ready/)
     h.end('home-intro-word-to-title')
-    assert.equal(h.documentElement.style.overflow, 'hidden', 'An earlier child animation cannot release the page')
-    h.end('home-intro-real-sweep')
+    assert.ok(h.tree, 'An earlier child animation must not remove the authored intro')
+    h.end('home-intro-field-release')
     assert.ok(h.tree === null)
     assert.equal(h.documentElement.style.overflow, 'auto')
     assert.equal(h.documentElement.style.scrollbarGutter, '')
@@ -133,7 +137,7 @@ test('after finishing, normal scrolling works and returning to the top does not 
   const h = mount()
   try {
     await h.prepare(); assert.match(h.tree.props.className, /--ready/)
-    h.end('home-intro-real-sweep')
+    h.end('home-intro-field-release')
     assert.ok(h.tree === null, 'The actual last animation releases the intro before any scroll')
     h.scroll(180); assert.equal(h.scrollY, 180)
     h.scroll(0); await h.prepare(); assert.ok(h.tree === null)
@@ -144,7 +148,7 @@ for (const release of ['escape', 'timeout', 'reduceMotion']) {
   test(`${release} safely releases a preparing intro without a later font response relocking the page`, async () => {
     const h = mount({ fontsPending: true })
     try {
-      assert.equal(h.documentElement.style.overflow, 'hidden')
+      assert.equal(h.documentElement.style.overflow, 'auto')
       h[release]()
       assert.ok(h.tree === null)
       assert.equal(h.documentElement.style.overflow, 'auto')
@@ -154,21 +158,92 @@ for (const release of ['escape', 'timeout', 'reduceMotion']) {
   })
 }
 
-test('animation cancellation and unmount restore the root without changing a separately opened popup lock', async () => {
+test('animation cancellation and unmount preserve the root and separately opened popup ownership', async () => {
   const h = mount()
   try {
-    await h.prepare(); assert.equal(h.documentElement.style.overflow, 'hidden')
+    await h.prepare(); assert.equal(h.documentElement.style.overflow, 'auto')
     h.body.style.overflow = 'hidden'
-    h.end('home-intro-real-sweep', 'animationcancel')
+    h.end('home-intro-field-release', 'animationcancel')
     assert.equal(h.documentElement.style.overflow, 'auto')
     assert.equal(h.body.style.overflow, 'hidden')
   } finally { h.cleanup() }
   const preparing = mount({ fontsPending: true })
-  assert.equal(preparing.documentElement.style.overflow, 'hidden')
+  assert.equal(preparing.documentElement.style.overflow, 'auto')
   preparing.cleanup()
   assert.equal(preparing.documentElement.style.overflow, 'auto')
   await preparing.prepare()
   assert.equal(preparing.documentElement.style.overflow, 'auto')
+})
+
+for (const type of ['wheel', 'touchmove']) {
+  test(`${type} skips the preparing intro without suppressing native scroll or changing popup ownership`, async () => {
+    const h = mount({ fontsPending: true })
+    try {
+      h.body.style.overflow = 'hidden'
+      h.intent(type, { defaultPrevented: false }, false)
+      assert.equal(h.documentElement.style.overflow, 'auto', 'The same input must reach native scrolling, not just dismiss a later frame')
+      assert.equal(h.documentElement.style.scrollBehavior, 'smooth')
+      h.scroll(180)
+      assert.equal(h.scrollY, 180, 'The old keepPosition listener must be removed synchronously')
+      assert.equal(h.tree, null)
+      assert.equal(h.body.style.overflow, 'hidden')
+      await h.prepare()
+      assert.equal(h.tree, null)
+      assert.equal(h.pendingFrames, 0)
+      assert.equal(h.pendingTimers, 0)
+      assert.equal(h.listenerCount, 0)
+    } finally { h.cleanup() }
+  })
+}
+
+test('scroll keys release immediately without consuming their native action or interactive control keys', () => {
+  for (const key of ['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' ']) {
+    const h = mount({ fontsPending: true })
+    try {
+      let prevented = false
+      h.intent('keydown', { key, preventDefault() { prevented = true } }, false)
+      assert.equal(h.documentElement.style.overflow, 'auto', key)
+      assert.equal(prevented, false, 'Do not replace normal keyboard scrolling')
+      h.settle()
+      assert.equal(h.tree, null)
+    } finally { h.cleanup() }
+  }
+  const h = mount({ fontsPending: true })
+  try {
+    h.intent('keydown', { key: ' ', target: h.interactiveTarget() })
+    h.intent('keydown', { key: 'ArrowDown', defaultPrevented: true })
+    h.intent('keydown', { key: 'ArrowDown', ctrlKey: true })
+    assert.ok(h.tree, 'Interactive control keys must retain the intro until a real dismissal')
+    assert.equal(h.documentElement.style.overflow, 'auto')
+    h.escape()
+    assert.equal(h.documentElement.style.overflow, 'auto')
+  } finally { h.cleanup() }
+})
+
+test('stalled fonts or missing animations cannot leave the unfinished overlay beyond 2.4 seconds', async () => {
+  const h = mount({ fontsPending: true })
+  try {
+    h.timeout(2300)
+    assert.ok(h.tree)
+    h.timeout(2400)
+    assert.equal(h.documentElement.style.overflow, 'auto')
+    assert.equal(h.tree, null)
+    await h.prepare()
+    assert.equal(h.documentElement.style.overflow, 'auto')
+  } finally { h.cleanup() }
+})
+
+test('scrolling while fonts prepare moves immediately and skips the intro without restoring the old position', async () => {
+  const h = mount({ fontsPending: true })
+  try {
+    assert.equal(h.documentElement.style.overflow, 'auto')
+    h.scroll(300)
+    assert.equal(h.scrollY, 300)
+    assert.equal(h.tree, null)
+    await h.prepare()
+    assert.equal(h.tree, null)
+    assert.equal(h.scrollY, 300)
+  } finally { h.cleanup() }
 })
 
 test('remaining at the top retains the normal intro, and reduced-motion/mobile visitors get no overlay', async () => {

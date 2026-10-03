@@ -4,7 +4,7 @@ import { useHomeResponsiveViewport } from './useHomeResponsiveViewport'
 const desktopIntroQuery =
   '(min-width: 1024px) and (prefers-reduced-motion: no-preference)'
 const introScrollTolerance = 8
-const introLockDeadline = 6000
+const introDeadline = 2400
 
 export function HomeHeroIntroOverlay() {
   const viewport = useHomeResponsiveViewport()
@@ -32,49 +32,48 @@ export function HomeHeroIntroOverlay() {
     const launch = launchRef.current
     if (!canShowIntro || !launch) return undefined
 
-    const root = document.documentElement
-    const previousOverflow = root.style.overflow
-    const previousGutter = root.style.scrollbarGutter
-    const previousScrollBehavior = root.style.scrollBehavior
-    const currentGutter = window.getComputedStyle(root).scrollbarGutter
-    const lockedX = window.scrollX
-    const lockedY = window.scrollY
-    // Lock the root, not the body owned by home popups. Keep its scrollbar
-    // space so the title metrics do not move while fonts are preparing.
-    root.style.scrollbarGutter = currentGutter.includes('stable') ? currentGutter : 'stable'
-    root.style.overflow = 'hidden'
-    root.style.scrollBehavior = 'auto'
-
+    const initialX = window.scrollX
+    const initialY = window.scrollY
     const finish = () => setIsDismissed(true)
     const finishAnimation = (event: AnimationEvent) => {
-      if (event.animationName === 'home-intro-real-sweep') finish()
+      if (event.animationName === 'home-intro-field-release') finish()
     }
     const escapeIntro = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') finish()
-    }
-    const keepPosition = () => {
-      if (window.scrollY !== lockedY || window.scrollX !== lockedX) {
-        window.scrollTo({ left: lockedX, top: lockedY, behavior: 'auto' })
+      if (event.key === 'Escape') {
+        finish()
+        return
       }
+      if (
+        !['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(event.key)
+        || event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey
+        || event.target instanceof Element && event.target.closest('a, button, input, select, textarea, [contenteditable]:not([contenteditable="false"])')
+      ) return
+      finish()
+    }
+    const scrollIntent = (event: Event) => { if (!event.defaultPrevented) finish() }
+    const finishOnScroll = () => {
+      if (window.scrollY !== initialY || window.scrollX !== initialX) finish()
     }
 
-    // The real last animation releases the lock. The deadline is only a
-    // fail-safe for missing CSS, stalled font loading or an interrupted frame.
-    const deadline = window.setTimeout(finish, introLockDeadline)
+    // Never lock native scrolling for a decorative intro. It can play while
+    // idle, but user input wins, even before fonts/animation are ready.
+    // Complete from the visible field, not a sweep hidden by the theme.
+    const deadline = window.setTimeout(finish, introDeadline)
     launch.addEventListener('animationend', finishAnimation)
     launch.addEventListener('animationcancel', finishAnimation)
     window.addEventListener('keydown', escapeIntro)
-    window.addEventListener('scroll', keepPosition, { passive: true })
+    window.addEventListener('wheel', scrollIntent, { passive: true })
+    window.addEventListener('touchmove', scrollIntent, { passive: true })
+    window.addEventListener('scroll', finishOnScroll, { passive: true })
 
     return () => {
       window.clearTimeout(deadline)
       launch.removeEventListener('animationend', finishAnimation)
       launch.removeEventListener('animationcancel', finishAnimation)
       window.removeEventListener('keydown', escapeIntro)
-      window.removeEventListener('scroll', keepPosition)
-      root.style.overflow = previousOverflow
-      root.style.scrollbarGutter = previousGutter
-      root.style.scrollBehavior = previousScrollBehavior
+      window.removeEventListener('wheel', scrollIntent)
+      window.removeEventListener('touchmove', scrollIntent)
+      window.removeEventListener('scroll', finishOnScroll)
     }
   }, [canShowIntro])
 

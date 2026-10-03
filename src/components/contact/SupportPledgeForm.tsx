@@ -71,6 +71,13 @@ const forbiddenSupportValues = new Set([
   '준비중',
 ])
 
+const pendingBankAccountNotes = new Set([
+  '후원 계좌 정보는 관리자 CMS에서 등록한 뒤 표시됩니다.',
+  '후원 계좌 정보는 관리자 CMS에서 등록하면 표시됩니다.',
+  'Support bank account details will appear once they have been added in the administration system.',
+  'Bank account details will appear after they are entered in the administrator CMS.',
+].map((note) => note.toLowerCase()))
+
 function getTodayInputValue() {
   const today = new Date()
   return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
@@ -251,11 +258,16 @@ export function SupportPledgeForm({
   const bankAccountHolder = normalizeSupportDisplayText(
     settings.bank_account_holder,
   )
-  const bankNote = normalizeSupportDisplayText(settings.bank_note)
+  const normalizedBankNote = normalizeSupportDisplayText(settings.bank_note)
   const hasBankAccount = Boolean(bankAccountNumber)
   const hasCompleteBankAccount = Boolean(
     bankName && bankAccountNumber && bankAccountHolder,
   )
+  const bankNote = hasCompleteBankAccount
+    && normalizedBankNote
+    && pendingBankAccountNotes.has(normalizedBankNote.toLowerCase())
+    ? null
+    : normalizedBankNote
   const contactItems = [
     {
       label: '문의 전화',
