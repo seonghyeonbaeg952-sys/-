@@ -315,6 +315,14 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
     let animationStart = 0
     let animationFrom = 0
     let scrollGuideProgress = 0
+    let guideHeight = 148
+
+    const syncGuideHeight = () => {
+      const restHeight = Number.parseFloat(
+        window.getComputedStyle(shell).getPropertyValue('--home-v4-guide-rest-height'),
+      )
+      guideHeight = Number.isFinite(restHeight) && restHeight > 0 ? restHeight : 148
+    }
 
     const reset = () => {
       scrollGuideProgress = 0
@@ -349,7 +357,6 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
     }
 
     const applyProgress = (progress: number) => {
-      const guideHeight = 148
       const handoffHold = Math.min(
         260,
         Math.max(200, window.innerHeight * 0.26),
@@ -500,6 +507,12 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
       }
     }
 
+    const resizeGuide = () => {
+      syncGuideHeight()
+      queueUpdate()
+    }
+
+    syncGuideHeight()
     if (desktopQuery.matches && !reducedMotionQuery.matches) {
       applyProgress(0)
       queueUpdate()
@@ -507,15 +520,15 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
       reset()
     }
     window.addEventListener('scroll', queueUpdate, { passive: true })
-    window.addEventListener('resize', queueUpdate)
-    desktopQuery.addEventListener('change', queueUpdate)
+    window.addEventListener('resize', resizeGuide)
+    desktopQuery.addEventListener('change', resizeGuide)
     reducedMotionQuery.addEventListener('change', queueUpdate)
 
     return () => {
       window.cancelAnimationFrame(frame)
       window.removeEventListener('scroll', queueUpdate)
-      window.removeEventListener('resize', queueUpdate)
-      desktopQuery.removeEventListener('change', queueUpdate)
+      window.removeEventListener('resize', resizeGuide)
+      desktopQuery.removeEventListener('change', resizeGuide)
       reducedMotionQuery.removeEventListener('change', queueUpdate)
       reset()
     }

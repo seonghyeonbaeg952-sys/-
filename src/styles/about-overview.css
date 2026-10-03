@@ -5,15 +5,11 @@
 
 .about-overview-nav .section-tabs-wrap {
   margin: 0;
+  box-shadow: none;
 }
 
 .about-overview-nav .about-section-selector__accent {
-  background: linear-gradient(
-    90deg,
-    var(--color-gold-warm),
-    var(--color-gold-soft),
-    transparent
-  );
+  background: var(--color-orange-soft);
   border-radius: 999px;
   height: 1px;
   inset-inline: 16px;
@@ -149,7 +145,7 @@
 .about-overview__title-focus {
   font-size: 84px;
   font-weight: 800;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.03em;
   line-height: 96px;
   white-space: nowrap;
 }
@@ -239,7 +235,7 @@
 }
 
 .about-overview__intro-figure {
-  height: 700px;
+  height: auto;
   left: 800px;
   overflow: visible;
   position: absolute;
@@ -248,13 +244,17 @@
 }
 
 .about-overview__intro-image {
+  background: var(--about-paper);
   border-radius: 28px;
-  height: 700px;
+  height: auto;
   overflow: hidden;
-  width: 568px;
+  width: 100%;
 }
 
 .about-overview__intro-image .about-overview__image-media {
+  display: block;
+  height: auto;
+  object-fit: contain;
   object-position: center center;
 }
 
@@ -308,13 +308,18 @@
 }
 
 .about-overview__glass-caption {
+  backdrop-filter: none;
+  background: var(--about-paper);
+  border-color: var(--about-border);
   border-radius: 20px;
-  bottom: -48px;
+  bottom: auto;
   gap: 10px;
-  height: 146px;
-  left: -84px;
+  height: auto;
+  left: auto;
+  margin-top: 16px;
   padding: 22px 24px 20px;
-  width: 372px;
+  position: relative;
+  width: 100%;
 }
 
 .about-overview__glass-caption span,
@@ -528,12 +533,9 @@
 }
 
 .about-overview__spirit-stage {
-  background:
-    radial-gradient(circle at 96% -8%, rgb(104 35 58 / 0.94), transparent 36%),
-    radial-gradient(circle at -2% 106%, rgb(240 75 35 / 0.96), transparent 25%),
-    var(--about-deep);
+  background: var(--about-deep);
   border: 1px solid var(--about-deep-border);
-  border-radius: 32px;
+  border-radius: 16px;
   color: var(--about-light);
   height: 864px;
   overflow: hidden;
@@ -1181,21 +1183,21 @@
   }
 
   .about-overview__intro-figure {
-    height: 590px;
+    height: auto;
     width: 100%;
   }
 
   .about-overview__intro-image {
-    height: 590px;
+    height: auto;
     width: 100%;
   }
 
   .about-overview__glass-caption {
-    bottom: 28px;
+    bottom: auto;
     height: auto;
-    left: -24px;
+    left: auto;
     min-height: 112px;
-    width: min(320px, calc(100% + 24px));
+    width: 100%;
   }
 
   .about-overview__glass-caption strong {
@@ -1548,7 +1550,7 @@
   }
 
   .about-overview__intro-image {
-    aspect-ratio: 1.45 / 1;
+    aspect-ratio: auto;
     border-radius: 18px;
     height: auto;
     width: 100%;
@@ -1569,13 +1571,13 @@
   }
 
   .about-overview__glass-caption {
-    bottom: -26px;
+    bottom: auto;
     gap: 6px;
     height: auto;
-    left: 12px;
+    left: auto;
     min-height: 86px;
     padding: 14px 15px;
-    width: min(280px, calc(100% - 24px));
+    width: 100%;
   }
 
   .about-overview__glass-caption span {
@@ -2076,8 +2078,6 @@
   .about-overview__spirit-stage > *,
   .about-overview__education-stage > * { min-width: 0; grid-column: 1 / -1; }
 
-  .about-overview__intro-figure,
-  .about-overview__intro-image,
   .about-overview__founding-visual,
   .about-overview__founding-visual figure,
   .about-overview__founding-image,

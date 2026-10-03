@@ -45,6 +45,7 @@ export function HomeV4SampleHeader({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const headerRef = useRef<HTMLElement>(null)
   const desktopTriggerRef = useRef<HTMLButtonElement>(null)
+  const restoringDesktopFocusRef = useRef(false)
   const mobileTriggerRef = useRef<HTMLButtonElement>(null)
   const previousBodyOverflowRef = useRef<string | null>(null)
   const desktopCloseTimerRef = useRef<number | null>(null)
@@ -68,7 +69,13 @@ export function HomeV4SampleHeader({
     setActiveDesktopMenuHref(null)
     setDesktopMenuPinned(false)
     if (restoreFocus) {
-      window.requestAnimationFrame(() => desktopTriggerRef.current?.focus())
+      const trigger = desktopTriggerRef.current
+      window.requestAnimationFrame(() => {
+        if (!trigger?.isConnected) return
+        restoringDesktopFocusRef.current = true
+        trigger.focus({ preventScroll: true })
+        restoringDesktopFocusRef.current = false
+      })
     }
   }, [cancelDesktopClose])
 
@@ -292,13 +299,14 @@ export function HomeV4SampleHeader({
                   toggleDesktopMenu(item.href)
                 }}
                 onFocus={(event) => {
-                  desktopTriggerRef.current = event.currentTarget
-                  if (!desktopMenuPinned) {
+                  if (!desktopMenuPinned && !restoringDesktopFocusRef.current) {
+                    desktopTriggerRef.current = event.currentTarget
                     openDesktopMenu(item.href)
                   }
                 }}
-                onMouseEnter={() => {
+                onMouseEnter={(event) => {
                   if (!desktopMenuPinned) {
+                    desktopTriggerRef.current = event.currentTarget
                     openDesktopMenu(item.href)
                   }
                 }}

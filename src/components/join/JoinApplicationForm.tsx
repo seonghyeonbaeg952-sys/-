@@ -245,7 +245,7 @@ export function JoinApplicationForm({ joinInfo }: { joinInfo: JoinInfoRow }) {
             <div className="join-application__state" role="status">
               <h2 ref={successHeading} tabIndex={-1}>{<FormattedCopy page="join" id="join.success" text={t('success')}>{t('success')}</FormattedCopy>}</h2>
               <p>{<FormattedCopy page="join" id="join.successHelp" text={t('successHelp')}>{t('successHelp')}</FormattedCopy>}</p>
-              <TransitionLink className="join-application__primary" to="/join">{<FormattedCopy page="join" id="join.back" text={t('back')}>{t('back')}</FormattedCopy>}</TransitionLink>
+              <TransitionLink className="join-application__primary" to="/join#join-guide-title">{<FormattedCopy page="join" id="join.back" text={t('back')}>{t('back')}</FormattedCopy>}</TransitionLink>
             </div>
           ) : configState.kind === 'loading' ? (
             <div className="join-application__state" aria-busy="true" role="status">
@@ -325,7 +325,7 @@ export function JoinApplicationForm({ joinInfo }: { joinInfo: JoinInfoRow }) {
             <h2>{<FormattedCopy page="join" id="join.auditionInquiry" text={t('auditionInquiry')}>{t('auditionInquiry')}</FormattedCopy>}</h2>
             <TransitionLink to="/contact#form">{<FormattedCopy page="join" id="join.foundationInquiry" text={t('foundationInquiry')}>{t('foundationInquiry')}</FormattedCopy>}</TransitionLink>
           </div>
-          {stage !== 'success' ? <TransitionLink className="join-application__secondary" to="/join">{<FormattedCopy page="join" id="join.back" text={t('back')}>{t('back')}</FormattedCopy>}</TransitionLink> : null}
+          {stage !== 'success' ? <TransitionLink className="join-application__secondary" to="/join#join-guide-title">{<FormattedCopy page="join" id="join.back" text={t('back')}>{t('back')}</FormattedCopy>}</TransitionLink> : null}
         </div>
       </div>
     </section>

@@ -183,12 +183,7 @@
   position: absolute;
   z-index: -2;
   inset: 0;
-  background: linear-gradient(
-    90deg,
-    rgb(23 25 29 / 0.98),
-    rgb(23 25 29 / 0.74) 48%,
-    rgb(104 35 58 / 0.5)
-  );
+  background: rgb(23 25 29 / 0.68);
 }
 
 .concerts-page__stage-orbit {
@@ -315,9 +310,7 @@
   justify-content: flex-end;
   padding: 8%;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 88% 10%, rgb(104 35 58 / 0.9), transparent 40%),
-    linear-gradient(145deg, #22252a, #131519);
+  background: #252027;
   color: var(--concert-on-deep);
 }
 
@@ -369,7 +362,7 @@
 }
 
 .concerts-page__stage--empty .concerts-page__stage-wash {
-  background: linear-gradient(90deg, rgb(23 25 29 / 0.96), rgb(104 35 58 / 0.62));
+  background: #242027;
 }
 
 .concerts-page__stage-empty-copy {
@@ -998,7 +991,7 @@
   }
 
   .concerts-page__stage-link {
-    min-height: 40px;
+    min-height: 44px;
     margin-top: 10px;
     padding: 9px 13px;
     font-size: 11px;
@@ -1162,12 +1155,7 @@
   }
 
   .concerts-page__stage-wash {
-    background: linear-gradient(
-      90deg,
-      rgb(23 25 29 / 0.98),
-      rgb(23 25 29 / 0.72) 58%,
-      rgb(104 35 58 / 0.62)
-    );
+    background: rgb(23 25 29 / 0.68);
   }
 
   .concerts-page__stage-orbit {
@@ -1208,7 +1196,7 @@
   }
 
   .concerts-page__stage-link {
-    min-height: 28px;
+    min-height: 44px;
     margin-top: 3px;
     padding: 4px 0;
     background: transparent;

@@ -13,10 +13,10 @@
   right: 0;
   left: 0;
   border-bottom: 1px solid var(--home-v4-header-orange-soft);
-  background: rgb(255 255 255 / 0.96);
-  box-shadow: 0 10px 30px rgb(16 35 63 / 0.08);
+  background: var(--home-v4-header-white);
+  box-shadow: none;
   color: var(--home-v4-header-ink);
-  backdrop-filter: blur(10px);
+  backdrop-filter: none;
   transition:
     background-color 240ms ease-out,
     border-color 240ms ease-out,

@@ -307,9 +307,9 @@
   right: 0;
   left: 0;
   border-bottom: 1px solid var(--home-v4-orange-soft);
-  background: rgb(255 255 255 / 0.96);
-  box-shadow: 0 10px 30px rgb(16 35 63 / 0.08);
-  backdrop-filter: blur(10px);
+  background: var(--home-v4-white);
+  box-shadow: none;
+  backdrop-filter: none;
   transition:
     background-color 240ms ease-out,
     border-color 240ms ease-out,
@@ -2781,10 +2781,11 @@
   }
 }
 
-/* Figma 1146:549 — wide hero + three straight clear-glass guide lanes.
+/* Figma 1146:549 — wide hero + three separated, neutral guide lanes.
    Desktop only: the established tablet/mobile information list remains intact. */
 @media (min-width: 1366px) and (min-aspect-ratio: 151/100) and (pointer: fine) and (not (any-pointer: coarse)) {
   .public-shell-home-sample-v4[data-design-candidate='home-v4'] {
+    --home-v4-guide-rest-height: 168px;
     --home-v4-guide-after-hero: -86px;
     --home-v4-guide-flow-compensation: 118px;
     --home-v4-guide-inner-offset: 0px;
@@ -3033,7 +3034,7 @@
     .home-flow-body
     .home-quick-actions {
     overflow-anchor: none;
-    height: var(--home-v4-guide-exit-height, 148px);
+    height: var(--home-v4-guide-exit-height, var(--home-v4-guide-rest-height));
     margin: var(
         --home-v4-guide-exit-margin-top,
         var(--home-v4-guide-after-hero)
@@ -3066,15 +3067,22 @@
 
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-quick-action-grid {
+    --quick-ink: #f3ede4;
+    --quick-muted: #e5e1d9;
+    --quick-accent: #e2ded6;
+    --quick-surface: rgb(16 22 29 / 0.68);
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: clamp(24px, 2vw, 40px) !important;
+    gap: clamp(16px, 1.3vw, 24px) !important;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
   }
 
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-quick-action-grid
     > .reveal-motion {
     min-width: 0;
-    height: 132px;
+    height: calc(var(--home-v4-guide-rest-height) - 16px);
   }
 
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
@@ -3083,87 +3091,29 @@
     isolation: isolate;
     display: flex;
     min-height: 132px;
-    height: 132px;
-    padding: 12px 16px 10px;
+    height: 100%;
+    padding: 14px 22px 12px;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.24) !important;
+    border: 1px solid rgb(243 237 228 / 0.18) !important;
     border-radius: 0 !important;
-    background:
-      linear-gradient(
-        158deg,
-        rgba(255, 255, 255, 0.11) 0%,
-        rgba(255, 255, 255, 0.035) 28%,
-        rgba(255, 255, 255, 0) 52%
-      ),
-      rgba(7, 17, 31, 0.3) !important;
-    background-clip: padding-box;
-    box-shadow:
-      0 20px 48px rgba(4, 10, 20, 0.2),
-      0 5px 14px rgba(4, 10, 20, 0.13),
-      inset 0 1px 0 rgba(255, 255, 255, 0.34),
-      inset 1px 0 0 rgba(255, 255, 255, 0.1),
-      inset 0 -1px 0 rgba(2, 9, 18, 0.44),
-      inset -1px 0 0 rgba(2, 9, 18, 0.2) !important;
-    color: rgba(255, 251, 242, 0.96);
-    -webkit-backdrop-filter: blur(24px) saturate(132%) brightness(0.92)
-      contrast(108%);
-    backdrop-filter: blur(24px) saturate(132%) brightness(0.92) contrast(108%);
+    background: var(--quick-surface) !important;
+    box-shadow: none !important;
+    color: var(--quick-ink);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     transform: none;
     transition:
       border-color 220ms ease,
-      background-color 220ms ease,
-      box-shadow 220ms ease,
-      transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+      background-color 220ms ease;
   }
 
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
-    .home-quick-action-card::before {
-    position: absolute;
-    z-index: 0;
-    inset: 0;
-    padding: 1px;
-    border-radius: inherit;
-    background: linear-gradient(
-      132deg,
-      rgba(255, 255, 255, 0.58) 0%,
-      rgba(255, 255, 255, 0.12) 26%,
-      rgba(255, 96, 26, 0.1) 64%,
-      rgba(255, 255, 255, 0.28) 100%
-    );
-    content: '';
-    -webkit-mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0.72;
-    pointer-events: none;
-  }
-
+    .home-quick-action-card::before,
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-quick-action-card::after {
-    position: absolute;
-    z-index: 0;
-    top: -56px;
-    left: -18px;
-    width: 76%;
-    height: 104px;
-    border-radius: 50%;
-    background: radial-gradient(
-      ellipse at center,
-      rgba(255, 255, 255, 0.21),
-      rgba(255, 255, 255, 0) 72%
-    );
-    content: '';
-    opacity: 0.76;
-    pointer-events: none;
-    transform: rotate(-12deg);
-    transition:
-      opacity 220ms ease,
-      transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+    display: none;
+    background: none;
+    content: none;
   }
 
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
@@ -3184,18 +3134,18 @@
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-quick-action-copy {
     display: flex;
-    min-height: 0;
-    flex: 1 1 auto;
+    min-height: auto;
+    flex: 1 0 auto;
     flex-direction: column;
   }
 
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-quick-action-eyebrow {
     margin: 0 0 4px;
-    color: #ff601a !important;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.14em;
+    color: var(--quick-accent) !important;
+    font-size: 10.5px;
+    font-weight: 650;
+    letter-spacing: 0.12em;
     opacity: 1;
   }
 
@@ -3203,8 +3153,8 @@
     .home-quick-action-card
     h2 {
     margin: 0;
-    color: rgba(255, 251, 242, 0.96) !important;
-    font-family: var(--font-heading-kr);
+    color: var(--quick-ink) !important;
+    font-family: var(--font-sans-kr);
     font-size: clamp(18px, 1.35vw, 21px);
     font-weight: 600;
     line-height: 1.32;
@@ -3215,70 +3165,52 @@
     .home-quick-action-copy
     > p:last-child {
     margin: 3px 0 0;
-    color: rgba(255, 251, 242, 0.72) !important;
-    font-size: 11.5px;
-    line-height: 1.38;
+    color: var(--quick-muted) !important;
+    font-size: 12.5px;
+    line-height: 1.48;
   }
 
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-quick-action-link {
     display: flex;
-    min-height: 28px;
+    min-height: 24px;
     align-items: flex-end;
     justify-content: space-between;
     margin-top: auto;
     padding-top: 6px;
-    border-top: 1px solid rgba(255, 255, 255, 0.18);
-    color: rgba(255, 251, 242, 0.94) !important;
-    font-size: 13px;
+    border-top: 0;
+    color: var(--quick-ink) !important;
+    font-size: 12.5px;
     font-weight: 650;
   }
 
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-quick-action-link
     > span {
-    color: #ff601a;
+    width: auto;
+    height: auto;
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    color: var(--quick-accent);
   }
 
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-quick-action-card:hover,
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-quick-action-card:focus-visible {
-    border-color: rgba(255, 255, 255, 0.42) !important;
-    background:
-      linear-gradient(
-        158deg,
-        rgba(255, 255, 255, 0.15) 0%,
-        rgba(255, 255, 255, 0.05) 30%,
-        rgba(255, 255, 255, 0) 56%
-      ),
-      rgba(9, 22, 39, 0.34) !important;
-    box-shadow:
-      0 24px 56px rgba(4, 10, 20, 0.25),
-      0 6px 16px rgba(4, 10, 20, 0.14),
-      inset 0 1px 0 rgba(255, 255, 255, 0.36),
-      inset 1px 0 0 rgba(255, 255, 255, 0.12),
-      inset 0 -1px 0 rgba(2, 9, 18, 0.34) !important;
-    transform: translateY(-2px);
+    background: rgb(16 22 29 / 0.78) !important;
+    box-shadow: none !important;
+    transform: none;
   }
 
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-quick-action-card:focus-visible {
-    outline: 2px solid rgba(255, 96, 26, 0.92);
-    outline-offset: 3px;
-  }
-
-  .public-shell-home-sample-v4[data-design-candidate='home-v4']
-    .home-quick-action-card:is(:hover, :focus-visible)::after {
-    opacity: 0.9;
-    transform: translate(18px, 8px) rotate(-7deg);
-  }
-
-  @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
-    .public-shell-home-sample-v4[data-design-candidate='home-v4']
-      .home-quick-action-card {
-      background: rgba(7, 17, 31, 0.82) !important;
-    }
+    outline: 2px solid var(--quick-accent);
+    outline-offset: -3px;
   }
 
 }

@@ -41,7 +41,7 @@
 .accompanist-profile {
   --accompanist-paper: #fcfaf5;
   --accompanist-canvas: #f2efe8;
-  --accompanist-cool: #e8ecea;
+  --accompanist-cool: #f5f2ed;
   --accompanist-ink: #17171a;
   --accompanist-muted: #68665f;
   --accompanist-orange: #f04b23;
@@ -146,7 +146,7 @@
 .accompanist-profile__baseline {
   height: 1px;
   margin-bottom: 92px;
-  background: linear-gradient(90deg, var(--accompanist-orange) 0 72px, var(--accompanist-border) 72px 100%);
+  background: var(--accompanist-border);
 }
 
 .accompanist-profile__list {
@@ -414,31 +414,34 @@
 
   .accompanist-profile__intro {
     display: block;
+    height: auto;
     min-height: 0;
-    padding-bottom: 38px;
+    padding-bottom: 20px;
   }
 
   .accompanist-profile__intro-copy {
     padding-left: 20px;
+    padding-top: 64px;
   }
 
   .accompanist-profile__intro h1,
   .accompanist-profile__intro h2 {
+    position: static;
     margin-top: 16px;
     font-size: clamp(40px, 12vw, 50px);
   }
 
   .accompanist-profile__summary {
+    position: static;
     margin-top: 18px;
     font-size: 14px;
     line-height: 1.72;
   }
 
   .accompanist-profile__display {
-    margin-top: 34px;
-    font-size: clamp(62px, 20vw, 82px);
-    line-height: 0.78;
-    white-space: normal;
+    /* The semantic heading is sufficient on narrow screens; the decorative
+       duplicate competes with it and can overlap longer English wording. */
+    display: none;
   }
 
   .accompanist-profile__baseline {

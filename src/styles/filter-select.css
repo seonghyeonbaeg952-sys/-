@@ -1,4 +1,5 @@
 .filter-select {
+  --filter-select-menu-gap: 8px;
   position: relative;
   min-width: 0;
 }
@@ -25,7 +26,7 @@
 .filter-select__options {
   position: absolute;
   z-index: 40;
-  top: calc(100% + 8px);
+  top: calc(100% + var(--filter-select-menu-gap));
   right: 0;
   width: max(100%, 196px);
   max-height: min(50vh, 340px);
@@ -40,7 +41,7 @@
 
 .filter-select__options[data-above] {
   top: auto;
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + var(--filter-select-menu-gap));
 }
 
 .filter-select__options button {

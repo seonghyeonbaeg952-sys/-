@@ -1,4 +1,5 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
+import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
+import { filterSelectPosition } from './filterSelectPosition'
 import '../../styles/filter-select.css'
 
 type FilterSelectProps = {
@@ -11,11 +12,35 @@ type FilterSelectProps = {
 
 export function FilterSelect({ label, value, options, onChange, className = '' }: FilterSelectProps) {
   const [open, setOpen] = useState(false)
-  const [opensAbove, setOpensAbove] = useState(false)
+  const [placement, setPlacement] = useState({ opensAbove: false, maxHeight: 340 })
   const rootRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const optionsId = useId()
   const selectedLabel = options.find((option) => option.value === value)?.label ?? options[0]?.label ?? '선택'
+
+  const updatePlacement = useCallback(() => {
+    const trigger = triggerRef.current
+    const root = rootRef.current
+    if (!trigger || !root) return
+    const box = trigger.getBoundingClientRect()
+    const viewport = window.visualViewport
+    const viewportTop = viewport?.offsetTop ?? 0
+    const viewportBottom = viewportTop + (viewport?.height ?? window.innerHeight)
+    let safeTop = viewportTop
+    for (const header of document.querySelectorAll('header')) {
+      const position = window.getComputedStyle(header).position
+      if (position !== 'fixed' && position !== 'sticky') continue
+      const headerBox = header.getBoundingClientRect()
+      if (headerBox.top <= viewportTop && headerBox.bottom > safeTop) safeTop = headerBox.bottom
+    }
+    if (box.bottom <= safeTop || box.top >= viewportBottom) {
+      setOpen(false)
+      return
+    }
+    const scale = box.width / trigger.offsetWidth || 1
+    const gap = (Number.parseFloat(window.getComputedStyle(root).getPropertyValue('--filter-select-menu-gap')) || 8) * scale
+    setPlacement(filterSelectPosition({ triggerTop: box.top, triggerBottom: box.bottom, viewportTop: safeTop, viewportBottom, optionCount: options.length, scale, gap }))
+  }, [options.length])
 
   useEffect(() => {
     if (!open) return
@@ -23,9 +48,25 @@ export function FilterSelect({ label, value, options, onChange, className = '' }
     const closeOutside = (event: PointerEvent) => {
       if (event.target instanceof Node && !rootRef.current?.contains(event.target)) setOpen(false)
     }
+    let frame = 0
+    const queuePlacement = () => {
+      if (frame) return
+      frame = window.requestAnimationFrame(() => { frame = 0; updatePlacement() })
+    }
     document.addEventListener('pointerdown', closeOutside)
-    return () => document.removeEventListener('pointerdown', closeOutside)
-  }, [open])
+    window.addEventListener('resize', queuePlacement)
+    window.addEventListener('scroll', queuePlacement, { passive: true })
+    window.visualViewport?.addEventListener('resize', queuePlacement)
+    window.visualViewport?.addEventListener('scroll', queuePlacement, { passive: true })
+    return () => {
+      window.cancelAnimationFrame(frame)
+      document.removeEventListener('pointerdown', closeOutside)
+      window.removeEventListener('resize', queuePlacement)
+      window.removeEventListener('scroll', queuePlacement)
+      window.visualViewport?.removeEventListener('resize', queuePlacement)
+      window.visualViewport?.removeEventListener('scroll', queuePlacement)
+    }
+  }, [open, updatePlacement])
 
   function close() {
     setOpen(false)
@@ -62,11 +103,7 @@ export function FilterSelect({ label, value, options, onChange, className = '' }
         aria-label={`${label}: ${selectedLabel}`}
         className="filter-select__trigger"
         onClick={() => {
-          const box = triggerRef.current?.getBoundingClientRect()
-          if (box && !open) {
-            const requiredHeight = Math.min(options.length * 44 + 18, window.innerHeight / 2)
-            setOpensAbove(window.innerHeight - box.bottom < requiredHeight && box.top > window.innerHeight - box.bottom)
-          }
+          if (!open) updatePlacement()
           setOpen((current) => !current)
         }}
         ref={triggerRef}
@@ -76,7 +113,7 @@ export function FilterSelect({ label, value, options, onChange, className = '' }
         <span aria-hidden="true">⌄</span>
       </button>
       {open ? (
-        <div aria-label={`${label} 선택`} className="filter-select__options" data-above={opensAbove || undefined} id={optionsId} role="group">
+        <div aria-label={`${label} 선택`} className="filter-select__options" data-above={placement.opensAbove || undefined} id={optionsId} role="group" style={{ maxHeight: placement.maxHeight }}>
           {options.map((option) => (
             <button aria-pressed={value === option.value} key={option.value} onClick={() => { onChange(option.value); close() }} type="button">
               {option.label}<span aria-hidden="true">{value === option.value ? '✓' : ''}</span>

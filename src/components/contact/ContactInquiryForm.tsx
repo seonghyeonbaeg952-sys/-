@@ -3,7 +3,7 @@ import { SAMPLE_SUBMISSION_MESSAGES } from '../../lib/sampleSubmissionGuard'
 import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
 import { useRef, useState, type FormEvent } from 'react'
-import { Link } from 'react-router'
+import { TransitionLink } from '../common/TransitionLink'
 import { createContactMessage, type ContactMessageInput } from '../../lib/publicData'
 import { createIntakeSubmissionTracker } from '../../lib/intakeModel'
 import { FilterSelect } from '../common/FilterSelect'
@@ -93,7 +93,7 @@ export function ContactInquiryForm({ initialType, hidden = false }: { initialTyp
           <p>{<FormattedCopy page="contact" id="contact.inquiryDelivery" text={t('inquiryDelivery')}>{t('inquiryDelivery')}</FormattedCopy>}</p>
           <p>{<FormattedCopy page="contact" id="contact.inquiryPerformance" text={t('inquiryPerformance')}>{t('inquiryPerformance')}</FormattedCopy>}</p>
           <p>{<FormattedCopy page="contact" id="contact.inquiryJoin" text={t('inquiryJoin')}>{t('inquiryJoin')}</FormattedCopy>}</p>
-          <Link className="contact-atelier__action" to="/join?section=contact#application">{<FormattedCopy page="contact" id="contact.joinAction" text={t('joinAction')}>{t('joinAction')}</FormattedCopy>} <span aria-hidden="true">↗</span></Link>
+          <TransitionLink className="contact-atelier__action" to="/join?section=contact#application">{<FormattedCopy page="contact" id="contact.joinAction" text={t('joinAction')}>{t('joinAction')}</FormattedCopy>} <span aria-hidden="true">↗</span></TransitionLink>
         </div>
         <form className="contact-atelier__form" onSubmit={submit} noValidate aria-busy={submitting}>
           <div hidden aria-hidden="true">

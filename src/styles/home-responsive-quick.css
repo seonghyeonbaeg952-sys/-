@@ -1,5 +1,5 @@
 /* Figma 10:20: compact code/title rows. The tablet extends the same pattern
-   with 48px side padding; desktop retains its original floating cards. */
+   with 48px side padding; desktop uses the separate matte guide band. */
 @media (max-width: 1365px), (any-pointer: coarse),
   (min-width: 1366px) and (max-width: 1600px) and (max-aspect-ratio: 3/2) {
   .public-shell-home-sample-v4[data-design-candidate='home-v4'].color-sample-theme.public-shell-home
@@ -50,7 +50,7 @@
     min-width: 0;
     min-height: 55px;
     padding: 12px 0;
-    border-bottom: 1px solid #f0d5c8;
+    border-bottom: 1px solid #dfd6cc;
     color: #3b1733;
     font-family: 'Home Responsive Gothic', var(--font-sans-kr);
     font-size: 14px;
@@ -61,11 +61,12 @@
 
   .home-responsive-quick .home-responsive-quick__code {
     flex: 0 0 auto;
-    color: #ff601a;
+    color: #b54b26;
   }
 
   .home-responsive-quick .home-responsive-quick__divider {
     flex: 0 0 auto;
+    color: #76695f;
   }
 
 
@@ -76,13 +77,13 @@
   }
 
   .home-responsive-quick .home-responsive-quick__row:hover {
-    background: #fff1e8;
+    background: #f2ede5;
   }
 
   .home-responsive-quick .home-responsive-quick__row:focus-visible {
     outline: 2px solid #c93a07;
     outline-offset: 3px;
-    background: #fff1e8;
+    background: #f2ede5;
   }
 }
 

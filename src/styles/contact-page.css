@@ -35,6 +35,7 @@
 .contact-atelier__support h3 { margin: 0 0 24px; font: 600 24px/1.5 var(--font-heading-kr); }
 .contact-atelier__amounts { margin: 0; }
 .contact-atelier__amounts > div { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 24px; padding-block: 24px; border-bottom: 1px solid var(--contact-border); }
+.contact-atelier:lang(en) .contact-atelier__amounts > div { grid-template-columns: minmax(8em, max-content) minmax(0, 1fr); }
 .contact-atelier__amounts dt { font-size: 16px; font-weight: 600; }
 .contact-atelier__amounts dd { margin: 0; font-size: 20px; line-height: 1.7; font-variant-numeric: tabular-nums; word-break: keep-all; }
 .contact-atelier__support-note { margin: 24px 0 0; color: var(--contact-muted); font-size: 15px; line-height: 1.8; }
@@ -108,6 +109,7 @@
   .contact-atelier__section { padding-block: 48px; }
   .contact-atelier__aside > p:not(.contact-atelier__eyebrow) { font-size: 16px; }
   .contact-atelier__amounts > div { grid-template-columns: 52px minmax(0, 1fr); gap: 16px; padding-block: 20px; }
+  .contact-atelier:lang(en) .contact-atelier__amounts > div { grid-template-columns: minmax(0, 1fr); row-gap: 8px; }
   .contact-atelier__amounts dd { font-size: 17px; }
   .contact-atelier__field-row { grid-template-columns: 1fr; }
   .contact-atelier__submit { gap: 16px; }

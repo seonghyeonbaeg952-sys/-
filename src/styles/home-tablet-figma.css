@@ -132,6 +132,7 @@
   display: flex;
   margin: 0 !important;
   opacity: 1;
+  transform: none;
 }
 
 .public-shell-home-sample-v4[data-home-viewport='tablet'] .home-hero-controls :is(button, [role='tab']) {

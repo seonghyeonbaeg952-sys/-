@@ -58,32 +58,17 @@
 }
 
 .route-loading-screen.route-loading-screen--public::after {
-  background: linear-gradient(
-    100deg,
-    transparent 14%,
-    rgb(242 235 227 / 0.025) 48%,
-    rgb(193 143 120 / 0.065) 58%,
-    transparent 78%
-  );
-  opacity: 0.34;
+  display: none;
+  background: none;
 }
 
 .route-loading-screen.route-loading-screen--public .route-loading-screen__mark {
   color: #c18f78;
-  text-shadow:
-    0 0 30px rgb(193 143 120 / 0.12),
-    0 18px 52px rgb(16 8 11 / 0.28);
+  text-shadow: none;
 }
 
 .route-loading-screen.route-loading-screen--public .route-loading-screen__copy::before {
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgb(242 235 227 / 0.18),
-    rgb(193 143 120 / 0.52),
-    rgb(242 235 227 / 0.18),
-    transparent
-  );
+  background: rgb(242 235 227 / 0.28);
 }
 
 .route-loading-screen.route-loading-screen--public .route-loading-screen__copy p {
@@ -111,7 +96,7 @@
 
 .color-sample-theme .home-intro-launch__wordmark {
   color: var(--intro-text-muted);
-  text-shadow: 0 10px 30px rgb(16 8 11 / 0.18);
+  text-shadow: none;
 }
 
 .color-sample-theme .home-intro-launch__initial,
@@ -120,7 +105,7 @@
 }
 
 .color-sample-theme .home-intro-launch__initial {
-  text-shadow: 0 10px 30px rgb(16 8 11 / 0.16);
+  text-shadow: none;
 }
 
 .color-sample-theme .home-intro-launch__shutters span {
@@ -128,14 +113,8 @@
 }
 
 .color-sample-theme .home-intro-launch__sweep {
-  background: linear-gradient(
-    100deg,
-    transparent 18%,
-    rgb(193 143 120 / 0.02) 40%,
-    rgb(193 143 120 / 0.065) 52%,
-    transparent 74%
-  );
-  mix-blend-mode: screen;
+  display: none;
+  background: none;
 }
 
 /* The accepted Figma direction keeps the photographic home hero intact. */

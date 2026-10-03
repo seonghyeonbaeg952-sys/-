@@ -150,9 +150,7 @@
   width: min(47.23vw, 680px);
   height: 670px;
   border-radius: 18px 0 0 18px;
-  background:
-    linear-gradient(90deg, rgb(21 19 17 / 0.86), rgb(21 19 17 / 0.3) 42%, rgb(21 19 17 / 0.08)),
-    linear-gradient(180deg, transparent 54%, rgb(21 19 17 / 0.18));
+  background: rgb(21 19 17 / 0.24);
   pointer-events: none;
 }
 
@@ -410,8 +408,15 @@
   transition: filter 720ms var(--spirit-ease), transform 1000ms var(--spirit-ease);
 }
 
-.spirit-heritage__heritage-photo:hover .spirit-heritage__media-image,
-.spirit-heritage__community-photo:hover .spirit-heritage__media-image {
+.spirit-heritage__community-photo > div {
+  background: var(--spirit-black);
+}
+
+.spirit-heritage__community-photo .spirit-heritage__media-image {
+  object-fit: contain;
+}
+
+.spirit-heritage__heritage-photo:hover .spirit-heritage__media-image {
   filter: saturate(1.04) contrast(1.02);
   transform: scale(1.018);
 }
@@ -525,7 +530,7 @@
   height: 840px;
   overflow: hidden;
   padding: 236px 0 80px;
-  background: linear-gradient(90deg, var(--spirit-stage), var(--spirit-stage) 56%, var(--spirit-burgundy-deep));
+  background: var(--spirit-stage);
 }
 
 .spirit-heritage__backdrop-word {
@@ -568,7 +573,7 @@
   font-family: var(--spirit-heading);
   font-size: 54px;
   font-weight: 900;
-  letter-spacing: -0.055em;
+  letter-spacing: -0.03em;
   line-height: 60px;
 }
 
@@ -619,11 +624,9 @@
   height: 524px;
   overflow: hidden;
   padding: 33px 48px 34px;
-  background:
-    linear-gradient(90deg, rgb(255 255 255 / 0.015), rgb(255 255 255 / 0.008) 58%, rgb(110 32 56 / 0.18)),
-    rgb(243 239 231 / 0.022);
-  box-shadow: 0 18px 42px rgb(0 0 0 / 0.22);
-  backdrop-filter: blur(9px);
+  background: #1c1a1d;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .spirit-heritage__motet-glass::after {
@@ -676,7 +679,7 @@
   height: 174px;
   margin-top: 0;
   padding: 30px 32px;
-  background: linear-gradient(90deg, rgb(67 21 34 / 0.78), rgb(37 18 24 / 0.64));
+  background: #321c25;
 }
 
 .spirit-heritage__quote-card::after {
@@ -1122,7 +1125,7 @@
   min-height: 556px;
   padding: 22px 44px 52px;
   overflow: hidden;
-  background: linear-gradient(90deg, #1b1c20, #1b1c20 64%, #34121f);
+  background: #1b1c20;
 }
 
 .spirit-heritage__value-panel::before {
@@ -1511,7 +1514,7 @@
   margin-top: 70px;
   padding: 42px 48px;
   overflow: hidden;
-  background: linear-gradient(90deg, rgb(23 25 29 / 0.98), rgb(23 25 29 / 0.92) 62%, rgb(49 15 32 / 0.72));
+  background: var(--spirit-panel);
 }
 
 .spirit-heritage__education-panel::before {
@@ -1569,13 +1572,15 @@
 
 .spirit-heritage__closing-glow {
   position: absolute;
-  top: -130px;
-  right: -80px;
-  width: 610px;
-  height: 610px;
+  top: -120px;
+  right: -72px;
+  width: 360px;
+  height: 360px;
+  border: 1px solid rgb(243 239 231 / 0.14);
   border-radius: 50%;
-  background: radial-gradient(circle, rgb(110 32 56 / 0.7), transparent 70%);
-  filter: blur(24px);
+  background: none;
+  filter: none;
+  pointer-events: none;
 }
 
 .spirit-heritage__closing-card {
@@ -1588,8 +1593,8 @@
   margin-inline: auto;
   padding: 52px 54px;
   overflow: hidden;
-  background: rgb(243 239 231 / 0.055);
-  backdrop-filter: blur(14px);
+  background: #27272a;
+  backdrop-filter: none;
 }
 
 .spirit-heritage__closing-card::before {
@@ -2005,7 +2010,7 @@
   }
 
   .spirit-heritage__hero-veil {
-    background: linear-gradient(180deg, transparent 48%, rgb(16 18 21 / 0.22));
+    background: rgb(16 18 21 / 0.14);
   }
 
   .spirit-heritage__eyebrow--hero {
@@ -2056,6 +2061,10 @@
     display: block;
     padding-left: 0;
     white-space: nowrap;
+  }
+
+  .spirit-heritage:lang(ko) .spirit-heritage__hero-heading--mobile .spirit-heritage__hero-promise-line > em {
+    margin-inline-start: 0.16em;
   }
 
   .spirit-heritage__hero-heading--mobile .spirit-heritage__hero-promise-line--indented {

@@ -86,6 +86,11 @@ test('default-markup verification ignores explicit copy adapters but detects lay
   for (const changed of [adapted.replace('className="same"', 'className="changed"'), adapted.replace('href="/join"', 'href="/other"'), adapted.replace('Original ', 'Other ')]) assert.notEqual(publicMarkupFingerprint(changed, 'example.tsx'), hash)
 })
 test('adding copy adapters preserves every existing JSX default in the captured source set', () => {
+  // The 2026-10-04 persona fixes intentionally changed only three captured
+  // boundaries: header opener/focus handlers, the language-preserving contact
+  // link component, and explicit join-guide return anchors. Their reviewed
+  // snapshots were updated; publicFlowRefinement.test.mjs checks the behavior.
+  // All other fingerprints and adapter/mutation checks remain unchanged.
   const baseline = JSON.parse(readFileSync(new URL('../docs/public-copy-default-baseline.json', import.meta.url), 'utf8'))
   for (const [file, fingerprint] of Object.entries(baseline)) assert.equal(publicMarkupFingerprint(readFileSync(file, 'utf8'), file), fingerprint, file)
 })

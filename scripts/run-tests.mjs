@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url'
 // Explicit regression inventory. Archived visual-prototype contracts are not
 // included through a broad glob; their status is tracked separately.
 const tests = [
+  'src/styles/publicRefinement.browser.test.mjs',
+  'src/components/common/publicFlowRefinement.test.mjs',
   'src/features/sample-language/sampleContentModel.test.mjs',
   'src/features/sample-language/sampleContentGuidance.test.mjs',
   'src/features/sample-language/SampleDateInput.clear.test.mjs',
