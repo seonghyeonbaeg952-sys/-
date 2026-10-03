@@ -99,10 +99,15 @@ export function createTranslationLookup(entries: readonly TranslationEntry[]) {
 }
 
 const structuralField = /^(?:id|key|uuid|href|url|src|srcset|image_url|poster_url|thumbnail_url|link_url|video_url|youtube_url|email|phone|contact_phone|contact_email|date|created_at|updated_at|published_at|start_at|end_at|status|category|part|group|display_order|is_visible|is_active|siteTexts|site_texts|styles|appearance|textStyles|textLayouts)$/
+type DisplayTranslator = (source: string, key?: string) => string
+const displayTranslationCaches = new WeakMap<DisplayTranslator, WeakMap<object, unknown>>()
 
 /** Translate immutable display values, retaining object identity when unchanged.
  * IDs, filter enums, URLs, dates, numeric constraints and CMS source maps stay raw. */
-export function translateDisplayData<T>(value: T, translate: (source: string, key?: string) => string): T {
+export function translateDisplayData<T>(value: T, translate: DisplayTranslator): T {
+  const previousCache = displayTranslationCaches.get(translate)
+  const cache = previousCache ?? new WeakMap<object, unknown>()
+  if (!previousCache) displayTranslationCaches.set(translate, cache)
   function visit(item: unknown, field = ''): unknown {
     if (structuralField.test(field) || /(?:_url|_href|Href|Url|_id|_at|_date|_path)$/.test(field)) return item
     if (typeof item === 'string') {
@@ -112,13 +117,19 @@ export function translateDisplayData<T>(value: T, translate: (source: string, ke
       return translate(item)
     }
     if (Array.isArray(item)) {
+      if (cache.has(item)) return cache.get(item)
       const next = item.map(entry => visit(entry))
-      return next.some((entry, index) => entry !== item[index]) ? next : item
+      const result = next.some((entry, index) => entry !== item[index]) ? next : item
+      cache.set(item, result)
+      return result
     }
     if (item && typeof item === 'object' && Object.getPrototypeOf(item) === Object.prototype) {
+      if (cache.has(item)) return cache.get(item)
       const record = item as Record<string, unknown>
       const next = Object.fromEntries(Object.entries(record).map(([key, entry]) => [key, visit(entry, key)]))
-      return Object.keys(next).some(key => next[key] !== record[key]) ? next : item
+      const result = Object.keys(next).some(key => next[key] !== record[key]) ? next : item
+      cache.set(item, result)
+      return result
     }
     return item
   }

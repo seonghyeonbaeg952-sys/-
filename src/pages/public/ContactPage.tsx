@@ -143,7 +143,7 @@ function ContactContent() {
               </dl>
             </div>
             {maps.embedSrc || location?.image_url ? <details className="contact-atelier__location-media"><summary>{<FormattedCopy page="contact" id="contact.map" text={t('map')}>{t('map')}</FormattedCopy>}</summary>
-              {maps.embedSrc ? <iframe src={maps.embedSrc} title={workflowCopy(translate, '{title} 지도', { title: location?.place_name || '서울모테트음악재단' })} loading="lazy" referrerPolicy="no-referrer-when-downgrade" /> : null}
+              {maps.embedSrc ? <iframe src={maps.embedSrc} title={workflowCopy(translate, '{title} 지도', { title: location?.place_name || '서울모테트음악재단' })} loading="lazy" referrerPolicy="strict-origin-when-cross-origin" /> : null}
               {location?.image_url ? <figure><OptimizedImage className="contact-atelier__location-image" src={location.image_url} alt={location.image_alt || workflowCopy(translate, '{title} 사진', { title: location.place_name || translate('오시는 길') })} objectFit="contain" />{location.image_caption ? <figcaption>{location.image_caption}</figcaption> : null}</figure> : null}
             </details> : null}
           </div>

@@ -11,6 +11,32 @@ try {
 } catch (error) { if (error.code !== 'ENOENT') throw error }
 const document = { schemaVersion: 1, copy: { 'join.guideTitle': '게시된 제목' }, deviceCopy: {}, appearance: {} }
 
+test('unchanged publication refresh preserves document identity, while a real copy edit is applied', () => {
+  assert.equal(typeof publication.retainPublishedEditorDocuments, 'function')
+  const current = { join: document }
+  assert.equal(publication.retainPublishedEditorDocuments(current, structuredClone(current)), current)
+  const changed = { join: { ...document, copy: { 'join.guideTitle': 'New published title' } } }
+  assert.equal(publication.retainPublishedEditorDocuments(current, changed), changed)
+  assert.deepEqual(current.join.copy, { 'join.guideTitle': '게시된 제목' })
+})
+
+test('bounded publication reads preserve successful and empty data without treating a timeout as an empty publication', async () => {
+  assert.equal(typeof publication.loadInitialPublication, 'function')
+  assert.deepEqual(await publication.loadInitialPublication(async () => ({ data: [], error: null })), { data: [], error: null })
+  assert.deepEqual(await publication.loadInitialPublication(async () => ({ data: { title: 'Published title' }, error: null })),
+    { data: { title: 'Published title' }, error: null })
+  const timedOut = await publication.loadInitialPublication(() => new Promise(() => {}), 10)
+  assert.equal(timedOut.data, null)
+  assert.ok(timedOut.error)
+})
+
+test('thrown first-read transports settle as a reported failure', async () => {
+  assert.equal(typeof publication.loadInitialPublication, 'function')
+  const result = await publication.loadInitialPublication(async () => { throw new Error('offline') })
+  assert.equal(result.data, null)
+  assert.ok(result.error)
+})
+
 test('first-load gate stays pending until published documents have been resolved', async () => {
   assert.equal(typeof publication.loadPublishedEditorDocuments, 'function')
   let finish

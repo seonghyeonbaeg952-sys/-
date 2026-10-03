@@ -79,9 +79,13 @@ function rootResource(cacheKey?: string): SampleContentResource | undefined {
 /** Apply by resource + UUID, never by matching text: two identically named
  * records must remain independently editable. This runs before generic copy translation. */
 export function applyEnglishContent<T>(source: T, translations: readonly PublishedEnglishContent[], cacheKey?: string): T {
+  if (translations.length === 0) return source
   const lookup = new Map(translations.map(row => [`${row.resource}:${row.record_id}`, row.published]))
   function visit(value: unknown, resource?: SampleContentResource): unknown {
-    if (Array.isArray(value)) return value.map(item => visit(item, resource))
+    if (Array.isArray(value)) {
+      const next = value.map(item => visit(item, resource))
+      return next.some((item, index) => item !== value[index]) ? next : value
+    }
     if (!value || typeof value !== 'object') return value
     const record = value as Record<string, unknown>
     const result = Object.fromEntries(Object.entries(record).map(([key, item]) => [key, visit(item, nestedResource[key])]))
@@ -102,7 +106,8 @@ export function applyEnglishContent<T>(source: T, translations: readonly Publish
       if (resource === 'gallery' && fields.title?.trim()) result.image_alt = fields.title
       if (resource === 'videos' && fields.thumbnail_url?.trim()) { result.thumbnail_url = fields.thumbnail_url; result.thumbnail_fallback_urls = [] }
     }
-    return result
+    const keys = Object.keys(result)
+    return keys.length === Object.keys(record).length && keys.every(key => result[key] === record[key]) ? value : result
   }
   return visit(source, rootResource(cacheKey)) as T
 }

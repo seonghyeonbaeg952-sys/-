@@ -44,7 +44,7 @@ export function MapPreview({
         <iframe
           className="h-[260px] w-full border-0 md:h-[360px]"
           loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
+          referrerPolicy="strict-origin-when-cross-origin"
           src={mapActions.embedSrc}
           title={`${resolvedPlaceName} 지도`}
         />

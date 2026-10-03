@@ -13,6 +13,22 @@ const { SampleLanguageContext } = await vite.ssrLoadModule('/src/features/sample
 const a = '11111111-1111-4111-8111-111111111111', b = '22222222-2222-4222-8222-222222222222'
 const translated = (resource, record_id, published) => ({ resource, record_id, published, published_at: '2026-09-28T01:00:00Z' })
 
+test('empty or unrelated English publications preserve unchanged display snapshots', () => {
+  const source = [{ id: a, title: '원문', is_visible: true }]
+  assert.equal(applyEnglishContent(source, [], 'notices'), source)
+  assert.equal(applyEnglishContent(source, [translated('notices', b, { title: 'Other' })], 'notices'), source)
+})
+
+test('a translated record preserves untouched sibling identity without mutating Korean data', () => {
+  const first = { id: a, title: '첫 문구', is_visible: true }
+  const second = { id: b, title: '둘째 문구', is_visible: true }
+  const source = { notices: [first, second] }
+  const result = applyEnglishContent(source, [translated('notices', a, { title: 'First' })], 'home')
+  assert.equal(result.notices[0].title, 'First')
+  assert.equal(result.notices[1], second)
+  assert.equal(first.title, '첫 문구')
+})
+
 test('same Korean title on separate notices has independent English versions', () => {
   const source = [{ id: a, title: '같은 제목', content: '원문', is_visible: true }, { id: b, title: '같은 제목', content: '다른 내용', is_visible: true }]
   const copy = structuredClone(source)

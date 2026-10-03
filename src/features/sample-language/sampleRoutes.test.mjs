@@ -9,7 +9,9 @@ import { createServer } from 'vite'
 const vite = await createServer({ configFile: false, appType: 'custom', cacheDir: 'node_modules/.vite-sample-route-test', logLevel: 'silent', server: { middlewareMode: true } })
 const previousWindow = globalThis.window
 after(async () => { if (previousWindow === undefined) delete globalThis.window; else globalThis.window = previousWindow; await vite.close() })
-const { SiteEditorProvider } = await vite.ssrLoadModule('/src/components/site-editor/SiteEditorProvider.tsx')
+const { SiteEditorContext } = await vite.ssrLoadModule('/src/components/site-editor/useSiteEditor.ts')
+const { createEditorLanguagePresentation } = await vite.ssrLoadModule('/src/components/site-editor/siteEditorLanguagePresentation.ts')
+const { getEditorDevice } = await vite.ssrLoadModule('/src/lib/siteEditorModel.ts')
 const { SampleLanguageContext } = await vite.ssrLoadModule('/src/features/sample-language/useSampleLanguage.ts')
 const { translateEnglish } = await vite.ssrLoadModule('/src/features/sample-language/englishRegistry.ts')
 const model = await vite.ssrLoadModule('/src/features/sample-language/sampleLanguageModel.ts')
@@ -46,8 +48,14 @@ function render(path, Component, width, language, sample = true) {
   const context = { enabled, isSample: sample, language, setLanguage() {}, translate: enabled && language === 'en' ? translateEnglish : value => value,
     translateData: value => enabled && language === 'en' ? model.translateDisplayData(value, translateEnglish) : value,
     translateHome: value => value, href: value => model.publicLanguageHref(value, language, sample) }
+  // These assertions cover ready page markup/media, not the transport lifecycle.
+  // The actual shared production presentation is used; first-read loading,
+  // failure and retry are tested separately in the provider/browser flow.
+  const device = getEditorDevice(width)
+  const presentation = createEditorLanguagePresentation({}, {}, context, device)
+  const editor = { copy: presentation.copy, documents: {}, sourceDocuments: {}, device, isPreview: false }
   return renderToStaticMarkup(createElement(MemoryRouter, { basename: sample ? '/sample' : '/', initialEntries: [`${url.pathname}${url.search}${url.hash}`] },
-    createElement(SampleLanguageContext, { value: context }, createElement(SiteEditorProvider, null, createElement(Component)))))
+    createElement(SampleLanguageContext, { value: presentation.languageContext }, createElement(SiteEditorContext, { value: editor }, createElement(Component)))))
 }
 
 function objectSignatures(html) {

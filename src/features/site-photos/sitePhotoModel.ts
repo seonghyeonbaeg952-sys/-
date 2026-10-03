@@ -60,6 +60,13 @@ export function sameSitePhoto(left: SitePhotoValue | null | undefined, right: Si
     && left.positionX === right.positionX && left.positionY === right.positionY
 }
 
+export function retainPublishedSitePhotos(current: SitePhotoMap, incoming: SitePhotoMap): SitePhotoMap {
+  const keys = Object.keys(incoming)
+  return Object.keys(current).length === keys.length && keys.every(key =>
+    Object.hasOwn(current, key) && sameSitePhoto(current[key].published, incoming[key].published))
+    ? current : incoming
+}
+
 export function buildContentPhotoPayload(target: ContentPhotoTarget, src: string, alt?: string): Record<string, string | null> {
   if (!PHOTO_FIELDS[target.table]?.includes(target.field) || (src && !isSafePhotoUrl(src))) throw new RangeError('교체할 사진 항목과 이미지 주소를 확인해 주세요.')
   if (target.field === 'activity_images') {

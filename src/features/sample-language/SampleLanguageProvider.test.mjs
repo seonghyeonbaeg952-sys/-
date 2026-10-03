@@ -4,6 +4,7 @@ import { test, after } from 'node:test'
 import { createRequire } from 'node:module'
 import vm from 'node:vm'
 import ts from 'typescript'
+import { setImmediate as nextTurn } from 'node:timers/promises'
 import { createServer } from 'vite'
 
 const require = createRequire(import.meta.url)
@@ -11,6 +12,7 @@ const vite = await createServer({ configFile: false, appType: 'custom', logLevel
 after(() => vite.close())
 const model = await vite.ssrLoadModule('/src/features/sample-language/sampleLanguageModel.ts')
 const contentModel = await vite.ssrLoadModule('/src/features/sample-language/sampleContentModel.ts')
+const publication = await vite.ssrLoadModule('/src/lib/siteEditorPublication.ts')
 const code = ts.transpileModule(await readFile(new URL('./SampleLanguageProvider.tsx', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
 }).outputText
@@ -44,6 +46,7 @@ function harness({ path = '/gallery', search = '', remembered = 'ko', publicReme
     './sample-english-layout.css': {},
     './sampleContentModel': contentModel,
     './sampleContentApi': { loadPublishedEnglishContent: contentApi },
+    '../../lib/siteEditorPublication': publication,
     'react/jsx-runtime': require('react/jsx-runtime'),
   }
   const exported = {}, win = {}
@@ -136,16 +139,37 @@ test('failed English content keeps available data and can be retried without cha
     calls++
     return success ? { data: [{ resource: 'notices', record_id: id, published: { title: 'Published notice' }, published_at: '2026-09-28T00:00:00Z' }], error: null } : { data: null, error: 'offline' }
   } })
-  await Promise.resolve(); await Promise.resolve()
+  await nextTurn()
   assert.equal(h.render().contentError, true)
   const source = { id, title: 'Available source', is_visible: true }
   assert.equal(h.render().translateData(source, `notice:${id}`).title, 'EN:Available source')
   success = true; h.render().retryContent(); assert.equal(h.render().contentRetrying, true)
-  await Promise.resolve(); await Promise.resolve()
+  await nextTurn()
   const value = h.render()
   assert.equal(value.contentError, false); assert.equal(value.contentRetrying, false)
   assert.equal(value.translateData(source, `notice:${id}`).title, 'EN:Published notice')
   assert.equal(calls, 2); assert.deepEqual(h.navigations, [])
+  h.destroy()
+})
+
+test('English first read reports loading until even a valid empty publication has settled', async () => {
+  let finish
+  const h = harness({ isSample: false, search: '?lang=en', contentApi: () => new Promise(resolve => { finish = resolve }) })
+  assert.equal(h.render().contentLoading, true)
+  finish({ data: [], error: null })
+  await nextTurn()
+  assert.equal(h.render().contentLoading, false)
+  assert.equal(h.render().contentError, false)
+  h.destroy()
+})
+
+test('failed first English read releases loading with a retry notice instead of a blank page', async () => {
+  const h = harness({ search: '?lang=en', contentApi: async () => ({ data: null, error: 'offline' }) })
+  assert.equal(h.render().contentLoading, true)
+  await nextTurn()
+  assert.equal(h.render().contentLoading, false)
+  assert.equal(h.render().contentError, true)
+  assert.equal(h.render().language, 'en')
   h.destroy()
 })
 
@@ -155,6 +179,7 @@ test('Korean sample and administrator views never request English record data', 
     const h = harness({ ...options, contentApi: async () => { calls++; return { data: [], error: null } } })
     await Promise.resolve(); await Promise.resolve()
     assert.equal(calls, 0)
+    assert.equal(h.render().contentLoading, false)
     h.destroy()
   }
 })

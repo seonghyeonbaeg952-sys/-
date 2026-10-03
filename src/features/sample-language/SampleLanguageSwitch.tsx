@@ -47,9 +47,13 @@ export function SampleLanguageSwitch({ onLanguageChange }: { onLanguageChange?: 
       <button aria-pressed={language === 'ko'} lang="ko" onClick={() => chooseLanguage('ko')} type="button">한국어</button>
       <button aria-pressed={language === 'en'} lang="en" onClick={() => chooseLanguage('en')} type="button">English</button>
     </div> : null}
-    {contentError ? <div className="sample-language-switch__issue" lang="en" role="status">
-      <p>{copyText('common', 'common.languageContentError', 'Some English content could not be loaded. Available content is still shown.')}</p>
-      <button disabled={contentRetrying} onClick={retryContent} type="button">{contentRetrying ? copyText('common', 'common.languageContentRetrying', 'Retrying…') : copyText('common', 'common.languageContentRetry', 'Retry')}</button>
+    {contentError ? <div className="sample-language-switch__issue" lang={language} role="status">
+      <p>{language === 'en'
+        ? copyText('common', 'common.languageContentError', 'Some English content could not be loaded. Available content is still shown.')
+        : copyText('common', 'common.sourceContentError', '일부 게시 문구를 불러오지 못했습니다. 현재 표시 가능한 내용을 보여드립니다.')}</p>
+      <button disabled={contentRetrying} onClick={retryContent} type="button">{language === 'en'
+        ? contentRetrying ? copyText('common', 'common.languageContentRetrying', 'Retrying…') : copyText('common', 'common.languageContentRetry', 'Retry')
+        : contentRetrying ? copyText('common', 'common.sourceContentRetrying', '다시 불러오는 중…') : copyText('common', 'common.sourceContentRetry', '다시 시도')}</button>
     </div> : null}
   </div>
 }

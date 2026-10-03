@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @source not "../../output";
 @source not "../../artifacts";
+@source not "../../.codex-artifacts";
+@source not "../../docs";
+@source not "../../scripts";
 
 @font-face {
   font-family: "Hahmlet";

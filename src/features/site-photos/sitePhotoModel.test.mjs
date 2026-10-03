@@ -72,3 +72,22 @@ test('a saved photo remains clean after Postgres JSONB reorders its properties',
   assert.equal(model.sameSitePhoto(null, null), true)
   assert.equal(model.sameSitePhoto(null, photo()), false)
 })
+
+test('unchanged published photo polling retains the context identity regardless of key order', () => {
+  has('retainPublishedSitePhotos')
+  const current = { cover: { published: photo() }, background: { published: null } }
+  const incoming = { background: { published: null }, cover: { published: photo() } }
+  assert.equal(model.retainPublishedSitePhotos(current, incoming), current)
+})
+
+test('photo publication changes and removal invalidate the retained context', () => {
+  has('retainPublishedSitePhotos')
+  const current = { cover: { published: photo() } }
+  for (const patch of [{ src: 'https://example.com/new.jpg' }, { altKo: '새 설명' }, { altEn: 'New caption' }, { positionX: 10 }, { positionY: 90 }]) {
+    const incoming = { cover: { published: photo(patch) } }
+    assert.equal(model.retainPublishedSitePhotos(current, incoming), incoming)
+  }
+  for (const incoming of [{}, { cover: { published: null } }, { ...current, extra: { published: null } }]) {
+    assert.equal(model.retainPublishedSitePhotos(current, incoming), incoming)
+  }
+})

@@ -28,6 +28,27 @@ const context = (language = 'en') => ({ enabled: true, language, setLanguage() {
   translateData: value => model.translateDisplayData(value, t), translateHome: value => value, href: href => model.sampleLanguageHref(href, language) })
 const render = (child, language = 'en') => renderToStaticMarkup(createElement(MemoryRouter, null, createElement(SampleLanguageContext, { value: context(language) }, child)))
 
+test('repeated immutable display data reuses translated objects rather than rebuilding each row', () => {
+  const translate = model.createTranslationLookup([{ source: '노래', target: 'Song' }])
+  const row = { title: '노래', id: 'stable-id', styles: { title: '노래' } }
+  const source = [row]
+  const first = model.translateDisplayData(source, translate)
+  assert.deepEqual(first, [{ title: 'Song', id: 'stable-id', styles: { title: '노래' } }])
+  assert.equal(model.translateDisplayData(source, translate), first)
+  assert.equal(model.translateDisplayData([row], translate)[0], first[0])
+  assert.equal(row.title, '노래')
+})
+
+test('translation reuse never crosses translator snapshots or suppresses immutable source edits', () => {
+  const firstTranslator = model.createTranslationLookup([{ source: '노래', target: 'Song' }])
+  const nextTranslator = model.createTranslationLookup([{ source: '노래', target: 'Music' }, { source: '새 노래', target: 'New song' }])
+  const source = { title: '노래' }
+  assert.equal(model.translateDisplayData(source, firstTranslator).title, 'Song')
+  assert.equal(model.translateDisplayData(source, nextTranslator).title, 'Music')
+  assert.equal(model.translateDisplayData({ ...source, title: '새 노래' }, nextTranslator).title, 'New song')
+  assert.equal(model.translateDisplayData({ styles: source, description: source }, firstTranslator).styles, source)
+})
+
 test('published Spirit heading variants stay entirely English when Korean CMS wording changes', () => {
   assert.equal(t('음악을', 'spirit.faithSection.text1'), 'Our approach')
   assert.equal(t(' 대하는 태도가', 'spirit.faithSection.text2'), ' to music ')

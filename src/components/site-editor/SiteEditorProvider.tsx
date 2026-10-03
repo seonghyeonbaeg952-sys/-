@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { Activity, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router'
-import { loadPublicEditorPages, loadPublicSampleEnglishEditorPages } from '../../lib/siteEditorApi'
-import { loadPublishedEditorDocuments } from '../../lib/siteEditorPublication'
-import { buildEditorCss, getEditorDevice, resolveEditorCopy } from '../../lib/siteEditorModel'
+import { invalidateEditorCache, invalidateSampleEnglishEditorCache, loadPublicEditorPages, loadPublicSampleEnglishEditorPages } from '../../lib/siteEditorApi'
+import { loadPublishedEditorDocuments, retainPublishedEditorDocuments } from '../../lib/siteEditorPublication'
+import { buildEditorCss, getEditorDevice } from '../../lib/siteEditorModel'
 import {
   acceptSiteEditorMessage, getActiveSiteEditorPreviewNonce, getPreviewNavigationTarget, getSiteEditorPage,
   getPreviewPageIntent,
@@ -21,8 +21,7 @@ import { getEditorSectionLabel } from '../../lib/editorSectionLabel'
 import { isPreviewControlActivation } from './previewInteraction'
 import { SampleLanguageContext, useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
 import { sampleEnglishDocuments } from '../../features/sample-language/sampleEnglishDocuments'
-import { resolveEnglishHomeCopy, resolveEnglishPageCopy } from '../../features/sample-language/sampleEnglishCopy'
-import { sampleContentKey, translateDisplayData } from '../../features/sample-language/sampleLanguageModel'
+import { createEditorLanguagePresentation } from './siteEditorLanguagePresentation'
 import { useHomeResponsiveViewport } from '../home/useHomeResponsiveViewport'
 
 export function SiteEditorProvider({ children }: { children: ReactNode }) {
@@ -35,6 +34,20 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
   const isPreview = Boolean(page && nonce && typeof window !== 'undefined' && window.parent !== window)
   const [published, setPublished] = useState<SiteEditorDocuments>({})
   const [englishPublished, setEnglishPublished] = useState<SiteEditorDocuments>({})
+  const [sourceRead, setSourceRead] = useState({ attempt: -1, error: false })
+  const [englishRead, setEnglishRead] = useState({ attempt: -1, error: false })
+  const [publicationAttempt, setPublicationAttempt] = useState(0)
+  const retryRecordContent = sample.retryContent
+  const retryPublication = useCallback(() => {
+    // A timed-out pending request must not be reused by an explicit retry.
+    invalidateEditorCache()
+    if (isEnglish) {
+      invalidateSampleEnglishEditorCache()
+      retryRecordContent?.()
+    }
+    setPublicationAttempt(attempt => attempt + 1)
+  }, [isEnglish, retryRecordContent])
+  const publicationRetrying = publicationAttempt > 0 && (sourceRead.attempt < publicationAttempt || (isEnglish && englishRead.attempt < publicationAttempt))
   const [preview, setPreview] = useState<{ nonce: string; page: string; sequence: number; documents: SiteEditorDocuments } | null>(null)
   const responsiveDevice = useHomeResponsiveViewport()
   const [previewDevice, setPreviewDevice] = useState(() => getEditorDevice(typeof window === 'undefined' ? 1440 : window.innerWidth))
@@ -57,23 +70,15 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
     ? { ...englishPublished, ...preview.documents } : englishPublished, [isEnglish, hasPreview, preview, englishPublished])
   const documents = useMemo(() => isEnglish ? sampleEnglishDocuments(sourceDocuments, englishDocuments) : sourceDocuments,
     [isEnglish, sourceDocuments, englishDocuments])
-  const copy = useCallback((target: Parameters<typeof resolveEditorCopy>[1], key: string, fallback: string) => {
-    if (isEnglish) return resolveEnglishPageCopy(documents, target, key, fallback, device, sample.translate)
-    return resolveEditorCopy(sourceDocuments, target, key, fallback, device)
-  }, [sourceDocuments, documents, isEnglish, sample, device])
-  const languageContext = useMemo(() => !isEnglish ? sample : {
-    ...sample,
-    translate: (source: string, key?: string) => {
-      const translated = sample.translate(source, key)
-      // Catalogue IDs belong to their page; uncatalogued/source-bound copy is
-      // edited independently in the English common-copy workspace.
-      return key ? translated : resolveEditorCopy(documents, 'common', sampleContentKey(source), translated, device)
-    },
-    translateData: <T,>(data: T, cacheKey?: string): T => sample.translateData(translateDisplayData(data, source =>
-      resolveEditorCopy(documents, 'common', sampleContentKey(source), sample.translate(source), device)), cacheKey),
-    translateHome: (data: Parameters<typeof resolveEnglishHomeCopy>[0], _documents: SiteEditorDocuments, viewport: typeof device) =>
-      resolveEnglishHomeCopy(data, documents, viewport, sample.translate),
-  }, [sample, isEnglish, documents, device])
+  const presentation = useMemo(() => createEditorLanguagePresentation(sourceDocuments, documents, sample, device),
+    [sourceDocuments, documents, sample, device])
+  const copy = presentation.copy
+  const languageContext = useMemo(() => ({
+    ...presentation.languageContext,
+    contentError: Boolean(sourceRead.error || (isEnglish && (sample.contentError || englishRead.error))),
+    contentRetrying: Boolean(publicationRetrying || (isEnglish && sample.contentRetrying)),
+    retryContent: retryPublication,
+  }), [sample.contentError, sample.contentRetrying, isEnglish, presentation.languageContext, sourceRead.error, englishRead.error, publicationRetrying, retryPublication])
   const hasTextStyles = page ? [documents.common, documents[page]].some(document => Object.values(document?.textStyles ?? {}).some(values => Object.values(values ?? {}).some(copy => copy.runs.length > 0))) : false
   const css = useMemo(() => page ? buildEditorCss(documents, page) + (hasTextStyles ? textStyleCss : '') : '', [documents, page, hasTextStyles])
   const context = useMemo(() => ({ copy, documents, sourceDocuments, device, isPreview, canvas: isPreview ? canvas?.registry : undefined }), [copy, documents, sourceDocuments, device, isPreview, canvas])
@@ -81,11 +86,17 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isEnglish || !page) return
     let disposed = false
+    let readSequence = 0
     const load = async () => {
+      const request = ++readSequence
       const result = await loadPublishedEditorDocuments(loadPublicSampleEnglishEditorPages)
-      if (!disposed && result) {
-        if (frozen.current) queuedEnglishPublished.current = result
-        else setEnglishPublished(result)
+      if (!disposed && request === readSequence) {
+        if (result) {
+          if (frozen.current) queuedEnglishPublished.current = result
+          else setEnglishPublished(current => retainPublishedEditorDocuments(current, result))
+        }
+        setEnglishRead(current => current.attempt === publicationAttempt && current.error === (result === null)
+          ? current : { attempt: publicationAttempt, error: result === null })
       }
     }
     void load()
@@ -94,7 +105,7 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
     window.addEventListener('sample-english-published', refresh)
     const timer = window.setInterval(refresh, 30000)
     return () => { disposed = true; window.clearInterval(timer); window.removeEventListener('focus', refresh); window.removeEventListener('sample-english-published', refresh) }
-  }, [isEnglish, page])
+  }, [isEnglish, page, publicationAttempt])
 
   useEffect(() => {
     if (!isPreview || !nonce || !page) return
@@ -105,8 +116,8 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
       const freeze = (active: boolean) => {
           frozen.current = active
           if (!active) {
-            if (queuedPublished.current) { setPublished(queuedPublished.current); queuedPublished.current = null }
-            if (queuedEnglishPublished.current) { setEnglishPublished(queuedEnglishPublished.current); queuedEnglishPublished.current = null }
+            if (queuedPublished.current) { const next = queuedPublished.current; setPublished(current => retainPublishedEditorDocuments(current, next)); queuedPublished.current = null }
+            if (queuedEnglishPublished.current) { const next = queuedEnglishPublished.current; setEnglishPublished(current => retainPublishedEditorDocuments(current, next)); queuedEnglishPublished.current = null }
             if (queuedPreview.current) { setPreview(queuedPreview.current); queuedPreview.current = null }
           }
       }
@@ -132,10 +143,14 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!page) return
     let disposed = false
+    let readSequence = 0
     const load = async () => {
+      const request = ++readSequence
       const result = await loadPublishedEditorDocuments(loadPublicEditorPages)
-      if (disposed) return
-      if (result) { if (frozen.current) queuedPublished.current = result; else setPublished(result) }
+      if (disposed || request !== readSequence) return
+      if (result) { if (frozen.current) queuedPublished.current = result; else setPublished(current => retainPublishedEditorDocuments(current, result)) }
+      setSourceRead(current => current.attempt === publicationAttempt && current.error === (result === null)
+        ? current : { attempt: publicationAttempt, error: result === null })
     }
     void load()
     const refresh = () => { if (!document.hidden) void load() }
@@ -153,7 +168,7 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
       window.removeEventListener('resize', resize)
       document.removeEventListener('visibilitychange', refresh)
     }
-  }, [page])
+  }, [page, publicationAttempt])
 
   useEffect(() => {
     if (!isPreview || !nonce || !page) return
@@ -254,12 +269,26 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
 
   if (!page) return children
 
+  const publicationLoading = !isPreview && (sourceRead.attempt < 0 || (isEnglish && (englishRead.attempt < 0 || sample.contentLoading)))
+
   return (
     <SampleLanguageContext value={languageContext}><SiteEditorContext value={context}>
-      {css || isPreview ? <style>{css.includes('"Gothic A1"') || hasTextStyles || isPreview ? editorFontFaces : ''}{isPreview ? previewCss : ''}{css}</style> : null}
-      {isPreview ? <div className="site-editor-preview-banner" role="status">초안 미리보기 · 실제 접수는 차단됩니다.{notice ? <span>{notice}</span> : null}</div> : null}
-      {children}
-      <AddedTextBoxes page={page} document={documents[page]} />
+      {publicationLoading ? <main aria-busy="true" aria-live="polite" className="route-loading-screen route-loading-screen--public" lang={isEnglish ? 'en' : 'ko'} role="status">
+      <div aria-hidden="true" className="route-loading-screen__mark"><span>S</span><span>M</span><span>Y</span><span>C</span></div>
+      <div className="route-loading-screen__copy">
+        <p>{isEnglish ? 'Seoul Motet Youth Choir' : '서울모테트청소년합창단'}</p>
+        <strong>{isEnglish ? 'Loading the English page…' : '홈페이지의 게시 문구를 불러오고 있습니다.'}</strong>
+        {isEnglish ? <button className="sample-language-switch__trigger" lang="ko" onClick={() => sample.setLanguage('ko')} type="button">한국어로 보기</button> : null}
+      </div>
+      </main> : null}
+      {/* Preserve unsent forms and submission refs while publication is loading.
+          Hidden Activity also pauses page effects without exposing stale copy. */}
+      <Activity mode={publicationLoading ? 'hidden' : 'visible'}>
+        {css || isPreview ? <style>{css.includes('"Gothic A1"') || hasTextStyles || isPreview ? editorFontFaces : ''}{isPreview ? previewCss : ''}{css}</style> : null}
+        {isPreview ? <div className="site-editor-preview-banner" role="status">초안 미리보기 · 실제 접수는 차단됩니다.{notice ? <span>{notice}</span> : null}</div> : null}
+        {children}
+        <AddedTextBoxes page={page} document={documents[page]} />
+      </Activity>
     </SiteEditorContext></SampleLanguageContext>
   )
 }

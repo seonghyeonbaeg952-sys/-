@@ -13,6 +13,7 @@ export type SampleLanguageContextValue = {
   translateHome: (value: HomeContentV2, documents: SiteEditorDocuments, device: EditorDevice) => HomeContentV2
   href: (href: string) => string
   contentError?: boolean
+  contentLoading?: boolean
   contentRetrying?: boolean
   retryContent?: () => void
 }

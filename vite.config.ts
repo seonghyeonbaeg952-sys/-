@@ -1,6 +1,11 @@
 import { defineConfig } from 'vite'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
+import deployment from './vercel.json'
+
+// Exercise the deployment policy locally too; keep one canonical definition.
+const securityHeaders = Object.fromEntries(deployment.headers.flatMap(rule =>
+  rule.headers.map(({ key, value }) => [key, value])))
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -23,7 +28,9 @@ export default defineConfig({
     },
   },
   plugins: [react(), tailwindcss()],
+  preview: { headers: securityHeaders },
   server: {
+    headers: securityHeaders,
     host: '127.0.0.1',
     port: 5175,
     strictPort: true,

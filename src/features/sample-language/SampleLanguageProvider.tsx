@@ -10,6 +10,7 @@ import './sample-language.css'
 import './sample-english-layout.css'
 import { applyEnglishContent, samePublishedEnglishContent, type PublishedEnglishContent } from './sampleContentModel'
 import { loadPublishedEnglishContent } from './sampleContentApi'
+import { loadInitialPublication } from '../../lib/siteEditorPublication'
 
 /** Public routes share English copy. Sample mode keeps its separate no-write
  * form and noindex behavior; admin routes never inherit a visitor language. */
@@ -21,6 +22,7 @@ export function SampleLanguageProvider({ children, isSample = true }: { children
   const preview = typeof window !== 'undefined' && window.parent !== window && Boolean(getActiveSiteEditorPreviewNonce(location.search))
   const language = enabled ? isSample ? resolveSampleLanguage(`/sample${location.pathname}`, location.search, preference) : resolvePublicLanguage(location.pathname, location.search) : 'ko'
   const [content, setContent] = useState<PublishedEnglishContent[]>([])
+  const [contentSettled, setContentSettled] = useState(false)
   const [contentError, setContentError] = useState(false)
   const [contentRetrying, setContentRetrying] = useState(false)
   const [contentAttempt, setContentAttempt] = useState(0)
@@ -33,8 +35,8 @@ export function SampleLanguageProvider({ children, isSample = true }: { children
       if (pending || document.hidden) return
       pending = true
       try {
-        const result = await loadPublishedEnglishContent()
-        if (!disposed) { setContentError(Boolean(result.error)); setContentRetrying(false) }
+        const result = await loadInitialPublication(loadPublishedEnglishContent)
+        if (!disposed) { setContentError(Boolean(result.error)); setContentRetrying(false); setContentSettled(true) }
         if (!disposed && result.data) {
           const incoming = result.data
           setContent(current => samePublishedEnglishContent(current, incoming) ? current : incoming)
@@ -86,12 +88,13 @@ export function SampleLanguageProvider({ children, isSample = true }: { children
 
   const value = useMemo(() => ({
     enabled, isSample, language, setLanguage,
-    contentError: enabled && language === 'en' && contentError, contentRetrying, retryContent,
+    contentError: enabled && language === 'en' && contentError,
+    contentLoading: enabled && language === 'en' && !contentSettled, contentRetrying, retryContent,
     translate: (source: string, key?: string) => enabled && language === 'en' ? translateEnglish(source, key) : source,
     translateData: <T,>(data: T, cacheKey?: string): T => enabled && language === 'en' ? translateDisplayData(applyEnglishContent(data, content, cacheKey), translateEnglish) : data,
     translateHome: <T,>(data: T): T => data,
     href: (href: string) => enabled ? publicLanguageHref(href, language, isSample) : href,
-  }), [enabled, isSample, language, setLanguage, content, contentError, contentRetrying, retryContent])
+  }), [enabled, isSample, language, setLanguage, content, contentSettled, contentError, contentRetrying, retryContent])
 
   return <SampleLanguageContext value={value}>{children}</SampleLanguageContext>
 }

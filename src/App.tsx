@@ -196,6 +196,9 @@ const AdminAccountPage = lazy(() =>
 export function RouteFallback() {
   const { copy: copyText } = useSiteEditor()
   const isPublicRoute = !window.location.pathname.startsWith('/admin')
+  const englishRequested = isPublicRoute && new URLSearchParams(window.location.search).get('lang') === 'en'
+  const brandFallback = englishRequested ? 'Seoul Motet Youth Choir' : '서울모테트청소년합창단'
+  const loadingFallback = englishRequested ? 'Preparing the page' : '페이지를 준비하고 있습니다'
 
   if (!isPublicRoute) {
     return <main className="admin-shell flex min-h-screen items-center justify-center px-5" aria-busy="true" aria-live="polite" role="status"><p>관리자 화면을 불러오고 있습니다</p></main>
@@ -206,6 +209,7 @@ export function RouteFallback() {
       aria-busy="true"
       aria-live="polite"
       className={`route-loading-screen${isPublicRoute ? ' route-loading-screen--public' : ''}`}
+      lang={englishRequested ? 'en' : undefined}
       role="status"
     >
       <div aria-hidden="true" className="route-loading-screen__mark">
@@ -215,8 +219,8 @@ export function RouteFallback() {
         <span>C</span>
       </div>
       <div className="route-loading-screen__copy">
-        <p><FormattedCopy page="common" id="common.route.brand" text={copyText('common', 'common.route.brand', '서울모테트청소년합창단')}>{copyText('common', 'common.route.brand', '서울모테트청소년합창단')}</FormattedCopy></p>
-        <strong><FormattedCopy page="common" id="common.route.loading" text={copyText('common', 'common.route.loading', '페이지를 준비하고 있습니다')}>{copyText('common', 'common.route.loading', '페이지를 준비하고 있습니다')}</FormattedCopy></strong>
+        <p><FormattedCopy page="common" id="common.route.brand" text={copyText('common', 'common.route.brand', brandFallback)}>{copyText('common', 'common.route.brand', brandFallback)}</FormattedCopy></p>
+        <strong><FormattedCopy page="common" id="common.route.loading" text={copyText('common', 'common.route.loading', loadingFallback)}>{copyText('common', 'common.route.loading', loadingFallback)}</FormattedCopy></strong>
       </div>
     </main>
   )
