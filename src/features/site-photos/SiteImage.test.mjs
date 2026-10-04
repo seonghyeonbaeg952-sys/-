@@ -3,11 +3,16 @@ import { after, test } from 'node:test'
 import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { createServer } from 'vite'
-const vite = await createServer({ configFile: false, envDir: false, appType: 'custom', logLevel: 'silent', server: { middlewareMode: true } })
+// Static SSR assertions do not need HMR. Avoid watching unrelated OneDrive
+// reference artifacts, which can raise native fs.watch UNKNOWN errors.
+const vite = await createServer({ configFile: false, envDir: false, appType: 'custom', logLevel: 'silent', server: { middlewareMode: true, watch: null } })
 const { SiteImage } = await vite.ssrLoadModule('/src/features/site-photos/SiteImage.tsx')
 const { SitePhotosContext } = await vite.ssrLoadModule('/src/features/site-photos/useSitePhoto.ts')
 const { SampleLanguageContext } = await vite.ssrLoadModule('/src/features/sample-language/useSampleLanguage.ts')
 after(async () => { await vite.close() })
+test('static photo markup tests do not watch unrelated workspace artifacts', () => {
+  assert.equal(Object.keys(vite.watcher.getWatched()).length, 0)
+})
 test('without a published replacement the image boundary preserves the original DOM byte-for-byte', () => {
   const props = { alt: 'Choir', lang: 'en', decoding: 'async', fetchPriority: 'high', className: 'portrait', src: '/images/about/smyc-europe-2018.webp', width: 640 }
   assert.equal(renderToStaticMarkup(React.createElement(SiteImage, props)), renderToStaticMarkup(React.createElement('img', props)))

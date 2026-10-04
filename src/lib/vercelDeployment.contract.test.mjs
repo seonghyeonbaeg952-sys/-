@@ -8,6 +8,26 @@ import { renderToStaticMarkup } from 'react-dom/server'
 
 const configPath = fileURLToPath(new URL('../../vercel.json', import.meta.url))
 
+test('explicit Vite build settings target the existing SPA output', () => {
+  const config = JSON.parse(readFileSync(configPath, 'utf8'))
+  assert.equal(config.framework, 'vite')
+  assert.equal(config.buildCommand, 'pnpm build')
+  assert.equal(config.outputDirectory, 'dist')
+})
+
+test('pinned runtime and frozen installer use one supported package manager version', () => {
+  const config = JSON.parse(readFileSync(configPath, 'utf8'))
+  const manifest = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'))
+  assert.equal(manifest.engines?.node, '24.x')
+  assert.equal(manifest.packageManager, 'pnpm@10.32.1')
+  assert.equal(config.installCommand, 'npx --yes pnpm@10.32.1 install --frozen-lockfile')
+})
+
+test('automatic Git deployment remains disabled while preparing a link-only project', () => {
+  const config = JSON.parse(readFileSync(configPath, 'utf8'))
+  assert.equal(config.git?.deploymentEnabled, false)
+})
+
 test('Vercel serves the Vite entry point for public, sample, and admin deep links', () => {
   assert.ok(existsSync(configPath), 'Vercel SPA routing configuration is missing')
 
