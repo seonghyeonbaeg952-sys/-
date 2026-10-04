@@ -1686,7 +1686,7 @@
 }
 
 .home-intro-launch--ready::before {
-  animation: home-intro-background-mark 780ms cubic-bezier(0.22, 1, 0.36, 1) 80ms both;
+  animation: home-intro-background-mark 500ms cubic-bezier(0.22, 1, 0.36, 1) 50ms both;
 }
 
 .home-intro-launch__field,
@@ -1714,7 +1714,7 @@
 }
 
 .home-intro-launch--ready .home-intro-launch__field {
-  animation: home-intro-field-release 620ms cubic-bezier(0.18, 0.9, 0.22, 1) 760ms both;
+  animation: home-intro-field-release 400ms cubic-bezier(0.18, 0.9, 0.22, 1) 490ms both;
 }
 
 .home-intro-launch__wordmark {
@@ -1736,7 +1736,7 @@
 }
 
 .home-intro-launch--ready .home-intro-launch__wordmark {
-  animation: home-intro-wordmark-out 220ms ease-out 1120ms both;
+  animation: home-intro-wordmark-out 150ms ease-out 730ms both;
 }
 
 .home-intro-launch__word {
@@ -1751,7 +1751,7 @@
 }
 
 .home-intro-launch--ready .home-intro-launch__word {
-  animation: home-intro-word-to-title 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: home-intro-word-to-title 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .home-intro-launch__initial {
@@ -1776,7 +1776,7 @@
 }
 
 .home-intro-launch--ready .home-intro-launch__tail {
-  animation: home-intro-tail-spread 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: home-intro-tail-spread 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .home-intro-launch__seed {
@@ -1823,37 +1823,37 @@
   --intro-start-y: calc(50svh - var(--intro-title-top) - 2.7em - 0.58em);
 }
 
-.home-intro-launch__word--s {
+.home-intro-launch--ready .home-intro-launch__word--s {
+  animation-delay: 70ms;
+}
+
+.home-intro-launch--ready .home-intro-launch__word--m {
   animation-delay: 110ms;
 }
 
-.home-intro-launch__word--m {
-  animation-delay: 170ms;
+.home-intro-launch--ready .home-intro-launch__word--y {
+  animation-delay: 150ms;
 }
 
-.home-intro-launch__word--y {
-  animation-delay: 230ms;
-}
-
-.home-intro-launch__word--c {
-  animation-delay: 290ms;
+.home-intro-launch--ready .home-intro-launch__word--c {
+  animation-delay: 190ms;
 }
 
 .home-intro-launch__word--s .home-intro-launch__tail {
-  animation-delay: 560ms;
+  animation-delay: 370ms;
 }
 
 .home-intro-launch__word--m .home-intro-launch__tail {
-  animation-delay: 620ms;
+  animation-delay: 410ms;
 }
 
 .home-intro-launch__word--y .home-intro-launch__tail {
-  animation-delay: 680ms;
+  animation-delay: 450ms;
   margin-left: -0.03em;
 }
 
 .home-intro-launch__word--c .home-intro-launch__tail {
-  animation-delay: 740ms;
+  animation-delay: 480ms;
 }
 
 .home-intro-launch__shutters {

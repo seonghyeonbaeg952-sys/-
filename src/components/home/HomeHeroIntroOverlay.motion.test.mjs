@@ -8,16 +8,16 @@ const source = ts.transpileModule(await readFile(new URL('./HomeHeroIntroOverlay
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
 }).outputText
 
-function mount({ scrollY = 0, animate = true, fontsPending = false, viewport = 'desktop' } = {}) {
+function mount({ scrollY = 0, animate = true, fontsPending = false, viewport = 'desktop', rootStyle = {}, rootLayoutCost = 0 } = {}) {
   const slots = [], effects = [], frames = new Map(), timers = new Map(), listeners = new Map()
-  let cursor = 0, serial = 0, dirty = false, tree, resolveFonts
+  let cursor = 0, serial = 0, clock = 0, dirty = false, tree, resolveFonts
   const fontsReady = fontsPending ? new Promise(resolve => { resolveFonts = resolve }) : Promise.resolve()
   const preferenceListeners = new Set(), animationListeners = new Map()
   const query = { matches: animate,
     addEventListener(_type, callback) { preferenceListeners.add(callback) },
     removeEventListener(_type, callback) { preferenceListeners.delete(callback) },
   }
-  const documentElement = { style: { overflow: 'auto', scrollbarGutter: '', scrollBehavior: 'smooth' } }
+  const documentElement = { style: { overflow: 'auto', scrollbarGutter: '', scrollBehavior: 'smooth', ...rootStyle } }
   const body = { style: { overflow: '' } }
   const style = { setProperty() {}, getPropertyValue: () => '1' }
   const rect = { left: 100, top: 200, width: 420, height: 400 }
@@ -31,10 +31,10 @@ function mount({ scrollY = 0, animate = true, fontsPending = false, viewport = '
   const window = {
     scrollY, scrollX: 0, matchMedia: () => query,
     scrollTo({ top, left }) { window.scrollY = top; window.scrollX = left },
-    getComputedStyle: () => ({ fontSize: '100px', lineHeight: '100px', transform: 'none', scrollbarGutter: 'auto', getPropertyValue: () => '0.8' }),
+    getComputedStyle(element) { if (element === documentElement) clock += rootLayoutCost; return { fontSize: '100px', lineHeight: '100px', transform: 'none', scrollbarGutter: 'auto', getPropertyValue: () => '0.8' } },
     requestAnimationFrame(callback) { const id = ++serial; frames.set(id, callback); return id },
     cancelAnimationFrame(id) { frames.delete(id) },
-    setTimeout(callback, delay) { const id = ++serial; timers.set(id, { callback, delay }); return id },
+    setTimeout(callback, delay) { const id = ++serial; timers.set(id, { callback, at: clock + delay }); return id },
     clearTimeout(id) { timers.delete(id) },
     addEventListener(type, callback) { if (!listeners.has(type)) listeners.set(type, new Set()); listeners.get(type).add(callback) },
     removeEventListener(type, callback) { listeners.get(type)?.delete(callback) },
@@ -54,7 +54,7 @@ function mount({ scrollY = 0, animate = true, fontsPending = false, viewport = '
     useEffect(callback, deps) {
       const index = cursor++, slot = slots[index]
       if (!slot || deps.some((value, i) => !Object.is(value, slot.deps[i]))) effects.push(() => {
-        slot?.cleanup?.(); slots[index] = { deps, cleanup: callback() }
+        slot?.cleanup?.(); slots[index] = { deps, callback, cleanup: callback() }
       })
     },
   }
@@ -63,6 +63,7 @@ function mount({ scrollY = 0, animate = true, fontsPending = false, viewport = '
   const module = { exports: {} }
   vm.runInNewContext(source, { module, exports: module.exports, window,
     document: { documentElement, body, fonts: { ready: fontsReady, load: () => fontsReady } }, Element,
+    performance: { now: () => clock },
     ResizeObserver: class { observe() {} disconnect() {} },
     require(name) {
       if (name === 'react') return react
@@ -96,8 +97,12 @@ function mount({ scrollY = 0, animate = true, fontsPending = false, viewport = '
     intent(type, event = {}, settleNow = true) { listeners.get(type)?.forEach(callback => callback(event)); if (settleNow) settle() },
     interactiveTarget() { return new Element(true) },
     settle,
-    timeout(duration = 2400) { [...timers.values()].filter(timer => timer.delay <= duration).forEach(timer => timer.callback()); settle() },
+    advance(ms) { clock += ms; for (const [id, timer] of [...timers]) if (timer.at <= clock) { timers.delete(id); timer.callback() }; settle() },
+    timeout() { this.advance(1200) },
     reduceMotion() { query.matches = false; preferenceListeners.forEach(callback => callback()); settle() },
+    restoreMotion() { query.matches = true; preferenceListeners.forEach(callback => callback()); settle() },
+    changeViewport(next) { viewport = next; render(); settle() },
+    replayEffectsAfter(ms) { clock += ms; slots.forEach(slot => slot?.cleanup?.()); slots.forEach(slot => { if (slot?.callback) slot.cleanup = slot.callback() }); settle() },
     async prepare() {
       resolveFonts?.()
       for (let count = 0; count < 8; count++) {
@@ -109,18 +114,19 @@ function mount({ scrollY = 0, animate = true, fontsPending = false, viewport = '
   }
 }
 
-test('a reload at an already scrolled position never covers the hero with a late intro', () => {
+test('mounting the intro after the page is already scrolled never covers the hero with a late overlay', () => {
   const h = mount({ scrollY: 200 })
   try { assert.equal(h.tree, null) } finally { h.cleanup() }
 })
 
-test('the retained visible field completes an unblocked intro even when the decorative sweep never runs', async () => {
+test('the retained visible field releases a brief real hold even when the decorative sweep never runs', async () => {
   const h = mount({ fontsPending: true })
   try {
     assert.ok(h.tree)
-    assert.equal(h.documentElement.style.overflow, 'auto', 'Font preparation must not suppress native scrolling')
-    assert.equal(h.documentElement.style.scrollbarGutter, '')
+    assert.equal(h.documentElement.style.overflow, 'auto', 'Do not lock before the retained animation can actually play')
     await h.prepare()
+    assert.equal(h.documentElement.style.overflow, 'hidden', 'Preserve the requested hold during the real animation')
+    assert.equal(h.documentElement.style.scrollbarGutter, 'stable')
     assert.match(h.tree.props.className, /--ready/)
     h.end('home-intro-word-to-title')
     assert.ok(h.tree, 'An earlier child animation must not remove the authored intro')
@@ -161,7 +167,7 @@ for (const release of ['escape', 'timeout', 'reduceMotion']) {
 test('animation cancellation and unmount preserve the root and separately opened popup ownership', async () => {
   const h = mount()
   try {
-    await h.prepare(); assert.equal(h.documentElement.style.overflow, 'auto')
+    await h.prepare(); assert.equal(h.documentElement.style.overflow, 'hidden')
     h.body.style.overflow = 'hidden'
     h.end('home-intro-field-release', 'animationcancel')
     assert.equal(h.documentElement.style.overflow, 'auto')
@@ -176,15 +182,20 @@ test('animation cancellation and unmount preserve the root and separately opened
 })
 
 for (const type of ['wheel', 'touchmove']) {
-  test(`${type} skips the preparing intro without suppressing native scroll or changing popup ownership`, async () => {
+  test(`${type} keeps the short hold until its deadline rather than deleting the intro`, async () => {
     const h = mount({ fontsPending: true })
     try {
+      await h.prepare()
       h.body.style.overflow = 'hidden'
       h.intent(type, { defaultPrevented: false }, false)
-      assert.equal(h.documentElement.style.overflow, 'auto', 'The same input must reach native scrolling, not just dismiss a later frame')
+      h.settle()
+      assert.equal(h.documentElement.style.overflow, 'hidden')
+      assert.ok(h.tree, 'Wheel/touch intention cannot skip the requested brief hold')
       assert.equal(h.documentElement.style.scrollBehavior, 'smooth')
+      h.advance(1100)
+      assert.equal(h.documentElement.style.overflow, 'auto')
       h.scroll(180)
-      assert.equal(h.scrollY, 180, 'The old keepPosition listener must be removed synchronously')
+      assert.equal(h.scrollY, 180, 'After the bounded hold, scrolling must never be restored to the old position')
       assert.equal(h.tree, null)
       assert.equal(h.body.style.overflow, 'hidden')
       await h.prepare()
@@ -196,36 +207,42 @@ for (const type of ['wheel', 'touchmove']) {
   })
 }
 
-test('scroll keys release immediately without consuming their native action or interactive control keys', () => {
+test('scroll keys keep the brief hold and interactive keys are not intercepted', async () => {
   for (const key of ['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' ']) {
     const h = mount({ fontsPending: true })
     try {
+      await h.prepare()
       let prevented = false
       h.intent('keydown', { key, preventDefault() { prevented = true } }, false)
-      assert.equal(h.documentElement.style.overflow, 'auto', key)
+      assert.equal(h.documentElement.style.overflow, 'hidden', key)
       assert.equal(prevented, false, 'Do not replace normal keyboard scrolling')
       h.settle()
+      assert.ok(h.tree, 'Scroll intention must not remove the authored hold')
+      h.advance(1100)
+      assert.equal(h.documentElement.style.overflow, 'auto')
       assert.equal(h.tree, null)
     } finally { h.cleanup() }
   }
   const h = mount({ fontsPending: true })
   try {
+    await h.prepare()
     h.intent('keydown', { key: ' ', target: h.interactiveTarget() })
     h.intent('keydown', { key: 'ArrowDown', defaultPrevented: true })
     h.intent('keydown', { key: 'ArrowDown', ctrlKey: true })
     assert.ok(h.tree, 'Interactive control keys must retain the intro until a real dismissal')
-    assert.equal(h.documentElement.style.overflow, 'auto')
+    assert.equal(h.documentElement.style.overflow, 'hidden')
     h.escape()
     assert.equal(h.documentElement.style.overflow, 'auto')
   } finally { h.cleanup() }
 })
 
-test('stalled fonts or missing animations cannot leave the unfinished overlay beyond 2.4 seconds', async () => {
+test('stalled preparation skips the overlay without ever locking the visitor', async () => {
   const h = mount({ fontsPending: true })
   try {
-    h.timeout(2300)
+    h.advance(1100)
     assert.ok(h.tree)
-    h.timeout(2400)
+    assert.equal(h.documentElement.style.overflow, 'auto')
+    h.advance(100)
     assert.equal(h.documentElement.style.overflow, 'auto')
     assert.equal(h.tree, null)
     await h.prepare()
@@ -255,4 +272,101 @@ test('remaining at the top retains the normal intro, and reduced-motion/mobile v
     assert.equal(staticPage.documentElement.style.overflow, 'auto')
     assert.equal(tabletPage.tree, null)
   } finally { h.cleanup(); staticPage.cleanup(); tabletPage.cleanup() }
+})
+
+test('compact or reduced-motion interruptions release the hold permanently for this visit', async () => {
+  for (const mode of ['tablet', 'mobile', 'reduced']) {
+    const h = mount({ fontsPending: true })
+    try {
+      await h.prepare()
+      assert.equal(h.documentElement.style.overflow, 'hidden')
+      if (mode === 'reduced') h.reduceMotion(); else h.changeViewport(mode)
+      assert.equal(h.documentElement.style.overflow, 'auto')
+      if (mode === 'reduced') h.restoreMotion(); else h.changeViewport('desktop')
+      await h.prepare()
+      assert.equal(h.tree, null, 'Returning to desktop must not restart the cancelled hold')
+      assert.equal(h.documentElement.style.overflow, 'auto')
+      assert.equal(h.pendingFrames, 0)
+      assert.equal(h.pendingTimers, 0)
+    } finally { h.cleanup() }
+  }
+})
+
+test('finishing restores pre-existing root values and does not overwrite a newer root owner', async () => {
+  const h = mount({ rootStyle: { overflow: 'scroll', scrollbarGutter: 'stable both-edges' } })
+  try {
+    await h.prepare()
+    h.advance(1100)
+    assert.equal(h.documentElement.style.overflow, 'scroll')
+    assert.equal(h.documentElement.style.scrollbarGutter, 'stable both-edges')
+    assert.equal(h.documentElement.style.scrollBehavior, 'smooth')
+  } finally { h.cleanup() }
+  const changed = mount()
+  try {
+    await changed.prepare()
+    changed.documentElement.style.overflow = 'clip'
+    changed.documentElement.style.scrollbarGutter = 'stable both-edges'
+    changed.advance(1100)
+    assert.equal(changed.documentElement.style.overflow, 'clip')
+    assert.equal(changed.documentElement.style.scrollbarGutter, 'stable both-edges')
+  } finally { changed.cleanup() }
+})
+
+test('StrictMode preparation replay cannot consume or cut the retained playing sequence', async () => {
+  const h = mount({ fontsPending: true })
+  try {
+    assert.equal(h.documentElement.style.overflow, 'auto')
+    h.replayEffectsAfter(400)
+    await h.prepare()
+    h.advance(1099)
+    assert.ok(h.tree)
+    assert.equal(h.documentElement.style.overflow, 'hidden')
+    h.advance(1)
+    assert.equal(h.documentElement.style.overflow, 'auto', 'A bounded playing phase starts when the animation is ready, not while fonts/layout prepare')
+    assert.equal(h.tree, null)
+    await h.prepare()
+    assert.equal(h.tree, null)
+    assert.equal(h.pendingTimers, 0)
+    assert.equal(h.pendingFrames, 0)
+  } finally { h.cleanup() }
+})
+
+test('a missing field end event releases the playing hold without consuming an input to unlock it', async () => {
+  const h = mount()
+  try {
+    await h.prepare()
+    h.advance(1099)
+    assert.equal(h.documentElement.style.overflow, 'hidden')
+    h.advance(1)
+    assert.equal(h.documentElement.style.overflow, 'auto')
+    assert.equal(h.tree, null)
+    h.scroll(200)
+    assert.equal(h.scrollY, 200)
+  } finally { h.cleanup() }
+})
+
+test('a costly pre-hold style read cannot consume the retained playing sequence', async () => {
+  const h = mount({ rootLayoutCost: 500 })
+  try {
+    await h.prepare()
+    h.advance(1099)
+    assert.ok(h.tree, 'Start the playing budget after the pre-hold style read, not before it')
+    assert.equal(h.documentElement.style.overflow, 'hidden')
+    h.advance(1)
+    assert.equal(h.tree, null)
+    assert.equal(h.documentElement.style.overflow, 'auto')
+  } finally { h.cleanup() }
+})
+
+test('a field completion delivered a frame late still finishes the retained sequence before the watchdog', async () => {
+  const h = mount()
+  try {
+    await h.prepare()
+    h.advance(960)
+    assert.ok(h.tree, 'The watchdog needs room for the actual CSS start and event delivery, not only the nominal890ms')
+    assert.equal(h.documentElement.style.overflow, 'hidden')
+    h.end('home-intro-field-release')
+    assert.equal(h.tree, null)
+    assert.equal(h.documentElement.style.overflow, 'auto')
+  } finally { h.cleanup() }
 })

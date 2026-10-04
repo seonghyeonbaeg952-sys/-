@@ -2835,7 +2835,7 @@
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-intro-real-sample:has(> .home-intro-launch--ready)
     .home-hero-copy {
-    animation: home-v4-hero-copy-intro-handoff 1450ms ease-out both;
+    animation: home-v4-hero-copy-intro-handoff 880ms ease-out both;
   }
 
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
@@ -3217,7 +3217,7 @@
 
 @keyframes home-v4-hero-copy-intro-handoff {
   0%,
-  76% {
+  82% {
     opacity: 0;
   }
 

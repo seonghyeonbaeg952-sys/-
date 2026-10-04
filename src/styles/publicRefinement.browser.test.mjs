@@ -30,7 +30,7 @@ ${styles.map(href => `<link rel="stylesheet" href="${href}">`).join('\n')}
 <style>*,*::before,*::after { box-sizing: border-box; } body { --font-sans-kr: 'Join Gothic A1', sans-serif; } .size-full { width: 100%; height: 100%; } .object-cover { object-fit: cover; }</style>
 </head><body class="public-shell">
 <div class="public-shell-home-sample-v4 color-sample-theme public-shell-home" data-design-candidate="home-v4" data-home-viewport="desktop">
-  <div class="home-intro-real-sample" style="position:absolute;left:-10000px;width:100%"><section class="home-hero-section" style="height:100svh;min-height:0"></section></div>
+  <div class="home-intro-real-sample" style="position:absolute;left:-10000px;width:100%"><section class="home-hero-section" style="height:100svh;min-height:0"><div class="home-hero-copy" data-intro-copy-probe></div></section><div class="home-intro-launch home-intro-launch--ready"><div class="home-intro-launch__field"></div><div class="home-intro-launch__wordmark">${['s','m','y','c'].map(letter => `<span class="home-intro-launch__word home-intro-launch__word--${letter}"><span class="home-intro-launch__tail">WORD</span></span>`).join('')}</div></div></div>
   <div class="home-flow-body" data-handoff-flow-probe style="position:absolute;left:-10000px;width:100%;visibility:hidden"></div>
   <header class="home-v4-sample-header"><div class="home-v4-sample-header__bar"><button>메뉴 열기</button></div></header>
   <!-- The photo/scroll hero is absent in this isolated surface fixture. Give
@@ -286,6 +286,24 @@ test('public visual surfaces preserve restrained, legible navigation without dec
           assert.ok(geometry.captionTop >= geometry.imageBottom + 8, `${language} overview at ${width}px caption must not cover people`)
         }
       }
+    })
+
+    await t.test('the brief intro retains word/field motion and completes copy handoff before its visible field ends', async () => {
+      await page.setViewportSize({ width: 1440, height: 900 })
+      const motion = await page.evaluate(() => {
+        const timing = element => { const s = getComputedStyle(element); return { name: s.animationName, duration: parseFloat(s.animationDuration) * 1000, delay: parseFloat(s.animationDelay) * 1000, display: s.display } }
+        return { field: timing(document.querySelector('.home-intro-launch__field')), mark: timing(document.querySelector('.home-intro-launch__wordmark')), words: [...document.querySelectorAll('.home-intro-launch__word')].map(timing), tails: [...document.querySelectorAll('.home-intro-launch__tail')].map(timing), copy: timing(document.querySelector('[data-intro-copy-probe]')) }
+      })
+      assert.equal(motion.field.name, 'home-intro-field-release')
+      assert.equal(motion.copy.name, 'home-v4-hero-copy-intro-handoff')
+      for (const part of [motion.field, motion.mark, motion.copy, ...motion.words, ...motion.tails]) {
+        assert.notEqual(part.display, 'none', 'Retain the intro elements, not hidden substitute effects')
+        assert.notEqual(part.name, 'none')
+        assert.ok(part.duration > 0, 'Preserve genuine motion, not a zero-duration removal')
+        assert.ok(part.duration + part.delay < 1000, 'The retained sequence must finish within one second after readiness')
+      }
+      for (const part of [...motion.words, ...motion.tails]) assert.ok(part.duration + part.delay <= motion.mark.delay, 'Every word must finish unfolding before the mark fades')
+      assert.ok(motion.copy.duration + motion.copy.delay <= motion.field.duration + motion.field.delay, 'Removing the overlay must not cut off a still-hidden hero copy handoff')
     })
 
     await t.test('the desktop hero releases its sticky handoff within one viewport while compact modes keep normal flow', async () => {

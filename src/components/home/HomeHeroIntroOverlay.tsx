@@ -4,11 +4,14 @@ import { useHomeResponsiveViewport } from './useHomeResponsiveViewport'
 const desktopIntroQuery =
   '(min-width: 1024px) and (prefers-reduced-motion: no-preference)'
 const introScrollTolerance = 8
-const introDeadline = 2400
+const introPrepareDeadline = 1200
+const introHoldDeadline = 1100
 
 export function HomeHeroIntroOverlay() {
   const viewport = useHomeResponsiveViewport()
   const launchRef = useRef<HTMLDivElement>(null)
+  const introPreparedAtRef = useRef<number | null>(null)
+  const introPlayingAtRef = useRef<number | null>(null)
   const [shouldRenderIntro, setShouldRenderIntro] = useState(() =>
     typeof window === 'undefined' ? false : window.matchMedia(desktopIntroQuery).matches,
   )
@@ -20,50 +23,71 @@ export function HomeHeroIntroOverlay() {
 
   useEffect(() => {
     const query = window.matchMedia(desktopIntroQuery)
-    const handleChange = () => setShouldRenderIntro(query.matches)
+    const handleChange = () => {
+      setShouldRenderIntro(query.matches)
+      if (!query.matches || viewport !== 'desktop') setIsDismissed(true)
+    }
 
     handleChange()
     query.addEventListener('change', handleChange)
 
     return () => query.removeEventListener('change', handleChange)
-  }, [])
+  }, [viewport])
 
   useLayoutEffect(() => {
     const launch = launchRef.current
     if (!canShowIntro || !launch) return undefined
 
+    const budgetRef = isAnimationReady ? introPlayingAtRef : introPreparedAtRef
     const initialX = window.scrollX
     const initialY = window.scrollY
-    const finish = () => setIsDismissed(true)
+    const root = document.documentElement
+    const previousOverflow = root.style.overflow
+    const previousGutter = root.style.scrollbarGutter
+    const currentGutter = isAnimationReady
+      ? window.getComputedStyle(root).scrollbarGutter
+      : previousGutter
+    const heldGutter = currentGutter.includes('stable') ? currentGutter : 'stable'
+    const startedAt = budgetRef.current ??= performance.now()
+    if (isAnimationReady) {
+      root.style.scrollbarGutter = heldGutter
+      root.style.overflow = 'hidden'
+    }
+    let isHolding = isAnimationReady
+    const releaseHold = () => {
+      if (!isHolding) return
+      isHolding = false
+      if (root.style.overflow === 'hidden') root.style.overflow = previousOverflow
+      if (root.style.scrollbarGutter === heldGutter) root.style.scrollbarGutter = previousGutter
+    }
+    const finish = () => {
+      releaseHold()
+      setIsDismissed(true)
+    }
     const finishAnimation = (event: AnimationEvent) => {
       if (event.animationName === 'home-intro-field-release') finish()
     }
     const escapeIntro = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        finish()
-        return
-      }
-      if (
-        !['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(event.key)
-        || event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey
-        || event.target instanceof Element && event.target.closest('a, button, input, select, textarea, [contenteditable]:not([contenteditable="false"])')
-      ) return
-      finish()
+      if (event.key === 'Escape') finish()
     }
-    const scrollIntent = (event: Event) => { if (!event.defaultPrevented) finish() }
     const finishOnScroll = () => {
       if (window.scrollY !== initialY || window.scrollX !== initialX) finish()
     }
 
-    // Never lock native scrolling for a decorative intro. It can play while
-    // idle, but user input wins, even before fonts/animation are ready.
-    // Complete from the visible field, not a sweep hidden by the theme.
-    const deadline = window.setTimeout(finish, introDeadline)
+    // Hold only while the authored animation can play. Preparation stays
+    // scrollable and has its own cap, so slow fonts cannot cut the sequence.
+    // Complete from the visible field, never a sweep hidden by the theme.
+    // The watchdog allows CSS's first-frame/event-delivery lag; it does not
+    // extend normal completion or truncate the nominal 890ms sequence.
+    // Anchors may navigate normally; never reset coordinates or queue input.
+    // StrictMode replay reuses each phase's first start, not a fresh budget.
+    const deadline = window.setTimeout(
+      finish,
+      Math.max(0, (isAnimationReady ? introHoldDeadline : introPrepareDeadline) - (performance.now() - startedAt)),
+    )
     launch.addEventListener('animationend', finishAnimation)
     launch.addEventListener('animationcancel', finishAnimation)
     window.addEventListener('keydown', escapeIntro)
-    window.addEventListener('wheel', scrollIntent, { passive: true })
-    window.addEventListener('touchmove', scrollIntent, { passive: true })
     window.addEventListener('scroll', finishOnScroll, { passive: true })
 
     return () => {
@@ -71,11 +95,10 @@ export function HomeHeroIntroOverlay() {
       launch.removeEventListener('animationend', finishAnimation)
       launch.removeEventListener('animationcancel', finishAnimation)
       window.removeEventListener('keydown', escapeIntro)
-      window.removeEventListener('wheel', scrollIntent)
-      window.removeEventListener('touchmove', scrollIntent)
       window.removeEventListener('scroll', finishOnScroll)
+      releaseHold()
     }
-  }, [canShowIntro])
+  }, [canShowIntro, isAnimationReady])
 
   useLayoutEffect(() => {
     const launchElement = launchRef.current
@@ -263,7 +286,7 @@ export function HomeHeroIntroOverlay() {
         .then(() => undefined)
         .catch(() => undefined)
       const fontTimeout = new Promise<void>((resolve) => {
-        fontTimeoutId = window.setTimeout(resolve, 3000)
+        fontTimeoutId = window.setTimeout(resolve, 200)
       })
 
       await Promise.race([fontReady, fontTimeout])
