@@ -232,18 +232,6 @@ export function HomePage({
         </div>
         <HomePopupManager popups={popupNotices} />
 
-        {homeData.error ? (
-          <Container className="relative z-30 py-6">
-            <ErrorState
-              action={
-                <Button onClick={homeData.refetch} variant="secondary">{copyText("home", "home.fixed.HomePage.2b184615cb", "최신 소식 다시 불러오기")}</Button>
-              }
-              description={copyText("home", "home.fixed.HomePage.3f591c5385", "공연·공지 등 최신 운영 정보를 불러오지 못했습니다. 예시 일정으로 대체하지 않았습니다.")}
-              title={copyText("home", "home.fixed.HomePage.cefe18142e", "일부 최신 소식을 표시할 수 없습니다")}
-            />
-          </Container>
-        ) : null}
-
         <div className="home-flow-body flow-root relative z-30 isolate overflow-visible">
           {viewport === 'desktop' ? (
             <StaffFlowRail
@@ -257,6 +245,17 @@ export function HomePage({
               tone="warm"
             >
               <FloatingInfoCards cards={homeContent.quickActions.items} />
+              {homeData.error ? (
+                <Container className="relative z-30 py-6">
+                  <ErrorState
+                    action={
+                      <Button onClick={homeData.refetch} variant="secondary">{copyText("home", "home.fixed.HomePage.2b184615cb", "최신 소식 다시 불러오기")}</Button>
+                    }
+                    description={copyText("home", "home.fixed.HomePage.3f591c5385", "공연·공지 등 최신 운영 정보를 불러오지 못했습니다. 예시 일정으로 대체하지 않았습니다.")}
+                    title={copyText("home", "home.fixed.HomePage.cefe18142e", "일부 최신 소식을 표시할 수 없습니다")}
+                  />
+                </Container>
+              ) : null}
               <AboutPreview
                 presentation={aboutPresentation}
                 responsiveContent={homeContent.about}

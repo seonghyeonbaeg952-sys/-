@@ -9,7 +9,7 @@
   "src/components/home/HomeSpiritScoreBook.tsx": "b9254166c061f160ebec4359b4fd4accb841f1ac48d50b93a605ca29558e89d8",
   "src/components/home/HomeSpiritEditorial.tsx": "9e3b44eccb7252a139e0c22f2afb3a88551c3db0e77ee20fd2a2c1f5052b2680",
   "src/components/home/HomeSpiritChorusOrbit.tsx": "3bcdf3ec03f76b2a5aace8421a3aeb0891d38e3825072dfca72f11a26334af21",
-  "src/pages/public/HomePage.tsx": "5bc6acdcac9976434fd8827fb4ea11ffed5fda1273807f5456f34993376e51cc",
+  "src/pages/public/HomePage.tsx": "d610f22ad48b8f32801a1e5b651e3c92ef8ecb65c9a73ceb248fdde701eb3077",
   "src/components/home/FloatingInfoCards.tsx": "99e23dca800f64909371cc2eaf75e4b719db0ef29f65a1fe61548573b4304a30",
   "src/components/home/GalleryPreview.tsx": "3c150cf6ee2b4fe77afa5561575f9c4e492de668a99f0cc00e84a438a24e71a5",
   "src/components/home/ArchivePageStack.tsx": "5a710082328fb7238df724c1a8ab05f4a40dd8ddfd93f4c27497f145a2cb52c5",

@@ -73,6 +73,8 @@ const tests = [
   'src/pages/admin/AdminSiteEditorPage.design.test.mjs',
   'src/pages/public/ContactPage.test.mjs',
   'src/pages/public/homeHoldScroll.test.mjs',
+  'src/pages/public/HomePage.handoff.test.mjs',
+  'src/hooks/useHomeMotionDirector.test.mjs',
   'src/components/contact/contactFormModel.test.mjs',
   'src/components/contact/SupportPledgeForm.test.mjs',
   'src/lib/homeContent.contract.test.mjs',

@@ -5,7 +5,7 @@ const desktopIntroQuery =
   '(min-width: 1024px) and (prefers-reduced-motion: no-preference)'
 const introScrollTolerance = 8
 const introPrepareDeadline = 1200
-const introHoldDeadline = 1100
+const introHoldDeadline = 1900
 
 export function HomeHeroIntroOverlay() {
   const viewport = useHomeResponsiveViewport()
@@ -38,6 +38,13 @@ export function HomeHeroIntroOverlay() {
     const launch = launchRef.current
     if (!canShowIntro || !launch) return undefined
 
+    const heroCopy = launch.closest('.home-intro-real-sample')
+      ?.querySelector<HTMLElement>('.home-hero-copy')
+    let fieldCompleted = false
+    let copyCompleted = !isAnimationReady || !heroCopy
+      || !window.getComputedStyle(heroCopy).animationName.split(',')
+        .some(name => name.trim() === 'home-v4-hero-copy-intro-handoff')
+
     const budgetRef = isAnimationReady ? introPlayingAtRef : introPreparedAtRef
     const initialX = window.scrollX
     const initialY = window.scrollY
@@ -65,7 +72,16 @@ export function HomeHeroIntroOverlay() {
       setIsDismissed(true)
     }
     const finishAnimation = (event: AnimationEvent) => {
-      if (event.animationName === 'home-intro-field-release') finish()
+      if (event.animationName === 'home-intro-field-release') fieldCompleted = true
+      else if (event.animationName === 'home-v4-hero-copy-intro-handoff') copyCompleted = true
+      else return
+      // The copy selector depends on the overlay remaining mounted. Removing
+      // it at field completion would cancel the last part of the hero fade.
+      if (fieldCompleted && copyCompleted) finish()
+    }
+    const cancelAnimation = (event: AnimationEvent) => {
+      if (event.animationName === 'home-intro-field-release'
+        || event.animationName === 'home-v4-hero-copy-intro-handoff') finish()
     }
     const escapeIntro = (event: KeyboardEvent) => {
       if (event.key === 'Escape') finish()
@@ -76,9 +92,9 @@ export function HomeHeroIntroOverlay() {
 
     // Hold only while the authored animation can play. Preparation stays
     // scrollable and has its own cap, so slow fonts cannot cut the sequence.
-    // Complete from the visible field, never a sweep hidden by the theme.
+    // Complete from the visible field and hero fade, never a hidden sweep.
     // The watchdog allows CSS's first-frame/event-delivery lag; it does not
-    // extend normal completion or truncate the nominal 890ms sequence.
+    // extend normal completion or truncate the authored 1450ms sequence.
     // Anchors may navigate normally; never reset coordinates or queue input.
     // StrictMode replay reuses each phase's first start, not a fresh budget.
     const deadline = window.setTimeout(
@@ -86,14 +102,18 @@ export function HomeHeroIntroOverlay() {
       Math.max(0, (isAnimationReady ? introHoldDeadline : introPrepareDeadline) - (performance.now() - startedAt)),
     )
     launch.addEventListener('animationend', finishAnimation)
-    launch.addEventListener('animationcancel', finishAnimation)
+    launch.addEventListener('animationcancel', cancelAnimation)
+    heroCopy?.addEventListener('animationend', finishAnimation)
+    heroCopy?.addEventListener('animationcancel', cancelAnimation)
     window.addEventListener('keydown', escapeIntro)
     window.addEventListener('scroll', finishOnScroll, { passive: true })
 
     return () => {
       window.clearTimeout(deadline)
       launch.removeEventListener('animationend', finishAnimation)
-      launch.removeEventListener('animationcancel', finishAnimation)
+      launch.removeEventListener('animationcancel', cancelAnimation)
+      heroCopy?.removeEventListener('animationend', finishAnimation)
+      heroCopy?.removeEventListener('animationcancel', cancelAnimation)
       window.removeEventListener('keydown', escapeIntro)
       window.removeEventListener('scroll', finishOnScroll)
       releaseHold()

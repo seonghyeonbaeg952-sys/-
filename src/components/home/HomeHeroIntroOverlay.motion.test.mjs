@@ -8,7 +8,7 @@ const source = ts.transpileModule(await readFile(new URL('./HomeHeroIntroOverlay
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
 }).outputText
 
-function mount({ scrollY = 0, animate = true, fontsPending = false, viewport = 'desktop', rootStyle = {}, rootLayoutCost = 0 } = {}) {
+function mount({ scrollY = 0, animate = true, fontsPending = false, viewport = 'desktop', rootStyle = {}, rootLayoutCost = 0, heroCopyPresent = false, copyHasMotion = true } = {}) {
   const slots = [], effects = [], frames = new Map(), timers = new Map(), listeners = new Map()
   let cursor = 0, serial = 0, clock = 0, dirty = false, tree, resolveFonts
   const fontsReady = fontsPending ? new Promise(resolve => { resolveFonts = resolve }) : Promise.resolve()
@@ -22,7 +22,12 @@ function mount({ scrollY = 0, animate = true, fontsPending = false, viewport = '
   const style = { setProperty() {}, getPropertyValue: () => '1' }
   const rect = { left: 100, top: 200, width: 420, height: 400 }
   const title = { getBoundingClientRect: () => rect, closest: () => null }
-  const root = { getBoundingClientRect: () => ({ left: 0, top: 0 }), closest: () => null, querySelector: () => title }
+  const copyListeners = new Map()
+  const heroCopy = {
+    addEventListener(type, callback) { copyListeners.set(type, callback) },
+    removeEventListener(type) { copyListeners.delete(type) },
+  }
+  const root = { getBoundingClientRect: () => ({ left: 0, top: 0 }), closest: () => null, querySelector: selector => selector === '.home-hero-copy' ? (heroCopyPresent ? heroCopy : null) : title }
   const launch = { style, closest: () => root, querySelector: () => ({ style }), querySelectorAll: () => [],
     addEventListener(type, callback) { if (!animationListeners.has(type)) animationListeners.set(type, new Set()); animationListeners.get(type).add(callback) },
     removeEventListener(type, callback) { animationListeners.get(type)?.delete(callback) },
@@ -31,7 +36,7 @@ function mount({ scrollY = 0, animate = true, fontsPending = false, viewport = '
   const window = {
     scrollY, scrollX: 0, matchMedia: () => query,
     scrollTo({ top, left }) { window.scrollY = top; window.scrollX = left },
-    getComputedStyle(element) { if (element === documentElement) clock += rootLayoutCost; return { fontSize: '100px', lineHeight: '100px', transform: 'none', scrollbarGutter: 'auto', getPropertyValue: () => '0.8' } },
+    getComputedStyle(element) { if (element === documentElement) clock += rootLayoutCost; return { animationName: element === heroCopy && copyHasMotion ? 'home-v4-hero-copy-intro-handoff' : 'none', fontSize: '100px', lineHeight: '100px', transform: 'none', scrollbarGutter: 'auto', getPropertyValue: () => '0.8' } },
     requestAnimationFrame(callback) { const id = ++serial; frames.set(id, callback); return id },
     cancelAnimationFrame(id) { frames.delete(id) },
     setTimeout(callback, delay) { const id = ++serial; timers.set(id, { callback, at: clock + delay }); return id },
@@ -93,6 +98,7 @@ function mount({ scrollY = 0, animate = true, fontsPending = false, viewport = '
     end(animationName, type = 'animationend') {
       animationListeners.get(type)?.forEach(callback => callback({ animationName })); settle()
     },
+    endCopy(type = 'animationend') { copyListeners.get(type)?.({ animationName: 'home-v4-hero-copy-intro-handoff' }); settle() },
     escape() { listeners.get('keydown')?.forEach(callback => callback({ key: 'Escape' })); settle() },
     intent(type, event = {}, settleNow = true) { listeners.get(type)?.forEach(callback => callback(event)); if (settleNow) settle() },
     interactiveTarget() { return new Element(true) },
@@ -150,6 +156,46 @@ test('after finishing, normal scrolling works and returning to the top does not 
   } finally { h.cleanup() }
 })
 
+for (const order of ['field-first', 'copy-first']) {
+  test(`${order}: the startup retains its DOM and hold until both visible animations complete`, async () => {
+    const h = mount({ heroCopyPresent: true })
+    try {
+      await h.prepare()
+      h.advance(1380)
+      assert.ok(h.tree, 'The watchdog cannot truncate the restored unfolding sequence')
+      if (order === 'field-first') h.end('home-intro-field-release'); else h.endCopy()
+      assert.ok(h.tree, 'Do not cancel the remaining visible animation by removing the overlay selector')
+      assert.equal(h.documentElement.style.overflow, 'hidden')
+      if (order === 'field-first') h.endCopy(); else h.end('home-intro-field-release')
+      assert.equal(h.tree, null)
+      assert.equal(h.documentElement.style.overflow, 'auto')
+      assert.equal(h.pendingTimers, 0, 'Normal completion cancels the safety deadline immediately')
+    } finally { h.cleanup() }
+  })
+}
+
+test('a cancelled hero copy releases the hold even if the field has not completed', async () => {
+  const h = mount({ heroCopyPresent: true })
+  try {
+    await h.prepare()
+    h.endCopy('animationcancel')
+    assert.equal(h.tree, null)
+    assert.equal(h.documentElement.style.overflow, 'auto')
+  } finally { h.cleanup() }
+})
+
+test('a present hero copy without an active fade never waits for a nonexistent completion event', async () => {
+  const h = mount({ heroCopyPresent: true, copyHasMotion: false })
+  try {
+    await h.prepare()
+    h.advance(1380)
+    h.end('home-intro-field-release')
+    assert.equal(h.tree, null, 'Tall desktop/sample layouts must release from their actual visible field')
+    assert.equal(h.documentElement.style.overflow, 'auto')
+    assert.equal(h.pendingTimers, 0)
+  } finally { h.cleanup() }
+})
+
 for (const release of ['escape', 'timeout', 'reduceMotion']) {
   test(`${release} safely releases a preparing intro without a later font response relocking the page`, async () => {
     const h = mount({ fontsPending: true })
@@ -192,7 +238,7 @@ for (const type of ['wheel', 'touchmove']) {
       assert.equal(h.documentElement.style.overflow, 'hidden')
       assert.ok(h.tree, 'Wheel/touch intention cannot skip the requested brief hold')
       assert.equal(h.documentElement.style.scrollBehavior, 'smooth')
-      h.advance(1100)
+      h.advance(1900)
       assert.equal(h.documentElement.style.overflow, 'auto')
       h.scroll(180)
       assert.equal(h.scrollY, 180, 'After the bounded hold, scrolling must never be restored to the old position')
@@ -218,7 +264,7 @@ test('scroll keys keep the brief hold and interactive keys are not intercepted',
       assert.equal(prevented, false, 'Do not replace normal keyboard scrolling')
       h.settle()
       assert.ok(h.tree, 'Scroll intention must not remove the authored hold')
-      h.advance(1100)
+      h.advance(1900)
       assert.equal(h.documentElement.style.overflow, 'auto')
       assert.equal(h.tree, null)
     } finally { h.cleanup() }
@@ -296,7 +342,7 @@ test('finishing restores pre-existing root values and does not overwrite a newer
   const h = mount({ rootStyle: { overflow: 'scroll', scrollbarGutter: 'stable both-edges' } })
   try {
     await h.prepare()
-    h.advance(1100)
+    h.advance(1900)
     assert.equal(h.documentElement.style.overflow, 'scroll')
     assert.equal(h.documentElement.style.scrollbarGutter, 'stable both-edges')
     assert.equal(h.documentElement.style.scrollBehavior, 'smooth')
@@ -306,7 +352,7 @@ test('finishing restores pre-existing root values and does not overwrite a newer
     await changed.prepare()
     changed.documentElement.style.overflow = 'clip'
     changed.documentElement.style.scrollbarGutter = 'stable both-edges'
-    changed.advance(1100)
+    changed.advance(1900)
     assert.equal(changed.documentElement.style.overflow, 'clip')
     assert.equal(changed.documentElement.style.scrollbarGutter, 'stable both-edges')
   } finally { changed.cleanup() }
@@ -318,7 +364,7 @@ test('StrictMode preparation replay cannot consume or cut the retained playing s
     assert.equal(h.documentElement.style.overflow, 'auto')
     h.replayEffectsAfter(400)
     await h.prepare()
-    h.advance(1099)
+    h.advance(1899)
     assert.ok(h.tree)
     assert.equal(h.documentElement.style.overflow, 'hidden')
     h.advance(1)
@@ -335,7 +381,7 @@ test('a missing field end event releases the playing hold without consuming an i
   const h = mount()
   try {
     await h.prepare()
-    h.advance(1099)
+    h.advance(1899)
     assert.equal(h.documentElement.style.overflow, 'hidden')
     h.advance(1)
     assert.equal(h.documentElement.style.overflow, 'auto')
@@ -349,7 +395,7 @@ test('a costly pre-hold style read cannot consume the retained playing sequence'
   const h = mount({ rootLayoutCost: 500 })
   try {
     await h.prepare()
-    h.advance(1099)
+    h.advance(1899)
     assert.ok(h.tree, 'Start the playing budget after the pre-hold style read, not before it')
     assert.equal(h.documentElement.style.overflow, 'hidden')
     h.advance(1)
@@ -362,8 +408,8 @@ test('a field completion delivered a frame late still finishes the retained sequ
   const h = mount()
   try {
     await h.prepare()
-    h.advance(960)
-    assert.ok(h.tree, 'The watchdog needs room for the actual CSS start and event delivery, not only the nominal890ms')
+    h.advance(1550)
+    assert.ok(h.tree, 'The watchdog needs room for the restored CSS start and event delivery, not only nominal duration')
     assert.equal(h.documentElement.style.overflow, 'hidden')
     h.end('home-intro-field-release')
     assert.equal(h.tree, null)

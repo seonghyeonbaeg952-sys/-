@@ -19,7 +19,8 @@ function mount() {
   const frames = new Map(), listeners = new Map(), properties = new Map()
   const media = matches => ({ matches, addEventListener(_, callback) { this.change = callback }, removeEventListener() { delete this.change } })
   const desktop = media(true), reduced = media(false)
-  const hero = { dataset: {}, querySelectorAll: () => [], removeAttribute() { delete this.dataset.paperTransition } }
+  const pieces = Array.from({ length: 26 }, () => ({ style: { removeProperty(key) { delete this[key] } } }))
+  const hero = { dataset: {}, querySelectorAll: () => pieces, removeAttribute() { delete this.dataset.paperTransition } }
   const intro = { querySelector: () => hero, getBoundingClientRect: () => ({ top: -window.scrollY }) }
   const shell = { querySelector: () => intro, style: { setProperty: (key, value) => properties.set(key, value), removeProperty: key => properties.delete(key) } }
   const window = {
@@ -35,23 +36,32 @@ function mount() {
   vm.runInNewContext(ts.transpileModule(`export const effect = ${effect}`, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, { exports, window, shellRef: { current: shell }, performance: { now: () => clock } })
   const cleanup = exports.effect()
   return {
-    properties, frames, desktop, reduced, cleanup,
+    properties, pieces, hero, frames, desktop, reduced, cleanup,
     scroll(y) { window.scrollY = y; listeners.get('scroll')?.() },
     advance(ms) { clock += ms; const callbacks = [...frames.values()]; frames.clear(); callbacks.forEach(callback => callback(clock)) },
   }
 }
 
-test('the preserved desktop handoff settles promptly instead of keeping the next scene hidden for three seconds', () => {
+test('the collage retains its authored assembly and reverse pacing without truncating the final logo', () => {
   const h = mount()
   try {
     h.scroll(100)
     h.advance(1400)
+    assert.equal(h.properties.get('--home-v4-paper-seal-opacity'), '0', 'Do not compress the authored assembly into the startup hold budget')
+    assert.equal(h.frames.size, 1)
+    const middle = h.pieces.map(piece => piece.style.transform)
+    h.advance(1880)
     assert.equal(h.properties.get('--home-v4-paper-seal-opacity'), '1')
-    assert.equal(h.frames.size, 0, 'Stop work once the short forward transition settles')
+    assert.equal(h.frames.size, 0, 'Stop work once all paper pieces have settled')
+    assert.ok(h.pieces.every(piece => piece.style.opacity === '1'))
+    assert.notEqual(h.pieces.at(-1).style.transform, middle.at(-1), 'The delayed centre logo completes its trajectory')
     h.scroll(0)
     h.advance(600)
+    assert.equal(h.frames.size, 1, 'Reverse motion must retain its original pacing too')
+    h.advance(360)
     assert.equal(h.properties.get('--home-v4-guide-exit-opacity'), '1', 'Reverse returns the original quick menu without a long wait')
     assert.equal(h.frames.size, 0)
+    assert.ok(h.pieces.every(piece => piece.style.opacity === '0'))
   } finally { h.cleanup() }
 })
 
@@ -71,3 +81,19 @@ for (const mode of ['reduced', 'desktop']) {
     } finally { h.cleanup() }
   })
 }
+
+test('the collage remains active through reverse assembly until the visible paper pieces are hidden', () => {
+  const h = mount()
+  try {
+    h.scroll(100)
+    h.advance(3280)
+    h.scroll(0)
+    assert.equal(h.hero.dataset.paperTransition, 'playing', 'Do not resume photographic pointer motion while reverse paper layers are still visible')
+    h.advance(600)
+    assert.equal(h.hero.dataset.paperTransition, 'playing')
+    assert.ok(h.pieces.some(piece => piece.style.opacity === '1'))
+    h.advance(360)
+    assert.equal(h.hero.dataset.paperTransition, 'idle')
+    assert.ok(h.pieces.every(piece => piece.style.opacity === '0'))
+  } finally { h.cleanup() }
+})

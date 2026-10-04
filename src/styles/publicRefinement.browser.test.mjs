@@ -6,6 +6,7 @@ import { createServer } from 'vite'
 const browserModule = process.env.SMYC_PLAYWRIGHT_MODULE
 const root = fileURLToPath(new URL('../../', import.meta.url))
 const fixturePath = '/__public-surface-regression'
+const handoffFixturePath = '/__home-handoff-regression'
 const styles = [
   '/src/styles/home-v6-fixes.css',
   '/src/styles/color-sample-theme.css',
@@ -31,7 +32,6 @@ ${styles.map(href => `<link rel="stylesheet" href="${href}">`).join('\n')}
 </head><body class="public-shell">
 <div class="public-shell-home-sample-v4 color-sample-theme public-shell-home" data-design-candidate="home-v4" data-home-viewport="desktop">
   <div class="home-intro-real-sample" style="position:absolute;left:-10000px;width:100%"><section class="home-hero-section" style="height:100svh;min-height:0"><div class="home-hero-copy" data-intro-copy-probe></div></section><div class="home-intro-launch home-intro-launch--ready"><div class="home-intro-launch__field"></div><div class="home-intro-launch__wordmark">${['s','m','y','c'].map(letter => `<span class="home-intro-launch__word home-intro-launch__word--${letter}"><span class="home-intro-launch__tail">WORD</span></span>`).join('')}</div></div></div>
-  <div class="home-flow-body" data-handoff-flow-probe style="position:absolute;left:-10000px;width:100%;visibility:hidden"></div>
   <header class="home-v4-sample-header"><div class="home-v4-sample-header__bar"><button>메뉴 열기</button></div></header>
   <!-- The photo/scroll hero is absent in this isolated surface fixture. Give
        its following flow a visible origin without changing card sizing. -->
@@ -59,6 +59,16 @@ ${styles.map(href => `<link rel="stylesheet" href="${href}">`).join('\n')}
 <section class="contact-atelier" lang="en"><div class="contact-atelier__shell"><dl class="contact-atelier__amounts"><div><dt>Individual</dt><dd>Monthly support</dd></div><div><dt>Organisation</dt><dd>Monthly support</dd></div></dl></div></section>
 <div class="join-guide"><section id="practice" class="join-guide__section">Rehearsal information</section></div>
 </body></html>`
+
+// Real scrollable containing blocks, not offscreen height probes. The following
+// plane must cover the hero before its parent's sticky boundary can release it.
+const handoffFixture = `<!doctype html><html><head><meta charset="utf-8">
+${styles.map(href => `<link rel="stylesheet" href="${href}">`).join('\n')}
+<style>html,body{margin:0;scroll-behavior:auto}*{box-sizing:border-box}</style>
+</head><body><div class="public-shell-home-sample-v4 color-sample-theme public-shell-home" data-design-candidate="home-v4" data-home-viewport="desktop">
+<div class="home-intro-real-sample"><section class="home-hero-section" style="height:100svh;min-height:0"></section></div>
+<div class="home-flow-body" style="position:relative;min-height:200svh"></div>
+</div></body></html>`
 
 function rgbChannels(value) {
   const numbers = value.match(/[\d.]+/g)?.map(Number) ?? []
@@ -95,9 +105,10 @@ test('public visual surfaces preserve restrained, legible navigation without dec
       name: 'offline-public-surface-fixture',
       configureServer(server) {
         server.middlewares.use((request, response, next) => {
-          if (request.url?.split('?')[0] !== fixturePath) return next()
+          const path = request.url?.split('?')[0]
+          if (path !== fixturePath && path !== handoffFixturePath) return next()
           response.setHeader('Content-Type', 'text/html; charset=utf-8')
-          response.end(fixture)
+          response.end(path === handoffFixturePath ? handoffFixture : fixture)
         })
       },
     }],
@@ -288,7 +299,7 @@ test('public visual surfaces preserve restrained, legible navigation without dec
       }
     })
 
-    await t.test('the brief intro retains word/field motion and completes copy handoff before its visible field ends', async () => {
+    await t.test('the startup retains its authored unfolding pace and hands off to the full hero fade', async () => {
       await page.setViewportSize({ width: 1440, height: 900 })
       const motion = await page.evaluate(() => {
         const timing = element => { const s = getComputedStyle(element); return { name: s.animationName, duration: parseFloat(s.animationDuration) * 1000, delay: parseFloat(s.animationDelay) * 1000, display: s.display } }
@@ -300,25 +311,46 @@ test('public visual surfaces preserve restrained, legible navigation without dec
         assert.notEqual(part.display, 'none', 'Retain the intro elements, not hidden substitute effects')
         assert.notEqual(part.name, 'none')
         assert.ok(part.duration > 0, 'Preserve genuine motion, not a zero-duration removal')
-        assert.ok(part.duration + part.delay < 1000, 'The retained sequence must finish within one second after readiness')
       }
+      assert.ok(motion.field.duration + motion.field.delay >= 1300, 'Do not accelerate the visible intro to solve an unrelated waiting bug')
+      assert.ok(motion.copy.duration >= 1400, 'Preserve the original hero copy fade')
       for (const part of [...motion.words, ...motion.tails]) assert.ok(part.duration + part.delay <= motion.mark.delay, 'Every word must finish unfolding before the mark fades')
-      assert.ok(motion.copy.duration + motion.copy.delay <= motion.field.duration + motion.field.delay, 'Removing the overlay must not cut off a still-hidden hero copy handoff')
+      assert.ok(motion.copy.duration + motion.copy.delay >= motion.field.duration + motion.field.delay, 'The overlay completion must also account for the final hero-copy fade')
     })
 
-    await t.test('the desktop hero releases its sticky handoff within one viewport while compact modes keep normal flow', async () => {
-      for (const viewport of [{ width: 1366, height: 768 }, { width: 1440, height: 900 }, { width: 1920, height: 1080 }]) {
-        await page.setViewportSize(viewport)
-        const sizes = await page.evaluate(() => ({ intro: document.querySelector('.home-intro-real-sample').getBoundingClientRect().height, hero: document.querySelector('.home-intro-real-sample .home-hero-section').getBoundingClientRect().height, flowMargin: Number.parseFloat(getComputedStyle(document.querySelector('[data-handoff-flow-probe]')).marginTop) }))
-        assert.ok(sizes.intro > sizes.hero, 'Retain a short authored handoff instead of removing the composition')
-        assert.ok(sizes.intro - sizes.hero < viewport.height, `The ${viewport.width}px hero must not hold for another full screen of empty travel`)
-        const nextPlaneGap = sizes.intro + sizes.flowMargin - sizes.hero
-        assert.ok(nextPlaneGap >= 0 && nextPlaneGap <= 97, 'Shortening the pin must preserve the following plane/quick-menu origin, not pull it into the middle of the hero')
-      }
+    await t.test('the hero stays pinned until the following panel completely covers it, including reverse scrolling', async () => {
+      const handoff = await browser.newPage()
+      try {
+        await handoff.goto(`${vite.resolvedUrls.local[0].replace(/\/$/, '')}${handoffFixturePath}`)
+        for (const viewport of [{ width: 1366, height: 768 }, { width: 1440, height: 900 }, { width: 1920, height: 1200 }]) {
+          await handoff.setViewportSize(viewport)
+          const origin = await handoff.locator('.home-flow-body').evaluate(element => element.getBoundingClientRect().top + scrollY)
+          for (const y of [origin - 400, origin - 100, origin, origin + 100, origin - 100]) {
+            await handoff.evaluate(y => scrollTo({ top: y, behavior: 'instant' }), y)
+            const bounds = await handoff.evaluate(() => ({ heroTop: document.querySelector('.home-hero-section').getBoundingClientRect().top, panelTop: document.querySelector('.home-flow-body').getBoundingClientRect().top }))
+            if (bounds.panelTop > 0) assert.ok(Math.abs(bounds.heroTop) < 1, `At ${viewport.width}px, hero must not leave while ${bounds.panelTop}px of the panel ascent remains`)
+            else assert.ok(Math.abs(bounds.heroTop - bounds.panelTop) < 1, 'Only after full coverage may the hidden hero leave its track')
+          }
+        }
+      } finally { await handoff.close() }
       for (const viewport of [{ width: 1180, height: 820 }, { width: 390, height: 844 }]) {
         await page.setViewportSize(viewport)
         assert.doesNotMatch(await page.locator('.home-intro-real-sample .home-hero-section').evaluate(element => getComputedStyle(element).position), /sticky|fixed/, 'Do not introduce desktop pinning into tablet or phone modes')
       }
+    })
+
+    await t.test('reduced motion removes both the desktop pin and its negative panel overlap', async () => {
+      const handoff = await browser.newPage({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' })
+      try {
+        await handoff.goto(`${vite.resolvedUrls.local[0].replace(/\/$/, '')}${handoffFixturePath}`)
+        const bounds = await handoff.evaluate(() => {
+          const hero = document.querySelector('.home-hero-section')
+          const panel = document.querySelector('.home-flow-body')
+          return { position: getComputedStyle(hero).position, heroBottom: hero.getBoundingClientRect().bottom, panelTop: panel.getBoundingClientRect().top }
+        })
+        assert.doesNotMatch(bounds.position, /sticky|fixed/, 'Reduced motion must not inherit an important desktop pin')
+        assert.ok(bounds.panelTop >= bounds.heroBottom - 1, 'Without an intro track, the following plane must not cover the hero at scroll zero')
+      } finally { await handoff.close() }
     })
 
     await t.test('tablet slideshow controls retain at least 44px physical targets without an inherited scale', async () => {

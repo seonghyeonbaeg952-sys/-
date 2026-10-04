@@ -25,6 +25,11 @@ function setStyleValue(element: HTMLElement, property: string, value: string) {
   }
 }
 
+function hasVisibleCollage(element: HTMLElement) {
+  return element.classList.contains('home-hero-section')
+    && element.dataset.paperTransition === 'playing'
+}
+
 export function useHomeMotionDirector(rootRef: RefObject<HTMLDivElement | null>) {
   useEffect(() => {
     const root = rootRef.current
@@ -51,6 +56,11 @@ export function useHomeMotionDirector(rootRef: RefObject<HTMLDivElement | null>)
     let pointerListenersAttached = false
 
     const clearPointerSurface = () => {
+      pendingPointer = null
+      if (pointerFrameId !== 0) {
+        window.cancelAnimationFrame(pointerFrameId)
+        pointerFrameId = 0
+      }
       if (!activeSurface) {
         return
       }
@@ -91,6 +101,7 @@ export function useHomeMotionDirector(rootRef: RefObject<HTMLDivElement | null>)
 
     const updateSections = () => {
       frameId = 0
+      if (activeSurface && hasVisibleCollage(activeSurface)) clearPointerSurface()
       const viewportHeight = Math.max(1, window.innerHeight)
       const sectionsToUpdate = visibleSections.size > 0 ? visibleSections : sections
       sectionsToUpdate.forEach((section) => updateSection(section, viewportHeight))
@@ -128,7 +139,7 @@ export function useHomeMotionDirector(rootRef: RefObject<HTMLDivElement | null>)
         ? event.target.closest<HTMLElement>(motionSurfaceSelector)
         : null
 
-      if (!target || !root.contains(target)) {
+      if (!target || !root.contains(target) || hasVisibleCollage(target)) {
         clearPointerSurface()
         return
       }
@@ -238,10 +249,6 @@ export function useHomeMotionDirector(rootRef: RefObject<HTMLDivElement | null>)
       if (frameId !== 0) {
         window.cancelAnimationFrame(frameId)
       }
-      if (pointerFrameId !== 0) {
-        window.cancelAnimationFrame(pointerFrameId)
-      }
-
       clearPointerSurface()
       resizeObserver.disconnect()
       visibilityObserver.disconnect()

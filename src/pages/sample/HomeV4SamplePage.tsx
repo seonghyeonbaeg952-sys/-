@@ -358,8 +358,8 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
 
     const applyProgress = (progress: number) => {
       const handoffHold = Math.min(
-        96,
-        Math.max(64, window.innerHeight * 0.08),
+        260,
+        Math.max(200, window.innerHeight * 0.26),
       )
       const curtainProgress = progress * progress * (3 - 2 * progress)
       const guideProgress = Math.max(
@@ -461,7 +461,7 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
     }
 
     const animate = (time: number) => {
-      const duration = targetProgress > animationFrom ? 1400 : 600
+      const duration = targetProgress > animationFrom ? 3280 : 960
       const elapsed = Math.min(1, (time - animationStart) / duration)
 
       renderedProgress =
@@ -476,6 +476,7 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
       renderedProgress = targetProgress
       frame = 0
       applyProgress(renderedProgress)
+      if (renderedProgress === 0) hero.dataset.paperTransition = 'idle'
     }
 
     const queueUpdate = () => {
@@ -496,7 +497,7 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
       if (nextTarget !== targetProgress) {
         targetProgress = nextTarget
         hero.dataset.paperTransition =
-          nextTarget === 1 ? 'playing' : 'idle'
+          nextTarget === 1 || renderedProgress > 0 ? 'playing' : 'idle'
         animationFrom = renderedProgress
         animationStart = performance.now()
         window.cancelAnimationFrame(frame)

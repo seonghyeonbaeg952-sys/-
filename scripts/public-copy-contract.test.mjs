@@ -90,6 +90,10 @@ test('adding copy adapters preserves every existing JSX default in the captured 
   // boundaries: header opener/focus handlers, the language-preserving contact
   // link component, and explicit join-guide return anchors. Their reviewed
   // snapshots were updated; publicFlowRefinement.test.mjs checks the behavior.
+  // HomePage's approved handoff repair additionally relocates only the error
+  // boundary into the following plane. Its condition/props/copy/retry and all
+  // remaining JSX were compared unchanged before updating that fingerprint;
+  // HomePage.handoff.test.mjs checks success/failure placement and real retry.
   // All other fingerprints and adapter/mutation checks remain unchanged.
   const baseline = JSON.parse(readFileSync(new URL('../docs/public-copy-default-baseline.json', import.meta.url), 'utf8'))
   for (const [file, fingerprint] of Object.entries(baseline)) assert.equal(publicMarkupFingerprint(readFileSync(file, 'utf8'), file), fingerprint, file)

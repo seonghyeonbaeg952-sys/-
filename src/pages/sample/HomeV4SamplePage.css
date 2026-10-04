@@ -2789,21 +2789,22 @@
     --home-v4-guide-after-hero: -86px;
     --home-v4-guide-flow-compensation: 118px;
     --home-v4-guide-inner-offset: 0px;
-    --home-v4-hero-handoff-hold: clamp(64px, 8svh, 96px);
+    --home-v4-hero-handoff-hold: clamp(200px, 26svh, 260px);
   }
 
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-flow-body {
-    /* The real following page plane starts below the hero and closes over it. */
+    /* Overlap one full hero: the following plane must reach the viewport top
+       before the hero's containing block releases its sticky position. */
     --home-hero-handoff-start: 0px;
-    margin-top: -60svh;
+    margin-top: -100svh;
     overflow-anchor: none;
   }
 
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-intro-real-sample {
     position: relative;
-    height: calc(160svh + var(--home-v4-hero-handoff-hold));
+    height: calc(200svh + var(--home-v4-hero-handoff-hold));
     overflow: visible !important;
     overflow-anchor: none;
     background: var(--home-v4-panel-ivory) !important;
@@ -2835,7 +2836,7 @@
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-intro-real-sample:has(> .home-intro-launch--ready)
     .home-hero-copy {
-    animation: home-v4-hero-copy-intro-handoff 880ms ease-out both;
+    animation: home-v4-hero-copy-intro-handoff 1450ms ease-out both;
   }
 
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
@@ -3217,7 +3218,7 @@
 
 @keyframes home-v4-hero-copy-intro-handoff {
   0%,
-  82% {
+  76% {
     opacity: 0;
   }
 
@@ -3235,7 +3236,7 @@
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-intro-real-sample
     .home-hero-section {
-    position: relative;
+    position: relative !important;
     border-radius: 0;
     box-shadow: none;
     transform: none;
@@ -3245,6 +3246,11 @@
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-intro-real-sample {
     height: auto;
+  }
+
+  .public-shell-home-sample-v4[data-design-candidate='home-v4']
+    .home-flow-body {
+    margin-top: 0;
   }
 
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
