@@ -94,7 +94,12 @@ test('adding copy adapters preserves every existing JSX default in the captured 
   // boundary into the following plane. Its condition/props/copy/retry and all
   // remaining JSX were compared unchanged before updating that fingerprint;
   // HomePage.handoff.test.mjs checks success/failure placement and real retry.
-  // All other fingerprints and adapter/mutation checks remain unchanged.
+  // The 2026-10-05 QA fixes localize only the archive's three UI-message
+  // render boundaries and the hero's image/playback accessible names. Korean
+  // defaults, playback state and archive motion are checked by the real
+  // HomeHeroSlideshow.image and ArchivePageStack.motion regression tests.
+  // Only those two reviewed snapshots changed; all other fingerprints and
+  // adapter/mutation checks remain unchanged.
   const baseline = JSON.parse(readFileSync(new URL('../docs/public-copy-default-baseline.json', import.meta.url), 'utf8'))
   for (const [file, fingerprint] of Object.entries(baseline)) assert.equal(publicMarkupFingerprint(readFileSync(file, 'utf8'), file), fingerprint, file)
 })

@@ -15,7 +15,7 @@ const flushPromises = () => new Promise(resolve => setImmediate(resolve))
 
 // Execute the real component and its effects with a deterministic clock and
 // DOM boundary. No browser automation, React renderer package or live CMS writes.
-function mount({ reduced = false } = {}) {
+function mount({ reduced = false, language = 'ko' } = {}) {
   const slots = [], effects = [], frames = new Map(), timers = new Map(), nodes = new Map(), observers = []
   let cursor = 0, clock = 0, serial = 0, dirty = false, tree
   let props = { buttonLabel: '갤러리 보기', description: '기록 소개', eyebrow: 'ARCHIVE', images: [photo], posters: [], videos: [] }
@@ -66,6 +66,14 @@ function mount({ reduced = false } = {}) {
   const jsx = (type, nextProps, key) => ({ type, props: nextProps, key })
   const dependencies = {
     react, 'react/jsx-runtime': { jsx, jsxs: jsx },
+    '../../features/sample-language/useSampleLanguage': {
+      useSampleLanguage: () => ({
+        enabled: true, isSample: false, language,
+        setLanguage: next => { language = next },
+        translate: source => source, translateData: value => value,
+        translateHome: value => value, href: href => href,
+      }),
+    },
     '../site-editor/useSiteEditor': { useSiteEditor: () => ({ copy: (_page, _id, fallback) => fallback }) },
     '../../constants/homeTypography': { HOME_TITLE_LINE_ROLES: { archive: ['base', 'emphasis', 'base'] } },
     '../../lib/homeCopySlices': { splitHomeCopyLines: text => text.split('\n').map(text => ({ text, offset: 0 })) },
@@ -134,8 +142,13 @@ function mount({ reduced = false } = {}) {
       const callbacks = [...timers.values()]; timers.clear(); callbacks.forEach(callback => callback()); settle()
     },
     refresh() { props = { ...props, images: props.images.map(item => ({ ...item })) }; render(); settle() },
+    language(next) { language = next; render(); settle() },
     select(placement) {
       visit(tree, element => { if (element.props?.['data-id'] === placement) element.props.onClick() })
+      settle()
+    },
+    close() {
+      visit(tree, element => { if (element.props?.className === 'archive__close') element.props.onClick() })
       settle()
     },
     preference(matches) { query.matches = matches; query.listeners.forEach(callback => callback()); settle(); frame() },
@@ -194,5 +207,103 @@ test('turning reduced motion on and off never rewinds the fully visible content'
     await h.ready(); h.preference(true); assertFinished(h)
     h.preference(false); await h.ready(); assertFinished(h)
     h.refresh(); await h.ready(); assertFinished(h)
+  } finally { h.cleanup() }
+})
+
+function uiText(harness, className) {
+  let text
+  function visit(value) {
+    if (!value || typeof value !== 'object') return
+    if (Array.isArray(value)) { value.forEach(visit); return }
+    if (value.props?.className === className) text = value.props.children
+    visit(value.props?.children)
+  }
+  visit(harness.tree)
+  assert.equal(typeof text, 'string', `${className} must expose rendered UI copy`)
+  return text
+}
+
+const localeCopy = {
+  ko: {
+    initial: '세 기록의 표면과 비율을 준비합니다',
+    ready: '기록 섹션이 준비되었습니다.',
+    starting: '세 기록의 표면을 한 흐름으로 펼칩니다.',
+    exposure: '빛이 종이와 이미지의 경계를 통과합니다',
+    register: '사진·포스터·영상의 고유 비율을 맞춥니다',
+    complete: '한 번의 무대가 세 가지 시간으로 남았습니다',
+    photo: '사진은 함께 있던 빛과 표정을 붙잡습니다.',
+    poster: '포스터는 공연 전, 사람들을 같은 시간과 장소로 부릅니다.',
+    video: '영상은 마지막 음 이후에도 호흡과 움직임을 이어갑니다.',
+  },
+  en: {
+    initial: 'Preparing the surfaces and proportions of three records',
+    ready: 'The archive section is ready.',
+    starting: 'Unfolding three records in one continuous flow.',
+    exposure: 'Light passes across the edges of paper and image',
+    register: 'Aligning the original proportions of photos, posters and videos',
+    complete: 'One performance lives on in three forms',
+    photo: 'Photos preserve the light and expressions we shared.',
+    poster: 'Posters bring people to the same time and place before a performance.',
+    video: 'Videos carry breath and movement beyond the final note.',
+  },
+}
+
+// A missing locale boundary must fail for each observable state independently.
+const localeStates = [
+  { name: 'initial', footer: 'initial', live: 'ready' },
+  { name: 'starting', footer: 'initial', live: 'starting', elapsed: 0 },
+  { name: 'exposure', footer: 'exposure', live: 'exposure', elapsed: 900 },
+  { name: 'register', footer: 'register', live: 'register', elapsed: 2340 },
+  { name: 'complete', footer: 'complete', live: 'complete', elapsed: 3600 },
+  ...['photo', 'poster', 'video'].map(placement => ({
+    name: `focused ${placement}`, footer: 'complete', live: 'complete', elapsed: 3600, placement,
+  })),
+  { name: 'collapsed', footer: 'complete', live: 'complete', elapsed: 3600, placement: 'photo', close: true },
+]
+
+for (const language of ['ko', 'en']) {
+  for (const state of localeStates) {
+    test(`${language} archive footer and polite messages follow the ${state.name} state`, async () => {
+      const h = mount({ language })
+      try {
+        await h.ready()
+        if (state.elapsed !== undefined) {
+          h.show()
+          if (state.elapsed) { h.frame(state.elapsed); await h.ready() }
+        }
+        if (state.placement) h.select(state.placement)
+        if (state.close) h.close()
+
+        const expected = localeCopy[language]
+        const footer = uiText(h, 'archive__footer-copy')
+        const live = uiText(h, 'sr-only')
+        const focus = uiText(h, 'archive__focus-copy')
+        assert.equal(footer, expected[state.footer])
+        assert.equal(live, expected[state.live])
+        assert.equal(focus, state.placement && !state.close ? expected[state.placement] : '')
+        if (language === 'en') assert.doesNotMatch(`${footer} ${live} ${focus}`, /[가-힣]/)
+      } finally { h.cleanup() }
+    })
+  }
+}
+
+test('changing archive language preserves running progress and the selected record', async () => {
+  const h = mount()
+  try {
+    await h.ready(); h.show(); h.frame(1800)
+    const progress = h.nodes.get('section').style.getPropertyValue('--motion')
+    h.language('en')
+    assert.equal(uiText(h, 'archive__footer-copy'), localeCopy.en.exposure)
+    assert.equal(uiText(h, 'sr-only'), localeCopy.en.exposure)
+    assert.equal(h.nodes.get('section').style.getPropertyValue('--motion'), progress)
+    assert.equal(h.tree.props['aria-busy'], true)
+    h.frame(1800); await h.ready(); assertFinished(h)
+    h.select('video')
+    h.language('ko')
+    assert.equal(uiText(h, 'archive__footer-copy'), localeCopy.ko.complete)
+    assert.equal(uiText(h, 'sr-only'), localeCopy.ko.complete)
+    assert.equal(uiText(h, 'archive__focus-copy'), localeCopy.ko.video)
+    assert.ok(h.tree.props.className.includes('is-focused'))
+    assertFinished(h)
   } finally { h.cleanup() }
 })

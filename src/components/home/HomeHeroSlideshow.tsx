@@ -265,7 +265,7 @@ export function HomeHeroSlideshow({
   slides,
 }: HomeHeroSlideshowProps) {
   const { copy: copyText } = useSiteEditor()
-  const { translate } = useSampleLanguage()
+  const { language, translate } = useSampleLanguage()
   const [activeIndex, setActiveIndex] = useState(0)
   const [isUserPaused, setIsUserPaused] = useState(false)
   const [failedImageIds, setFailedImageIds] = useState<Set<string>>(() => new Set())
@@ -287,6 +287,9 @@ export function HomeHeroSlideshow({
   const hasMultipleSlides = renderedSlides.length > 1
   const safeActiveIndex = activeIndex % renderedSlides.length
   const isAutoplayPaused = isUserPaused || prefersReducedMotion
+  const playbackLabel = language === 'en'
+    ? isUserPaused ? 'Resume hero slideshow autoplay' : 'Pause hero slideshow autoplay'
+    : isUserPaused ? 'Hero 슬라이드 자동 재생 시작' : 'Hero 슬라이드 자동 재생 일시정지'
   useEffect(() => {
     if (
       !hasMultipleSlides ||
@@ -469,7 +472,7 @@ export function HomeHeroSlideshow({
                 <div className="home-hero-dots" role="tablist">
                   {renderedSlides.map((slide, index) => (
                     <button
-                      aria-label={`${index + 1}번째 Hero 이미지 보기`}
+                      aria-label={language === 'en' ? `Show hero image ${index + 1}` : `${index + 1}번째 Hero 이미지 보기`}
                       aria-selected={index === safeActiveIndex}
                       className={[
                         'home-hero-dot',
@@ -484,11 +487,7 @@ export function HomeHeroSlideshow({
                 </div>
                 <div className="home-hero-arrow-group">
                   <button
-                    aria-label={
-                      isUserPaused
-                        ? 'Hero 슬라이드 자동 재생 시작'
-                        : 'Hero 슬라이드 자동 재생 일시정지'
-                    }
+                    aria-label={playbackLabel}
                     className="home-hero-arrow"
                     disabled={prefersReducedMotion}
                     onClick={() => setIsUserPaused((current) => !current)}

@@ -50,7 +50,20 @@ html[data-sample-language] .sample-language-switch__options button[aria-pressed=
 html[data-sample-language] .sample-language-switch :is(button):focus-visible { outline: 2px solid #bd3e14; outline-offset: 2px; }
 html[data-sample-language='en'] .sample-language-switch__issue { position: fixed; right: 20px; bottom: 20px; z-index: 100; display: flex; align-items: center; gap: 12px; width: min(360px, calc(100vw - 40px)); padding: 14px; border: 1px solid #d8d2c7; border-radius: 8px; background: #fcfaf5; color: #38132f; font-size: 13px; line-height: 1.5; box-shadow: 0 8px 24px #38132f1a; }
 html[data-sample-language='en'] .sample-language-switch__issue p { margin: 0; }
-html[data-sample-language='en'] .sample-language-switch__issue button { flex-shrink: 0; border: 1px solid #d8d2c7; border-radius: 4px; }
+/* The fixed notice is rendered inside the density-scaled home header. */
+html[data-sample-language='en'] .sample-language-switch__issue button {
+  flex-shrink: 0;
+  min-width: calc(44px / var(--public-home-density, 1));
+  min-height: calc(44px / var(--public-home-density, 1));
+  padding: 8px 12px;
+  border: 1px solid #d8d2c7;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+html[data-sample-language='en'] .sample-language-switch__issue button:focus-visible { outline: 2px solid #bd3e14; outline-offset: 2px; }
 html[data-sample-language] .home-v4-sample-header[data-transparent='true'] .sample-language-switch { color: #fffaf5; }
 html[data-sample-language='en'] .public-shell :is(h1, h2, h3, p, label, dt, dd) { word-break: normal; overflow-wrap: break-word; }
 html[data-sample-language='en'] .public-shell :is(input, textarea, button, a) { word-break: normal; }

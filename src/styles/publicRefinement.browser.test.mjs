@@ -7,6 +7,7 @@ const browserModule = process.env.SMYC_PLAYWRIGHT_MODULE
 const root = fileURLToPath(new URL('../../', import.meta.url))
 const fixturePath = '/__public-surface-regression'
 const handoffFixturePath = '/__home-handoff-regression'
+const aboutFixturePath = '/__about-navigation-regression'
 const styles = [
   '/src/styles/home-v6-fixes.css',
   '/src/styles/color-sample-theme.css',
@@ -70,6 +71,23 @@ ${styles.map(href => `<link rel="stylesheet" href="${href}">`).join('\n')}
 <div class="home-flow-body" style="position:relative;min-height:200svh"></div>
 </div></body></html>`
 
+function aboutNavigationFixture(language) {
+  const sections = ['all', 'overview', 'conductor', 'accompanist', 'members', 'history']
+  const labels = language === 'en'
+    ? ['All', 'About the Choir', 'Conductor', 'Accompanists', 'Members', 'History']
+    : ['전체', '합창단 소개', '지휘자 소개', '반주자 소개', '단원 소개', '연혁']
+  const tabs = `<div class="about-fixture-container"><div class="section-tabs-wrap"><nav aria-label="About sections"><div class="animated-section-tabs" data-tone="navy" role="tablist">
+    <span aria-hidden="true" class="section-tabs-indicator"></span>
+    ${sections.map((section, index) => `<a class="section-tab${section === 'accompanist' ? ' is-active' : ''}" href="/about?section=${section}" role="tab" aria-selected="${section === 'accompanist'}">${labels[index]}</a>`).join('')}
+  </div></nav></div></div>`
+  return `<!doctype html><html lang="${language}" data-sample-language="${language}"><head><meta charset="utf-8">
+    ${['/src/styles/globals.css', '/src/styles/color-sample-theme.css', '/src/styles/about-overview.css', '/src/features/sample-language/sample-language.css'].map(href => `<link rel="stylesheet" href="${href}">`).join('\n')}
+    <!-- Only the Container and Tailwind wrapper utilities are mirrored here.
+         All tab layout, wrapping, typography and target sizing come from production CSS. -->
+    <style>html,body{margin:0}*,*::before,*::after{box-sizing:border-box}.about-fixture-container{width:100%;max-width:1280px;margin-inline:auto;padding-inline:16px}.section-tabs-wrap{padding:12px;border:1px solid #f0d5c8;border-radius:14px}.about-fixture-reference{position:absolute;top:520px;inset-inline:0}@media(min-width:640px){.about-fixture-container{padding-inline:28px}}@media(min-width:1024px){.about-fixture-container{padding-inline:48px}}</style>
+    </head><body class="public-shell color-sample-theme"><div class="about-overview-nav">${tabs}</div><div class="about-fixture-reference">${tabs}</div></body></html>`
+}
+
 function rgbChannels(value) {
   const numbers = value.match(/[\d.]+/g)?.map(Number) ?? []
   assert.ok(numbers.length >= 3, `Expected a computed RGB color, got ${value}`)
@@ -106,9 +124,10 @@ test('public visual surfaces preserve restrained, legible navigation without dec
       configureServer(server) {
         server.middlewares.use((request, response, next) => {
           const path = request.url?.split('?')[0]
-          if (path !== fixturePath && path !== handoffFixturePath) return next()
+          if (path !== fixturePath && path !== handoffFixturePath && path !== aboutFixturePath) return next()
           response.setHeader('Content-Type', 'text/html; charset=utf-8')
-          response.end(path === handoffFixturePath ? handoffFixture : fixture)
+          const language = new URL(request.url, 'http://localhost').searchParams.get('lang') === 'en' ? 'en' : 'ko'
+          response.end(path === aboutFixturePath ? aboutNavigationFixture(language) : path === handoffFixturePath ? handoffFixture : fixture)
         })
       },
     }],
@@ -397,6 +416,62 @@ test('public visual surfaces preserve restrained, legible navigation without dec
       assert.ok(await page.locator('#practice').evaluate(element => Number.parseFloat(getComputedStyle(element).scrollMarginTop)) <= 24, 'Global scroll padding already accounts for the sticky header')
       await page.setViewportSize({ width: 390, height: 844 })
       assert.equal(await page.locator('#practice').evaluate(element => getComputedStyle(element).scrollMarginTop), '104px', 'Portrait anchor spacing remains unchanged')
+    })
+
+    await t.test('About navigation exposes all six choices without clipping in Korean and English', async () => {
+      const about = await browser.newPage()
+      try {
+        for (const language of ['ko', 'en']) {
+          await about.goto(`${vite.resolvedUrls.local[0].replace(/\/$/, '')}${aboutFixturePath}?lang=${language}`)
+          await about.evaluate(() => document.fonts.ready)
+          for (const width of [320, 390, 768, 1024, 1440]) {
+            await about.setViewportSize({ width, height: 900 })
+            const geometry = await about.locator('.about-overview-nav').evaluate(nav => {
+              const list = nav.querySelector('.animated-section-tabs')
+              const wrapper = nav.querySelector('.section-tabs-wrap').getBoundingClientRect()
+              const listBounds = list.getBoundingClientRect()
+              const tabs = [...list.querySelectorAll('.section-tab')].map(tab => {
+                const bounds = tab.getBoundingClientRect()
+                const range = document.createRange()
+                range.selectNodeContents(tab)
+                const text = range.getBoundingClientRect()
+                const hit = document.elementFromPoint(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2)
+                return {
+                  label: tab.textContent,
+                  bounds: bounds.toJSON(),
+                  textFits: text.left >= bounds.left - 0.5 && text.right <= bounds.right + 0.5 && text.top >= bounds.top - 0.5 && text.bottom <= bounds.bottom + 0.5,
+                  visible: bounds.left >= Math.max(0, wrapper.left, listBounds.left) - 0.5 && bounds.right <= Math.min(innerWidth, wrapper.right, listBounds.right) + 0.5 && bounds.top >= wrapper.top - 0.5 && bounds.bottom <= wrapper.bottom + 0.5,
+                  operable: tab === hit || tab.contains(hit),
+                }
+              })
+              const defaults = [...document.querySelectorAll('.about-fixture-reference .section-tab')].map(tab => {
+                const bounds = tab.getBoundingClientRect()
+                return { width: bounds.width, height: bounds.height }
+              })
+              return { tabs, defaults, scrollWidth: list.scrollWidth, clientWidth: list.clientWidth, pageWidth: document.documentElement.scrollWidth }
+            })
+            const context = `${language} About navigation at ${width}px`
+            assert.equal(geometry.tabs.length, 6, context)
+            assert.ok(geometry.scrollWidth <= geometry.clientWidth + 1, `${context} must not require horizontal scrolling`)
+            assert.ok(geometry.pageWidth <= width + 1, `${context} must not cause page overflow`)
+            for (const tab of geometry.tabs) {
+              assert.ok(tab.visible && tab.operable, `${context}: ${tab.label} must be immediately visible and reachable`)
+              assert.ok(tab.textFits, `${context}: ${tab.label} must not be cut off`)
+              assert.ok(tab.bounds.width >= 44 && tab.bounds.height >= 44, `${context}: ${tab.label} needs a 44px target`)
+            }
+            for (let first = 0; first < geometry.tabs.length; first += 1) {
+              for (let second = first + 1; second < geometry.tabs.length; second += 1) {
+                const a = geometry.tabs[first].bounds, b = geometry.tabs[second].bounds
+                assert.ok(Math.min(a.right, b.right) - Math.max(a.left, b.left) <= 0.5 || Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) <= 0.5, `${context}: choices must not overlap`)
+              }
+            }
+            if (width >= 1024) {
+              assert.equal(new Set(geometry.tabs.map(tab => tab.bounds.top)).size, 1, `${context} retains its desktop row`)
+              assert.deepEqual(geometry.tabs.map(tab => ({ width: tab.bounds.width, height: tab.bounds.height })), geometry.defaults, `${context} retains the shared desktop tab dimensions`)
+            }
+          }
+        }
+      } finally { await about.close() }
     })
   } finally {
     await browser?.close()

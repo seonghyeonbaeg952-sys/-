@@ -119,10 +119,11 @@ test('real browser keeps selected-range commands, validates values and refuses m
     await page.getByRole('button', { name: '굵게', exact: true }).click()
     assert.deepEqual(await page.evaluate(() => window.toolbarEvents), [['format', { fontWeight: 700 }]])
     await page.getByRole('button', { name: /^글꼴:/ }).click()
+    await page.getByRole('group', { name: '글꼴', exact: true }).waitFor({ state: 'visible' })
     for (const name of ['기본 산세리프', '고딕 A1', '함렛', '아리따 부리', '고운 바탕', '그란디플로라', 'Cormorant Garamond', 'Georgia']) {
-      assert.equal(await page.getByRole('group', { name: '글꼴 선택' }).getByRole('button', { name, exact: false }).count(), 1)
+      assert.equal(await page.getByRole('group', { name: '글꼴', exact: true }).getByRole('button', { name, exact: false }).count(), 1)
     }
-    await page.getByRole('group', { name: '글꼴 선택' }).getByRole('button', { name: '고운 바탕', exact: false }).click()
+    await page.getByRole('group', { name: '글꼴', exact: true }).getByRole('button', { name: '고운 바탕', exact: false }).click()
     assert.deepEqual(await page.evaluate(() => window.toolbarEvents.at(-1)), ['format', { fontFamily: 'gowun-batang' }])
     await page.getByRole('spinbutton', { name: '크기 (px)' }).fill('301')
     await page.getByRole('spinbutton', { name: '크기 (px)' }).press('Enter')
@@ -153,7 +154,7 @@ test('real browser keeps selected-range commands, validates values and refuses m
     await page.getByRole('button', { name: '편집 마침', exact: true }).click()
     assert.deepEqual(await page.evaluate(() => window.toolbarEvents.at(-1)), ['action', 'finish'])
     await page.getByRole('button', { name: /^글꼴:/ }).click()
-    await page.getByRole('group', { name: '글꼴 선택' }).getByRole('button', { name: '기본 서식', exact: false }).click()
+    await page.getByRole('group', { name: '글꼴', exact: true }).getByRole('button', { name: '기본 서식', exact: false }).click()
     assert.equal(await page.evaluate(() => {
       const last = window.toolbarEvents.at(-1)
       return last[0] === 'format' && Object.hasOwn(last[1], 'fontFamily') && last[1].fontFamily === undefined
@@ -173,8 +174,9 @@ test('real browser preserves popup Escape, disabled ranges, and 44px mobile cont
     page.setDefaultTimeout(10000)
     await page.goto(`${vite.resolvedUrls.local[0]}__canvas-toolbar-test`)
     await page.getByRole('button', { name: /^글꼴:/ }).click()
+    await page.getByRole('group', { name: '글꼴', exact: true }).waitFor({ state: 'visible' })
     await page.keyboard.press('Escape')
-    assert.equal(await page.getByRole('group', { name: '글꼴 선택' }).count(), 0)
+    assert.equal(await page.getByRole('group', { name: '글꼴', exact: true }).count(), 0)
     assert.deepEqual(await page.evaluate(() => window.toolbarEvents), [])
     await page.getByText('더 많은 서식', { exact: true }).click()
     await page.locator('summary').filter({ hasText: '글자색' }).click()

@@ -17,6 +17,9 @@ const vite = await createServer({
 const { HomeHeroSlideshow } = await vite.ssrLoadModule(
   '/src/components/home/HomeHeroSlideshow.tsx',
 )
+const { SampleLanguageContext } = await vite.ssrLoadModule(
+  '/src/features/sample-language/useSampleLanguage.ts',
+)
 after(() => vite.close())
 
 const originalUrl = 'https://example.supabase.co/storage/v1/object/public/site-images/hero/choir.jpg'
@@ -35,7 +38,7 @@ const firstSlide = {
   is_visible: true,
 }
 
-function render(width, slides = [firstSlide], { coarse = false, height = 900 } = {}) {
+function render(width, slides = [firstSlide], { coarse = false, height = 900, language = 'ko' } = {}) {
   const originalWindow = globalThis.window
   globalThis.window = {
     innerWidth: width,
@@ -44,8 +47,14 @@ function render(width, slides = [firstSlide], { coarse = false, height = 900 } =
     matchMedia: query => ({ matches: query === '(pointer: coarse)' || query === '(any-pointer: coarse)' ? coarse : query === '(min-width: 1024px)' ? width >= 1024 : false }),
   }
   try {
+    const languageContext = {
+      enabled: true, isSample: false, language, setLanguage() {},
+      translate: source => source, translateData: data => data, translateHome: data => data,
+      href: href => href,
+    }
     return renderToStaticMarkup(createElement(MemoryRouter, null,
-      createElement(HomeHeroSlideshow, { slides }),
+      createElement(SampleLanguageContext, { value: languageContext },
+        createElement(HomeHeroSlideshow, { slides })),
     ))
   } finally {
     if (originalWindow === undefined) delete globalThis.window
@@ -98,4 +107,91 @@ test('tablet hero keeps an accessible playback control when multiple CMS slides 
   const html = render(1180, [firstSlide, { ...firstSlide, id: 'next', display_order: 2 }], { height: 820 })
   assert.match(html, /Hero 슬라이드 자동 재생 일시정지/)
   assert.match(html, /다음 Hero 슬라이드 보기/)
+})
+
+test('English hero tabs expose indexed English image names', () => {
+  const html = render(390, [firstSlide, { ...firstSlide, id: 'next', display_order: 2 }], { language: 'en' })
+  const names = [...html.matchAll(/<button aria-label="([^"]+)"[^>]*role="tab"/g)].map(match => match[1])
+  assert.deepEqual(names, ['Show hero image 1', 'Show hero image 2'])
+  names.forEach(name => assert.doesNotMatch(name, /[가-힣]/))
+})
+
+test('English hero offers an English pause action while autoplay is running', () => {
+  const html = render(390, [firstSlide, { ...firstSlide, id: 'next', display_order: 2 }], { language: 'en' })
+  assert.match(html, /aria-label="Pause hero slideshow autoplay"/)
+})
+
+test('Korean hero retains indexed image names and the default pause action', () => {
+  const html = render(390, [firstSlide, { ...firstSlide, id: 'next', display_order: 2 }])
+  assert.match(html, /aria-label="1번째 Hero 이미지 보기"/)
+  assert.match(html, /aria-label="2번째 Hero 이미지 보기"/)
+  assert.match(html, /aria-label="Hero 슬라이드 자동 재생 일시정지"/)
+})
+
+test('hero playback and image selection survive language changes without resetting state', { skip: !process.env.SMYC_PLAYWRIGHT_MODULE }, async () => {
+  const entry = `
+    import { createElement, useState } from 'react';
+    import { createRoot } from 'react-dom/client';
+    import { MemoryRouter } from 'react-router';
+    import { HomeHeroSlideshow } from '/src/components/home/HomeHeroSlideshow.tsx';
+    import { SampleLanguageContext } from '/src/features/sample-language/useSampleLanguage.ts';
+    const slides = ${JSON.stringify([ { ...firstSlide, image_url: '' }, { ...firstSlide, id: 'next', image_url: '', display_order: 2 } ])};
+    function Fixture() {
+      const [language, setLanguage] = useState('en');
+      const value = { enabled: true, isSample: false, language, setLanguage,
+        translate: text => text, translateData: data => data, translateHome: data => data, href: href => href };
+      return createElement(MemoryRouter, null, createElement(SampleLanguageContext, { value },
+        createElement('button', { onClick: () => setLanguage(current => current === 'en' ? 'ko' : 'en') }, 'Switch fixture language'),
+        createElement(HomeHeroSlideshow, { slides, intervalMs: 60000 })));
+    }
+    createRoot(document.getElementById('fixture')).render(createElement(Fixture));`
+  const server = await createServer({
+    root: process.cwd(), configFile: false, appType: 'custom', logLevel: 'silent',
+    server: { host: '127.0.0.1', port: 0 },
+    plugins: [{ name: 'offline-hero-controls-language-fixture', configureServer(server) {
+      server.middlewares.use(async (request, response, next) => {
+        if (request.url !== '/__hero-controls-fixture') return next()
+        try {
+          const html = `<!doctype html><html><head><meta charset="utf-8"><title>Hero controls language fixture</title><style>.home-hero-controls button{min-width:44px;min-height:44px}</style></head><body><div id="fixture"></div><script type="module">${entry}</script></body></html>`
+          response.setHeader('Content-Type', 'text/html; charset=utf-8')
+          response.end(await server.transformIndexHtml(request.url, html))
+        } catch (error) { next(error) }
+      })
+    } }],
+  })
+  let browser
+  try {
+    await server.listen()
+    const { chromium } = await import(process.env.SMYC_PLAYWRIGHT_MODULE)
+    browser = await chromium.launch({ headless: true, executablePath: process.env.SMYC_PLAYWRIGHT_EXECUTABLE })
+    const page = await browser.newPage({ viewport: { width: 390, height: 844 } })
+    const errors = []
+    page.on('pageerror', error => errors.push(error.message))
+    const origin = new URL(server.resolvedUrls.local[0]).origin
+    await page.route('**/*', route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort())
+    await page.goto(`${origin}/__hero-controls-fixture`)
+    await page.getByRole('tab').nth(1).click()
+    const playback = page.locator('.home-hero-arrow-group button').first()
+    await playback.click()
+    assert.equal(await playback.getAttribute('aria-label'), 'Resume hero slideshow autoplay')
+    assert.equal(await page.locator('.home-hero-autoplay-progress').getAttribute('data-paused'), 'true')
+    assert.equal(await page.getByRole('tab', { name: 'Show hero image 2', exact: true }).getAttribute('aria-selected'), 'true')
+
+    await page.getByRole('button', { name: 'Switch fixture language', exact: true }).click()
+    assert.equal(await playback.getAttribute('aria-label'), 'Hero 슬라이드 자동 재생 시작')
+    assert.equal(await page.getByRole('tab', { name: '2번째 Hero 이미지 보기', exact: true }).getAttribute('aria-selected'), 'true')
+    assert.equal(await page.locator('.home-hero-autoplay-progress').getAttribute('data-paused'), 'true')
+
+    await page.getByRole('button', { name: 'Switch fixture language', exact: true }).click()
+    await page.getByRole('button', { name: 'Resume hero slideshow autoplay', exact: true }).click()
+    assert.equal(await playback.getAttribute('aria-label'), 'Pause hero slideshow autoplay')
+    assert.equal(await page.locator('.home-hero-autoplay-progress').getAttribute('data-paused'), 'false')
+    assert.equal(await page.getByRole('tab', { name: 'Show hero image 2', exact: true }).getAttribute('aria-selected'), 'true')
+    await page.locator('.home-hero-arrow-group button').last().click()
+    assert.equal(await page.getByRole('tab', { name: 'Show hero image 1', exact: true }).getAttribute('aria-selected'), 'true')
+    assert.deepEqual(errors, [])
+  } finally {
+    await browser?.close()
+    await server.close()
+  }
 })

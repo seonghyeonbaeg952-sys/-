@@ -7,6 +7,7 @@ import type { PointerEvent as ReactPointerEvent } from 'react'
 
 import type { GalleryImage, Poster, VideoItem } from '../../types/content'
 import { HOME_TITLE_LINE_ROLES } from '../../constants/homeTypography'
+import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
 import { EmptyState } from '../common/EmptyState'
 import { TransitionLink } from '../common/TransitionLink'
 import { ImageTile } from './ImageTile'
@@ -81,6 +82,20 @@ const focusCopy: Record<ArchivePlacement, string> = {
   photo: '사진은 함께 있던 빛과 표정을 붙잡습니다.',
   poster: '포스터는 공연 전, 사람들을 같은 시간과 장소로 부릅니다.',
   video: '영상은 마지막 음 이후에도 호흡과 움직임을 이어갑니다.',
+}
+
+// Localize fixed UI messages only when rendering so locale changes cannot
+// alter the animation callbacks, progress or independently edited CMS copy.
+const englishArchiveCopy: Readonly<Record<string, string>> = {
+  '세 기록의 표면과 비율을 준비합니다': 'Preparing the surfaces and proportions of three records',
+  '빛이 종이와 이미지의 경계를 통과합니다': 'Light passes across the edges of paper and image',
+  '사진·포스터·영상의 고유 비율을 맞춥니다': 'Aligning the original proportions of photos, posters and videos',
+  '한 번의 무대가 세 가지 시간으로 남았습니다': 'One performance lives on in three forms',
+  '기록 섹션이 준비되었습니다.': 'The archive section is ready.',
+  '세 기록의 표면을 한 흐름으로 펼칩니다.': 'Unfolding three records in one continuous flow.',
+  '사진은 함께 있던 빛과 표정을 붙잡습니다.': 'Photos preserve the light and expressions we shared.',
+  '포스터는 공연 전, 사람들을 같은 시간과 장소로 부릅니다.': 'Posters bring people to the same time and place before a performance.',
+  '영상은 마지막 음 이후에도 호흡과 움직임을 이어갑니다.': 'Videos carry breath and movement beyond the final note.',
 }
 
 const materialLabels: Record<ArchivePlacement, string> = {
@@ -531,6 +546,9 @@ export function ArchivePageStack({
   videos = [],
 }: ArchivePageStackProps) {
   const { copy: copyText } = useSiteEditor()
+  const { language } = useSampleLanguage()
+  const localizeArchiveCopy = (source: string) =>
+    language === 'en' ? englishArchiveCopy[source] ?? source : source
   const initialReducedMotion = prefersReducedArchiveMotion()
   const desktopTitleLines = desktopTitle
     .split(/\r?\n/)
@@ -983,7 +1001,7 @@ export function ArchivePageStack({
             </div>
           </dl>
           <p aria-live="polite" className="archive__focus-copy">
-            {selectedRecord ? focusCopy[selectedRecord] : ''}
+            {selectedRecord ? localizeArchiveCopy(focusCopy[selectedRecord]) : ''}
           </p>
           <div className="archive__actions">
             <TransitionLink className="archive__secondary" to="/gallery">
@@ -1110,11 +1128,11 @@ export function ArchivePageStack({
             ))}
           </span>
         </div>
-        <span className="archive__footer-copy">{currentStage.copy}</span>
+        <span className="archive__footer-copy">{localizeArchiveCopy(currentStage.copy)}</span>
       </div>
 
       <p aria-live="polite" className="sr-only">
-        {liveText}
+        {localizeArchiveCopy(liveText)}
       </p>
     </section>
   )

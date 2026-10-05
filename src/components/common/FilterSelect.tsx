@@ -113,7 +113,7 @@ export function FilterSelect({ label, value, options, onChange, className = '' }
         <span aria-hidden="true">⌄</span>
       </button>
       {open ? (
-        <div aria-label={`${label} 선택`} className="filter-select__options" data-above={placement.opensAbove || undefined} id={optionsId} role="group" style={{ maxHeight: placement.maxHeight }}>
+        <div aria-label={label} className="filter-select__options" data-above={placement.opensAbove || undefined} id={optionsId} role="group" style={{ maxHeight: placement.maxHeight }}>
           {options.map((option) => (
             <button aria-pressed={value === option.value} key={option.value} onClick={() => { onChange(option.value); close() }} type="button">
               {option.label}<span aria-hidden="true">{value === option.value ? '✓' : ''}</span>

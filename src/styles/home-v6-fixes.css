@@ -1492,14 +1492,18 @@
 }
 
 .home-hero-controls {
+  --home-hero-touch-target: calc(44px / var(--public-home-density, 1));
+  flex-wrap: wrap;
+  max-width: 100%;
   opacity: 0.58;
-  transform: scale(0.96);
-  transform-origin: left center;
+  transform: none;
 }
 
-.home-hero-arrow {
-  width: 44px !important;
-  height: 44px !important;
+/* Preserve physical touch bounds inside the home's density-scaled layout. */
+.home-hero-controls :is(.home-hero-dot, .home-hero-arrow) {
+  flex-shrink: 0;
+  width: var(--home-hero-touch-target) !important;
+  height: var(--home-hero-touch-target) !important;
 }
 
 .home-spotlight-glow,

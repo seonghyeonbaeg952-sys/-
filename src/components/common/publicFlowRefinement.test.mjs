@@ -110,6 +110,47 @@ test('an above-opening landscape enquiry menu stays below the fixed header and r
   }
 })
 
+for (const copy of [
+  { language: 'en', label: 'Inquiry type', selected: 'General enquiry', next: 'Joining enquiry' },
+  { language: 'ko', label: '문의 유형', selected: '일반 문의', next: '입단 문의' },
+]) {
+  test(`${copy.language} filter group reuses the localized label while keyboard selection and Escape keep working`, { skip: !process.env.SMYC_PLAYWRIGHT_MODULE }, async () => {
+    const entry = `import { createElement, useState } from 'react'; import { createRoot } from 'react-dom/client'; import { FilterSelect } from '/src/components/common/FilterSelect.tsx'; function Fixture() { const [value, setValue] = useState('general'); return createElement(FilterSelect, { label: ${JSON.stringify(copy.label)}, value, onChange: setValue, options: [{ value: 'general', label: ${JSON.stringify(copy.selected)} }, { value: 'join', label: ${JSON.stringify(copy.next)} }] }); } createRoot(document.getElementById('fixture')).render(createElement(Fixture));`
+    const server = await createComponentFixture(entry, '<div id="fixture"></div>', '#fixture{margin:80px 24px;width:280px}')
+    let browser
+    try {
+      await server.listen()
+      const { chromium } = await import(process.env.SMYC_PLAYWRIGHT_MODULE)
+      browser = await chromium.launch({ headless: true, executablePath: process.env.SMYC_PLAYWRIGHT_EXECUTABLE })
+      const page = await browser.newPage({ viewport: { width: 390, height: 844 } })
+      const errors = []
+      page.on('pageerror', error => errors.push(error.message))
+      await page.goto(`${server.resolvedUrls.local[0].replace(/\/$/, '')}/__component-fixture`)
+      const trigger = page.getByRole('button', { name: `${copy.label}: ${copy.selected}`, exact: true })
+      await trigger.focus()
+      await trigger.press('Space')
+      const group = page.getByRole('group')
+      assert.equal(await group.getAttribute('aria-label'), copy.label)
+      if (copy.language === 'en') assert.doesNotMatch(await group.getAttribute('aria-label'), /[가-힣]/)
+      assert.equal(await trigger.getAttribute('aria-expanded'), 'true')
+      assert.equal(await page.getByRole('button', { name: copy.selected, exact: true }).evaluate(element => element === document.activeElement), true)
+      await page.keyboard.press('ArrowDown')
+      assert.equal(await page.getByRole('button', { name: copy.next, exact: true }).evaluate(element => element === document.activeElement), true)
+      await page.keyboard.press('Escape')
+      assert.equal(await group.count(), 0)
+      assert.equal(await trigger.evaluate(element => element === document.activeElement), true)
+      await trigger.press('Space')
+      await page.keyboard.press('ArrowDown')
+      await page.keyboard.press('Enter')
+      assert.equal(await page.getByRole('button', { name: `${copy.label}: ${copy.next}`, exact: true }).getAttribute('aria-expanded'), 'false')
+      assert.deepEqual(errors, [])
+    } finally {
+      await browser?.close()
+      await server.close()
+    }
+  })
+}
+
 test('Escape from a pinned desktop flyout restores its opener once without reopening another menu', { skip: !process.env.SMYC_PLAYWRIGHT_MODULE }, async () => {
   const entry = `import {createElement} from 'react'; import {createRoot} from 'react-dom/client'; import {MemoryRouter} from 'react-router'; import {HomeV4SampleHeader} from '/src/components/sample/home-v4/HomeV4SampleHeader.tsx'; createRoot(document.getElementById('fixture')).render(createElement(MemoryRouter, null, createElement(HomeV4SampleHeader, {mode:'production',transparentAtTop:false})));`
   const server = await createComponentFixture(entry, '<div id="fixture" class="public-shell"></div>', '')
