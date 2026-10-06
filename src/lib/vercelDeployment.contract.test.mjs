@@ -49,6 +49,27 @@ function headersFor(path) {
     .flatMap(rule => rule.headers.map(({ key, value }) => [key.toLowerCase(), value])))
 }
 
+test('search exposure remains on hold for pages and site-hosted media', () => {
+  for (const path of ['/', '/spirit', '/about', '/about?section=members', '/join', '/contact', '/admin/login', '/images/brand/smyc-symbol-vector.svg']) {
+    assert.equal(headersFor(path)['x-robots-tag'], 'noindex', path)
+  }
+})
+
+test('Vercel aliases redirect to the owned domain without redirecting the domain or local CMS', () => {
+  const config = JSON.parse(readFileSync(configPath, 'utf8'))
+  const aliases = ['motet-homepage.vercel.app', 'motet-homepage-peach10.vercel.app', 'motet-homepage-git-main-peach10.vercel.app', 'motet-homepage-b3gn7s8rm-peach10.vercel.app']
+  const redirect = config.redirects?.find(rule => rule.has?.some(condition =>
+    condition.type === 'host' && aliases.every(host => new RegExp(`^${condition.value}$`).test(host))))
+  assert.ok(redirect, 'Every Vercel alias must resolve to the owned domain')
+  assert.equal(redirect.source, '/:path*')
+  assert.equal(redirect.destination, 'https://seoulmotetyouthchoir.com/:path*')
+  assert.equal(redirect.permanent, true)
+  const hostCondition = redirect.has.find(condition => condition.type === 'host')
+  for (const host of ['seoulmotetyouthchoir.com', 'www.seoulmotetyouthchoir.com', '127.0.0.1', 'localhost', 'motet-homepage.vercel.app.example.com']) {
+    assert.equal(new RegExp(`^${hostCondition.value}$`).test(host), false, host)
+  }
+})
+
 test('all entry routes restrict framing to the same origin without disabling CMS previews', () => {
   for (const path of ['/', '/spirit', '/admin/editor', '/admin/editor-english', '/assets/app.js']) {
     const headers = headersFor(path)
@@ -74,12 +95,13 @@ test('the actual Vite server delivers the security policy and maps keep an origi
   const vite = await createServer({ logLevel: 'silent', server: { host: '127.0.0.1', port: 0, strictPort: false } })
   try {
     await vite.listen()
-    for (const path of ['admin/login', 'spirit', 'contact']) {
+    for (const path of ['', 'admin/login', 'spirit', 'about?section=members', 'join', 'contact']) {
       const response = await fetch(new URL(path, vite.resolvedUrls.local[0]))
       assert.equal(response.status, 200)
       assert.equal(response.headers.get('x-frame-options'), 'SAMEORIGIN')
       assert.equal(response.headers.get('content-security-policy'), "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'")
       assert.equal(response.headers.get('x-content-type-options'), 'nosniff')
+      assert.equal(response.headers.get('x-robots-tag'), 'noindex', path)
     }
     const { MapPreview } = await vite.ssrLoadModule('/src/components/common/MapPreview.tsx')
     const html = renderToStaticMarkup(createElement(MapPreview, { embedUrl: 'https://map.naver.com/p/embed/example', placeName: '검증 장소' }))

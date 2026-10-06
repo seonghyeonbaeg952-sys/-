@@ -63,6 +63,8 @@ pnpm check:supabase-live
 
 ### Vercel 준비
 
+- **2026-10-06 검색 노출 보류:** 운영 배포와 주소 직접 접속은 유지하지만, 사용자가 검색 노출을 별도로 승인할 때까지 모든 응답에 `X-Robots-Tag: noindex`를 적용합니다. Search Console 등록·색인 요청·사이트맵 제출은 하지 않습니다. `noindex`는 비밀번호나 접근 제어가 아니며, 검색엔진이 다시 수집해야 반영됩니다. 검색봇이 이 헤더를 읽을 수 있도록 `robots.txt`로 수집을 차단하지 않습니다.
+- 운영 방문 주소는 **https://seoulmotetyouthchoir.com**으로 통일합니다. `www`는 기존 프로젝트 도메인 설정에서, `*.vercel.app`은 `vercel.json`의 호스트 조건에서 본 도메인으로 이동합니다. Vercel 기본 주소의 기존 SSO 보호는 유지하고, 로컬 편집 서버는 영향을 받지 않습니다.
 - 런타임은 `package.json`의 Node **24.x**, 패키지 매니저는 **pnpm 10.32.1**로 지정합니다. `vercel.json`에는 Vite preset, 버전 고정·frozen-lockfile 설치, `pnpm build`, `dist`가 명시되어 있습니다. 별도 Corepack 환경변수 없이 설치 명령에서 지정한 pnpm 버전을 사용합니다.
 - **2026-10-06 사용자 승인으로 운영 배포와 자동 배포를 활성화**합니다. `git.deploymentEnabled`는 `main: true`, `**: false`로 설정해 `main` 커밋·푸시만 자동 배포합니다. `**`는 `codex/` 같은 경로형 이름까지 포함해 다른 브랜치와 복구용 브랜치의 자동 배포를 차단합니다.
 - 최신 운영 코드는 **`main`**에 반영되며, **`codex/recover-homepage-work`**는 복구용으로 보존합니다. GitHub 기본 브랜치와 Vercel의 Production Branch는 별도 설정이므로 Vercel Production Branch가 실제로 `main`인지 확인합니다. 자동 배포는 Git에 커밋·푸시된 변경만 반영하며, 미커밋 파일을 자동 저장하거나 커밋하지 않습니다.
