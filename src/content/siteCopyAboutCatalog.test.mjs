@@ -27,8 +27,8 @@ const props = {
 // Captured from the original components before connecting any editor consumers.
 const approvedMarkupHashes = {
   about: '84bf70717f7e9875902f9e6167e165123ce2ad67ab0a963e23779c1e873e0a97', conductor: '6f214445187ff3db0bf8ef71b9449e901ef53e63d0b1b3d59fd65fbda5ac665e',
-  // The compact member directory no longer renders the redundant status legend.
-  accompanist: '1b4451b43221301500ed45ce3737a0da4af8166e58063ed01311ab948b0ff46b', members: '4f915be884981fab07f782f4ba6e50efdabb28c81750b1562bc3967361fdfa2a',
+  // Members now start with the current roster and offer only current/former choices.
+  accompanist: '1b4451b43221301500ed45ce3737a0da4af8166e58063ed01311ab948b0ff46b', members: 'f2306c1220f1c2ce5ee4bb7ca0befdf0855cd79280608c1b74aafcc86c24e436',
   history: '49dd95e8e8601b19c93aa4cea85853572b74afff47b6e39cc945800988ac9e49', spirit: '86009e4bedec6a759ec050ac401e09ee02e9b82e9a5ec61029790e352fe6a94d',
 }
 function render(page, { copy = (_page, _key, fallback) => fallback, values = props[page] } = {}) {
@@ -84,12 +84,12 @@ test('copy overrides never replace domain CMS originals, private member names or
 })
 
 test('static array labels and disclosure actions are editable without changing their functional values', () => {
-  for (const [page, original] of [['about', '음악적 역량과 예술성'], ['about', '정기연주회'], ['members', '전체 단원'], ['history', '모두 접기'], ['spirit', '합창 기본기'], ['spirit', '조율하기'], ['spirit', '서울모테트합창단의 시작']]) {
+  for (const [page, original] of [['about', '음악적 역량과 예술성'], ['about', '정기연주회'], ['members', '현단원'], ['history', '모두 접기'], ['spirit', '합창 기본기'], ['spirit', '조율하기'], ['spirit', '서울모테트합창단의 시작']]) {
     const html = render(page, { copy: (_page, _key, fallback) => fallback === original ? 'ARRAY-OVERRIDE' : fallback })
     assert.ok(html.includes('ARRAY-OVERRIDE'), `${page}: ${original}`)
   }
-  const members = render('members', { copy: (_page, _key, fallback) => fallback === '전체 단원' ? '현재 활동' : fallback })
-  assert.match(members, /aria-pressed="true"[^>]*>현재 활동<\/button>/)
+  const members = render('members', { copy: (_page, _key, fallback) => fallback === '현단원' ? 'CURRENT-OVERRIDE' : fallback })
+  assert.match(members, /aria-pressed="true"[^>]*>CURRENT-OVERRIDE<\/button>/)
 })
 
 test('member classification headings can change while the safe display name and grouping remain intact', () => {

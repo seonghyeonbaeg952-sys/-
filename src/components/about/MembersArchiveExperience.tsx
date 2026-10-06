@@ -24,10 +24,11 @@ interface FilterOption<TValue extends string> {
   value: TValue
 }
 
-const statusFilters: Array<FilterOption<MemberArchiveStatusFilter>> = [
-  { label: '전체 단원', value: 'all' },
-  { label: '현재 활동', value: 'active' },
-  { label: '이전 활동', value: 'alumni' },
+type PublicMemberStatusFilter = Exclude<MemberArchiveStatusFilter, 'all'>
+
+const statusFilters: Array<FilterOption<PublicMemberStatusFilter>> = [
+  { label: '현단원', value: 'active' },
+  { label: '역대단원', value: 'alumni' },
 ]
 
 const partFilters: Array<FilterOption<MemberArchivePartFilter>> = [
@@ -40,28 +41,45 @@ const partFilters: Array<FilterOption<MemberArchivePartFilter>> = [
   { label: '반주자', value: 'accompanist' },
 ]
 
+function MemberNameList({
+  members,
+  alumni = false,
+}: Pick<MembersArchiveExperienceProps, 'members'> & { alumni?: boolean }) {
+  const { language } = useSampleLanguage()
+
+  return (
+    <ul className={`members-archive__member-list${alumni ? ' members-archive__member-list--alumni' : ''}`}>
+      {members.map((member) => (
+        <li className="members-archive__member" key={member.id}>
+          <div className="members-archive__member-copy">
+            <strong>{getPublicMemberName(member, language)}</strong>
+          </div>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
 export function MembersArchiveExperience({
   headingLevel = 'h1',
   members,
 }: MembersArchiveExperienceProps) {
-  const { copy: copyText } = useSiteEditor()
   const { copy: editorCopy } = useSiteEditor()
-  const { language } = useSampleLanguage()
   const [statusFilter, setStatusFilter] =
-    useState<MemberArchiveStatusFilter>('all')
+    useState<PublicMemberStatusFilter>('active')
   const [partFilter, setPartFilter] =
     useState<MemberArchivePartFilter>('all')
   const filteredMembers = useMemo(
     () =>
-      filterPublicMembersForArchive(members, statusFilter, partFilter),
+      filterPublicMembersForArchive(members, statusFilter === 'alumni' ? 'all' : 'active', statusFilter === 'alumni' ? 'all' : partFilter),
     [members, partFilter, statusFilter],
   )
   const visibleGroups = useMemo(
     () =>
-      groupPublicMembersForArchive(filteredMembers).filter(
+      statusFilter === 'alumni' ? [] : groupPublicMembersForArchive(filteredMembers).filter(
         (group) => group.members.length > 0,
       ),
-    [filteredMembers],
+    [filteredMembers, statusFilter],
   )
   const Heading = headingLevel
   const ArchiveHeading = headingLevel === 'h1' ? 'h2' : 'h3'
@@ -124,12 +142,12 @@ export function MembersArchiveExperience({
                     onClick={() => setStatusFilter(filter.value)}
                     type="button"
                   >
-                    {editorCopy('members', `members.status.${filter.value}`, filter.label)}
+                    {editorCopy('members', `members.directoryStatus.${filter.value}`, filter.label)}
                   </button>
                 ))}
               </div>
 
-              <div
+              {statusFilter === 'active' && <div
                 aria-label={editorCopy("members", "members.membersArchiveExperience.ariaLabel10", "파트 필터")}
                 className="members-archive__part-filters"
                 role="group"
@@ -145,14 +163,16 @@ export function MembersArchiveExperience({
                     {editorCopy('members', `members.part.${filter.value}`, filter.label)}
                   </button>
                 ))}
-              </div>
+              </div>}
             </div>
           </div>
 
-          <p aria-live="polite" className="members-archive__sr-only"><SiteCopy page="members" id="members.membersArchiveExperience.text11" fallback={"조건에 맞는 공개 단원 "} />{filteredMembers.length}{copyText("members", "members.fixed.MembersArchiveExperience.9f96b8e22c", "명")}</p>
+          <p aria-live="polite" className="members-archive__sr-only"><SiteCopy page="members" id="members.membersArchiveExperience.text11" fallback={"조건에 맞는 공개 단원 "} />{filteredMembers.length}{editorCopy("members", "members.fixed.MembersArchiveExperience.9f96b8e22c", "명")}</p>
 
-          {visibleGroups.length > 0 ? (
-            <div className={statusFilter === 'alumni' ? 'members-archive__groups members-archive__groups--alumni' : 'members-archive__groups'}>
+          {filteredMembers.length > 0 ? statusFilter === 'alumni' ? (
+            <MemberNameList alumni members={filteredMembers} />
+          ) : (
+            <div className="members-archive__groups">
               {visibleGroups.map((group) => (
                 <section
                   aria-labelledby={`member-group-${group.key}`}
@@ -165,31 +185,24 @@ export function MembersArchiveExperience({
                   >
                     {editorCopy('members', `members.groupHeading.${group.key}`, group.label)}
                   </h3>
-                  <ul className={statusFilter === 'alumni' ? 'members-archive__member-list members-archive__member-list--alumni' : 'members-archive__member-list'}>
-                    {group.members.map((member) => (
-                      <li
-                        className="members-archive__member"
-                        key={member.id}
-                      >
-                        <div className="members-archive__member-copy">
-                          <strong>{getPublicMemberName(member, language)}</strong>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+                  <MemberNameList members={group.members} />
                 </section>
               ))}
             </div>
           ) : (
             <div className="members-archive__empty" role="status">
               <strong><SiteCopy page="members" id="members.membersArchiveExperience.text12" fallback={"조건에 맞는 공개 단원이 없습니다."} /></strong>
-              <p><SiteCopy page="members" id="members.membersArchiveExperience.text13" fallback={"활동 상태나 파트 필터를 바꾸어 다시 살펴보세요."} /></p>
+              <p>{statusFilter === 'alumni'
+                ? <SiteCopy page="members" id="members.alumni.emptyHint" fallback="공개된 단원이 등록되면 이곳에 표시됩니다." />
+                : <SiteCopy page="members" id="members.membersArchiveExperience.text13" fallback="활동 상태나 파트 필터를 바꾸어 다시 살펴보세요." />}</p>
             </div>
           )}
 
           <div className="members-archive__directory-footer">
             <p><SiteCopy page="members" id="members.membersArchiveExperience.text14" fallback={"모든 활동 시기와 파트가 한 아카이브 안에서 이어집니다."} /></p>
-            <p><SiteCopy page="members" id="members.membersArchiveExperience.text15" fallback={"가나다순 · PART INDEX"} /></p>
+            <p>{statusFilter === 'alumni'
+              ? <SiteCopy page="members" id="members.alumni.orderLabel" fallback="가나다순" />
+              : <SiteCopy page="members" id="members.membersArchiveExperience.text15" fallback="가나다순 · PART INDEX" />}</p>
           </div>
         </div>
       </div>

@@ -31,7 +31,7 @@ test('단원 전용 화면은 통계 카드 없이 피그마 아카이브 컴포
   assert.doesNotMatch(page, /member-stat-card/)
 })
 
-test('아카이브는 현재·이전 상태와 파트를 각각 조작할 수 있다', () => {
+test('아카이브는 현단원·역대단원만 선택하고 현단원부터 보여준다', () => {
   const component = renderToStaticMarkup(React.createElement(MembersArchiveExperience, { members: [{
     id: 'fixture', display_name: '김○', part: 'soprano', group_type: 'middle', member_status: 'active', display_order: 0,
     name: 'PRIVATE FULL NAME', photo_url: 'https://private.invalid/child-photo.png',
@@ -41,15 +41,16 @@ test('아카이브는 현재·이전 상태와 파트를 각각 조작할 수 �
     '함께한 모든 이름이',
     '지금의 합창단을 만듭니다.',
     '단원 아카이브',
-    '전체 단원',
-    '현재 활동',
-    '이전 활동',
+    '현단원',
+    '역대단원',
   ]) {
     assert.ok(component.includes(copy), `missing approved copy: ${copy}`)
   }
 
   assert.match(component, /aria-label="활동 상태 필터"/)
   assert.match(component, /aria-label="파트 필터"/)
+  assert.doesNotMatch(component, />전체 단원<|>현재 활동<|>이전 활동</)
+  assert.equal(component.match(/members-archive__filter-button--status/g)?.length, 2)
   assert.equal(component.match(/aria-pressed="true"/g)?.length, 2)
   assert.doesNotMatch(component, /<img\b|PRIVATE FULL NAME|private\.invalid/)
 })
@@ -77,8 +78,9 @@ test('명단은 분류 제목을 유지하고 각 단원은 이름만 표시한�
   assert.match(html, /id="member-group-staff"/)
   assert.doesNotMatch(html, /BASS · STAFF/)
   const rows = [...html.matchAll(/<li\b[^>]*>(.*?)<\/li>/gs)].map(match => match[1])
-  assert.equal(rows.length, 4)
-  for (const name of ['베이스 예시', '스태프 예시', '반주자 예시', '파트 없는 예시']) {
+  assert.equal(rows.length, 3)
+  assert.doesNotMatch(html, /반주자 예시/)
+  for (const name of ['베이스 예시', '스태프 예시', '파트 없는 예시']) {
     assert.equal(rows.find(row => row.includes(name)), `<div class="members-archive__member-copy"><strong>${name}</strong></div>`)
   }
   assert.doesNotMatch(html, /members-archive__status(?:\s|")|members-archive__current-key/)

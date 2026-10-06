@@ -280,10 +280,6 @@
   min-width: 0;
 }
 
-.members-archive__groups.members-archive__groups--alumni {
-  grid-template-columns: minmax(0, 1fr);
-}
-
 .members-archive__group-title {
   border-bottom: 1px solid var(--members-line);
   color: var(--members-burgundy);
@@ -301,10 +297,6 @@
   list-style: none;
   margin: 0;
   padding: 0;
-}
-
-.members-archive__member-list--alumni {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .members-archive__member {
@@ -484,10 +476,6 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
-  .members-archive__member-list--alumni {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-
   .members-archive__directory-footer {
     align-items: center;
     flex-direction: row;
@@ -571,9 +559,17 @@
     column-gap: 16px;
   }
 
-  .members-archive__member-list--alumni {
-    grid-template-columns: repeat(8, minmax(0, 1fr));
-  }
+}
+
+.members-archive__member-list--alumni {
+  --members-alumni-column-width: 4.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--members-alumni-column-width)), 1fr));
+  width: 100%;
+  margin: 18px 0 12px;
+}
+
+.members-archive__member-list--alumni:lang(en) {
+  --members-alumni-column-width: 8rem;
 }
 
 @media (max-width: 767px) {
@@ -588,7 +584,7 @@
   }
 
   .members-archive__status-filters .members-archive__filter-button {
-    flex: 1 1 calc(33.333% - 8px);
+    flex: 1 1 calc(50% - 8px);
     min-width: 0;
     padding-inline: 10px;
   }
