@@ -114,6 +114,12 @@ const memberNameCollator = new Intl.Collator('ko-KR', {
 })
 
 function comparePublicMembers(left: PublicMemberRow, right: PublicMemberRow) {
+  const byOrder = left.display_order - right.display_order
+
+  if (byOrder !== 0) {
+    return byOrder
+  }
+
   const byName = memberNameCollator.compare(
     getPublicMemberName(left),
     getPublicMemberName(right),
@@ -123,9 +129,7 @@ function comparePublicMembers(left: PublicMemberRow, right: PublicMemberRow) {
     return byName
   }
 
-  const byOrder = left.display_order - right.display_order
-
-  return byOrder !== 0 ? byOrder : left.id.localeCompare(right.id)
+  return left.id.localeCompare(right.id)
 }
 
 export function filterPublicMembersForArchive(

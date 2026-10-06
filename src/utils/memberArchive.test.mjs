@@ -41,8 +41,37 @@ test('전체 상태는 현재 활동 단원과 이전 활동 단원을 한 아�
 
   assert.deepEqual(
     result.map((member) => member.id),
-    ['active-soprano', 'former-soprano', 'active-staff'],
+    ['active-staff', 'former-soprano', 'active-soprano'],
   )
+})
+
+const orderedMembers = [
+  { id: 'late-alphabetically-first', display_name: '가늦은이름', display_name_en: 'First English', display_order: 10, part: 'tenor', group_type: 'alumni', member_status: 'alumni' },
+  { id: 'tie-na', display_name: '나성주', display_name_en: 'Second English', display_order: 1, part: 'tenor', group_type: 'university', member_status: 'active' },
+  { id: 'tie-kim-ju', display_name: '김주훈', display_name_en: 'Third English', display_order: 1, part: 'tenor', group_type: 'staff', member_status: 'active' },
+  { id: 'first-by-cms', display_name: '이준식', display_name_en: 'Last English', display_order: 0, part: 'tenor', group_type: 'staff', member_status: 'active' },
+  { id: 'tie-kim-jun', display_name: '김준경', display_name_en: 'Fourth English', display_order: 1, part: 'tenor', group_type: 'university', member_status: 'active' },
+]
+
+test('CMS 표시 순서를 먼저 적용하고 같은 숫자끼리 공개 한국어 이름의 가나다순으로 정렬한다', () => {
+  const originalIds = orderedMembers.map(member => member.id)
+  assert.deepEqual(memberArchive.filterPublicMembersForArchive(orderedMembers, 'all', 'all').map(member => member.id),
+    ['first-by-cms', 'tie-kim-ju', 'tie-kim-jun', 'tie-na', 'late-alphabetically-first'])
+  assert.deepEqual(orderedMembers.map(member => member.id), originalIds, 'sorting must not mutate CMS data')
+})
+
+test('파트별 현단원 명단도 CMS 순서와 가나다순 동률 기준을 유지한다', () => {
+  const current = memberArchive.filterPublicMembersForArchive(orderedMembers, 'active', 'tenor')
+  assert.deepEqual(memberArchive.groupPublicMembersForArchive(current).find(group => group.key === 'tenor').members.map(member => member.id),
+    ['first-by-cms', 'tie-kim-ju', 'tie-kim-jun', 'tie-na'])
+})
+
+test('순서와 보호된 공개 이름이 같은 단원은 원본 이름 대신 ID로 안정적으로 정렬한다', () => {
+  const rows = [
+    { ...orderedMembers[0], id: 'masked-b', display_name: '김○', display_order: 0, name: '가PRIVATE', display_name_en: 'A masked' },
+    { ...orderedMembers[0], id: 'masked-a', display_name: '김○', display_order: 0, name: '하PRIVATE', display_name_en: 'Z masked' },
+  ]
+  assert.deepEqual(memberArchive.filterPublicMembersForArchive(rows, 'all', 'all').map(member => member.id), ['masked-a', 'masked-b'])
 })
 
 test('상태와 파트 필터를 독립적으로 조합한다', () => {

@@ -200,9 +200,6 @@ export function MembersArchiveExperience({
 
           <div className="members-archive__directory-footer">
             <p><SiteCopy page="members" id="members.membersArchiveExperience.text14" fallback={"모든 활동 시기와 파트가 한 아카이브 안에서 이어집니다."} /></p>
-            <p>{statusFilter === 'alumni'
-              ? <SiteCopy page="members" id="members.alumni.orderLabel" fallback="가나다순" />
-              : <SiteCopy page="members" id="members.membersArchiveExperience.text15" fallback="가나다순 · PART INDEX" />}</p>
           </div>
         </div>
       </div>

@@ -356,12 +356,6 @@
   margin: 0;
 }
 
-.members-archive__directory-footer p:last-child {
-  color: var(--members-burgundy);
-  font-weight: 700;
-  letter-spacing: 0.12em;
-}
-
 .members-archive__sr-only {
   clip: rect(0, 0, 0, 0);
   clip-path: inset(50%);

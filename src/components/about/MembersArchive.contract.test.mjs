@@ -99,3 +99,10 @@ test('그룹·파트 미표시 단원도 이름만 표시하고 분류에서 누
   assert.match(html, /id="member-group-soprano"/)
   assert.match(html, /id="member-group-members"/)
 })
+
+test('명단 오른쪽 아래의 정렬 안내 문구는 표시하지 않는다', () => {
+  const html = renderToStaticMarkup(React.createElement(MembersArchiveExperience, { members: [] }))
+  const footer = html.match(/<div class="members-archive__directory-footer">(.*?)<\/div>/s)?.[1]
+  assert.ok(footer, 'the existing archive closing note should remain')
+  assert.doesNotMatch(footer, /가나다순|PART INDEX/)
+})
