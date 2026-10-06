@@ -5,10 +5,8 @@ import { useSearchParams } from 'react-router'
 import { AnimatedSectionTabs } from '../../components/common/AnimatedSectionTabs'
 import { Container } from '../../components/common/Container'
 import { ErrorState } from '../../components/common/ErrorState'
-import { MapPreview } from '../../components/common/MapPreview'
 import { PageHero } from '../../components/common/PageHero'
 import { SeoHead } from '../../components/common/SeoHead'
-import { SectionTitle } from '../../components/common/SectionTitle'
 import { AccompanistProfiles } from '../../components/about/AccompanistProfiles'
 import { AboutOverviewExperience } from '../../components/about/AboutOverviewExperience'
 import { ConductorProfileDocument } from '../../components/about/ConductorProfileDocument'
@@ -17,7 +15,6 @@ import { MembersArchiveExperience } from '../../components/about/MembersArchiveE
 import {
   legacyAboutSections,
   legacyChoirIntro,
-  legacyLocationSeed,
 } from '../../constants/legacyContent'
 import { useAboutData } from '../../hooks/usePublicData'
 import {
@@ -53,7 +50,6 @@ export function AboutPage() {
     accompanists,
     conductor,
     history,
-    location,
     members,
     siteSettings,
   } = aboutData.data
@@ -61,9 +57,6 @@ export function AboutPage() {
   const aboutIntroSections = allAboutSections.filter(
     (section) => !section.section_key.startsWith('spirit_') && !section.section_key.startsWith('home_') && !section.section_key.startsWith('join_') && !section.section_key.startsWith('footer_'),
   )
-  const locationAddress =
-    location?.address ||
-    `${legacyLocationSeed.address} ${legacyLocationSeed.detail_address ?? ''}`.trim()
   const introSummary =
     siteSettings?.about_summary ||
     aboutIntroSections[0]?.content ||
@@ -80,7 +73,6 @@ export function AboutPage() {
   const shouldShowDedicatedAccompanists = activeSection === 'accompanist'
   const shouldShowDedicatedMembers = activeSection === 'members'
   const shouldShowDedicatedHistory = activeSection === 'history'
-  const shouldShowOtherDetails = shouldShowHistory
 
   return (
     <>
@@ -136,33 +128,12 @@ export function AboutPage() {
         />
       ) : null}
 
-      {shouldShowOtherDetails ? (
-        <>
-          {shouldShowHistory ? (
-            <HistoryCueSheetExperience
-              compact={shouldShowAll}
-              history={history}
-              shouldUseLegacyFallback={Boolean(aboutData.error)}
-            />
-          ) : null}
-
-          {shouldShowAll ? (
-            <Container className="page-main">
-              <section>
-                <SectionTitle eyebrow={copyText("about", "about.fixed.AboutPage.ec4ecc14f8", "LOCATION")} title={copyText("about", "about.fixed.AboutPage.46d7c6aaf1", "오시는 길")} />
-                <div className="mt-8">
-                  <MapPreview
-                    address={locationAddress}
-                    embedUrl={location?.map_embed_url}
-                    kakaoMapUrl={location?.kakao_map_url}
-                    naverMapUrl={location?.naver_map_url}
-                    placeName={location?.place_name || '서울모테트음악재단'}
-                  />
-                </div>
-              </section>
-            </Container>
-          ) : null}
-        </>
+      {shouldShowHistory ? (
+        <HistoryCueSheetExperience
+          compact={shouldShowAll}
+          history={history}
+          shouldUseLegacyFallback={Boolean(aboutData.error)}
+        />
       ) : null}
     </>
   )

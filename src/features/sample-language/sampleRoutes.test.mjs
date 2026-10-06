@@ -19,6 +19,7 @@ const model = await vite.ssrLoadModule('/src/features/sample-language/sampleLang
 const routes = [
   ['/', 'pages/sample/HomeV4SamplePage.tsx', 'HomeV4ProductionPage'],
   ['/spirit', 'pages/public/SpiritPage.tsx', 'SpiritPage'],
+  ['/about?section=all', 'pages/public/AboutPage.tsx', 'AboutPage'],
   ['/about?section=overview', 'pages/public/AboutPage.tsx', 'AboutPage'],
   ['/about?section=conductor', 'pages/public/AboutPage.tsx', 'AboutPage'],
   ['/about?section=accompanist', 'pages/public/AboutPage.tsx', 'AboutPage'],
@@ -91,3 +92,14 @@ test('original English About route translates navigation without moving images t
   assert.doesNotMatch(english, /\/sample\/about/)
   assert.deepEqual(objectSignatures(english), objectSignatures(korean))
 })
+
+for (const width of [390, 1440]) {
+  for (const language of ['ko', 'en']) test(`${width}px ${language} About all keeps choir information without a duplicate location section`, () => {
+    const html = render('/about?section=all', components.get('AboutPage'), width, language, false)
+    assert.match(html, /href="\/about\?section=conductor/)
+    assert.match(html, /href="\/about\?section=members/)
+    assert.match(html, /href="\/about\?section=history/)
+    assert.equal(/href="https:\/\/(?:map\.naver\.com|map\.kakao\.com)\//.test(html), false, 'About all must not show external directions links')
+    assert.equal(/<h[23][^>]*>(?:오시는 길|Location)<\/h[23]>/.test(html), false, 'About all must not show a location heading')
+  })
+}

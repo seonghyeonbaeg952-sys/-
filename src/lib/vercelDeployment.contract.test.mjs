@@ -23,9 +23,10 @@ test('pinned runtime and frozen installer use one supported package manager vers
   assert.equal(config.installCommand, 'npx --yes pnpm@10.32.1 install --frozen-lockfile')
 })
 
-test('automatic Git deployment remains disabled while preparing a link-only project', () => {
+test('only main triggers automatic deployment after production release approval', () => {
   const config = JSON.parse(readFileSync(configPath, 'utf8'))
-  assert.equal(config.git?.deploymentEnabled, false)
+  assert.equal(config.git?.deploymentEnabled?.main, true)
+  assert.equal(config.git?.deploymentEnabled?.['**'], false)
 })
 
 test('Vercel serves the Vite entry point for public, sample, and admin deep links', () => {
