@@ -7,9 +7,6 @@ import { useSampleLanguage } from '../../features/sample-language/useSampleLangu
 import type { PublicMemberRow } from '../../types/cms'
 import {
   filterPublicMembersForArchive,
-  getMemberGroupLabel,
-  getMemberPartLabel,
-  getMemberStatus,
   getPublicMemberName,
   groupPublicMembersForArchive,
   type MemberArchivePartFilter,
@@ -111,8 +108,6 @@ export function MembersArchiveExperience({
               <p className="members-archive__directory-eyebrow"><SiteCopy page="members" id="members.membersArchiveExperience.english7" fallback={"ALL MEMBERS / ONE ARCHIVE"} /></p>
               <ArchiveHeading className="members-archive__directory-title"><SiteCopy page="members" id="members.membersArchiveExperience.text6" fallback={"단원 아카이브"} /></ArchiveHeading>
               <p><SiteCopy page="members" id="members.membersArchiveExperience.text7" fallback={"현재 활동 중인 단원과 이전 활동 단원을 한 명단 안에서 살펴봅니다."} /></p>
-              <p className="members-archive__current-key">
-                <span aria-hidden="true" /><SiteCopy page="members" id="members.membersArchiveExperience.text8" fallback={"현재 활동 단원 포함"} /></p>
             </div>
 
             <div className="members-archive__filters">
@@ -171,42 +166,16 @@ export function MembersArchiveExperience({
                     {editorCopy('members', `members.groupHeading.${group.key}`, group.label)}
                   </h3>
                   <ul className="members-archive__member-list">
-                    {group.members.map((member) => {
-                      const isActive = getMemberStatus(member) === 'active'
-                      const isStaff = member.group_type === 'staff'
-                      const groupLabel = member.group_type === 'hidden'
-                        ? null
-                        : isStaff
-                          ? editorCopy('members', 'members.group.staffDisplay', 'STAFF')
-                          : editorCopy('members', `members.group.${member.group_type}`, getMemberGroupLabel(member.group_type))
-                      const partLabel = member.part === 'hidden'
-                        ? null
-                        : editorCopy('members', `members.part.${member.part}`, getMemberPartLabel(member.part).toUpperCase())
-
-                      return (
-                        <li
-                          className="members-archive__member"
-                          key={member.id}
-                        >
-                          <div className="members-archive__member-copy">
-                            <strong>{getPublicMemberName(member, language)}</strong>
-                            {groupLabel || partLabel ? (
-                              <span>{[groupLabel, partLabel].filter(Boolean).join(' · ')}</span>
-                            ) : null}
-                          </div>
-                          <span
-                            className={
-                              isActive
-                                ? 'members-archive__status is-active'
-                                : 'members-archive__status'
-                            }
-                          >
-                            {isActive ? <i aria-hidden="true" /> : null}
-                            {isActive ? editorCopy('members', 'members.badge.active', '현재 활동') : editorCopy('members', 'members.badge.alumni', '함께한 단원')}
-                          </span>
-                        </li>
-                      )
-                    })}
+                    {group.members.map((member) => (
+                      <li
+                        className="members-archive__member"
+                        key={member.id}
+                      >
+                        <div className="members-archive__member-copy">
+                          <strong>{getPublicMemberName(member, language)}</strong>
+                        </div>
+                      </li>
+                    ))}
                   </ul>
                 </section>
               ))}

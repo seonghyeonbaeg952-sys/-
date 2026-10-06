@@ -27,8 +27,8 @@ const props = {
 // Captured from the original components before connecting any editor consumers.
 const approvedMarkupHashes = {
   about: '84bf70717f7e9875902f9e6167e165123ce2ad67ab0a963e23779c1e873e0a97', conductor: '6f214445187ff3db0bf8ef71b9449e901ef53e63d0b1b3d59fd65fbda5ac665e',
-  // Member markup includes the requested accompanist filter; other page baselines are unchanged.
-  accompanist: '1b4451b43221301500ed45ce3737a0da4af8166e58063ed01311ab948b0ff46b', members: '6604feaefc1012704d706c5bed7f613c08f0e549b602eb0650249bbcd7809fdb',
+  // The compact member directory no longer renders the redundant status legend.
+  accompanist: '1b4451b43221301500ed45ce3737a0da4af8166e58063ed01311ab948b0ff46b', members: '4f915be884981fab07f782f4ba6e50efdabb28c81750b1562bc3967361fdfa2a',
   history: '49dd95e8e8601b19c93aa4cea85853572b74afff47b6e39cc945800988ac9e49', spirit: '86009e4bedec6a759ec050ac401e09ee02e9b82e9a5ec61029790e352fe6a94d',
 }
 function render(page, { copy = (_page, _key, fallback) => fallback, values = props[page] } = {}) {
@@ -92,9 +92,9 @@ test('static array labels and disclosure actions are editable without changing t
   assert.match(members, /aria-pressed="true"[^>]*>현재 활동<\/button>/)
 })
 
-test('member metadata labels can change while the safe display name and grouping remain intact', () => {
+test('member classification headings can change while the safe display name and grouping remain intact', () => {
   const html = render('members', { values: { members: [{ id: 'safe-fixture', display_name: '이○', part: 'soprano', group_type: 'middle', member_status: 'active', display_order: 0, name: 'PRIVATE FULL NAME' }] },
-    copy: (_page, _key, fallback) => fallback === '중등부' ? 'GROUP-OVERRIDE' : fallback })
+    copy: (_page, key, fallback) => key === 'members.groupHeading.soprano' ? 'GROUP-OVERRIDE' : fallback })
   assert.ok(html.includes('GROUP-OVERRIDE'))
   assert.ok(html.includes('이○'))
   assert.match(html, /id="member-group-soprano"/)

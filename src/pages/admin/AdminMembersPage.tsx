@@ -42,14 +42,14 @@ const displayOptions = [
 const fields = [
   { name: 'name', label: '한국어 이름', type: 'text' },
   { name: 'name_en', label: '영문 이름', type: 'text', description: '공식 영문 표기를 확인한 뒤 입력하세요. 공개 화면에는 한국어 이름과 동일한 이름 공개 방식이 적용됩니다.' },
-  { name: 'part', label: '파트', type: 'select', options: partOptions, required: true, description: '미표시를 선택하면 공개 명단에서 파트만 숨깁니다. 이름 공개 방식과 단원 공개 여부는 그대로 유지됩니다. 스태프도 선택한 파트가 함께 표시됩니다.' },
+  { name: 'part', label: '파트', type: 'select', options: partOptions, required: true, description: '스태프도 지정한 성부·반주 파트 명단에 함께 표시됩니다. 미표시·기타 파트의 스태프만 스태프 분류에 남습니다. 이름 공개 방식과 단원 공개 여부는 유지됩니다.' },
   {
     name: 'group_type',
     label: '그룹',
     type: 'select',
     options: groupOptions,
     required: true,
-    description: '미표시를 선택하면 공개 명단에서 그룹 이름만 숨깁니다. 파트와 이름 공개 방식은 그대로 유지됩니다.',
+    description: '그룹은 관리용입니다. 스태프도 파트가 있으면 해당 파트에, 파트가 없으면 스태프 분류에 표시됩니다. 홈페이지에는 개인별 설명 없이 이름만 표시됩니다.',
   },
   {
     name: 'member_status',

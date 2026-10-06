@@ -66,7 +66,7 @@ test('평면형 디렉터리는 반응형·접근성·감속 모션 계약을 �
   assert.doesNotMatch(css, /#000(?:000)?\b|background:\s*(?:black|#17191d)/i)
 })
 
-test('스태프에도 파트를 표시하고 미표시 단원은 파트만 숨긴다', () => {
+test('명단은 분류 제목을 유지하고 각 단원은 이름만 표시한다', () => {
   const html = renderToStaticMarkup(React.createElement(MembersArchiveExperience, { members: [
     { id: 'bass', display_name: '베이스 예시', part: 'bass', group_type: 'university', member_status: 'active', display_order: 0 },
     { id: 'staff', display_name: '스태프 예시', part: 'soprano', group_type: 'staff', member_status: 'active', display_order: 0 },
@@ -77,21 +77,23 @@ test('스태프에도 파트를 표시하고 미표시 단원은 파트만 숨�
   assert.match(html, /id="member-group-staff"/)
   assert.doesNotMatch(html, /BASS · STAFF/)
   const rows = [...html.matchAll(/<li\b[^>]*>(.*?)<\/li>/gs)].map(match => match[1])
-  assert.ok(rows.find(row => row.includes('스태프 예시'))?.includes('STAFF · 소프라노'))
-  assert.ok(rows.find(row => row.includes('반주자 예시'))?.includes('STAFF · 반주자'))
-  const hiddenRow = rows.find(row => row.includes('파트 없는 예시'))
-  assert.ok(hiddenRow?.includes('STAFF'))
-  assert.match(hiddenRow, /<span>STAFF<\/span>/)
-  assert.doesNotMatch(hiddenRow, />미표시|>Hidden| · /)
+  assert.equal(rows.length, 4)
+  for (const name of ['베이스 예시', '스태프 예시', '반주자 예시', '파트 없는 예시']) {
+    assert.equal(rows.find(row => row.includes(name)), `<div class="members-archive__member-copy"><strong>${name}</strong></div>`)
+  }
+  assert.doesNotMatch(html, /members-archive__status(?:\s|")|members-archive__current-key/)
+  assert.doesNotMatch(rows.join(''), /현재 활동|함께한 단원|STAFF| · /)
   assert.doesNotMatch(html, /<img\b/)
 })
 
-test('그룹 미표시는 그룹만 숨기고 두 항목 모두 미표시면 빈 설명을 만들지 않는다', () => {
+test('그룹·파트 미표시 단원도 이름만 표시하고 분류에서 누락하지 않는다', () => {
   const html = renderToStaticMarkup(React.createElement(MembersArchiveExperience, { members: [
     { id: 'group-hidden', display_name: '그룹 없는 예시', part: 'soprano', group_type: 'hidden', member_status: 'active', display_order: 0 },
     { id: 'both-hidden', display_name: '이름만 공개한 예시', part: 'hidden', group_type: 'hidden', member_status: 'active', display_order: 0 },
   ] }))
   const copies = [...html.matchAll(/<div class="members-archive__member-copy">(.*?)<\/div>/gs)].map(match => match[1])
-  assert.equal(copies.find(copy => copy.includes('그룹 없는 예시')), '<strong>그룹 없는 예시</strong><span>소프라노</span>')
+  assert.equal(copies.find(copy => copy.includes('그룹 없는 예시')), '<strong>그룹 없는 예시</strong>')
   assert.equal(copies.find(copy => copy.includes('이름만 공개한 예시')), '<strong>이름만 공개한 예시</strong>')
+  assert.match(html, /id="member-group-soprano"/)
+  assert.match(html, /id="member-group-members"/)
 })

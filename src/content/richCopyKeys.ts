@@ -312,7 +312,6 @@ export const NONHOME_RICH_COPY_KEYS: ReadonlySet<string> = new Set([
   "members.membersArchiveExperience.text5",
   "members.membersArchiveExperience.text6",
   "members.membersArchiveExperience.text7",
-  "members.membersArchiveExperience.text8",
   "notice-detail.back",
   "notice-detail.bodyEmpty",
   "notice-detail.imageError",

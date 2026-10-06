@@ -150,11 +150,7 @@ export function filterPublicMembersForArchive(
         return member.group_type === 'staff'
       }
 
-      if (partFilter === 'accompanist') {
-        return member.part === 'accompanist'
-      }
-
-      return member.group_type !== 'staff' && member.part === partFilter
+      return member.part === partFilter
     })
     .sort(comparePublicMembers)
 }
@@ -169,40 +165,42 @@ export function groupPublicMembersForArchive(
       key: 'soprano',
       label: 'SOPRANO',
       members: sortedMembers.filter(
-        (member) => member.group_type !== 'staff' && member.part === 'soprano',
+        (member) => member.part === 'soprano',
       ),
     },
     {
       key: 'alto',
       label: 'ALTO',
       members: sortedMembers.filter(
-        (member) => member.group_type !== 'staff' && member.part === 'alto',
+        (member) => member.part === 'alto',
       ),
     },
     {
       key: 'tenor',
       label: 'TENOR',
       members: sortedMembers.filter(
-        (member) => member.group_type !== 'staff' && member.part === 'tenor',
+        (member) => member.part === 'tenor',
       ),
     },
     {
       key: 'bass',
       label: 'BASS',
       members: sortedMembers.filter(
-        (member) => member.group_type !== 'staff' && member.part === 'bass',
+        (member) => member.part === 'bass',
       ),
     },
     {
       key: 'staff',
       label: 'STAFF',
-      members: sortedMembers.filter((member) => member.group_type === 'staff'),
+      members: sortedMembers.filter(
+        (member) => member.group_type === 'staff' && (member.part === 'other' || member.part === 'hidden'),
+      ),
     },
     {
       key: 'accompanist',
       label: 'ACCOMPANISTS',
       members: sortedMembers.filter(
-        (member) => member.group_type !== 'staff' && member.part === 'accompanist',
+        (member) => member.part === 'accompanist',
       ),
     },
     {

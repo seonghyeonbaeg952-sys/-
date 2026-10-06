@@ -92,12 +92,12 @@ const additionalMembers = [
   { id: 'other', display_name: 'Legacy other fixture', part: 'other', group_type: 'high', member_status: 'active', display_order: 0 },
 ]
 
-test('베이스와 스태프를 분리하고 새 파트와 기존 기타 단원을 한 번씩 유지한다', () => {
+test('파트가 지정된 스태프를 해당 파트에 합치고 미표시·기타 단원을 한 번씩 유지한다', () => {
   const groups = memberArchive.groupPublicMembersForArchive(additionalMembers)
   const ids = key => groups.find(group => group.key === key)?.members.map(member => member.id).sort()
-  assert.deepEqual(ids('bass'), ['bass'])
-  assert.deepEqual(ids('staff'), ['staff-accompanist', 'staff-bass', 'staff-hidden'])
-  assert.deepEqual(ids('accompanist'), ['accompanist'])
+  assert.deepEqual(ids('bass'), ['bass', 'staff-bass'])
+  assert.deepEqual(ids('staff'), ['staff-hidden'])
+  assert.deepEqual(ids('accompanist'), ['accompanist', 'staff-accompanist'])
   assert.deepEqual(ids('members'), ['hidden', 'other'])
   assert.deepEqual(groups.flatMap(group => group.members.map(member => member.id)).sort(),
     ['accompanist', 'bass', 'hidden', 'other', 'staff-accompanist', 'staff-bass', 'staff-hidden'])
@@ -105,9 +105,22 @@ test('베이스와 스태프를 분리하고 새 파트와 기존 기타 단원�
 
 test('반주자 필터는 스태프 반주자도 찾고 스태프 필터는 모든 스태프 파트를 유지한다', () => {
   const ids = filter => memberArchive.filterPublicMembersForArchive(additionalMembers, 'all', filter).map(member => member.id).sort()
-  assert.deepEqual(ids('bass'), ['bass'])
+  assert.deepEqual(ids('bass'), ['bass', 'staff-bass'])
   assert.deepEqual(ids('staff'), ['staff-accompanist', 'staff-bass', 'staff-hidden'])
   assert.deepEqual(ids('accompanist'), ['accompanist', 'staff-accompanist'])
+})
+
+test('모든 성부와 반주 파트의 스태프는 해당 명단에 한 번만 표시된다', () => {
+  const parts = ['soprano', 'alto', 'tenor', 'bass', 'accompanist']
+  const members = parts.map((part, index) => ({ id: `staff-${part}`, display_name: `Member ${index}`, part, group_type: 'staff', member_status: 'active', display_order: index }))
+  const groups = memberArchive.groupPublicMembersForArchive(members)
+  for (const part of parts) {
+    assert.deepEqual(groups.find(group => group.key === part)?.members.map(member => member.id), [`staff-${part}`])
+    assert.deepEqual(memberArchive.filterPublicMembersForArchive(members, 'all', part).map(member => member.id), [`staff-${part}`])
+  }
+  assert.equal(groups.find(group => group.key === 'staff')?.members.length, 0)
+  assert.equal(groups.flatMap(group => group.members).length, 5)
+  assert.equal(memberArchive.filterPublicMembersForArchive(members, 'all', 'staff').length, 5)
 })
 
 test('미표시 파트는 이름 공개 설정을 바꾸지 않고 이름 비공개 시 중립적인 이름을 쓴다', () => {
