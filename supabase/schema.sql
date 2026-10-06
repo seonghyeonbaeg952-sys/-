@@ -300,8 +300,8 @@ create table if not exists public.members (
   display_order integer not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  constraint members_part_check check (part in ('soprano', 'alto', 'tenor', 'bass', 'other')),
-  constraint members_group_type_check check (group_type in ('elementary', 'middle', 'high', 'university', 'staff')),
+  constraint members_part_check check (part in ('soprano', 'alto', 'tenor', 'bass', 'accompanist', 'hidden', 'other')),
+  constraint members_group_type_check check (group_type in ('elementary', 'middle', 'high', 'university', 'staff', 'hidden')),
   constraint members_member_status_check check (member_status in ('active', 'alumni')),
   constraint members_name_display_type_check check (name_display_type in ('full', 'partial', 'hidden'))
 );

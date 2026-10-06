@@ -40,6 +40,7 @@ const partFilters: Array<FilterOption<MemberArchivePartFilter>> = [
   { label: '테너', value: 'tenor' },
   { label: '베이스', value: 'bass' },
   { label: '스태프', value: 'staff' },
+  { label: '반주자', value: 'accompanist' },
 ]
 
 export function MembersArchiveExperience({
@@ -173,10 +174,12 @@ export function MembersArchiveExperience({
                     {group.members.map((member) => {
                       const isActive = getMemberStatus(member) === 'active'
                       const isStaff = member.group_type === 'staff'
-                      const groupLabel = isStaff
-                        ? editorCopy('members', 'members.group.staffDisplay', 'STAFF')
-                        : editorCopy('members', `members.group.${member.group_type}`, getMemberGroupLabel(member.group_type))
-                      const partLabel = isStaff
+                      const groupLabel = member.group_type === 'hidden'
+                        ? null
+                        : isStaff
+                          ? editorCopy('members', 'members.group.staffDisplay', 'STAFF')
+                          : editorCopy('members', `members.group.${member.group_type}`, getMemberGroupLabel(member.group_type))
+                      const partLabel = member.part === 'hidden'
                         ? null
                         : editorCopy('members', `members.part.${member.part}`, getMemberPartLabel(member.part).toUpperCase())
 
@@ -187,10 +190,9 @@ export function MembersArchiveExperience({
                         >
                           <div className="members-archive__member-copy">
                             <strong>{getPublicMemberName(member, language)}</strong>
-                            <span>
-                              {groupLabel}
-                              {partLabel ? ` · ${partLabel}` : ''}
-                            </span>
+                            {groupLabel || partLabel ? (
+                              <span>{[groupLabel, partLabel].filter(Boolean).join(' · ')}</span>
+                            ) : null}
                           </div>
                           <span
                             className={

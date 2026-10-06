@@ -1,6 +1,6 @@
 export type VisibilityNameDisplayType = 'full' | 'partial' | 'hidden'
 
-export type MemberPart = 'soprano' | 'alto' | 'tenor' | 'bass' | 'other'
+export type MemberPart = 'soprano' | 'alto' | 'tenor' | 'bass' | 'accompanist' | 'hidden' | 'other'
 
 export type MemberGroupType =
   | 'elementary'
@@ -8,6 +8,7 @@ export type MemberGroupType =
   | 'high'
   | 'university'
   | 'staff'
+  | 'hidden'
 
 export type MemberStatus = 'active' | 'alumni'
 

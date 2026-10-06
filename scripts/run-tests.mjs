@@ -57,6 +57,7 @@ const tests = [
   'src/components/about/careerRoleSelection.test.mjs',
   'src/components/concerts/concertScheduleModel.test.mjs',
   'src/utils/memberArchive.test.mjs',
+  'src/pages/admin/AdminMembersPage.test.mjs',
   'src/components/about/MembersArchive.contract.test.mjs',
   'src/components/gallery/galleryViewModel.test.mjs',
   'src/components/join/joinApplicationModel.test.mjs',
@@ -152,6 +153,7 @@ const tests = [
   'src/pages/public/nonhomeformat.test.mjs',
   'src/pages/admin/AdminPopupNoticesPage.test.mjs',
   'src/lib/cmsPopupNotices.test.mjs',
+  'src/lib/cmsMemberParts.test.mjs',
 ]
 
 // Avoid overlapping native Vite SSR worker shutdowns on Windows (0xC0000005).

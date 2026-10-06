@@ -7,13 +7,17 @@ export type MemberArchivePartFilter =
   | 'alto'
   | 'tenor'
   | 'bass'
+  | 'accompanist'
   | 'staff'
 
 export type MemberArchiveGroupKey =
   | 'soprano'
   | 'alto'
   | 'tenor'
-  | 'bass-staff'
+  | 'bass'
+  | 'staff'
+  | 'accompanist'
+  | 'members'
 
 export interface MemberArchiveGroup {
   key: MemberArchiveGroupKey
@@ -26,6 +30,8 @@ const partLabels: Record<MemberRow['part'], string> = {
   alto: '알토',
   tenor: '테너',
   bass: '베이스',
+  accompanist: '반주자',
+  hidden: '미표시',
   other: '합창단',
 }
 
@@ -35,6 +41,7 @@ const groupLabels: Record<MemberRow['group_type'], string> = {
   high: '고등부',
   university: '대학부',
   staff: '스태프',
+  hidden: '미표시',
   alumni: '역대단원',
 }
 
@@ -59,10 +66,22 @@ export function getMemberStatusLabel(status: MemberRow['member_status']) {
   return status ? statusLabels[status] : statusLabels.active
 }
 
+function getAnonymousMemberName(part: MemberRow['part'], language: 'ko' | 'en') {
+  if (part === 'hidden' || part === 'other') {
+    return language === 'en' ? 'Choir member' : '합창단 단원'
+  }
+  if (part === 'accompanist') {
+    return language === 'en' ? 'Accompanist' : '반주자'
+  }
+  return language === 'en'
+    ? `${part[0].toUpperCase()}${part.slice(1)} member`
+    : `${getMemberPartLabel(part)} 단원`
+}
+
 export function getProtectedMemberName(
   member: Pick<MemberRow, 'name' | 'name_display_type' | 'part'>,
 ) {
-  const fallback = `${getMemberPartLabel(member.part)} 단원`
+  const fallback = getAnonymousMemberName(member.part, 'ko')
   const name = member.name?.trim()
 
   if (!name) {
@@ -86,7 +105,7 @@ export function getPublicMemberName(
 ) {
   const publicName = language === 'en' ? member.display_name_en?.trim() || member.display_name?.trim() : member.display_name?.trim()
   if (publicName) return publicName
-  return language === 'en' ? member.part === 'other' ? 'Choir member' : `${member.part[0].toUpperCase()}${member.part.slice(1)} member` : `${getMemberPartLabel(member.part)} 단원`
+  return getAnonymousMemberName(member.part, language)
 }
 
 const memberNameCollator = new Intl.Collator('ko-KR', {
@@ -131,6 +150,10 @@ export function filterPublicMembersForArchive(
         return member.group_type === 'staff'
       }
 
+      if (partFilter === 'accompanist') {
+        return member.part === 'accompanist'
+      }
+
       return member.group_type !== 'staff' && member.part === partFilter
     })
     .sort(comparePublicMembers)
@@ -164,13 +187,31 @@ export function groupPublicMembersForArchive(
       ),
     },
     {
-      key: 'bass-staff',
-      label: 'BASS · STAFF',
+      key: 'bass',
+      label: 'BASS',
+      members: sortedMembers.filter(
+        (member) => member.group_type !== 'staff' && member.part === 'bass',
+      ),
+    },
+    {
+      key: 'staff',
+      label: 'STAFF',
+      members: sortedMembers.filter((member) => member.group_type === 'staff'),
+    },
+    {
+      key: 'accompanist',
+      label: 'ACCOMPANISTS',
+      members: sortedMembers.filter(
+        (member) => member.group_type !== 'staff' && member.part === 'accompanist',
+      ),
+    },
+    {
+      key: 'members',
+      label: 'MEMBERS',
       members: sortedMembers.filter(
         (member) =>
-          member.group_type === 'staff' ||
-          member.part === 'bass' ||
-          member.part === 'other',
+          member.group_type !== 'staff' &&
+          (member.part === 'other' || member.part === 'hidden'),
       ),
     },
   ]

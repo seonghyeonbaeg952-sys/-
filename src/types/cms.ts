@@ -1,3 +1,5 @@
+import type { MemberGroupType, MemberPart } from './content'
+
 export type CmsValue = string | number | boolean | string[] | null
 
 export type CmsMutationPayload = Record<string, CmsValue | undefined>
@@ -182,8 +184,8 @@ export interface PersonProfileRow extends CmsRecord {
 export interface MemberRow extends CmsRecord {
   name: string | null
   name_en: string | null
-  part: 'soprano' | 'alto' | 'tenor' | 'bass' | 'other'
-  group_type: 'elementary' | 'middle' | 'high' | 'university' | 'staff' | 'alumni'
+  part: MemberPart
+  group_type: MemberGroupType | 'alumni'
   member_status?: 'active' | 'alumni'
   photo_url: string | null
   description: string | null

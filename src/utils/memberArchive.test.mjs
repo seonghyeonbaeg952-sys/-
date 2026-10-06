@@ -74,7 +74,48 @@ test('파트별 디렉터리는 모든 공개 단원을 누락 없이 한 번만
     'soprano',
     'alto',
     'tenor',
-    'bass-staff',
+    'bass',
+    'staff',
+    'accompanist',
+    'members',
   ])
   assert.deepEqual(groupedIds.sort(), members.map((member) => member.id).sort())
+})
+
+const additionalMembers = [
+  { id: 'bass', display_name: 'Bass fixture', part: 'bass', group_type: 'university', member_status: 'active', display_order: 0 },
+  { id: 'staff-bass', display_name: 'Staff fixture', part: 'bass', group_type: 'staff', member_status: 'active', display_order: 0 },
+  { id: 'staff-accompanist', display_name: 'Staff accompanist', part: 'accompanist', group_type: 'staff', member_status: 'active', display_order: 0 },
+  { id: 'accompanist', display_name: 'Accompanist fixture', part: 'accompanist', group_type: 'university', member_status: 'alumni', display_order: 0 },
+  { id: 'staff-hidden', display_name: 'Staff hidden part', part: 'hidden', group_type: 'staff', member_status: 'active', display_order: 0 },
+  { id: 'hidden', display_name: 'Hidden part fixture', part: 'hidden', group_type: 'middle', member_status: 'active', display_order: 0 },
+  { id: 'other', display_name: 'Legacy other fixture', part: 'other', group_type: 'high', member_status: 'active', display_order: 0 },
+]
+
+test('베이스와 스태프를 분리하고 새 파트와 기존 기타 단원을 한 번씩 유지한다', () => {
+  const groups = memberArchive.groupPublicMembersForArchive(additionalMembers)
+  const ids = key => groups.find(group => group.key === key)?.members.map(member => member.id).sort()
+  assert.deepEqual(ids('bass'), ['bass'])
+  assert.deepEqual(ids('staff'), ['staff-accompanist', 'staff-bass', 'staff-hidden'])
+  assert.deepEqual(ids('accompanist'), ['accompanist'])
+  assert.deepEqual(ids('members'), ['hidden', 'other'])
+  assert.deepEqual(groups.flatMap(group => group.members.map(member => member.id)).sort(),
+    ['accompanist', 'bass', 'hidden', 'other', 'staff-accompanist', 'staff-bass', 'staff-hidden'])
+})
+
+test('반주자 필터는 스태프 반주자도 찾고 스태프 필터는 모든 스태프 파트를 유지한다', () => {
+  const ids = filter => memberArchive.filterPublicMembersForArchive(additionalMembers, 'all', filter).map(member => member.id).sort()
+  assert.deepEqual(ids('bass'), ['bass'])
+  assert.deepEqual(ids('staff'), ['staff-accompanist', 'staff-bass', 'staff-hidden'])
+  assert.deepEqual(ids('accompanist'), ['accompanist', 'staff-accompanist'])
+})
+
+test('미표시 파트는 이름 공개 설정을 바꾸지 않고 이름 비공개 시 중립적인 이름을 쓴다', () => {
+  const hidden = { part: 'hidden', name: 'PRIVATE NAME', name_display_type: 'hidden', display_name: null, display_name_en: null }
+  assert.equal(memberArchive.getProtectedMemberName(hidden), '합창단 단원')
+  assert.equal(memberArchive.getProtectedMemberName({ ...hidden, name_display_type: 'partial' }), 'P○')
+  assert.equal(memberArchive.getPublicMemberName(hidden, 'ko'), '합창단 단원')
+  assert.equal(memberArchive.getPublicMemberName(hidden, 'en'), 'Choir member')
+  assert.equal(memberArchive.getPublicMemberName({ ...hidden, display_name: '공개 이름' }, 'ko'), '공개 이름')
+  assert.equal(memberArchive.getPublicMemberName({ ...hidden, part: 'accompanist' }, 'en'), 'Accompanist')
 })

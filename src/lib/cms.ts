@@ -162,6 +162,14 @@ function toCmsError(error: unknown, fallback: string) {
     return '노출 종료일은 시작일과 같거나 이후여야 합니다.'
   }
 
+  if (lowerMessage.includes('members_part_check')) {
+    return '선택한 파트를 저장할 수 없습니다. 파트 선택값과 데이터베이스 저장 설정을 확인한 뒤 다시 저장해 주세요.'
+  }
+
+  if (lowerMessage.includes('members_group_type_check')) {
+    return '선택한 그룹을 저장할 수 없습니다. 그룹 선택값과 데이터베이스 저장 설정을 확인한 뒤 다시 저장해 주세요.'
+  }
+
   if (
     status === '401' ||
     status === '403' ||
