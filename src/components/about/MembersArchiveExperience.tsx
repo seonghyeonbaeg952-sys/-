@@ -152,7 +152,7 @@ export function MembersArchiveExperience({
           <p aria-live="polite" className="members-archive__sr-only"><SiteCopy page="members" id="members.membersArchiveExperience.text11" fallback={"조건에 맞는 공개 단원 "} />{filteredMembers.length}{copyText("members", "members.fixed.MembersArchiveExperience.9f96b8e22c", "명")}</p>
 
           {visibleGroups.length > 0 ? (
-            <div className="members-archive__groups">
+            <div className={statusFilter === 'alumni' ? 'members-archive__groups members-archive__groups--alumni' : 'members-archive__groups'}>
               {visibleGroups.map((group) => (
                 <section
                   aria-labelledby={`member-group-${group.key}`}
@@ -165,7 +165,7 @@ export function MembersArchiveExperience({
                   >
                     {editorCopy('members', `members.groupHeading.${group.key}`, group.label)}
                   </h3>
-                  <ul className="members-archive__member-list">
+                  <ul className={statusFilter === 'alumni' ? 'members-archive__member-list members-archive__member-list--alumni' : 'members-archive__member-list'}>
                     {group.members.map((member) => (
                       <li
                         className="members-archive__member"

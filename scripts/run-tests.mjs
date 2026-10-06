@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url'
 const tests = [
   'src/styles/publicRefinement.browser.test.mjs',
   'src/styles/homeControlTargets.browser.test.mjs',
+  'src/styles/memberRosterColumns.browser.test.mjs',
   'src/pages/sample/homeHeroHandoff.test.mjs',
   'src/components/common/publicFlowRefinement.test.mjs',
   'src/features/sample-language/sampleContentModel.test.mjs',

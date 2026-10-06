@@ -280,6 +280,10 @@
   min-width: 0;
 }
 
+.members-archive__groups.members-archive__groups--alumni {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .members-archive__group-title {
   border-bottom: 1px solid var(--members-line);
   color: var(--members-burgundy);
@@ -289,6 +293,7 @@
 
 .members-archive__member-list {
   display: grid;
+  grid-auto-flow: row;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   column-gap: 12px;
   width: max-content;
@@ -296,6 +301,10 @@
   list-style: none;
   margin: 0;
   padding: 0;
+}
+
+.members-archive__member-list--alumni {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .members-archive__member {
@@ -471,6 +480,14 @@
     row-gap: 18px;
   }
 
+  .members-archive__member-list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .members-archive__member-list--alumni {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
   .members-archive__directory-footer {
     align-items: center;
     flex-direction: row;
@@ -550,8 +567,12 @@
   }
 
   .members-archive__member-list {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     column-gap: 16px;
+  }
+
+  .members-archive__member-list--alumni {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
   }
 }
 
