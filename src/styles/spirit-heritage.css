@@ -2982,6 +2982,101 @@
 
 /* Full desktop copy needs real flow on portrait tablets and phones. Fixed
    title/body/button coordinates collide as soon as a paragraph wraps. */
+@media (min-width: 1366px) and (pointer: fine) and (not (any-pointer: coarse)) {
+  html[data-sample-language='en'] .spirit-heritage__hero,
+  html[data-sample-language='en'] .spirit-heritage__hero-inner {
+    min-height: 876px;
+  }
+
+  html[data-sample-language='en'] .spirit-heritage__hero-heading--desktop {
+    width: min(640px, calc(50vw - 96px));
+  }
+
+  html[data-sample-language='en'] .spirit-heritage__hero-promise > span {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-left: 0;
+    font-size: 46px;
+    line-height: 1.12;
+    text-wrap: balance;
+  }
+
+  html[data-sample-language='en'] .spirit-heritage__hero-body {
+    top: 646px;
+  }
+
+  html[data-sample-language='en'] .spirit-heritage__origin-card {
+    top: 740px;
+  }
+
+  html[data-sample-language='en'] .spirit-heritage__hero-photo,
+  html[data-sample-language='en'] .spirit-heritage__hero-veil {
+    height: 720px;
+  }
+}
+
+@media (max-width: 899px) and (orientation: portrait) {
+  .spirit-heritage__hero {
+    min-height: 0;
+  }
+
+  .spirit-heritage__hero-inner {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 44px 24px 354px;
+  }
+
+  .spirit-heritage__eyebrow--hero,
+  .spirit-heritage__display-title,
+  .spirit-heritage__hero-heading--mobile,
+  .spirit-heritage__hero-body {
+    position: relative;
+    inset: auto;
+    max-width: 100%;
+  }
+
+  .spirit-heritage .spirit-heritage__display-title {
+    margin: 20px 0 0 -8px;
+  }
+
+  .spirit-heritage__hero-heading--mobile {
+    width: 100%;
+    margin-top: 24px;
+  }
+
+  .spirit-heritage__hero-promise-line {
+    white-space: normal;
+    text-wrap: balance;
+  }
+
+  .spirit-heritage .spirit-heritage__hero-body {
+    width: min(320px, 100%);
+    margin-top: 22px;
+    text-wrap: pretty;
+  }
+
+  .spirit-heritage__hero-photo,
+  .spirit-heritage__hero-veil {
+    top: auto;
+    bottom: 24px;
+  }
+
+  .spirit-heritage__origin-card {
+    top: auto;
+    bottom: 42px;
+    height: auto;
+  }
+}
+
+@media (max-width: 479px) and (orientation: portrait) {
+  .spirit-heritage__hero-inner {
+    padding-bottom: 306px;
+  }
+}
+
 @media (max-width: 899px) {
   .spirit-heritage__closing-card {
     display: flex;

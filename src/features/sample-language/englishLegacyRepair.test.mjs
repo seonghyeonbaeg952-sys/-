@@ -34,3 +34,24 @@ test('later intentional English edits and other pages are left alone', () => {
   assert.equal(repairLegacyEnglishDocument('spirit', current), current)
   assert.equal(repairLegacyEnglishDocument('home', old), old)
 })
+
+test('new English sentences can reuse a legacy fragment without being rewritten on any device', () => {
+  const current = { ...old, deviceCopy: Object.fromEntries(['desktop', 'tablet', 'mobile'].map(device => [device, {
+    'spirit.spiritManifesto.text1': 'Through singing,',
+    'spirit.spiritManifesto.text2': 'we learn ',
+    'spirit.spiritManifesto.text3': 'to listen',
+    'spirit.spiritManifesto.text4': ' and',
+    'spirit.spiritManifesto.text5': 'communicate.',
+  }])) }
+  const before = structuredClone(current)
+  assert.equal(repairLegacyEnglishDocument('spirit', current), current)
+  assert.deepEqual(current, before)
+})
+
+test('a later sentence ending stops the old article repair even when two fragments still match', () => {
+  const current = structuredClone(old)
+  current.deviceCopy.desktop['spirit.spiritManifesto.text5'] = 'new lessons from one another.'
+  const fixed = repairLegacyEnglishDocument('spirit', current)
+  assert.deepEqual(fixed.deviceCopy.desktop, current.deviceCopy.desktop)
+  assert.deepEqual(fixed.textLayouts.desktop, current.textLayouts.desktop)
+})

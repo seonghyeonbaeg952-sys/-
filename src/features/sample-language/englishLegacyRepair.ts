@@ -25,9 +25,14 @@ export function repairLegacyEnglishDocument(page: EditorPageId, document: SiteEd
   for (const device of ['mobile', 'tablet', 'desktop'] as const) {
     const values = document.deviceCopy[device]
     if (!values) continue
+    const legacySentence = values[`${prefix}2`] === oldFragments[`${prefix}2`]
+      && values[`${prefix}4`] === oldFragments[`${prefix}4`]
+      && (values[`${prefix}3`] === undefined || values[`${prefix}3`] === 'art')
+      && (values[`${prefix}5`] === oldFragments[`${prefix}5`]
+        || values[`${prefix}5`] === 'of listening together..')
     const changes = Object.entries(values).flatMap(([key, value]) => {
-      const corrected = key === `${prefix}5` ? legacyEnding[value] ?? (value === oldFragments[key] ? correctedFragments[key] : undefined)
-        : value === oldFragments[key] ? correctedFragments[key] : undefined
+      const corrected = key === `${prefix}5` ? legacyEnding[value] ?? (legacySentence ? correctedFragments[key] : undefined)
+        : legacySentence && value === oldFragments[key] ? correctedFragments[key] : undefined
       return corrected === undefined ? [] : [[key, corrected] as const]
     })
     if (!changes.length) continue
@@ -35,7 +40,10 @@ export function repairLegacyEnglishDocument(page: EditorPageId, document: SiteEd
     Object.assign(repaired.deviceCopy[device]!, Object.fromEntries(changes))
     const layouts = repaired.textLayouts?.[device]
     if (layouts) {
-      for (let index = 1; index <= 5; index++) delete layouts[`${prefix}${index}`]
+      const changedKeys = legacySentence
+        ? Array.from({ length: 5 }, (_, index) => `${prefix}${index + 1}`)
+        : changes.map(([key]) => key)
+      for (const key of changedKeys) delete layouts[key]
       if (!Object.keys(layouts).length) delete repaired.textLayouts![device]
       if (repaired.textLayouts && !Object.keys(repaired.textLayouts).length) delete repaired.textLayouts
     }
