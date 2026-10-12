@@ -415,16 +415,11 @@
 
 .spirit-heritage__community-photo .spirit-heritage__media-image {
   display: block;
-  width: auto;
+  width: 100%;
   height: auto;
   max-width: 100%;
-  max-height: 370px;
+  max-height: none;
   object-fit: contain;
-}
-
-.spirit-heritage__community-photo:not(:has(img)) {
-  width: min(555px, 100%);
-  aspect-ratio: 3 / 2;
 }
 
 .spirit-heritage__community-photo:not(:has(img)) > div {
@@ -1196,14 +1191,14 @@
 
 .spirit-heritage__community {
   position: relative;
-  height: 1140px;
+  height: auto;
   overflow: hidden;
   padding: 98px 0 86px;
   background: #191b1f;
 }
 
 .spirit-heritage__community .spirit-heritage__section-shell {
-  height: 956px;
+  height: auto;
 }
 
 .spirit-heritage__community-watermark {
@@ -1306,15 +1301,10 @@
 }
 
 .spirit-heritage__community-photo {
-  position: absolute;
-  top: 212px;
-  right: 0;
-  left: 0;
-  width: fit-content;
-  max-width: 100%;
+  position: relative;
+  width: 100%;
   height: auto;
-  margin-top: 0;
-  margin-inline: auto;
+  margin-top: 40px;
   overflow: hidden;
   border: 1px solid rgb(243 239 231 / 0.16);
   border-radius: 2px;
@@ -1329,14 +1319,12 @@
 }
 
 .spirit-heritage__voices {
-  position: absolute;
-  top: 640px;
-  left: 0;
+  position: relative;
   display: grid;
   width: 100%;
   grid-template-columns: repeat(5, 1fr);
   gap: 24px;
-  margin-top: 0;
+  margin-top: 56px;
 }
 
 .spirit-heritage__voice {
@@ -1370,13 +1358,9 @@
 }
 
 .spirit-heritage__community-closing {
-  position: absolute;
-  top: 840px;
-  right: 0;
-  left: 0;
-  width: 860px;
-  max-width: 860px;
-  margin: 0 auto;
+  position: relative;
+  width: min(100%, 860px);
+  margin: 64px auto 0;
   color: var(--spirit-ivory-soft);
   font-family: var(--spirit-heading);
   font-size: 28px;
@@ -2514,16 +2498,7 @@
   }
 
   .spirit-heritage__community-photo {
-    position: relative;
-    top: auto;
-    right: auto;
-    left: auto;
-    height: auto;
     margin-top: 44px;
-  }
-
-  .spirit-heritage__community-photo .spirit-heritage__media-image {
-    max-height: 420px;
   }
 
   .spirit-heritage__community-photo .spirit-heritage__image-label {
@@ -2534,11 +2509,7 @@
   }
 
   .spirit-heritage__voices {
-    position: relative;
-    top: auto;
-    left: auto;
     grid-template-columns: repeat(2, 1fr);
-    width: auto;
     margin-top: 36px;
   }
 
@@ -2547,21 +2518,10 @@
   }
 
   .spirit-heritage__community-closing {
-    position: relative;
-    top: auto;
-    right: auto;
-    left: auto;
-    width: auto;
     margin: 40px auto 0;
-    transform: none;
   }
 
-  .spirit-heritage__community,
   .spirit-heritage__motet {
-    height: auto;
-  }
-
-  .spirit-heritage__community .spirit-heritage__section-shell {
     height: auto;
   }
 
