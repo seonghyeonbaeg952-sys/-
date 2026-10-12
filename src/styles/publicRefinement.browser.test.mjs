@@ -287,11 +287,11 @@ test('public visual surfaces preserve restrained, legible navigation without dec
       assert.equal(await page.locator('.contact-atelier__amounts > div').first().evaluate(element => getComputedStyle(element).gridTemplateColumns.split(' ').length), 2, 'Korean amount labels retain their existing two-column layout')
     })
 
-    await t.test('the meaningful community photograph fits fully inside its existing frame', async () => {
+    await t.test('the community photograph fills its wide frame with the requested vertical crop', async () => {
       await page.setViewportSize({ width: 1180, height: 820 })
       const photo = page.locator('.spirit-heritage__community-photo img')
       await photo.evaluate(element => element.decode())
-      assert.equal(await photo.evaluate(element => getComputedStyle(element).objectFit), 'contain', 'Do not crop community members through their eyes')
+      assert.equal(await photo.evaluate(element => getComputedStyle(element).objectFit), 'cover', 'The community photograph now uses an intentional vertical crop')
       assert.equal(await page.locator('.spirit-heritage__community-photo > div').evaluate(element => getComputedStyle(element).backgroundImage), 'none', 'A full-image fit must not expose the old gradient fallback behind the photo')
     })
 

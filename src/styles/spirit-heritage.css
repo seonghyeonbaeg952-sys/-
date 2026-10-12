@@ -409,21 +409,17 @@
 }
 
 .spirit-heritage__community-photo > div {
-  height: auto;
   background: var(--spirit-black);
 }
 
 .spirit-heritage__community-photo .spirit-heritage__media-image {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
   max-width: 100%;
   max-height: none;
-  object-fit: contain;
-}
-
-.spirit-heritage__community-photo:not(:has(img)) > div {
-  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  object-position: 50% 16%;
 }
 
 .spirit-heritage__heritage-photo:hover .spirit-heritage__media-image {
@@ -1304,6 +1300,7 @@
   position: relative;
   width: 100%;
   height: auto;
+  aspect-ratio: 7 / 3;
   margin-top: 40px;
   overflow: hidden;
   border: 1px solid rgb(243 239 231 / 0.16);
@@ -2498,6 +2495,7 @@
   }
 
   .spirit-heritage__community-photo {
+    aspect-ratio: 16 / 9;
     margin-top: 44px;
   }
 
