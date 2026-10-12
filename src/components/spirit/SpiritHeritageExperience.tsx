@@ -784,9 +784,11 @@ function CommunitySection() {
           <OptimizedImage
             alt={editorCopy("spirit", "spirit.communitySection.alt6", "함께 악보를 들고 연습하는 서울모테트청소년합창단")}
             fallbackVariant="gallery"
+            height={1467}
             imageClassName="spirit-heritage__media-image"
             sizes="(max-width: 899px) calc(100vw - 48px), 90vw"
             src={COMMUNITY_IMAGE}
+            width={2200}
           >
             <span className="spirit-heritage__image-label">{editorCopy('spirit', 'spirit.community.centerLabel', voiceConstellationCopy.centerLabel)}</span>
           </OptimizedImage>
