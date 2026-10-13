@@ -1,10 +1,8 @@
 import assert from 'node:assert/strict'
-import { after, test } from 'node:test'
-import { createServer } from 'vite'
+import { test } from 'node:test'
+import { guidance } from './sampleContentGuidance.test-utils.mjs'
 
-const vite = await createServer({ configFile: false, appType: 'custom', cacheDir: 'node_modules/.vite-sample-guidance-test', logLevel: 'silent', server: { middlewareMode: true } })
-after(() => vite.close())
-const { getEnglishInputProgress, getEnglishChanges, getEnglishTextStats, getPageEnglishStatus, filterPageEnglishRows, recommendedEnglishCharacters } = await vite.ssrLoadModule('/src/features/sample-language/sampleContentGuidance.ts')
+const { getEnglishInputProgress, getEnglishChanges, getEnglishTextStats, getPageEnglishStatus, filterPageEnglishRows, recommendedEnglishCharacters } = guidance
 
 test('progress counts only source text fields and ignores optional media and empty source fields', () => {
   const progress = getEnglishInputProgress('gallery', { title: '합창단', description: '연습', image_url: '/original.jpg' }, { title: 'Choir', image_url: '/english.jpg' })

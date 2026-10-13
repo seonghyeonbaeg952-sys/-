@@ -8,6 +8,7 @@ export function useTextBoxLayout(layout?: EditorTextLayout) {
   const element = useRef<HTMLElement | null>(null)
   const x = layout?.offsetX ?? 0, y = layout?.offsetY ?? 0
   const width = layout?.width, align = layout?.textAlign, enabled = Boolean(layout)
+  const lineHeight = layout?.lineHeight
   useLayoutEffect(() => {
     const node = element.current
     if (!node || !enabled) return
@@ -60,6 +61,6 @@ export function useTextBoxLayout(layout?: EditorTextLayout) {
     for (const target of layoutNodes) motionObserver.observe(target, { attributes: true, attributeFilter: ['style'] })
     window.addEventListener('resize', scheduleMeasure)
     return () => { observer.disconnect(); motionObserver.disconnect(); window.cancelAnimationFrame(frame); window.removeEventListener('resize', scheduleMeasure) }
-  }, [element, enabled, x, y, width, align])
+  }, [element, enabled, x, y, width, align, lineHeight])
   return element
 }

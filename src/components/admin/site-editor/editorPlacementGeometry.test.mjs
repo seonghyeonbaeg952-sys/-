@@ -31,3 +31,10 @@ test('an oversized mobile text box can be moved across the preview while keeping
   assert.deepEqual(constrainLayoutInput(mobile, { offsetX: 200 }), { value: { offsetX: 200 }, limited: false })
   assert.deepEqual(constrainLayoutInput(mobile, { offsetX: -400 }), { value: { offsetX: -400 }, limited: false })
 })
+
+test('movement and peer alignment preserve independent block line spacing', () => {
+  const spaced = { ...block, value: { offsetX: 140, lineHeight: 1.7 } }
+  assert.equal(constrainLayoutInput(spaced, { offsetX: 30, lineHeight: 1.7 }).value.lineHeight, 1.7)
+  const peer = { ...block, id: 'notices.intro.description', rect: { left: 120, top: 200, width: 200, height: 60 } }
+  assert.equal(alignLayoutToBlock(spaced, peer, 'x').lineHeight, 1.7)
+})

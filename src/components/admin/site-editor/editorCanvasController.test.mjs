@@ -43,6 +43,30 @@ test('plain copy edits do not invent an empty formatting override or a second ch
   assert.equal(result.document.textStyles, undefined)
 })
 
+test('explicit Spirit source renderers authorize copy and formatting in each device without crossing languages', () => {
+  const keys = [
+    'spirit.lineage.now', 'spirit.lineage.next',
+    ...Array.from({ length: 4 }, (_, i) => [`spirit.lineage.${i}.title`, `spirit.lineage.${i}.body`, `spirit.manifesto.label${i}`]).flat(),
+    'spirit.faith.lead', ...Array.from({ length: 3 }, (_, i) => `spirit.faith.paragraph${i}`),
+    ...Array.from({ length: 2 }, (_, i) => ['label', 'text', 'note'].map(part => `spirit.scripture.${i}.${part}`)).flat(),
+    'spirit.community.lead', 'spirit.community.centerLabel', 'spirit.community.closing',
+    ...Array.from({ length: 5 }, (_, i) => [`spirit.voices.${i}.part`, `spirit.voices.${i}.meaning`, `spirit.learning.${i}.step`, `spirit.learning.${i}.title`, `spirit.learning.${i}.body`]).flat(),
+  ]
+  for (const device of ['desktop', 'tablet', 'mobile']) for (const key of keys) {
+    const original = siteCopyDefinitions.find(field => field.key === key)
+    assert.ok(original, `unknown source key: ${key}`)
+    const text = original.defaultValue
+    const ctx = context({ editorPage: 'spirit', previewPage: 'spirit', device, scope: device,
+      loadedOwners: new Set(['spirit']), documents: { spirit: empty() }, defaults: { [key]: text } })
+    const issued = issue(ctx, block(source(text, key, 'spirit', device)))
+    const result = commit(ctx, issued, [patch(issued, [replacement(0, text.length, '검증용 문구', [style(0, 6, { fontSize: 24 })])])])
+    assert.equal(result.ok, true, key)
+    assert.equal(result.document.deviceCopy[device][key], '검증용 문구')
+    assert.equal(result.document.textStyles[device][key].runs[0].style.fontSize, 24)
+    assert.equal(commit({ ...ctx, storageScope: 'sample-english' }, issued, []).ok, false)
+  }
+})
+
 test('English canvas grants use translated defaults and field limits while retaining canonical ownership', () => {
   const original = siteCopyDefinitions.find(field => field.key === 'notices.title')
   const definition = { ...original, defaultValue: 'Choir news', maxLength: 18 }

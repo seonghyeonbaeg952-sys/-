@@ -25,10 +25,12 @@ export function EditableLayout({ id, children, nativeTag }: { id: string; childr
     translate: `${x}px ${y}px`,
     ...(value.width !== undefined ? { width: `${value.width}%`, maxWidth: 'none', height: 'auto' } : {}),
     ...(value.textAlign ? { textAlign: value.textAlign } : {}),
+    ...(value.lineHeight !== undefined ? { lineHeight: value.lineHeight, '--site-copy-line-height': value.lineHeight, height: 'auto' } : {}),
   } : {}) }
   const NativeElement = children.type as ElementType<NativeTextProps>
   return <NativeElement {...children.props} key={children.key} ref={element}
     {...(value?.width !== undefined ? { 'data-site-manual-width': '' } : {})}
+    {...(value?.lineHeight !== undefined ? { 'data-site-manual-line-height': '' } : {})}
     {...(context.isPreview ? { 'data-site-layout': id, 'data-site-layout-group': definition.group, 'data-site-layout-value': JSON.stringify(value ?? {}) } : {})}
     {...(value ? { style } : {})} />
 }

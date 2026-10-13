@@ -275,14 +275,14 @@ function LineageMilestone({
         className="spirit-heritage__milestone-year"
         style={reducedMotion ? undefined : { scale: yearScale, x: yearX }}
       >
-        {renderedYear}
+        {year === '현재' || year === '미래' ? <FormattedCopy page="spirit" id={year === '현재' ? 'spirit.lineage.now' : 'spirit.lineage.next'} text={renderedYear}>{renderedYear}</FormattedCopy> : renderedYear}
       </motion.p>
       <motion.div
         className="spirit-heritage__milestone-copy"
         style={reducedMotion ? undefined : { y: rowY }}
       >
-        <h3>{title}</h3>
-        <p>{body}</p>
+        <h3><FormattedCopy page="spirit" id={`spirit.lineage.${index}.title`} text={title}>{title}</FormattedCopy></h3>
+        <p><FormattedCopy page="spirit" id={`spirit.lineage.${index}.body`} text={body}>{body}</FormattedCopy></p>
       </motion.div>
     </motion.article>
   )
@@ -595,7 +595,6 @@ function MotetMeaning({ copy }: { copy: SpiritCopy }) {
 }
 
 function SpiritManifesto({ text }: { text: string }) {
-  const { copy: editorCopy } = useSiteEditor()
   const paragraphs = useMemo(() => {
     const resolved = getParagraphs(text)
     return resolved.length >= 4 ? resolved.slice(0, 4) : spiritManifestoCopy.paragraphs
@@ -631,7 +630,7 @@ function SpiritManifesto({ text }: { text: string }) {
               <p className="spirit-heritage__manifesto-number">
                 {String(index + 1).padStart(2, '0')}
               </p>
-              <h3>{editorCopy('spirit', `spirit.manifesto.label${index}`, manifestoStatementTitles[index])}</h3>
+              <h3><SiteCopy page="spirit" id={`spirit.manifesto.label${index}`} fallback={manifestoStatementTitles[index]} lineBreaks={false} /></h3>
               <p><SiteCopy page="spirit" id={`spirit.content.manifesto.${index}.body`} fallback={paragraph} /></p>
             </Reveal>
           ))}
@@ -642,7 +641,6 @@ function SpiritManifesto({ text }: { text: string }) {
 }
 
 function FaithSection() {
-  const { copy: editorCopy } = useSiteEditor()
   return (
     <section className="spirit-heritage__faith" id="spirit-faith" tabIndex={-1}>
       <Reveal className="spirit-heritage__faith-watermark" x={74} y={0}><SiteCopy page="spirit" id="spirit.faithSection.english1" fallback={"HONEST"} /></Reveal>
@@ -657,9 +655,9 @@ function FaithSection() {
                 <em><SiteCopy page="spirit" id="spirit.faithSection.text4" fallback={"기준"} /></em><SiteCopy page="spirit" id="spirit.faithSection.text5" fallback={"이 됩니다."} /></span>
             </h2>
           </Reveal>
-          <p className="spirit-heritage__faith-lead">{editorCopy('spirit', 'spirit.faith.lead', songOfMemoryCopy.lead)}</p>
+          <p className="spirit-heritage__faith-lead"><SiteCopy page="spirit" id="spirit.faith.lead" fallback={songOfMemoryCopy.lead} lineBreaks={false} /></p>
           {songOfMemoryCopy.paragraphs.map((paragraph, index) => (
-            <p key={paragraph}>{editorCopy('spirit', `spirit.faith.paragraph${index}`, paragraph)}</p>
+            <p key={paragraph}><SiteCopy page="spirit" id={`spirit.faith.paragraph${index}`} fallback={paragraph} lineBreaks={false} /></p>
           ))}
         </div>
 
@@ -673,9 +671,9 @@ function FaithSection() {
               x={index === 0 ? 58 : -58}
               y={0}
             >
-              <p>{editorCopy('spirit', `spirit.scripture.${index}.label`, card.label)}</p>
-              <blockquote>{editorCopy('spirit', `spirit.scripture.${index}.text`, card.text)}</blockquote>
-              <small>{editorCopy('spirit', `spirit.scripture.${index}.note`, card.note)}</small>
+              <p><SiteCopy page="spirit" id={`spirit.scripture.${index}.label`} fallback={card.label} lineBreaks={false} /></p>
+              <blockquote><SiteCopy page="spirit" id={`spirit.scripture.${index}.text`} fallback={card.text} lineBreaks={false} /></blockquote>
+              <small><SiteCopy page="spirit" id={`spirit.scripture.${index}.note`} fallback={card.note} lineBreaks={false} /></small>
             </Reveal>
           ))}
         </div>
@@ -778,7 +776,7 @@ function CommunitySection() {
               <span className="spirit-heritage__community-line spirit-heritage__community-line--last"><SiteCopy page="spirit" id="spirit.communitySection.text5" fallback={"공동체가 됩니다."} /></span>
             </h2>
           </Reveal>
-          <p>{editorCopy('spirit', 'spirit.community.lead', voiceConstellationCopy.lead)}</p>
+          <p><SiteCopy page="spirit" id="spirit.community.lead" fallback={voiceConstellationCopy.lead} lineBreaks={false} /></p>
         </div>
         <Reveal className="spirit-heritage__community-photo" scale={1.032} x={-54} y={0}>
           <OptimizedImage
@@ -790,20 +788,20 @@ function CommunitySection() {
             src={COMMUNITY_IMAGE}
             width={2200}
           >
-            <span className="spirit-heritage__image-label">{editorCopy('spirit', 'spirit.community.centerLabel', voiceConstellationCopy.centerLabel)}</span>
+            <span className="spirit-heritage__image-label"><SiteCopy page="spirit" id="spirit.community.centerLabel" fallback={voiceConstellationCopy.centerLabel} lineBreaks={false} /></span>
           </OptimizedImage>
         </Reveal>
         <div className="spirit-heritage__voices">
           {voiceConstellationCopy.voices.map((voice, index) => (
             <Reveal className="spirit-heritage__voice" delay={index * 0.05} key={voice.part} y={18}>
               <small>{String(index + 1).padStart(2, '0')}</small>
-              <h3>{editorCopy('spirit', `spirit.voices.${index}.part`, voice.part)}</h3>
-              <p>{editorCopy('spirit', `spirit.voices.${index}.meaning`, voice.meaning)}</p>
+              <h3><SiteCopy page="spirit" id={`spirit.voices.${index}.part`} fallback={voice.part} lineBreaks={false} /></h3>
+              <p><SiteCopy page="spirit" id={`spirit.voices.${index}.meaning`} fallback={voice.meaning} lineBreaks={false} /></p>
             </Reveal>
           ))}
         </div>
         <Reveal className="spirit-heritage__community-closing" y={24}>
-          {editorCopy('spirit', 'spirit.community.closing', voiceConstellationCopy.closing.replace(' 서로를', '\n서로를'))}
+          <SiteCopy page="spirit" id="spirit.community.closing" fallback={voiceConstellationCopy.closing.replace(' 서로를', '\n서로를')} lineBreaks={false} />
         </Reveal>
       </div>
     </section>
@@ -861,7 +859,7 @@ function EducationSection() {
                 whileInView={{ opacity: 1 }}
               >
                 <small>{String(index + 1).padStart(2, '0')}</small>
-                <span>{editorCopy('spirit', `spirit.learning.${index}.step`, step.step)}</span>
+                <span><SiteCopy page="spirit" id={`spirit.learning.${index}.step`} fallback={step.step} lineBreaks={false} /></span>
               </motion.button>
             ))}
           </div>
@@ -876,9 +874,9 @@ function EducationSection() {
               role="tabpanel"
               transition={{ duration: 0.58, ease: EASE_OUT }}
             >
-              <p>{editorCopy('spirit', `spirit.learning.${activeIndex}.step`, activeStep.step)}</p>
-              <h3>{editorCopy('spirit', `spirit.learning.${activeIndex}.title`, activeStep.title)}</h3>
-              <span>{editorCopy('spirit', `spirit.learning.${activeIndex}.body`, activeStep.body)}</span>
+              <p><SiteCopy page="spirit" id={`spirit.learning.${activeIndex}.step`} fallback={activeStep.step} lineBreaks={false} /></p>
+              <h3><SiteCopy page="spirit" id={`spirit.learning.${activeIndex}.title`} fallback={activeStep.title} lineBreaks={false} /></h3>
+              <span><SiteCopy page="spirit" id={`spirit.learning.${activeIndex}.body`} fallback={activeStep.body} lineBreaks={false} /></span>
               <strong>{String(activeIndex + 1).padStart(2, '0')}</strong>
             </motion.article>
           </AnimatePresence>

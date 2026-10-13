@@ -37,6 +37,7 @@ export function formatEditorChangeValue(kind: string, value: string | number | u
         layout.offsetY === undefined ? undefined : `세로 이동 ${layout.offsetY}px`,
         layout.width === undefined ? undefined : `너비 ${layout.width}%`,
         layout.textAlign === undefined ? undefined : ({ start: '시작 정렬', center: '가운데 정렬', end: '끝 정렬' }[layout.textAlign]),
+        layout.lineHeight === undefined ? undefined : `줄간격 ${layout.lineHeight}배`,
       ].filter(Boolean).join(' · ') || '기존 상자 배치 사용'
     } catch { return '문구 상자 배치 변경' }
   }

@@ -1935,40 +1935,60 @@
     width: 300px;
   }
 
+  /* NOW/NEXT reserve their actual type width instead of a fixed copy offset.
+     A small stagger keeps NEXT's body readable; motion timing stays unchanged. */
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(n + 3) {
+    inset: auto;
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    column-gap: 40px;
+    height: auto;
+  }
+
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(3) {
+    top: 500px;
+    left: 156px;
+    width: calc(100% - 156px);
+  }
+
   .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(3) .spirit-heritage__milestone-dot {
-    top: 588px;
-    left: 84px;
+    top: 88px;
+    left: -72px;
   }
 
   .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(3) .spirit-heritage__milestone-year {
-    top: 500px;
-    left: 94px;
+    position: static;
     font-size: 120px;
     line-height: 0.88;
   }
 
   .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(3) .spirit-heritage__milestone-copy {
-    top: 532px;
-    left: 384px;
-    width: 360px;
+    position: static;
+    width: auto;
+    padding-top: 32px;
+  }
+
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(4) {
+    top: 790px;
+    left: 188px;
+    width: calc(100% - 188px);
   }
 
   .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(4) .spirit-heritage__milestone-dot {
-    top: 878px;
-    left: 192px;
+    top: 88px;
+    left: -44px;
   }
 
   .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(4) .spirit-heritage__milestone-year {
-    top: 790px;
-    left: 204px;
+    position: static;
     font-size: 116px;
     line-height: 0.88;
   }
 
   .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(4) .spirit-heritage__milestone-copy {
-    top: 818px;
-    left: 504px;
-    width: 280px;
+    position: static;
+    width: auto;
+    padding-top: 28px;
   }
 
   .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone-copy {

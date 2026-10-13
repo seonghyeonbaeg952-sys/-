@@ -53,3 +53,11 @@ test('English empty previews identify their workspace without linking to origina
   assert.match(html, /영문 화면에 사용할 공개 항목이 없습니다/)
   assert.doesNotMatch(html, /연결된 콘텐츠 관리에서 항목을 등록/)
 })
+
+test('embedded editor uses the parent device chooser without a duplicate viewport toolbar', () => {
+  const html = render({ showDeviceChooser: false })
+  assert.doesNotMatch(html, /aria-label="미리보기 크기"/)
+  assert.match(html, /데스크톱 1440px 미리보기/)
+  assert.match(html, /aria-label="미리보기 표시"/)
+  assert.match(render(), /aria-label="미리보기 크기"/)
+})

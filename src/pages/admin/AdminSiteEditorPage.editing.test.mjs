@@ -58,7 +58,7 @@ function page(document = empty(), options = {}) {
     effects.splice(0).forEach(effect => effect())
   }
   const component = name => find(node => node.type === name)[0]?.node
-  const button = label => find(node => ['button', 'Button'].includes(node.type) && node.props.children === label)[0]?.node
+  const button = label => find(node => ['button', 'Button'].includes(node.type) && (node.props['aria-label'] === label || [node.props.children].flat(Infinity).join('') === label))[0]?.node
   render()
   return { render, find, component, button, document: () => sessions.notices.document,
     start() { const callback = component('EditorCopyPanel').props.onCompositionChange; assert.equal(typeof callback, 'function'); callback(true); render() },
@@ -109,6 +109,85 @@ test('composition locks page, scope, global search, preview and save actions but
   assert.equal(p.button('이 화면 게시').props.disabled, true)
   p.end(); assert.equal(p.component('EditorGlobalCopySearch').props.disabled, false)
   p.saveShortcut(); assert.equal(p.saved(), 1)
+})
+
+test('a live canvas edit blocks destructive reset requests without blocking its own editor', () => {
+  const original = { ...empty(), deviceCopy: { desktop: { 'notices.title': '저장된 문구' } } }
+  const p = page(original)
+  p.component('EditorPreview').props.onActiveChange(true); p.render()
+  for (const label of ['데스크톱 편집값 초기화', '이 화면 전체 초기화']) {
+    const reset = p.button(label)
+    assert.equal(reset.props.disabled, true)
+    reset.props.onClick(); p.render()
+    assert.equal(p.component('AdminModal').props.isOpen, false)
+  }
+  assert.deepEqual(p.document(), original)
+  assert.equal(p.component('EditorPreview').props.onCommit instanceof Function, true)
+  assert.equal(p.component('EditorPreview').props.onLayoutChange instanceof Function, true)
+  p.component('EditorPreview').props.onActiveChange(false); p.render()
+  assert.equal(p.button('데스크톱 편집값 초기화').props.disabled, false)
+})
+
+test('an already-open reset confirmation cannot discard a newly active canvas buffer', async () => {
+  const original = { ...empty(), deviceCopy: { desktop: { 'notices.title': '저장된 문구' } } }
+  const p = page(original)
+  p.button('이 화면 전체 초기화').props.onClick(); p.render()
+  assert.equal(p.component('AdminModal').props.isOpen, true)
+  p.component('EditorPreview').props.onActiveChange(true); p.render()
+  const confirm = p.component('AdminModal').props.footer.props.children.find(node => node.props.children === '초기화하기')
+  assert.equal(confirm.props.disabled, true)
+  await confirm.props.onClick(); p.render()
+  assert.deepEqual(p.document(), original)
+  assert.equal(p.component('AdminModal').props.isOpen, true)
+  p.component('EditorPreview').props.onActiveChange(false); p.render()
+  const unlocked = p.component('AdminModal').props.footer.props.children.find(node => node.props.children === '초기화하기')
+  assert.equal(unlocked.props.disabled, false)
+  await unlocked.props.onClick(); p.render()
+  assert.deepEqual(p.document(), empty())
+  assert.equal(p.component('AdminModal').props.isOpen, false)
+})
+
+test('save and publish handlers recheck an active canvas rather than only disabling their buttons', () => {
+  const p = page({ ...empty(), copy: { 'notices.title': '원문' } })
+  p.type('저장할 문구')
+  p.component('EditorPreview').props.onActiveChange(true); p.render()
+  p.button('임시저장').props.onClick(); p.render()
+  p.button('이 화면 게시').props.onClick(); p.render()
+  assert.equal(p.saved(), 0)
+  assert.equal(p.component('AdminModal').props.isOpen, false)
+  assert.equal(p.component('EditorPreview').props.showDeviceChooser, false)
+  p.component('EditorPreview').props.onActiveChange(false); p.render()
+  p.button('임시저장').props.onClick()
+  assert.equal(p.saved(), 1)
+})
+
+test('confirmed page reset is a reversible history transaction, including layout and formatting', async () => {
+  const original = { ...empty(), deviceCopy: { desktop: { 'notices.title': '되돌릴 문구' } },
+    textLayouts: { desktop: { 'notices.title': { offsetX: 12, lineHeight: 1.6 } } },
+    appearance: { desktop: { fontSize: 18 } } }
+  const p = page(original)
+  p.button('이 화면 전체 초기화').props.onClick(); p.render()
+  await p.component('AdminModal').props.footer.props.children.find(node => node.props.children === '초기화하기').props.onClick()
+  p.render()
+  assert.deepEqual(p.document(), empty())
+  assert.equal(p.button('최근 편집 실행 취소').props.disabled, false)
+  p.button('최근 편집 실행 취소').props.onClick(); p.render()
+  assert.deepEqual(p.document(), original)
+  p.button('최근 편집 다시 실행').props.onClick(); p.render()
+  assert.deepEqual(p.document(), empty())
+})
+
+test('page-wide appearance edits are reversible without stranding earlier text history', () => {
+  const p = page({ ...empty(), copy: { 'notices.title': '원문' } })
+  p.type('먼저 고친 문구')
+  p.button('페이지 전체 서식').props.onClick(); p.render()
+  p.component('EditorAppearancePanel').props.onChange('fontSize', 22); p.render()
+  assert.equal(p.document().appearance.desktop.fontSize, 22)
+  p.button('최근 편집 실행 취소').props.onClick(); p.render()
+  assert.equal(p.document().deviceCopy.desktop['notices.title'], '먼저 고친 문구')
+  assert.equal(p.document().appearance.desktop, undefined)
+  p.button('최근 편집 다시 실행').props.onClick(); p.render()
+  assert.equal(p.document().appearance.desktop.fontSize, 22)
 })
 
 test('clearing inherited formatting creates an explicit empty device run override without altering shared styling', () => {

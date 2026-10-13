@@ -8,6 +8,7 @@ import { AdminPageTitle } from '../../components/admin/AdminPageTitle'
 import { EditorAppearancePanel } from '../../components/admin/site-editor/EditorAppearancePanel'
 import { EditorCopyPanel } from '../../components/admin/site-editor/EditorCopyPanel'
 import { EditorGlobalCopySearch } from '../../components/admin/site-editor/EditorGlobalCopySearch'
+import { EditorIcon } from '../../components/admin/site-editor/EditorIcon'
 import { applyCopyReplacement, copyValue, type CopyReplacementPlan } from '../../components/admin/site-editor/editorCopyTools'
 import type { EditorSession } from '../../components/admin/site-editor/editorSessionModel'
 import { EditorPreview } from '../../components/admin/site-editor/EditorPreview'
@@ -31,6 +32,7 @@ import { getAccompanistCopyDefinition } from '../../lib/accompanistProfileCopy'
 import { editorLanguageHref } from '../../features/sample-language/sampleLanguageModel'
 import type { EditorDevice, EditorPageId, EditorTextRun, EditorTextLayout, SiteCopyDefinition, SiteEditorDocument, SiteEditorDocuments, SiteEditorRevision } from '../../types/siteEditor'
 import '../../styles/admin-site-editor.css'
+import '../../styles/admin-site-editor-workspace.css'
 import '../../components/site-editor/site-editor-fonts.css'
 
 type Confirmation = { kind: 'publish' | 'reset-page' | 'reset-scope' | 'reset-appearance' } | { kind: 'restore'; revision: SiteEditorRevision }
@@ -108,6 +110,7 @@ function AdminEditorWorkspace({ initialPage = 'home', storageScope = 'original',
   const allPageDefinitions = useMemo(() => [...copyDefinitions.filter((field) => field.page === page), ...boxDefinitions, ...profileDefinitions], [copyDefinitions, page, boxDefinitions, profileDefinitions])
   const definitions = useMemo(() => allPageDefinitions.filter(field => !field.sourceDevice || field.sourceDevice === scope), [allPageDefinitions, scope])
   const validation = session ? validateSiteEditorDocument(session.document) || validateEditorCopyFields(session.document, allPageDefinitions) : null
+  const canSave = Boolean(session && !interactionLocked && status.unsavedCount && !validation && !session.conflicts.length)
   const changeLabel = (key: string) => key.endsWith('.anchor') ? '문구 상자 배치 영역' : allPageDefinitions.find((field) => field.key === key)?.label ?? getTextLayoutDefinition(key)?.label ?? appearanceLabels[key] ?? '문구 설정'
   const documents = useMemo<SiteEditorDocuments>(() => Object.fromEntries(Object.entries(workspace.sessions).map(([key, value]) => [key, value?.document])), [workspace.sessions])
   const needsDetail = page === 'concert-detail' || page === 'notice-detail'
@@ -308,11 +311,20 @@ function AdminEditorWorkspace({ initialPage = 'home', storageScope = 'original',
       return replaceEditorDocument(current, result.document)
     })
   }
+  const requestConfirmation = (next: Confirmation) => {
+    if (canvasActive || busy || copyComposition.current) return
+    if (next.kind === 'publish' && (!status.canPublish || validation)) return
+    if (next.kind === 'restore' && (status.unsavedCount || session?.conflicts.length)) return
+    setConfirmation(next)
+  }
+  const saveCurrentDraft = () => {
+    if (canSave && !copyComposition.current) void workspace.save()
+  }
   const confirm = async () => {
-    if (!confirmation || !session || busy || copyComposition.current) return
-    if (confirmation.kind === 'publish') { if (await workspace.publish()) { setConfirmation(null); setCanvasNotice('') } return }
+    if (!confirmation || !session || canvasActive || busy || copyComposition.current) return
+    if (confirmation.kind === 'publish') { if (status.canPublish && !validation && await workspace.publish()) { setConfirmation(null); setCanvasNotice('') } return }
     if (confirmation.kind === 'restore') { if (await workspace.restore(confirmation.revision)) setConfirmation(null); return }
-    workspace.edit(page, (current) => {
+    editWithHistory((current) => {
       if (confirmation.kind === 'reset-page') return replaceEditorDocument(current, emptySiteEditorDocument())
       if (confirmation.kind === 'reset-scope') return resetEditorScope(current, scope)
       const appearance = { ...current.document.appearance }
@@ -324,12 +336,14 @@ function AdminEditorWorkspace({ initialPage = 'home', storageScope = 'original',
   const isHomeDefaultsUnavailable = (page === 'home' || english) && (defaultLoading || Boolean(defaultError))
 
   return <div className="site-editor site-editor--canvas" data-editor-view={view} data-editor-storage={storageScope}>
+    <header className="site-editor__workspace-header">
     <AdminPageTitle title={english ? '영어 버전 변경' : '홈페이지 편집'} description={english ? '영문 문구와 디자인을 별도로 저장하고 공개 홈페이지의 English 화면에 게시합니다. /sample/에서도 확인할 수 있습니다.' : '문구와 디자인을 수정한 뒤 미리보기에서 확인하세요. 임시저장과 게시는 별도입니다.'} />
     <nav className="site-editor__inline-actions" aria-label="편집 작업 공간">
       <Button href={`/admin/editor?${switchParams}`} size="sm" variant={english ? 'secondary' : 'primary'} showArrow={false} disabled={interactionLocked} aria-current={!english ? 'page' : undefined}>한글 원본</Button>
       <Button href={`/admin/editor-english?${switchParams}`} size="sm" variant={english ? 'primary' : 'secondary'} showArrow={false} disabled={interactionLocked} aria-current={english ? 'page' : undefined}>영어 버전</Button>
       <Button href="/admin/photos" size="sm" variant="secondary" showArrow={false} disabled={interactionLocked}>사진 관리</Button>
     </nav>
+    </header>
     <div className="site-editor__layout">
       <fieldset className="site-editor__selectors" disabled={interactionLocked}>
       <section className="site-editor__pages" aria-label="편집할 화면 선택">
@@ -358,12 +372,12 @@ function AdminEditorWorkspace({ initialPage = 'home', storageScope = 'original',
         {session ? <div className="site-editor__workbench">
           <div className="site-editor__document-history">
             <div className="site-editor__preview-tools" role="group" aria-label="문구 편의 도구">
-              <Button size="sm" variant="secondary" disabled={interactionLocked} onClick={openCopyTools}>문구 찾기·바꾸기 도구</Button>
+              <Button size="sm" variant="secondary" aria-label="문구 찾기·바꾸기 도구" disabled={interactionLocked} onClick={openCopyTools}><EditorIcon name="search" />찾기·바꾸기</Button>
               <EditorGlobalCopySearch documents={documents} defaults={defaults} defaultsByDevice={defaultsByDevice} previewDevice={device} scope={scope} definitions={copyDefinitions} storageScope={storageScope} disabled={interactionLocked} defaultsTrusted={!defaultLoading && !defaultError} load={workspace.loadForSearch} onChoose={(field, nextScope) => { if (copyComposition.current) return; choosePage(field.page); chooseScope(nextScope); setRequestedField(field.key); openCopyTools() }} />
             </div>
             <div className="site-editor__preview-tools" role="group" aria-label="마친 화면 편집 되돌리기">
-              <button type="button" disabled={interactionLocked || !historyCounts[page]?.undo} onClick={() => moveDocumentHistory('undo')}>최근 편집 실행 취소</button>
-              <button type="button" disabled={interactionLocked || !historyCounts[page]?.redo} onClick={() => moveDocumentHistory('redo')}>최근 편집 다시 실행</button>
+              <button type="button" aria-label="최근 편집 실행 취소" title="마친 문구 편집 실행 취소" disabled={interactionLocked || !historyCounts[page]?.undo} onClick={() => moveDocumentHistory('undo')}><EditorIcon name="undo" />실행 취소</button>
+              <button type="button" aria-label="최근 편집 다시 실행" title="마친 문구 편집 다시 실행" disabled={interactionLocked || !historyCounts[page]?.redo} onClick={() => moveDocumentHistory('redo')}><EditorIcon name="redo" />다시 실행</button>
             </div>
             {canvasNotice ? <p role="status" className="site-editor__help">{canvasNotice}</p> : null}
           </div>
@@ -372,18 +386,29 @@ function AdminEditorWorkspace({ initialPage = 'home', storageScope = 'original',
             <p className="site-editor__help">화면에서 선택되지 않는 문구, 여러 조각으로 나뉜 제목, 입력창 안내는 여기에서 수정하세요.</p>
             <fieldset disabled={canvasActive || busy}>
             <div className="site-editor__panel-tabs" role="group" aria-label="편집 종류">{([{ id: 'copy', label: '문구' }, { id: 'appearance', label: '페이지 전체 서식' }, { id: 'history', label: '게시 이력' }] as const).map((item) => <button key={item.id} type="button" disabled={copyComposing} aria-pressed={panel === item.id} onClick={() => setPanel(item.id)}>{item.label}</button>)}</div>
-{panel === 'copy' ? isHomeDefaultsUnavailable ? <p role="status" className="site-editor__empty">{english ? '영어 버전의 기본 문구를 확인한 뒤 편집할 수 있습니다.' : '기존 홈 문구를 확인한 뒤 편집할 수 있습니다.'}</p> : <EditorCopyPanel key={`${page}:${scope}:${requestedField}`} initialKey={requestedField} definitions={definitions} document={session.document} baseline={session.baseline} scope={scope} defaults={defaults} englishTranslation={english} onReplace={replaceCopy} onCompositionChange={changeCopyComposition} emptyMessage={page === 'home' && scope === 'shared' ? '기존 홈 문구는 기기별로 관리됩니다. 모바일·태블릿·데스크톱을 골라 수정하세요. 모든 기기의 글꼴과 색상은 공통 디자인에서 설정할 수 있습니다.' : undefined} onChange={(key, value) => editWithHistory((current) => editSessionCopy(current, scope, key, value))} onFormat={editFormattedCopy} /> : panel === 'appearance' ? <EditorAppearancePanel value={session.document.appearance[scope] ?? {}} onChange={(key, value) => workspace.edit(page, (current) => editSessionAppearance(current, scope, key, value))} onReset={() => setConfirmation({ kind: 'reset-appearance' })} /> : <EditorPublishHistory revisions={workspace.revisions} loading={workspace.historyLoading} error={workspace.historyError} disabled={interactionLocked || status.unsavedCount > 0 || session.conflicts.length > 0} onReload={() => void workspace.refreshHistory()} onRestore={(revision) => setConfirmation({ kind: 'restore', revision })} />}
+{panel === 'copy' ? isHomeDefaultsUnavailable ? <p role="status" className="site-editor__empty">{english ? '영어 버전의 기본 문구를 확인한 뒤 편집할 수 있습니다.' : '기존 홈 문구를 확인한 뒤 편집할 수 있습니다.'}</p> : <EditorCopyPanel key={`${page}:${scope}:${requestedField}`} initialKey={requestedField} definitions={definitions} document={session.document} baseline={session.baseline} scope={scope} defaults={defaults} englishTranslation={english} onReplace={replaceCopy} onCompositionChange={changeCopyComposition} emptyMessage={page === 'home' && scope === 'shared' ? '기존 홈 문구는 기기별로 관리됩니다. 모바일·태블릿·데스크톱을 골라 수정하세요. 모든 기기의 글꼴과 색상은 공통 디자인에서 설정할 수 있습니다.' : undefined} onChange={(key, value) => editWithHistory((current) => editSessionCopy(current, scope, key, value))} onFormat={editFormattedCopy} /> : panel === 'appearance' ? <EditorAppearancePanel value={session.document.appearance[scope] ?? {}} onChange={(key, value) => { if (!interactionLocked) editWithHistory((current) => editSessionAppearance(current, scope, key, value)) }} onReset={() => requestConfirmation({ kind: 'reset-appearance' })} /> : <EditorPublishHistory revisions={workspace.revisions} loading={workspace.historyLoading} error={workspace.historyError} disabled={interactionLocked || status.unsavedCount > 0 || session.conflicts.length > 0} onReload={() => void workspace.refreshHistory()} onRestore={(revision) => requestConfirmation({ kind: 'restore', revision })} />}
             {panel === 'history' && status.unsavedCount ? <p className="site-editor__notice">현재 입력을 먼저 임시저장하면 이전 게시본을 불러올 수 있습니다.</p> : null}
-            <div className="site-editor__reset-actions"><Button size="sm" variant="ghost" disabled={busy || copyComposing} onClick={() => setConfirmation({ kind: 'reset-scope' })}>{scopeLabels[scope]} 편집값 초기화</Button><Button size="sm" variant="ghost" disabled={busy || copyComposing} onClick={() => setConfirmation({ kind: 'reset-page' })}>이 화면 전체 초기화</Button></div>
+            <div className="site-editor__reset-actions"><Button size="sm" variant="ghost" disabled={interactionLocked} onClick={() => requestConfirmation({ kind: 'reset-scope' })}>{scopeLabels[scope]} 편집값 초기화</Button><Button size="sm" variant="ghost" disabled={interactionLocked} onClick={() => requestConfirmation({ kind: 'reset-page' })}>이 화면 전체 초기화</Button></div>
             </fieldset>
           </details>
-<div className="site-editor__preview-pane" inert={copyComposing}>{detailErrors[page] ? <p role="alert" className="site-editor__error">{detailErrors[page]}</p> : null}<EditorPreview page={page} label={english ? `${pageDefinition.label} · 영어 버전` : pageDefinition.label} path={previewPath} loadingPath={needsDetail && !Object.hasOwn(detailPaths, page)} device={device} documents={documents} copyDefinitions={copyDefinitions} storageScope={storageScope} onNavigate={(target) => choosePage(target.page, target.path)} locked={interactionLocked} context={canvasContext} onCommit={commitCanvas} onLayoutChange={changePlacement} onBoxAdd={addBox} onBoxRemove={removeBox} onActiveChange={setCanvasActive} onSave={() => { if (!canvasActive && !busy && !copyComposition.current && status.unsavedCount && !validation && !session.conflicts.length) void workspace.save() }} onDeviceChange={(next) => { if (!canvasActive && !busy && !copyComposition.current) { setDevice(next); if (scope !== 'shared') setScope(next) } }} /></div>
+<div className="site-editor__preview-pane" inert={copyComposing}>{detailErrors[page] ? <p role="alert" className="site-editor__error">{detailErrors[page]}</p> : null}<EditorPreview page={page} label={english ? `${pageDefinition.label} · 영어 버전` : pageDefinition.label} path={previewPath} loadingPath={needsDetail && !Object.hasOwn(detailPaths, page)} device={device} showDeviceChooser={false} documents={documents} copyDefinitions={copyDefinitions} storageScope={storageScope} onNavigate={(target) => choosePage(target.page, target.path)} locked={interactionLocked} context={canvasContext} onCommit={commitCanvas} onLayoutChange={changePlacement} onBoxAdd={addBox} onBoxRemove={removeBox} onActiveChange={setCanvasActive} onSave={() => { if (!canvasActive && !busy && !copyComposition.current && status.unsavedCount && !validation && !session.conflicts.length) void workspace.save() }} onDeviceChange={(next) => { if (!canvasActive && !busy && !copyComposition.current) { setDevice(next); if (scope !== 'shared') setScope(next) } }} /></div>
         </div> : !workspace.error ? <p role="status" className="site-editor__empty">안전하게 저장된 초안을 불러오고 있습니다.</p> : null}
         {!english && pageDefinition.contentLinks.length ? <section className="site-editor__content-links"><h3>실제 내용은 여기에서 관리합니다</h3><p className="site-editor__help">공연·프로필·입단 안내·후원 원문과 사진은 기존 콘텐츠 관리가 원본입니다.</p><div>{pageDefinition.contentLinks.map((link) => <Button key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" variant="secondary" size="sm">{link.label} · 새 탭</Button>)}</div></section> : null}
       </div>
     </div>
-    <div className="site-editor__save-bar"><div><strong>{english ? `${pageDefinition.label} · 영어 버전` : pageDefinition.label}</strong><span role="status">{copyComposing ? '한글 입력 중 · 입력을 마치면 이동·미리보기·저장을 사용할 수 있습니다.' : canvasActive ? '화면에서 문구 수정 중 · 편집을 먼저 마쳐 주세요' : busy ? '처리 중입니다. 추가 입력은 보존됩니다.' : !session ? workspace.error ? '초안을 불러오지 못했습니다' : '초안을 불러오는 중' : status.unsavedCount ? `미저장 ${status.unsavedCount}개 · 저장 후 게시할 수 있습니다` : status.unpublishedCount ? `임시저장 완료 · 게시 전 변경 ${status.unpublishedCount}개` : '저장된 초안과 게시본이 같습니다'}</span>{allDirty > (status.unsavedCount ? 1 : 0) ? <span>다른 화면에도 미저장 초안이 있습니다.</span> : null}{validation ? <span className="site-editor__error" role="alert">{validation}</span> : null}</div><div className="site-editor__inline-actions"><Button variant="secondary" disabled={!session || interactionLocked || !status.unsavedCount || Boolean(validation) || Boolean(session.conflicts.length)} onClick={() => { if (!copyComposition.current) void workspace.save() }}>{english ? workspace.action?.kind === 'save' ? '영어 버전 저장 중…' : '영어 버전 임시저장' : workspace.action?.kind === 'save' ? '임시저장 중…' : '임시저장'}</Button><Button disabled={!session || interactionLocked || !status.canPublish || Boolean(validation)} onClick={() => { if (!copyComposition.current) setConfirmation({ kind: 'publish' }) }}>{english ? '영어 버전 게시' : '이 화면 게시'}</Button></div></div>
-    <AdminModal isOpen={Boolean(confirmation)} onClose={() => { if (!busy) setConfirmation(null) }} title={confirmation?.kind === 'publish' ? `${pageDefinition.label} · ${english ? '영어 버전에 게시' : '홈페이지에 게시'}` : confirmation?.kind === 'restore' ? english ? '이전 영어 버전 게시본을 초안으로 불러오기' : '이전 게시본을 초안으로 불러오기' : '편집값 초기화'} footer={<div className="site-editor__inline-actions"><Button variant="secondary" disabled={busy} onClick={() => setConfirmation(null)}>취소</Button><Button disabled={busy || !session || (confirmation?.kind === 'publish' && !status.canPublish)} onClick={() => void confirm()}>{busy ? '처리 중…' : confirmation?.kind === 'publish' ? `${pageDefinition.label}${english ? ' 영어 버전' : ''} 게시하기` : confirmation?.kind === 'restore' ? '초안으로 불러오기' : '초기화하기'}</Button></div>}>
+    <div className="site-editor__save-bar">
+      <div>
+        <strong>{english ? `${pageDefinition.label} · 영어 버전` : pageDefinition.label}</strong>
+        <span role="status">{copyComposing ? '한글 입력 중 · 입력을 마치면 이동·미리보기·저장을 사용할 수 있습니다.' : canvasActive ? '화면에서 문구 수정 중 · 편집을 먼저 마쳐 주세요' : busy ? '처리 중입니다. 추가 입력은 보존됩니다.' : !session ? workspace.error ? '초안을 불러오지 못했습니다' : '초안을 불러오는 중' : status.unsavedCount ? `미저장 ${status.unsavedCount}개 · 저장 후 게시할 수 있습니다` : status.unpublishedCount ? `임시저장 완료 · 게시 전 변경 ${status.unpublishedCount}개` : '저장된 초안과 게시본이 같습니다'}</span>
+        {allDirty > (status.unsavedCount ? 1 : 0) ? <span>다른 화면에도 미저장 초안이 있습니다.</span> : null}
+        {validation ? <span className="site-editor__error" role="alert">{validation}</span> : null}
+      </div>
+      <div className="site-editor__inline-actions">
+        <Button variant="secondary" disabled={!canSave} onClick={saveCurrentDraft}>{english ? workspace.action?.kind === 'save' ? '영어 버전 저장 중…' : '영어 버전 임시저장' : workspace.action?.kind === 'save' ? '임시저장 중…' : '임시저장'}</Button>
+        <Button disabled={!session || interactionLocked || !status.canPublish || Boolean(validation)} onClick={() => requestConfirmation({ kind: 'publish' })}>{english ? '영어 버전 게시' : '이 화면 게시'}</Button>
+      </div>
+    </div>
+    <AdminModal isOpen={Boolean(confirmation)} onClose={() => { if (!busy) setConfirmation(null) }} title={confirmation?.kind === 'publish' ? `${pageDefinition.label} · ${english ? '영어 버전에 게시' : '홈페이지에 게시'}` : confirmation?.kind === 'restore' ? english ? '이전 영어 버전 게시본을 초안으로 불러오기' : '이전 게시본을 초안으로 불러오기' : '편집값 초기화'} footer={<div className="site-editor__inline-actions"><Button variant="secondary" disabled={busy} onClick={() => setConfirmation(null)}>취소</Button><Button disabled={interactionLocked || !session || (confirmation?.kind === 'publish' && !status.canPublish)} onClick={() => void confirm()}>{busy ? '처리 중…' : confirmation?.kind === 'publish' ? `${pageDefinition.label}${english ? ' 영어 버전' : ''} 게시하기` : confirmation?.kind === 'restore' ? '초안으로 불러오기' : '초기화하기'}</Button></div>}>
       {confirmation?.kind === 'publish' ? <><p>저장된 <strong>{pageDefinition.label}</strong> {english ? '영문 초안을 공개 홈페이지와 /sample/의 English 화면에 적용합니다. 한국어 게시본과 다른 화면의 초안은 그대로 유지됩니다.' : '초안을 공개 홈페이지에 적용합니다. 다른 화면의 초안은 게시하지 않습니다.'}</p><ul className="site-editor__change-summary">{publishChanges.map((change) => <li key={change.id}><strong>{scopeLabels[change.scope]} · {changeLabel(change.key)}</strong><span>{formatEditorChangeValue(change.kind, change.after)}</span></li>)}</ul></> : confirmation?.kind === 'restore' ? <p>{formatEditorTime(confirmation.revision.published_at)}의 문구·디자인 설정을 {english ? '영어 버전 초안으로 불러옵니다. 확인 후 영어 버전에 별도로 게시해 주세요.' : '초안으로 불러옵니다. 현재 공개 홈페이지와 전용 콘텐츠 원문은 그대로 유지됩니다. 확인 후 별도로 게시해 주세요.'}</p> : <p>{confirmation?.kind === 'reset-page' ? '이 화면의 모든 공통·기기별 문구와 디자인' : confirmation?.kind === 'reset-appearance' ? `${scopeLabels[scope]} 디자인` : `${scopeLabels[scope]} 문구와 디자인`}{english ? '의 영문 편집값을 지우고 기본 영문 문구와 디자인을 사용합니다. 영어 버전 게시 후 공개 화면에 적용됩니다.' : '의 편집값을 지우고 기존 원문과 디자인을 사용합니다. 임시저장·게시 전에는 공개 홈페이지가 바뀌지 않습니다.'}</p>}
       {workspace.error ? <p className="site-editor__error" role="alert">{workspace.error}</p> : null}
     </AdminModal>

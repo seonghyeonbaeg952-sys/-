@@ -55,7 +55,7 @@ function toolbar(overrides = {}) {
     if (name.endsWith('.css')) return {}
     const component = name.split('/').at(-1)
     if (component === 'siteEditorAddedBoxes') return { isEditorAddedBoxId: id => /^[a-z][a-z-]*\.box\.[0-9a-f-]{36}\.text$/i.test(id) }
-    if (component === 'siteEditorLayout') return { EDITOR_TEXT_WIDTH_MIN: 10, EDITOR_TEXT_WIDTH_MAX: 400 }
+    if (component === 'siteEditorLayout') return { EDITOR_TEXT_WIDTH_MIN: 10, EDITOR_TEXT_WIDTH_MAX: 400, EDITOR_LINE_HEIGHT_MIN: 0.8, EDITOR_LINE_HEIGHT_MAX: 3 }
     if (['AdminFormField', 'AdminSelect', 'Button'].includes(component)) return { [component]: component }
     throw new Error(`Unexpected dependency: ${name}`)
   } })
@@ -88,6 +88,15 @@ test('number edits remain local until one explicit apply emits one complete layo
   assert.deepEqual(t.events, [])
   t.apply()
   assert.deepEqual(t.events, [['change', { offsetX: 12.5, offsetY: -20, width: 60, textAlign: 'center' }]])
+})
+
+test('secondary reference alignment is collapsed without removing accessible controls', () => {
+  const t = toolbar()
+  const disclosure = t.find(node => node.type === 'details' && node.props.className === 'placement-toolbar__section')[0]
+  assert.ok(disclosure)
+  assert.equal(disclosure.props.open, undefined)
+  assert.ok(t.field('기준 문구'))
+  assert.ok(t.button('좌우 가운데 맞춤'))
 })
 
 test('empty, nonfinite, and out-of-range position inputs preserve the draft and emit nothing', () => {
@@ -184,12 +193,30 @@ test('no selected block offers selection guidance without editable geometry', ()
   assert.equal(t.find(n => n.props?.label === '가로 이동 X (px)').length, 0)
 })
 
+test('box line height applies with geometry and default reset removes only the spacing override', () => {
+  const t = toolbar({ value: { offsetX: 12, width: 60, textAlign: 'center' } })
+  t.edit('줄간격 (배)', '1.6'); t.apply(); t.render()
+  assert.deepEqual(t.events, [['change', { offsetX: 12, width: 60, textAlign: 'center', lineHeight: 1.6 }]])
+  t.click('줄간격 기본값')
+  assert.deepEqual(t.events[1], ['change', { offsetX: 12, width: 60, textAlign: 'center' }])
+})
+
+test('invalid line height keeps operator input and refuses a layout command', () => {
+  const t = toolbar()
+  for (const input of ['0', '0.79', '3.01', 'nope']) {
+    t.edit('줄간격 (배)', input); t.apply()
+    assert.equal(t.field('줄간격 (배)').props.value, input)
+    assert.ok(t.field('줄간격 (배)').props.error)
+    assert.deepEqual(t.events, [])
+  }
+})
+
 test('acknowledgement followed by undo must not resurrect previously applied numeric input', () => {
   const t = toolbar(); t.edit('가로 이동 X (px)', '20'); t.apply()
   assert.equal(t.field('가로 이동 X (px)').props.value, '20')
   t.render({ value: undefined })
   assert.equal(t.field('가로 이동 X (px)').props.value, '0')
-  assert.equal(t.button('위치·너비 적용').props.disabled, true)
+  assert.equal(t.button('위치·너비·줄간격 적용').props.disabled, true)
 })
 
 test('switching away and back cannot resurrect a stale local draft', () => {

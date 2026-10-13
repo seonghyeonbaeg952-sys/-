@@ -33,6 +33,27 @@ test('legacy documents remain unchanged and layout resolution has no device or s
   assert.equal(doc.textLayouts.desktop['home.hero.title'].width, 55, 'resolution cannot expose a mutable draft reference')
 })
 
+test('unitless line height persists independently of geometry and other devices through save and preview', () => {
+  const value = { offsetX: 12, width: 80, lineHeight: 1.6 }
+  const doc = entry(value)
+  assert.equal(model.validateSiteEditorDocument(doc), null)
+  assert.deepEqual(layout.resolveTextLayout(doc, 'desktop', 'home.hero.title'), value)
+  assert.equal(layout.resolveTextLayout(doc, 'mobile', 'home.hero.title'), undefined)
+  let current = edit(start(), 'desktop', 'home.hero.title', value)
+  current = session.acceptEditorSave(current, record(current.document, 2))
+  assert.deepEqual(current.document.textLayouts.desktop['home.hero.title'], value)
+  const message = { type: 'smyc-editor:draft', version: 1, nonce: '11111111-1111-4111-8111-111111111111', page: 'home', sequence: 1, documents: { home: doc } }
+  assert.equal(preview.parseSiteEditorMessage(message)?.documents.home.textLayouts.desktop['home.hero.title'].lineHeight, 1.6)
+  assert.deepEqual(layout.canonicalTextLayout({ lineHeight: 1.6, width: 80, offsetX: 12 }), value)
+})
+
+test('line height accepts only finite bounded unitless numbers, never arbitrary CSS', () => {
+  for (const lineHeight of [0.8, 1, 1.5, 2.4, 3]) assert.equal(model.validateSiteEditorDocument(entry({ lineHeight })), null)
+  for (const lineHeight of [0, 0.79, 3.01, -1, NaN, Infinity, '1.5', '24px', null, undefined]) {
+    assert.notEqual(layout.validateTextLayouts({ desktop: { box: { lineHeight } } }), null)
+  }
+})
+
 test('the document accepts bounded pixel offsets and percent widths only in explicit device maps', () => {
   for (const device of ['mobile', 'tablet', 'desktop']) for (const value of [
     {}, { offsetX: -2000, offsetY: 2000, width: 10, textAlign: 'start' },

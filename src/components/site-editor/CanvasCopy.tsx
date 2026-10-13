@@ -64,9 +64,11 @@ export function CanvasCopy({ page, id, text, fullText = text, offset = 0, parts,
   const style: CSSProperties | undefined = layout ? { display: 'inline-block', verticalAlign: 'baseline',
     translate: `${layout.offsetX ?? 0}px ${layout.offsetY ?? 0}px`,
     ...(layout.width !== undefined ? { width: `${layout.width}%`, maxWidth: 'none', height: 'auto' } : {}),
-    ...(layout.textAlign ? { textAlign: layout.textAlign } : {}) } : undefined
+    ...(layout.textAlign ? { textAlign: layout.textAlign } : {}),
+    ...(layout.lineHeight !== undefined ? { lineHeight: layout.lineHeight, '--site-copy-line-height': layout.lineHeight, height: 'auto' } : {}) } : undefined
   return <smyc-edit-target ref={element} style={style}
     {...(layout?.width !== undefined ? { 'data-site-manual-width': '' } : {})}
+    {...(layout?.lineHeight !== undefined ? { 'data-site-manual-line-height': '' } : {})}
     {...(registry ? { 'data-canvas-target': instanceId, 'data-canvas-copy-key': id, 'data-canvas-owner-page': page } : {})}
     {...(context.isPreview && definition?.page === page ? { 'data-site-layout': id, 'data-site-layout-group': definition.group, 'data-site-layout-value': JSON.stringify(layout ?? {}) } : {})}>
     {active ? snapshot.children : children}

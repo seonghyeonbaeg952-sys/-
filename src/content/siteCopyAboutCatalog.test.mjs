@@ -32,10 +32,24 @@ const approvedMarkupHashes = {
   // Spirit includes the user-approved image dimensions from 5a065d7.
   history: '49dd95e8e8601b19c93aa4cea85853572b74afff47b6e39cc945800988ac9e49', spirit: 'bd31b232e84b272f22e13f43a1aa274c51709bdb34b1db7c880eb695001fc42c',
 }
-function render(page, { copy = (_page, _key, fallback) => fallback, values = props[page], device = 'desktop' } = {}) {
+function render(page, { copy = (_page, _key, fallback) => fallback, values = props[page], device = 'desktop', preview = false } = {}) {
+  const canvas = preview ? { subscribe: () => () => {}, getActiveId: () => null, register: () => () => {} } : undefined
   return renderToStaticMarkup(React.createElement(MemoryRouter, null,
-    React.createElement(SiteEditorContext, { value: { copy, documents: {}, device, isPreview: false } }, React.createElement(components[page], values))))
+    React.createElement(SiteEditorContext, { value: { copy, documents: {}, device, isPreview: preview, canvas } }, React.createElement(components[page], values))))
 }
+
+test('Spirit source-owned paragraphs, labels and active education content register editable preview targets', () => {
+  const html = render('spirit', { preview: true })
+  const keys = [
+    ...Array.from({ length: 4 }, (_, i) => [`spirit.lineage.${i}.title`, `spirit.lineage.${i}.body`, `spirit.manifesto.label${i}`]).flat(),
+    'spirit.faith.lead', ...Array.from({ length: 3 }, (_, i) => `spirit.faith.paragraph${i}`),
+    ...Array.from({ length: 2 }, (_, i) => ['label', 'text', 'note'].map(part => `spirit.scripture.${i}.${part}`)).flat(),
+    'spirit.community.lead', 'spirit.community.centerLabel', 'spirit.community.closing',
+    ...Array.from({ length: 5 }, (_, i) => [`spirit.voices.${i}.part`, `spirit.voices.${i}.meaning`, `spirit.learning.${i}.step`]).flat(),
+    'spirit.learning.2.title', 'spirit.learning.2.body',
+  ]
+  for (const key of keys) assert.ok(html.includes(`data-canvas-copy-key="${key}"`), `missing canvas source: ${key}`)
+})
 
 for (const [page, text] of Object.entries({ about: '청소년의 목소리로', conductor: '지휘자 소개', accompanist: '반주자 소개', members: '함께한 모든 이름이', history: '한 줄의 기록이', spirit: '정신은 선언이 아니라' })) {
   test(`${page} title reads its own page key even when rendered outside that route`, () => {

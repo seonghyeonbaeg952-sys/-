@@ -5,7 +5,7 @@ import { AdminFormField } from '../AdminFormField'
 import { AdminSelect } from '../AdminSelect'
 import './editor-placement-toolbar.css'
 import { isEditorAddedBoxId } from '../../../lib/siteEditorAddedBoxes'
-import { EDITOR_TEXT_WIDTH_MIN, EDITOR_TEXT_WIDTH_MAX } from '../../../lib/siteEditorLayout'
+import { EDITOR_TEXT_WIDTH_MIN, EDITOR_TEXT_WIDTH_MAX, EDITOR_LINE_HEIGHT_MIN, EDITOR_LINE_HEIGHT_MAX } from '../../../lib/siteEditorLayout'
 
 export type EditorPlacementBlock = {
   id: string
@@ -32,16 +32,17 @@ export type EditorPlacementToolbarProps = {
 }
 
 type PlacementDraft = {
-  x: string; y: string; width: string; automaticWidth: boolean
+  x: string; y: string; width: string; automaticWidth: boolean; lineHeight: string
   align: EditorTextLayout['textAlign'] | ''
 }
-type PlacementError = { field?: 'x' | 'y' | 'width'; message: string }
+type PlacementError = { field?: 'x' | 'y' | 'width' | 'lineHeight'; message: string }
 
 function draftFromLayout(value?: EditorTextLayout): PlacementDraft {
   return {
     x: String(value?.offsetX ?? 0), y: String(value?.offsetY ?? 0),
     width: String(value?.width ?? 100), automaticWidth: value?.width === undefined,
     align: value?.textAlign ?? '',
+    lineHeight: value?.lineHeight === undefined ? '' : String(value.lineHeight),
   }
 }
 
@@ -57,6 +58,13 @@ function layoutFromDraft(draft: PlacementDraft): { value: EditorTextLayout | und
     values[field] = number
   }
   const value: EditorTextLayout = {}
+  if (draft.lineHeight.trim()) {
+    const lineHeight = Number(draft.lineHeight)
+    if (!Number.isFinite(lineHeight) || lineHeight < EDITOR_LINE_HEIGHT_MIN || lineHeight > EDITOR_LINE_HEIGHT_MAX) {
+      return { error: { field: 'lineHeight', message: '줄간격은 0.8–3배 사이로 입력하세요. 빈칸은 원래 줄간격을 사용합니다.' } }
+    }
+    value.lineHeight = lineHeight
+  }
   if (values.x !== 0) value.offsetX = values.x
   if (values.y !== 0) value.offsetY = values.y
   if (!draft.automaticWidth) value.width = values.width
@@ -132,7 +140,7 @@ export function EditorPlacementToolbar({ selected, blocks, value, disabled = fal
   }
   function requireApplied() {
     if (!dirty) return true
-    report({ message: '입력 중인 위치·너비를 먼저 적용하거나 입력 취소하세요.' })
+    report({ message: '입력 중인 위치·너비·줄간격을 먼저 적용하거나 입력 취소하세요.' })
     return false
   }
   function align(axis: 'x' | 'y') {
@@ -157,8 +165,10 @@ export function EditorPlacementToolbar({ selected, blocks, value, disabled = fal
       }} />
     {!selected ? <p className="placement-toolbar__note" role="status">홈페이지에서 배치할 문구를 선택하세요. 글자 편집과 문구 이동은 별도 작업입니다.</p> : <>
       {onEditText ? <Button size="sm" disabled={locked} onClick={() => { if (!locked && requireApplied()) onEditText() }}>글자·글꼴 편집</Button> : null}
-      <p className="placement-toolbar__note">화면에서 문구 상자 테두리를 끌어 이동하고, 오른쪽 ↔ 손잡이로 너비를 조절하세요. 숫자 입력과 방향키도 사용할 수 있습니다.</p>
-      <form noValidate aria-label="문구 위치와 너비" onSubmit={event => { event.preventDefault(); commit() }}
+      <details className="placement-toolbar__help"><summary>이동·너비 조절 방법</summary>
+        <p className="placement-toolbar__note">화면에서 문구 상자 테두리를 끌어 이동하고, 오른쪽 ↔ 손잡이로 너비를 조절하세요. 숫자 입력과 방향키도 사용할 수 있습니다.</p>
+      </details>
+      <form noValidate aria-label="문구 위치와 너비 및 줄간격" onSubmit={event => { event.preventDefault(); commit() }}
         onKeyDown={event => { if (event.key === 'Enter' && event.nativeEvent.isComposing) { event.preventDefault(); event.stopPropagation() } }}>
         <div className="placement-toolbar__coordinates">
           <AdminFormField id={`${id}-x`} label="가로 이동 X (px)" type="number" inputMode="decimal" min={-2000} max={2000} step="any"
@@ -168,7 +178,7 @@ export function EditorPlacementToolbar({ selected, blocks, value, disabled = fal
             value={draft.y} disabled={locked} error={localError?.field === 'y' ? localError.message : undefined}
             onChange={event => edit({ y: event.target.value })} />
         </div>
-        <p className="placement-toolbar__note" id={`${id}-move-help`}>원래 위치에서 이동한 거리입니다. 방향 버튼·방향키는 1px, Shift와 함께 누르면 10px 이동합니다.</p>
+        <p className="placement-toolbar__note" id={`${id}-move-help`}>원래 위치 기준 · 방향키 1px · Shift 10px</p>
         <div className="placement-toolbar__directions" role="group" aria-label="문구 미세 이동" aria-describedby={`${id}-move-help`} onKeyDown={nudgeWithKeys}>
           <Button size="sm" variant="ghost" disabled={locked} aria-label="문구 왼쪽 이동" title="왼쪽 1px · Shift 10px" onClick={event => nudge(-1, 0, event.shiftKey)}>← 왼쪽</Button>
           <Button size="sm" variant="ghost" disabled={locked} aria-label="문구 위로 이동" title="위로 1px · Shift 10px" onClick={event => nudge(0, -1, event.shiftKey)}>↑ 위</Button>
@@ -185,8 +195,14 @@ export function EditorPlacementToolbar({ selected, blocks, value, disabled = fal
         <AdminFormField id={`${id}-width`} label="박스 너비 (%)" type="number" inputMode="decimal" min={EDITOR_TEXT_WIDTH_MIN} max={EDITOR_TEXT_WIDTH_MAX} step="any"
           value={draft.width} disabled={locked || draft.automaticWidth} description={draft.automaticWidth ? '홈페이지의 원래 반응형 너비를 유지합니다.' : '100%는 기준 영역의 너비입니다. 더 넓힐 수 있으며 화면·섹션 경계에서 멈춥니다.'}
           error={localError?.field === 'width' ? localError.message : undefined} onChange={event => edit({ width: event.target.value })} />
-        <p className="placement-toolbar__note">너비를 줄이면 자동으로 줄바꿈하고 높이가 늘어납니다. 글꼴 크기는 바꾸지 않습니다.</p>
-        <Button type="submit" size="sm" disabled={locked || !dirty}>위치·너비 적용</Button>
+        <AdminFormField id={`${id}-line-height`} label="줄간격 (배)" type="number" inputMode="decimal"
+          min={EDITOR_LINE_HEIGHT_MIN} max={EDITOR_LINE_HEIGHT_MAX} step={0.05} value={draft.lineHeight} disabled={locked}
+          placeholder="기본값" description="문구 상자 전체에 적용됩니다. 1.5는 글자 크기의 150%입니다. 본문은 1.5배 이상을 권장합니다."
+          error={localError?.field === 'lineHeight' ? localError.message : undefined} onChange={event => edit({ lineHeight: event.target.value })} />
+        <Button size="sm" variant="ghost" disabled={locked || value?.lineHeight === undefined} onClick={() => {
+          if (!locked && requireApplied()) commit({ ...baseline, lineHeight: '' })
+        }}>줄간격 기본값</Button>
+        <Button type="submit" size="sm" disabled={locked || !dirty}>위치·너비·줄간격 적용</Button>
       </form>
       <div className="placement-toolbar__section">
         <h4>글자 정렬 <small>박스 안에서</small></h4>
@@ -198,8 +214,8 @@ export function EditorPlacementToolbar({ selected, blocks, value, disabled = fal
             aria-pressed={draft.align === alignment} onClick={() => { if (!locked && requireApplied()) commit({ ...baseline, align: alignment }) }}>{label}</Button>)}
         </div>
       </div>
-      <div className="placement-toolbar__section">
-        <h4>다른 문구에 맞추기 <small>같은 섹션</small></h4>
+      <details className="placement-toolbar__section">
+        <summary>다른 문구에 맞추기 <small>같은 섹션</small></summary>
         <AdminSelect id={`${id}-reference`} label="기준 문구" value={referenceId} disabled={locked || !references.length}
           options={[{ value: '', label: references.length ? '기준 문구 선택' : '같은 섹션의 다른 문구가 없습니다' }, ...references.map(block => ({ value: block.id, label: block.label }))]}
           onChange={event => { if (!locked) setReference({ selectedId: selected.id, id: event.target.value }) }} />
@@ -208,7 +224,7 @@ export function EditorPlacementToolbar({ selected, blocks, value, disabled = fal
           <Button size="sm" variant="ghost" disabled={locked || !referenceId} onClick={() => align('y')}>상하 가운데 맞춤</Button>
         </div>
         <p className="placement-toolbar__note">기준 문구는 그대로 두고 선택한 문구만 맞춥니다. 겹치거나 섹션을 벗어나는 위치는 미리보기에서 확인하세요.</p>
-      </div>
+      </details>
       {localError && !localError.field ? <p className="placement-toolbar__error" role="alert">{localError.message}</p> : null}
       {error ? <p className="placement-toolbar__error" role="alert">{error}</p> : null}
       <p className="placement-toolbar__feedback" role="status">{disabled ? '배치를 반영하고 있어요. 잠시 기다려 주세요.' : dirty ? '숫자 입력은 아직 적용하지 않았습니다.' : status || (feedback?.key === key ? feedback.message : '') || '배치 변경은 초안에만 반영됩니다.'}</p>

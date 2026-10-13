@@ -2,11 +2,13 @@ import type { EditorDevice, EditorTextLayout, SiteEditorDocument } from '../type
 import { isEditorCopyKey, isEditorRecord } from './siteEditorTextStyles'
 
 const devices: readonly EditorDevice[] = ['mobile', 'tablet', 'desktop']
-const properties = ['offsetX', 'offsetY', 'width', 'textAlign'] as const
-const invalidMessage = '문구 상자의 위치, 너비, 정렬과 적용 기기를 확인해 주세요.'
+const properties = ['offsetX', 'offsetY', 'width', 'textAlign', 'lineHeight'] as const
+const invalidMessage = '문구 상자의 위치, 너비, 정렬, 줄간격과 적용 기기를 확인해 주세요.'
 export const EDITOR_LAYOUTS_PER_DEVICE = 500
 export const EDITOR_TEXT_WIDTH_MIN = 10
 export const EDITOR_TEXT_WIDTH_MAX = 400
+export const EDITOR_LINE_HEIGHT_MIN = 0.8
+export const EDITOR_LINE_HEIGHT_MAX = 3
 
 export function isEditorTextLayout(value: unknown): value is EditorTextLayout {
   try {
@@ -15,6 +17,7 @@ export function isEditorTextLayout(value: unknown): value is EditorTextLayout {
       if (!properties.some(property => property === key)) return false
       if (key === 'textAlign') return entry === 'start' || entry === 'center' || entry === 'end'
       if (typeof entry !== 'number' || !Number.isFinite(entry)) return false
+      if (key === 'lineHeight') return entry >= EDITOR_LINE_HEIGHT_MIN && entry <= EDITOR_LINE_HEIGHT_MAX
       return key === 'width' ? entry >= EDITOR_TEXT_WIDTH_MIN && entry <= EDITOR_TEXT_WIDTH_MAX : entry >= -2000 && entry <= 2000
     })
   } catch { return false }

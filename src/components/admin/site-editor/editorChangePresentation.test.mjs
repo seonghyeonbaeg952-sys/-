@@ -26,3 +26,13 @@ test('publish review names color and emphasis changes even when font and size do
   assert.match(text, /기울임/)
   assert.match(text, /밑줄/)
 })
+
+test('publish review names block line spacing alongside geometry and alignment', () => {
+  assert.equal(options.formatEditorChangeValue('textLayout', JSON.stringify({ lineHeight: 1.6 })), '줄간격 1.6배')
+  const text = options.formatEditorChangeValue('textLayout', JSON.stringify({ offsetX: 12, width: 85, textAlign: 'center', lineHeight: 2 }))
+  assert.match(text, /가로 이동 12px/)
+  assert.match(text, /너비 85%/)
+  assert.match(text, /가운데 정렬/)
+  assert.match(text, /줄간격 2배/)
+  assert.equal(options.formatEditorChangeValue('textLayout', JSON.stringify({})), '기존 상자 배치 사용')
+})

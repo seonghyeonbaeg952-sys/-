@@ -1,17 +1,14 @@
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
-import { after, test } from 'node:test'
+import { test } from 'node:test'
 import vm from 'node:vm'
 import ts from 'typescript'
-import { createServer } from 'vite'
+import { guidance } from '../../features/sample-language/sampleContentGuidance.test-utils.mjs'
 
 const require = createRequire(import.meta.url)
 const source = await readFile(new URL('./AdminCrudListPage.tsx', import.meta.url), 'utf8')
 const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText
-const vite = await createServer({ configFile: false, appType: 'custom', cacheDir: 'node_modules/.vite-admin-english-status-test', logLevel: 'silent', server: { middlewareMode: true } })
-after(() => vite.close())
-const guidance = await vite.ssrLoadModule('/src/features/sample-language/sampleContentGuidance.ts')
 const ids = ['11111111-1111-4111-8111-111111111111', '22222222-2222-4222-8222-222222222222', '33333333-3333-4333-8333-333333333333']
 
 function harness(statusResult = { data: { [ids[1]]: 'draft', [ids[2]]: 'published' }, error: null }) {

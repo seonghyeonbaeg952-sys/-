@@ -50,3 +50,14 @@ test('manual width enables wrapping without a parent-width cap; an untouched tit
   assert.doesNotMatch(html, /max-width:100%/)
   assert.doesNotMatch(render({ layout: { offsetX: 5 } }), /data-site-manual-width/)
 })
+
+test('explicit line height renders on the native box without changing fonts, transforms or other devices', () => {
+  const html = render({ layout: { offsetX: 5, lineHeight: 1.6 } })
+  assert.match(html, /line-height:1.6/)
+  assert.match(html, /--site-copy-line-height:1.6/)
+  assert.match(html, /data-site-manual-line-height/)
+  assert.match(html, /height:auto/)
+  assert.match(html, /transform:scale\(1\);color:red/)
+  assert.doesNotMatch(render({ layout: { offsetX: 5 } }), /line-height|data-site-manual-line-height/)
+  assert.equal(render({ layout: { lineHeight: 1.6 }, device: 'mobile' }), render())
+})

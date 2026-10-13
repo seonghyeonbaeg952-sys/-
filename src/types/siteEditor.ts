@@ -25,6 +25,8 @@ export type EditorTextLayout = {
   offsetY?: number
   width?: number
   textAlign?: 'start' | 'center' | 'end'
+  /** Unitless multiplier for the entire text box; omitted means original typography. */
+  lineHeight?: number
 }
 
 export type EditorAppearance = {
