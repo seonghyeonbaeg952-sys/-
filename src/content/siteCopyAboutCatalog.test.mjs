@@ -29,8 +29,9 @@ const approvedMarkupHashes = {
   about: '84bf70717f7e9875902f9e6167e165123ce2ad67ab0a963e23779c1e873e0a97', conductor: '6f214445187ff3db0bf8ef71b9449e901ef53e63d0b1b3d59fd65fbda5ac665e',
   // Members offer current/all-time choices without the retired ordering caption.
   accompanist: '1b4451b43221301500ed45ce3737a0da4af8166e58063ed01311ab948b0ff46b', members: '49a1fffde1f00367936b4237f7cf1a9f29f80e129167d01a4fc2959cc014a5c2',
-  // Spirit includes the user-approved image dimensions from 5a065d7.
-  history: '49dd95e8e8601b19c93aa4cea85853572b74afff47b6e39cc945800988ac9e49', spirit: 'bd31b232e84b272f22e13f43a1aa274c51709bdb34b1db7c880eb695001fc42c',
+  // Spirit also nests the two inert NOW/NEXT dots under their native year labels
+  // so CMS label offsets carry the adjacent ornament without editing its text.
+  history: '49dd95e8e8601b19c93aa4cea85853572b74afff47b6e39cc945800988ac9e49', spirit: '18bfbb71de14555f3022e203dd1fb45a1bd397d1c2b97f6f1bcc25b465fa10a8',
 }
 function render(page, { copy = (_page, _key, fallback) => fallback, values = props[page], device = 'desktop', preview = false } = {}) {
   const canvas = preview ? { subscribe: () => () => {}, getActiveId: () => null, register: () => () => {} } : undefined
@@ -49,6 +50,21 @@ test('Spirit source-owned paragraphs, labels and active education content regist
     'spirit.learning.2.title', 'spirit.learning.2.body',
   ]
   for (const key of keys) assert.ok(html.includes(`data-canvas-copy-key="${key}"`), `missing canvas source: ${key}`)
+})
+
+test('NOW/NEXT dots belong to their native year labels and register independently without duplicate text targets', () => {
+  const html = render('spirit', { preview: true })
+  for (const name of ['now', 'next']) {
+    const id = `spirit.lineage.${name}`
+    const escaped = id.replaceAll('.', '\\.')
+    assert.equal([...html.matchAll(new RegExp(`data-site-layout="${escaped}"`, 'g'))].length, 1)
+    assert.equal([...html.matchAll(new RegExp(`data-site-layout="${escaped}\\.dot"`, 'g'))].length, 1)
+    const nativeYear = html.match(new RegExp(`<p[^>]*data-site-layout="${escaped}"[^>]*>([\\s\\S]*?)</p>`))?.[1]
+    assert.ok(nativeYear, `${name} must own its native motion/placement box`)
+    assert.match(nativeYear, new RegExp(`<span[^>]*aria-hidden="true"[^>]*data-site-layout="${escaped}\\.dot"`))
+    assert.doesNotMatch(nativeYear, new RegExp(`data-canvas-copy-key="${escaped}\\.dot"`))
+    assert.match(nativeYear, new RegExp(`data-canvas-copy-key="${escaped}"`))
+  }
 })
 
 for (const [page, text] of Object.entries({ about: '청소년의 목소리로', conductor: '지휘자 소개', accompanist: '반주자 소개', members: '함께한 모든 이름이', history: '한 줄의 기록이', spirit: '정신은 선언이 아니라' })) {

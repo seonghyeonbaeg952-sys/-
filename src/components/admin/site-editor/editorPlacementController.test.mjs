@@ -27,3 +27,18 @@ test('a stale gesture cannot overwrite a newer placement or conflict', () => {
   assert.equal(reset.ok, true)
   assert.equal(reset.document.textLayouts, undefined)
 })
+
+test('decorative dot commits allow only trusted device offsets and reject typography changes', () => {
+  const source = createEditorSession({ page_key: 'spirit', draft: empty(), published: null, version: 1, updated_at: '', published_at: null })
+  source.document.copy['spirit.lineage.now'] = 'NOW'
+  const id = 'spirit.lineage.now.dot'
+  const moved = applyPlacementChange(source, 'spirit', 'desktop', id, {}, { offsetX: 12, offsetY: -8 })
+  assert.equal(moved.ok, true)
+  assert.deepEqual(moved.document.textLayouts.desktop[id], { offsetX: 12, offsetY: -8 })
+  assert.equal(moved.document.textLayouts.mobile, undefined)
+  assert.equal(moved.document.copy['spirit.lineage.now'], 'NOW')
+  for (const next of [{ width: 80 }, { textAlign: 'center' }, { lineHeight: 1.5 }]) {
+    assert.equal(applyPlacementChange(source, 'spirit', 'desktop', id, {}, next).ok, false)
+  }
+  assert.equal(applyPlacementChange(source, 'about', 'desktop', id, {}, { offsetX: 12 }).ok, false)
+})

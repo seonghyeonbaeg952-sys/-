@@ -14,6 +14,7 @@ type Props = {
   children?: ReactNode
   lineBreaks?: boolean
   inheritedRuns?: EditorTextRun[]
+  layoutTarget?: boolean
 }
 
 function lines(text: string, enabled: boolean) {
@@ -54,7 +55,7 @@ export function TextRunContent({ text, runs, offset = 0, lineBreaks = false }: {
   return <>{children}</>
 }
 
-export function FormattedCopy({ page, id, text, fullText = text, offset = 0, children, lineBreaks, inheritedRuns }: Props) {
+export function FormattedCopy({ page, id, text, fullText = text, offset = 0, children, lineBreaks, inheritedRuns, layoutTarget = true }: Props) {
   const { documents, device } = useSiteEditor()
   const sample = useSampleLanguage()
   const runs = inheritedRuns ?? resolveTextRuns(documents[page], device, id, fullText)
@@ -68,5 +69,5 @@ export function FormattedCopy({ page, id, text, fullText = text, offset = 0, chi
     : children ?? text
   const labelled = sample.enabled && sample.language === 'en' && /[가-힣]/.test(text)
     ? createElement('smyc-copy', { lang: 'ko' }, content) : content
-  return <CanvasCopy page={page} id={id} text={text} fullText={fullText} offset={offset}>{labelled}</CanvasCopy>
+  return <CanvasCopy page={page} id={id} text={text} fullText={fullText} offset={offset} layoutTarget={layoutTarget}>{labelled}</CanvasCopy>
 }

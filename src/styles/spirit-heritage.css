@@ -501,6 +501,24 @@
   white-space: nowrap;
 }
 
+/* These dots belong to the label, including its CMS offsets and reveal motion.
+   Preview hit areas are larger than the visible mark for touch selection. */
+.spirit-heritage__milestone:nth-child(n + 3) .spirit-heritage__milestone-year {
+  position: relative;
+}
+
+.spirit-heritage__milestone-year > .spirit-heritage__milestone-dot {
+  top: auto;
+  bottom: 0.08em;
+  left: -24px;
+}
+
+.spirit-heritage__milestone-dot[data-site-layout]::after {
+  position: absolute;
+  inset: -16px;
+  content: '';
+}
+
 .spirit-heritage__milestone[data-active='true'] .spirit-heritage__milestone-year {
   color: #c64a28;
   font-style: italic;
@@ -1951,13 +1969,8 @@
     width: calc(100% - 156px);
   }
 
-  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(3) .spirit-heritage__milestone-dot {
-    top: 88px;
-    left: -72px;
-  }
-
   .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(3) .spirit-heritage__milestone-year {
-    position: static;
+    position: relative;
     font-size: 120px;
     line-height: 0.88;
   }
@@ -1974,13 +1987,8 @@
     width: calc(100% - 188px);
   }
 
-  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(4) .spirit-heritage__milestone-dot {
-    top: 88px;
-    left: -44px;
-  }
-
   .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(4) .spirit-heritage__milestone-year {
-    position: static;
+    position: relative;
     font-size: 116px;
     line-height: 0.88;
   }

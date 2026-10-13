@@ -21,6 +21,12 @@ test('east resize converts the visual box width to a bounded percent of its cont
   assert.deepEqual(api.constrainPlacementWidth(block, -1000, 800), { offsetX: 10, offsetY: 20, width: 10 })
   assert.deepEqual(api.constrainPlacementWidth(block, 1000, 800), { offsetX: 10, offsetY: 20, width: 87.5 })
 })
+
+test('a decorative dot can move but never becomes a stretched width-resizable shape', () => {
+  const dot = { ...block, id: 'spirit.lineage.next.dot', group: 'spirit.lineage', rect: { left: 100, top: 100, width: 12, height: 12 } }
+  assert.deepEqual(api.constrainPlacement(dot, 20, -10, []), { offsetX: 30, offsetY: 10 })
+  assert.deepEqual(api.constrainPlacementWidth(dot, 100, 800), { offsetX: 10, offsetY: 20 })
+})
 test('a box can grow beyond its original column but never beyond the section edge', () => {
   const column = { ...block, value: {}, rect: { ...block.rect, width: 200 } }
   assert.deepEqual(api.constrainPlacementWidth(column, 100, 200), { width: 150 })

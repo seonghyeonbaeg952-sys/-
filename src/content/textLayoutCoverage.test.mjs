@@ -42,16 +42,22 @@ for (const [page, Component, props] of loaded) test(`${page} registers every dec
 
 test('every registered non-home block consumes only its device layout and keeps the original text', () => {
   for (const [page, Component, props] of loaded) {
-    const expected = TEXT_LAYOUT_CATALOG.filter(item => item.page === page).map(item => item.id)
+    const blocks = TEXT_LAYOUT_CATALOG.filter(item => item.page === page)
+    const expected = blocks.map(item => item.id)
     const documents = { [page]: { schemaVersion: 1, copy: {}, deviceCopy: {}, appearance: {}, textLayouts: {
-      desktop: Object.fromEntries(expected.map(id => [id, { width: 47, textAlign: 'center' }])),
+      desktop: Object.fromEntries(blocks.map(block => [block.id, block.positionOnly ? { offsetX: 12, offsetY: -8 } : { width: 47, textAlign: 'center' }])),
     } } }
     const html = render(Component, props, true, documents)
     for (const id of expected) {
       const opening = html.match(new RegExp(`<[^>]+data-site-layout="${id.replaceAll('.', '\\.')}"[^>]*>`))?.[0]
       assert.ok(opening, id)
-      assert.match(opening, /width:47%/, id)
-      assert.match(opening, /text-align:center/, id)
+      if (blocks.find(block => block.id === id).positionOnly) {
+        assert.match(opening, /translate:12px -8px/, id)
+        assert.doesNotMatch(opening, /width:|text-align:|line-height:/, id)
+      } else {
+        assert.match(opening, /width:47%/, id)
+        assert.match(opening, /text-align:center/, id)
+      }
     }
     const mobile = render(Component, props, false, documents, 'mobile')
     const desktop = render(Component, props, false)

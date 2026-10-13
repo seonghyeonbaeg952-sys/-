@@ -18,6 +18,7 @@ export type EditorPlacementToolbarProps = {
   selected: EditorPlacementBlock | null
   blocks: EditorPlacementBlock[]
   value?: EditorTextLayout
+  positionOnly?: boolean
   disabled?: boolean
   onSelect: (id: string) => void
   onChange: (next: EditorTextLayout | undefined) => void
@@ -72,7 +73,7 @@ function layoutFromDraft(draft: PlacementDraft): { value: EditorTextLayout | und
   return { value: Object.keys(value).length ? value : undefined }
 }
 
-export function EditorPlacementToolbar({ selected, blocks, value, disabled = false, onSelect, onChange, onAlign, onCancel, onFinish, onDelete, onEditText, onDirtyChange, error, status }: EditorPlacementToolbarProps) {
+export function EditorPlacementToolbar({ selected, blocks, value, positionOnly = false, disabled = false, onSelect, onChange, onAlign, onCancel, onFinish, onDelete, onEditText, onDirtyChange, error, status }: EditorPlacementToolbarProps) {
   const id = useId()
   const baseline = draftFromLayout(value)
   const key = JSON.stringify([selected?.id, baseline])
@@ -98,6 +99,7 @@ export function EditorPlacementToolbar({ selected, blocks, value, disabled = fal
   useEffect(() => { onDirtyChange?.(dirty) }, [dirty, key, onDirtyChange])
   useEffect(() => () => { dirtyCallback.current?.(false) }, [])
   const locked = disabled || !selected
+  const targetLabel = positionOnly ? '장식' : '문구'
   const references = selected?.group ? blocks.filter(block => block.id !== selected.id && block.group === selected.group) : []
   const referenceId = reference.selectedId === selected?.id && references.some(block => block.id === reference.id) ? reference.id : ''
 
@@ -154,21 +156,21 @@ export function EditorPlacementToolbar({ selected, blocks, value, disabled = fal
 
   return <section className="placement-toolbar" aria-labelledby={`${id}-title`} aria-busy={disabled}>
     <div className="placement-toolbar__heading">
-      <h3 id={`${id}-title`}>문구 배치</h3>
+      <h3 id={`${id}-title`}>{positionOnly ? '장식 위치' : '문구 배치'}</h3>
       <p id={`${id}-scope`}>현재 선택한 기기에만 적용됩니다. 공개하려면 별도로 게시하세요.</p>
     </div>
-    <AdminSelect id={`${id}-block`} label="배치할 문구" value={selected?.id ?? ''} disabled={disabled || !blocks.length}
+    <AdminSelect id={`${id}-block`} label={positionOnly ? '배치할 장식' : '배치할 문구'} value={selected?.id ?? ''} disabled={disabled || !blocks.length}
       options={[{ value: '', label: '화면에서 문구를 선택하세요' }, ...blocks.map(block => ({ value: block.id, label: block.label }))]}
       onChange={event => {
         if (disabled || !blocks.some(block => block.id === event.target.value) || !requireApplied()) return
         onSelect(event.target.value)
       }} />
     {!selected ? <p className="placement-toolbar__note" role="status">홈페이지에서 배치할 문구를 선택하세요. 글자 편집과 문구 이동은 별도 작업입니다.</p> : <>
-      {onEditText ? <Button size="sm" disabled={locked} onClick={() => { if (!locked && requireApplied()) onEditText() }}>글자·글꼴 편집</Button> : null}
-      <details className="placement-toolbar__help"><summary>이동·너비 조절 방법</summary>
-        <p className="placement-toolbar__note">화면에서 문구 상자 테두리를 끌어 이동하고, 오른쪽 ↔ 손잡이로 너비를 조절하세요. 숫자 입력과 방향키도 사용할 수 있습니다.</p>
+      {onEditText && !positionOnly ? <Button size="sm" disabled={locked} onClick={() => { if (!locked && requireApplied()) onEditText() }}>글자·글꼴 편집</Button> : null}
+      <details className="placement-toolbar__help"><summary>{positionOnly ? '장식 이동 방법' : '이동·너비 조절 방법'}</summary>
+        <p className="placement-toolbar__note">{positionOnly ? '선택한 점의 이동 손잡이를 끌거나 아래 숫자·방향 버튼으로 위치를 조절하세요. 점의 크기와 글자 서식은 바뀌지 않습니다.' : '화면에서 문구 상자 테두리를 끌어 이동하고, 오른쪽 ↔ 손잡이로 너비를 조절하세요. 숫자 입력과 방향키도 사용할 수 있습니다.'}</p>
       </details>
-      <form noValidate aria-label="문구 위치와 너비 및 줄간격" onSubmit={event => { event.preventDefault(); commit() }}
+      <form noValidate aria-label={positionOnly ? '장식 위치' : '문구 위치와 너비 및 줄간격'} onSubmit={event => { event.preventDefault(); commit() }}
         onKeyDown={event => { if (event.key === 'Enter' && event.nativeEvent.isComposing) { event.preventDefault(); event.stopPropagation() } }}>
         <div className="placement-toolbar__coordinates">
           <AdminFormField id={`${id}-x`} label="가로 이동 X (px)" type="number" inputMode="decimal" min={-2000} max={2000} step="any"
@@ -179,13 +181,13 @@ export function EditorPlacementToolbar({ selected, blocks, value, disabled = fal
             onChange={event => edit({ y: event.target.value })} />
         </div>
         <p className="placement-toolbar__note" id={`${id}-move-help`}>원래 위치 기준 · 방향키 1px · Shift 10px</p>
-        <div className="placement-toolbar__directions" role="group" aria-label="문구 미세 이동" aria-describedby={`${id}-move-help`} onKeyDown={nudgeWithKeys}>
-          <Button size="sm" variant="ghost" disabled={locked} aria-label="문구 왼쪽 이동" title="왼쪽 1px · Shift 10px" onClick={event => nudge(-1, 0, event.shiftKey)}>← 왼쪽</Button>
-          <Button size="sm" variant="ghost" disabled={locked} aria-label="문구 위로 이동" title="위로 1px · Shift 10px" onClick={event => nudge(0, -1, event.shiftKey)}>↑ 위</Button>
-          <Button size="sm" variant="ghost" disabled={locked} aria-label="문구 아래로 이동" title="아래로 1px · Shift 10px" onClick={event => nudge(0, 1, event.shiftKey)}>↓ 아래</Button>
-          <Button size="sm" variant="ghost" disabled={locked} aria-label="문구 오른쪽 이동" title="오른쪽 1px · Shift 10px" onClick={event => nudge(1, 0, event.shiftKey)}>→ 오른쪽</Button>
+        <div className="placement-toolbar__directions" role="group" aria-label={`${targetLabel} 미세 이동`} aria-describedby={`${id}-move-help`} onKeyDown={nudgeWithKeys}>
+          <Button size="sm" variant="ghost" disabled={locked} aria-label={`${targetLabel} 왼쪽 이동`} title="왼쪽 1px · Shift 10px" onClick={event => nudge(-1, 0, event.shiftKey)}>← 왼쪽</Button>
+          <Button size="sm" variant="ghost" disabled={locked} aria-label={`${targetLabel} 위로 이동`} title="위로 1px · Shift 10px" onClick={event => nudge(0, -1, event.shiftKey)}>↑ 위</Button>
+          <Button size="sm" variant="ghost" disabled={locked} aria-label={`${targetLabel} 아래로 이동`} title="아래로 1px · Shift 10px" onClick={event => nudge(0, 1, event.shiftKey)}>↓ 아래</Button>
+          <Button size="sm" variant="ghost" disabled={locked} aria-label={`${targetLabel} 오른쪽 이동`} title="오른쪽 1px · Shift 10px" onClick={event => nudge(1, 0, event.shiftKey)}>→ 오른쪽</Button>
         </div>
-        <div className="placement-toolbar__width-mode" role="group" aria-label="박스 너비 방식">
+        {!positionOnly ? <><div className="placement-toolbar__width-mode" role="group" aria-label="박스 너비 방식">
           <Button size="sm" variant="ghost" disabled={locked} aria-pressed={draft.automaticWidth} onClick={() => {
             if (draft.x !== baseline.x || draft.y !== baseline.y) { if (!locked) requireApplied(); return }
             commit({ ...draft, automaticWidth: true })
@@ -201,10 +203,10 @@ export function EditorPlacementToolbar({ selected, blocks, value, disabled = fal
           error={localError?.field === 'lineHeight' ? localError.message : undefined} onChange={event => edit({ lineHeight: event.target.value })} />
         <Button size="sm" variant="ghost" disabled={locked || value?.lineHeight === undefined} onClick={() => {
           if (!locked && requireApplied()) commit({ ...baseline, lineHeight: '' })
-        }}>줄간격 기본값</Button>
-        <Button type="submit" size="sm" disabled={locked || !dirty}>위치·너비·줄간격 적용</Button>
+        }}>줄간격 기본값</Button></> : null}
+        <Button type="submit" size="sm" disabled={locked || !dirty}>{positionOnly ? '위치 적용' : '위치·너비·줄간격 적용'}</Button>
       </form>
-      <div className="placement-toolbar__section">
+      {!positionOnly ? <div className="placement-toolbar__section">
         <h4>글자 정렬 <small>박스 안에서</small></h4>
         <div className="placement-toolbar__text-align" role="group" aria-label="박스 안 글자 정렬">
           {([
@@ -213,7 +215,7 @@ export function EditorPlacementToolbar({ selected, blocks, value, disabled = fal
           ] as const).map(([alignment, label, accessible]) => <Button key={label} size="sm" variant="ghost" disabled={locked} aria-label={accessible}
             aria-pressed={draft.align === alignment} onClick={() => { if (!locked && requireApplied()) commit({ ...baseline, align: alignment }) }}>{label}</Button>)}
         </div>
-      </div>
+      </div> : null}
       <details className="placement-toolbar__section">
         <summary>다른 문구에 맞추기 <small>같은 섹션</small></summary>
         <AdminSelect id={`${id}-reference`} label="기준 문구" value={referenceId} disabled={locked || !references.length}

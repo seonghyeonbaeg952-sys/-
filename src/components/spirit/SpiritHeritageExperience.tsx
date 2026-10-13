@@ -259,6 +259,12 @@ function LineageMilestone({
   )
   const renderedYear = year === '현재' ? editorCopy('spirit', 'spirit.lineage.now', 'NOW')
     : year === '미래' ? editorCopy('spirit', 'spirit.lineage.next', 'NEXT') : year
+  const yearId = year === '현재' ? 'spirit.lineage.now' : year === '미래' ? 'spirit.lineage.next' : undefined
+  const dot = <motion.span
+    aria-hidden="true"
+    className="spirit-heritage__milestone-dot"
+    style={reducedMotion ? undefined : { scale: dotScale }}
+  />
 
   return (
     <motion.article
@@ -266,17 +272,16 @@ function LineageMilestone({
       data-active={index === 2 ? 'true' : undefined}
       style={reducedMotion ? undefined : { opacity }}
     >
-      <motion.span
-        aria-hidden="true"
-        className="spirit-heritage__milestone-dot"
-        style={reducedMotion ? undefined : { scale: dotScale }}
-      />
-      <motion.p
-        className="spirit-heritage__milestone-year"
-        style={reducedMotion ? undefined : { scale: yearScale, x: yearX }}
-      >
-        {year === '현재' || year === '미래' ? <FormattedCopy page="spirit" id={year === '현재' ? 'spirit.lineage.now' : 'spirit.lineage.next'} text={renderedYear}>{renderedYear}</FormattedCopy> : renderedYear}
-      </motion.p>
+      {yearId ? null : dot}
+      <EditableLayout id={yearId ?? ''} nativeTag="p">
+        <motion.p
+          className="spirit-heritage__milestone-year"
+          style={reducedMotion ? undefined : { scale: yearScale, x: yearX }}
+        >
+          {yearId ? <EditableLayout id={`${yearId}.dot`} nativeTag="span">{dot}</EditableLayout> : null}
+          {year === '현재' || year === '미래' ? <FormattedCopy page="spirit" id={year === '현재' ? 'spirit.lineage.now' : 'spirit.lineage.next'} text={renderedYear} layoutTarget={false}>{renderedYear}</FormattedCopy> : renderedYear}
+        </motion.p>
+      </EditableLayout>
       <motion.div
         className="spirit-heritage__milestone-copy"
         style={reducedMotion ? undefined : { y: rowY }}

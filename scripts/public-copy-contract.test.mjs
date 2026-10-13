@@ -110,6 +110,9 @@ test('adding copy adapters preserves every existing JSX default in the captured 
   // Additional Spirit string sources now expose real canvas adapters. Their
   // AST representation changes, but siteCopyAboutCatalog.test.mjs verifies
   // byte-identical default SSR and all reconnected preview source identities.
+  // The requested NOW/NEXT dot editor intentionally moves only their inert
+  // spans into native year boxes. Its native-target SSR test verifies the new
+  // nesting and keeps dots out of text editing; other fingerprints stay fixed.
   const baseline = JSON.parse(readFileSync(new URL('../docs/public-copy-default-baseline.json', import.meta.url), 'utf8'))
   for (const [file, fingerprint] of Object.entries(baseline)) assert.equal(publicMarkupFingerprint(readFileSync(file, 'utf8'), file), fingerprint, file)
 })

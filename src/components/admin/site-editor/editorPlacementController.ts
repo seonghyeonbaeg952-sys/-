@@ -11,6 +11,9 @@ export function applyPlacementChange(session: EditorSession, page: EditorPageId,
     || !['mobile', 'tablet', 'desktop'].includes(device) || !isEditorTextLayout(before) || !isEditorTextLayout(value ?? {})) {
     return { ok: false, message: '이 화면에서 배치할 수 있는 문구와 올바른 위치 값을 선택하세요.' }
   }
+  if (definition.positionOnly && value && Object.keys(value).some(key => key !== 'offsetX' && key !== 'offsetY')) {
+    return { ok: false, message: '장식은 가로·세로 위치만 조절할 수 있습니다.' }
+  }
   if (session.conflicts.length || JSON.stringify(canonicalTextLayout(resolveTextLayout(session.document, device, id) ?? {})) !== JSON.stringify(canonicalTextLayout(before))) {
     return { ok: false, message: '그동안 배치가 변경되었습니다. 현재 배치를 확인한 뒤 다시 조절하세요.' }
   }

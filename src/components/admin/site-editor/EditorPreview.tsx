@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { isEditorPageId, validateSiteEditorDocument } from '../../../lib/siteEditorModel'
 import { getSiteEditorPage, SITE_EDITOR_PROTOCOL_VERSION, type PreviewPageIntent } from '../../../lib/siteEditorPreview'
 import { siteCopyDefinitions } from '../../../content/siteCopyCatalog'
+import { getTextLayoutDefinition } from '../../../content/textLayoutCatalog'
 import type { EditorDevice, EditorPageId, EditorTextLayout, SiteCopyDefinition, SiteEditorDocument, SiteEditorDocuments } from '../../../types/siteEditor'
 import type { EditorStorageScope } from '../../../lib/siteEditorApi'
 import { Button } from '../../common/Button'
@@ -196,6 +197,7 @@ function PreviewFrame({ page, label, path, device, documents, copyDefinitions = 
     </div>
     {context.scope === 'shared' || page === 'common' ? <p className="site-editor__help">배치 조정은 개별 화면과 모바일·태블릿·데스크톱 중 한 기기를 선택해 사용하세요.</p> : null}
     <EditorWorkSurface placing={placement.mode === 'place'} panel={placement.mode === 'place' ? <EditorPlacementToolbar key={`${page}:${device}`} selected={placement.selected} blocks={placement.blocks} value={placement.selected?.value}
+      positionOnly={placement.selected ? getTextLayoutDefinition(placement.selected.id)?.positionOnly : false}
       disabled={placementBusy} onSelect={placement.select} onChange={changeLayout} onAlign={alignLayout}
       onEditText={placement.selected && canvas.canEditSource(placement.selected.id) ? () => canvas.editSource(placement.selected!.id) : undefined}
       onDirtyChange={setPlacementInputDirty}

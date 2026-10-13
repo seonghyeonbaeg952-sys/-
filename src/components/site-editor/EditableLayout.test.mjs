@@ -61,3 +61,31 @@ test('explicit line height renders on the native box without changing fonts, tra
   assert.doesNotMatch(render({ layout: { offsetX: 5 } }), /line-height|data-site-manual-line-height/)
   assert.equal(render({ layout: { lineHeight: 1.6 }, device: 'mobile' }), render())
 })
+
+test('NOW/NEXT dots are labelled position-only native targets rather than editable text', () => {
+  for (const [name, label] of [['now', 'NOW 옆 점'], ['next', 'NEXT 옆 점']]) {
+    const definition = getTextLayoutDefinition(`spirit.lineage.${name}.dot`)
+    assert.equal(definition?.positionOnly, true)
+    assert.equal(definition.label, label)
+    assert.equal(definition.page, 'spirit')
+  }
+})
+
+function renderDot(device = 'desktop', preview = false) {
+  const id = 'spirit.lineage.now.dot'
+  const documents = { spirit: { schemaVersion: 1, copy: {}, deviceCopy: {}, appearance: {}, textLayouts: {
+    desktop: { [id]: { offsetX: 12, offsetY: -8, width: 80, textAlign: 'center', lineHeight: 2 } },
+  } } }
+  return renderToStaticMarkup(React.createElement(SiteEditorContext, { value: { documents, device, isPreview: preview } },
+    React.createElement(EditableLayout, { id }, React.createElement('span', { 'aria-hidden': true, className: 'dot', style: { transform: 'scale(1)' } }))))
+}
+
+test('dot offsets preserve shape and motion; typography values cannot resize a decorative target', () => {
+  const html = renderDot('desktop', true)
+  assert.match(html, /data-site-layout="spirit.lineage.now.dot"/)
+  assert.match(html, /translate:12px -8px/)
+  assert.match(html, /transform:scale\(1\)/)
+  assert.doesNotMatch(html, /width:|text-align:|line-height:|data-site-manual-/)
+  assert.doesNotMatch(html, /data-canvas-copy-key/)
+  assert.equal(renderDot('mobile'), '<span aria-hidden="true" class="dot" style="transform:scale(1)"></span>')
+})

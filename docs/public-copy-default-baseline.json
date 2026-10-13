@@ -31,7 +31,7 @@
   "src/components/about/ConductorProfileDocument.tsx": "3178c2132a27b9aa7cf9f37c7c944cac6af137ddccd06500a1b78b251fe5af39",
   "src/components/about/MembersArchiveExperience.tsx": "44f68fe2e73b323e384a9054777c3bc065953c4553fb1d7ea71721b39e4debfa",
   "src/pages/public/SpiritPage.tsx": "8b54b746a43f47331272002cf8d7fd6a19fca85dcab0723d3363ff563024b0b5",
-  "src/components/spirit/SpiritHeritageExperience.tsx": "b945158e68aef691738c4ed97b94e3e0ae5a66366c534cf5c98ab693c30832a8",
+  "src/components/spirit/SpiritHeritageExperience.tsx": "9968d171f03b32dd6114544e6ff1158c77ad04e367f876735d7b156749fab40e",
   "src/pages/public/ConcertsPage.tsx": "760a355049915099f44dfadc6bc025918648dece7f49f974f2dcdf40c82c01a5",
   "src/components/concerts/ConcertFilterDrawer.tsx": "9f935b6187bdfbd193ed5eab178b2813ae83719e9543c79a122f363fd953abdf",
   "src/pages/public/ConcertDetailPage.tsx": "a25927429f2e73b86699180981779370a22c4172c70ed6f50009d8158062a0cc",

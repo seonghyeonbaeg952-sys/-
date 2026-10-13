@@ -25,6 +25,7 @@ export function constrainPlacement(block: PlacementBlock, dx: number, dy: number
 }
 /** A width drag stays inside the current section/viewport and uses the same percent contract as the toolbar. */
 export function constrainPlacementWidth(block: PlacementBlock, delta: number, containerWidth: number): EditorTextLayout {
+  if (getTextLayoutDefinition(block.id)?.positionOnly) return block.value
   if (!Number.isFinite(delta) || !Number.isFinite(containerWidth) || containerWidth <= 0) return block.value
   const available = block.bounds.left + block.bounds.width - block.rect.left
   const pixels = clamp(block.rect.width + delta, containerWidth * EDITOR_TEXT_WIDTH_MIN / 100, available)
@@ -159,7 +160,7 @@ export function createCanvasPlacementRuntime(config: Config) {
     const showControls = intersectsViewport || Boolean(active || pending || handoff)
     outline.hidden = !showControls
     handle.hidden = !showControls
-    resizeHandle.hidden = !showControls
+    resizeHandle.hidden = !showControls || Boolean(getTextLayoutDefinition(entry.block.id)?.positionOnly)
     if (!showControls) hideGuides()
     Object.assign(handle.style, { left: `${Math.max(0, rect.left + window.scrollX)}px`, top: `${Math.max(window.scrollY, rect.top + window.scrollY - 44)}px` })
     const visibleTop = Math.max(0, rect.top)

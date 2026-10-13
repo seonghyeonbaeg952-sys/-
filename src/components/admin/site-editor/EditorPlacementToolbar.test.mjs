@@ -17,6 +17,20 @@ const first = { id: 'first', label: '제목', group: 'intro', rect: { left: 20, 
 const second = { id: 'second', label: '소개 문장', group: 'intro', rect: { left: 20, top: 100, width: 200, height: 90 } }
 const other = { id: 'other', label: '다른 섹션', group: 'footer', rect: { left: 0, top: 400, width: 200, height: 40 } }
 
+test('decorative targets offer movement and reset without text, width or line-height actions', () => {
+  const dot = { ...first, id: 'spirit.lineage.now.dot', label: 'NOW 옆 점' }
+  const t = toolbar({ selected: dot, blocks: [dot], positionOnly: true, onEditText() { throw new Error('dots have no text') } })
+  assert.equal(t.find(n => n.props?.label === '박스 너비 (%)').length, 0)
+  assert.equal(t.find(n => n.props?.label === '줄간격 (배)').length, 0)
+  assert.equal(t.find(n => n.props?.children === '글자·글꼴 편집').length, 0)
+  t.edit('가로 이동 X (px)', '12'); t.edit('세로 이동 Y (px)', '-8'); t.apply()
+  assert.deepEqual(t.events, [['change', { offsetX: 12, offsetY: -8 }]])
+  t.click('장식 오른쪽 이동')
+  assert.deepEqual(t.events.at(-1), ['change', { offsetX: 13, offsetY: -8 }])
+  t.click('배치만 원래대로')
+  assert.deepEqual(t.events.at(-1), ['change', undefined])
+})
+
 // Exercise the real component's callbacks/state. This small hook harness does not
 // claim to replace the parent task's real-browser focus/layout verification.
 function toolbar(overrides = {}) {

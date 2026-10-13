@@ -8,10 +8,14 @@ import './site-editor-text-box.css'
 type NativeTextProps = HTMLAttributes<HTMLElement> & { ref?: React.Ref<HTMLElement> }
 
 /** No wrapper or style changes in the default published document. */
-export function EditableLayout({ id, children, nativeTag }: { id: string; children: ReactElement<NativeTextProps>; nativeTag?: 'h1' | 'h2' | 'h3' | 'p' | 'div' }) {
+export function EditableLayout({ id, children, nativeTag }: { id: string; children: ReactElement<NativeTextProps>; nativeTag?: 'h1' | 'h2' | 'h3' | 'p' | 'div' | 'span' }) {
   const context = useSiteEditor()
   const definition = getTextLayoutDefinition(id)
-  const value = definition ? resolveTextLayout(context.documents[definition.page], context.device, id) : undefined
+  const layout = definition ? resolveTextLayout(context.documents[definition.page], context.device, id) : undefined
+  const value = definition?.positionOnly && layout ? {
+    ...(layout.offsetX !== undefined ? { offsetX: layout.offsetX } : {}),
+    ...(layout.offsetY !== undefined ? { offsetY: layout.offsetY } : {}),
+  } : layout
   const element = useTextBoxLayout(value)
   const tag = typeof children.type === 'string' ? children.type : nativeTag
   const shouldClone = Boolean(definition && tag && /^(h[1-6]|p|div|span|blockquote)$/.test(tag) && (context.isPreview || value))
