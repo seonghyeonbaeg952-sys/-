@@ -139,6 +139,7 @@ const tests = [
   'src/components/admin/site-editor/editorPreviewModel.test.mjs',
   'src/components/admin/site-editor/editorPreviewScale.test.mjs',
   'src/components/admin/site-editor/EditorWorkSurface.test.mjs',
+  'src/components/admin/site-editor/EditorToolMenu.test.mjs',
   'src/components/admin/site-editor/editorCanvasController.test.mjs',
   'src/components/admin/site-editor/editorCanvasHistory.test.mjs',
   'src/components/admin/site-editor/useCanvasBridge.test.mjs',

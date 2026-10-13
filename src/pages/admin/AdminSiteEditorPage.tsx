@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react'
 import { useSearchParams } from 'react-router'
 import { siteEditorPages } from '../../content/siteEditorCatalog'
 import { getSiteCopyDefaults, siteCopyDefinitions } from '../../content/siteCopyCatalog'
@@ -9,6 +9,7 @@ import { EditorAppearancePanel } from '../../components/admin/site-editor/Editor
 import { EditorCopyPanel } from '../../components/admin/site-editor/EditorCopyPanel'
 import { EditorGlobalCopySearch } from '../../components/admin/site-editor/EditorGlobalCopySearch'
 import { EditorIcon } from '../../components/admin/site-editor/EditorIcon'
+import { EditorToolMenu } from '../../components/admin/site-editor/EditorToolMenu'
 import { applyCopyReplacement, copyValue, type CopyReplacementPlan } from '../../components/admin/site-editor/editorCopyTools'
 import type { EditorSession } from '../../components/admin/site-editor/editorSessionModel'
 import { EditorPreview } from '../../components/admin/site-editor/EditorPreview'
@@ -37,6 +38,7 @@ import '../../components/site-editor/site-editor-fonts.css'
 
 type Confirmation = { kind: 'publish' | 'reset-page' | 'reset-scope' | 'reset-appearance' } | { kind: 'restore'; revision: SiteEditorRevision }
 const scopeLabels: Record<EditorScope, string> = { shared: '공통', mobile: '모바일', tablet: '태블릿', desktop: '데스크톱' }
+const editorScopes = ['shared', 'mobile', 'tablet', 'desktop'] as const
 const appearanceLabels: Record<string, string> = { fontFamily: '본문 글꼴', headingFontFamily: '제목 글꼴', fontSize: '본문 크기', h1Size: '큰 제목 크기', h2Size: '중간 제목 크기', h3Size: '작은 제목 크기', labelSize: '라벨 크기', fontWeight: '글자 굵기', lineHeight: '줄간격', letterSpacing: '자간', textColor: '본문 색', headingColor: '제목 색', mutedColor: '보조문구 색', accentColor: '강조 색', backgroundColor: '배경 색' }
 
 type AdminSiteEditorPageProps = {
@@ -84,8 +86,7 @@ function AdminEditorWorkspace({ initialPage = 'home', storageScope = 'original',
   const [panel, setPanel] = useState<'copy' | 'appearance' | 'history'>('copy')
   const [toolsOpen, setToolsOpen] = useState(false)
   const [requestedField, setRequestedField] = useState('')
-  const toolsPane = useRef<HTMLDetailsElement>(null)
-  const [view, setView] = useState<'editor' | 'preview'>('editor')
+  const toolsPane = useRef<HTMLElement>(null)
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null)
   const [baseDefaults, setBaseDefaults] = useState<Record<string, string>>({})
   const defaults = useMemo(() => defaultsByDevice?.[device] ? { ...baseDefaults, ...defaultsByDevice[device] } : baseDefaults,
@@ -170,7 +171,12 @@ function AdminEditorWorkspace({ initialPage = 'home', storageScope = 'original',
     setConfirmation(null)
   }
   const chooseScope = (next: EditorScope) => { if (canvasActive || busy || copyComposition.current) return; setScope(next); if (next !== 'shared') setDevice(next) }
-  const openCopyTools = () => { if (copyComposition.current) return; setPanel('copy'); setToolsOpen(true); requestAnimationFrame(() => toolsPane.current?.scrollIntoView({ block: 'start' })) }
+  const openCopyTools = () => { if (interactionLocked || copyComposition.current) return; setPanel('copy'); setToolsOpen(true); requestAnimationFrame(() => toolsPane.current?.scrollIntoView({ block: 'nearest' })) }
+  const toggleCopyTools = (event?: MouseEvent<HTMLButtonElement>) => {
+    if (interactionLocked || copyComposition.current) return
+    if (toolsOpen) event?.currentTarget.ownerDocument.getElementById('site-editor-document-toggle')?.focus({ preventScroll: true })
+    setToolsOpen(open => !open)
+  }
   const changeCopyComposition = (active: boolean) => {
     if (active) {
       if (copyComposition.current || canvasActive || busy) return
@@ -335,13 +341,12 @@ function AdminEditorWorkspace({ initialPage = 'home', storageScope = 'original',
   }
   const isHomeDefaultsUnavailable = (page === 'home' || english) && (defaultLoading || Boolean(defaultError))
 
-  return <div className="site-editor site-editor--canvas" data-editor-view={view} data-editor-storage={storageScope}>
+  return <div className="site-editor site-editor--canvas" data-editor-storage={storageScope}>
     <header className="site-editor__workspace-header">
     <AdminPageTitle title={english ? '영어 버전 변경' : '홈페이지 편집'} description={english ? '영문 문구와 디자인을 별도로 저장하고 공개 홈페이지의 English 화면에 게시합니다. /sample/에서도 확인할 수 있습니다.' : '문구와 디자인을 수정한 뒤 미리보기에서 확인하세요. 임시저장과 게시는 별도입니다.'} />
     <nav className="site-editor__inline-actions" aria-label="편집 작업 공간">
       <Button href={`/admin/editor?${switchParams}`} size="sm" variant={english ? 'secondary' : 'primary'} showArrow={false} disabled={interactionLocked} aria-current={!english ? 'page' : undefined}>한글 원본</Button>
       <Button href={`/admin/editor-english?${switchParams}`} size="sm" variant={english ? 'primary' : 'secondary'} showArrow={false} disabled={interactionLocked} aria-current={english ? 'page' : undefined}>영어 버전</Button>
-      <Button href="/admin/photos" size="sm" variant="secondary" showArrow={false} disabled={interactionLocked}>사진 관리</Button>
     </nav>
     </header>
     <div className="site-editor__layout">
@@ -357,32 +362,35 @@ function AdminEditorWorkspace({ initialPage = 'home', storageScope = 'original',
       </section>
       <section className="site-editor__devices" aria-label="기기별 편집">
         <p className="site-editor__selector-label">이 변경을 적용할 기기</p>
-        <div className="site-editor__scope-tabs" role="group" aria-label="편집 적용 범위">{(['shared', 'mobile', 'tablet', 'desktop'] as const).map((item) => <button type="button" key={item} aria-pressed={scope === item} onClick={() => chooseScope(item)}><span>{scopeLabels[item]}</span><small>{item === 'shared' ? '모든 기기의 기본값' : `${editorViewports.find((viewport) => viewport.id === item)?.width}px`}{changes.some((change) => change.scope === item) ? ` · 미저장 ${changes.filter((change) => change.scope === item).length}` : ''}</small></button>)}</div>
+        <select className="site-editor__mobile-scope" aria-label="편집 적용 기기" value={scope} onChange={event => {
+          const next = editorScopes.find(item => item === event.target.value)
+          if (next) chooseScope(next)
+        }}>{editorScopes.map(item => <option key={item} value={item}>{scopeLabels[item]} {item === 'shared' ? '· 모든 기기' : `${editorViewports.find(viewport => viewport.id === item)?.width}px`}{changes.some(change => change.scope === item) ? ' · 미저장' : ''}</option>)}</select>
+        <div className="site-editor__scope-tabs" role="group" aria-label="편집 적용 범위">{editorScopes.map((item) => <button type="button" key={item} title={item === 'shared' ? '모든 기기의 기본값' : undefined} aria-pressed={scope === item} onClick={() => chooseScope(item)}><span>{scopeLabels[item]}</span><small>{item === 'shared' ? '모든 기기' : `${editorViewports.find((viewport) => viewport.id === item)?.width}px`}{changes.some((change) => change.scope === item) ? ` · 미저장 ${changes.filter((change) => change.scope === item).length}` : ''}</small></button>)}</div>
       </section>
       </fieldset>
       <div className="site-editor__main">
-        <details className="site-editor__metadata"><summary>게시 상태와 공개 화면</summary>
-        <div className="site-editor__page-heading"><div><h2 className="sr-only">{pageDefinition.label}</h2><p className="site-editor__help">마지막 임시저장 {formatEditorTime(session?.record.updated_at ?? null)} · 게시 {formatEditorTime(session?.record.published_at ?? null)}</p></div>{previewPath ? <Button href={previewPath} target="_blank" rel="noopener noreferrer" variant="secondary" size="sm">{english ? '영어 버전 보기' : '공개 화면 보기'}</Button> : null}</div>
-        </details>
         {workspace.message ? <p className="site-editor__success" role="status">{workspace.message}</p> : null}
         {workspace.error ? <div className="site-editor__error" role="alert"><p>{workspace.error}</p><Button variant="secondary" disabled={workspace.loading || busy} onClick={() => void workspace.refresh()}>{session ? '입력 유지하며 최신 초안과 비교' : '다시 불러오기'}</Button></div> : null}
         {defaultError ? <div className="site-editor__notice"><p>{defaultError}</p><Button variant="secondary" size="sm" onClick={() => { setDefaultLoading(true); setDefaultReload((value) => value + 1) }}>{english ? '영문 기본 문구 다시 불러오기' : '기존 문구 다시 불러오기'}</Button></div> : null}
         {session?.conflicts.length ? <section className="site-editor__conflicts" aria-label="겹친 변경 확인"><h3>다른 관리자와 같은 항목을 수정했습니다</h3><p>입력은 유지됩니다. 각 항목에서 사용할 값을 선택하면 저장할 수 있습니다.</p>{session.conflicts.map((conflict) => <div key={conflict.id}><strong>{scopeLabels[conflict.scope]} · {changeLabel(conflict.key)}</strong><dl><dt>서버에 저장된 값</dt><dd>{formatEditorChangeValue(conflict.kind, conflict.before)}</dd><dt>내 입력</dt><dd>{formatEditorChangeValue(conflict.kind, conflict.after)}</dd></dl><div className="site-editor__inline-actions"><Button size="sm" variant="secondary" onClick={() => workspace.edit(page, (current) => resolveEditorConflict(current, conflict.id, 'server'))}>서버값 사용</Button><Button size="sm" variant="secondary" onClick={() => workspace.edit(page, (current) => resolveEditorConflict(current, conflict.id, 'local'))}>내 입력 유지</Button></div></div>)}</section> : null}
-        <div className="site-editor__mobile-view" role="group" aria-label="작업 화면"><button type="button" disabled={copyComposing} aria-pressed={view === 'editor'} onClick={() => setView('editor')}>편집</button><button type="button" disabled={copyComposing} aria-pressed={view === 'preview'} onClick={() => setView('preview')}>미리보기</button></div>
         {session ? <div className="site-editor__workbench">
           <div className="site-editor__document-history">
             <div className="site-editor__preview-tools" role="group" aria-label="문구 편의 도구">
-              <Button size="sm" variant="secondary" aria-label="문구 찾기·바꾸기 도구" disabled={interactionLocked} onClick={openCopyTools}><EditorIcon name="search" />찾기·바꾸기</Button>
+              <Button id="site-editor-document-toggle" size="sm" variant="secondary" aria-label="문서 도구 열기 또는 닫기" aria-controls="site-editor-document-tools" aria-expanded={toolsOpen} disabled={interactionLocked} onClick={toggleCopyTools}>문구·서식·이력</Button>
+              <EditorToolMenu label="찾기" disabled={interactionLocked}>
+              <Button size="sm" variant="ghost" aria-label="문구 찾기·바꾸기 도구" disabled={interactionLocked} onClick={openCopyTools}><EditorIcon name="search" />찾기·바꾸기</Button>
               <EditorGlobalCopySearch documents={documents} defaults={defaults} defaultsByDevice={defaultsByDevice} previewDevice={device} scope={scope} definitions={copyDefinitions} storageScope={storageScope} disabled={interactionLocked} defaultsTrusted={!defaultLoading && !defaultError} load={workspace.loadForSearch} onChoose={(field, nextScope) => { if (copyComposition.current) return; choosePage(field.page); chooseScope(nextScope); setRequestedField(field.key); openCopyTools() }} />
+              </EditorToolMenu>
             </div>
             <div className="site-editor__preview-tools" role="group" aria-label="마친 화면 편집 되돌리기">
-              <button type="button" aria-label="최근 편집 실행 취소" title="마친 문구 편집 실행 취소" disabled={interactionLocked || !historyCounts[page]?.undo} onClick={() => moveDocumentHistory('undo')}><EditorIcon name="undo" />실행 취소</button>
-              <button type="button" aria-label="최근 편집 다시 실행" title="마친 문구 편집 다시 실행" disabled={interactionLocked || !historyCounts[page]?.redo} onClick={() => moveDocumentHistory('redo')}><EditorIcon name="redo" />다시 실행</button>
+              <button type="button" aria-label="최근 편집 실행 취소" title="마친 문구 편집 실행 취소" disabled={interactionLocked || !historyCounts[page]?.undo} onClick={() => moveDocumentHistory('undo')}><EditorIcon name="undo" /><span className="site-editor__command-label">실행 취소</span></button>
+              <button type="button" aria-label="최근 편집 다시 실행" title="마친 문구 편집 다시 실행" disabled={interactionLocked || !historyCounts[page]?.redo} onClick={() => moveDocumentHistory('redo')}><EditorIcon name="redo" /><span className="site-editor__command-label">다시 실행</span></button>
             </div>
             {canvasNotice ? <p role="status" className="site-editor__help">{canvasNotice}</p> : null}
           </div>
-          <details className="site-editor__edit-pane" ref={toolsPane} open={toolsOpen} onToggle={event => setToolsOpen(event.currentTarget.open)}>
-            <summary onClick={event => { if (copyComposition.current) event.preventDefault() }}>문구 목록 · 페이지 전체 서식 · 게시 이력</summary>
+          <section className="site-editor__edit-pane" id="site-editor-document-tools" aria-label="문서 도구" ref={toolsPane} hidden={!toolsOpen}>
+            <div className="site-editor__document-heading"><h2>문서 도구</h2><Button size="sm" variant="ghost" aria-label="문서 도구 닫기" disabled={interactionLocked} onClick={toggleCopyTools}>닫기</Button></div>
             <p className="site-editor__help">화면에서 선택되지 않는 문구, 여러 조각으로 나뉜 제목, 입력창 안내는 여기에서 수정하세요.</p>
             <fieldset disabled={canvasActive || busy}>
             <div className="site-editor__panel-tabs" role="group" aria-label="편집 종류">{([{ id: 'copy', label: '문구' }, { id: 'appearance', label: '페이지 전체 서식' }, { id: 'history', label: '게시 이력' }] as const).map((item) => <button key={item.id} type="button" disabled={copyComposing} aria-pressed={panel === item.id} onClick={() => setPanel(item.id)}>{item.label}</button>)}</div>
@@ -390,10 +398,13 @@ function AdminEditorWorkspace({ initialPage = 'home', storageScope = 'original',
             {panel === 'history' && status.unsavedCount ? <p className="site-editor__notice">현재 입력을 먼저 임시저장하면 이전 게시본을 불러올 수 있습니다.</p> : null}
             <div className="site-editor__reset-actions"><Button size="sm" variant="ghost" disabled={interactionLocked} onClick={() => requestConfirmation({ kind: 'reset-scope' })}>{scopeLabels[scope]} 편집값 초기화</Button><Button size="sm" variant="ghost" disabled={interactionLocked} onClick={() => requestConfirmation({ kind: 'reset-page' })}>이 화면 전체 초기화</Button></div>
             </fieldset>
-          </details>
+          </section>
 <div className="site-editor__preview-pane" inert={copyComposing}>{detailErrors[page] ? <p role="alert" className="site-editor__error">{detailErrors[page]}</p> : null}<EditorPreview page={page} label={english ? `${pageDefinition.label} · 영어 버전` : pageDefinition.label} path={previewPath} loadingPath={needsDetail && !Object.hasOwn(detailPaths, page)} device={device} showDeviceChooser={false} documents={documents} copyDefinitions={copyDefinitions} storageScope={storageScope} onNavigate={(target) => choosePage(target.page, target.path)} locked={interactionLocked} context={canvasContext} onCommit={commitCanvas} onLayoutChange={changePlacement} onBoxAdd={addBox} onBoxRemove={removeBox} onActiveChange={setCanvasActive} onSave={() => { if (!canvasActive && !busy && !copyComposition.current && status.unsavedCount && !validation && !session.conflicts.length) void workspace.save() }} onDeviceChange={(next) => { if (!canvasActive && !busy && !copyComposition.current) { setDevice(next); if (scope !== 'shared') setScope(next) } }} /></div>
         </div> : !workspace.error ? <p role="status" className="site-editor__empty">안전하게 저장된 초안을 불러오고 있습니다.</p> : null}
-        {!english && pageDefinition.contentLinks.length ? <section className="site-editor__content-links"><h3>실제 내용은 여기에서 관리합니다</h3><p className="site-editor__help">공연·프로필·입단 안내·후원 원문과 사진은 기존 콘텐츠 관리가 원본입니다.</p><div>{pageDefinition.contentLinks.map((link) => <Button key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" variant="secondary" size="sm">{link.label} · 새 탭</Button>)}</div></section> : null}
+        <details className="site-editor__metadata"><summary>게시 정보 · 공개 화면 · 사진 관리</summary>
+          <div className="site-editor__page-heading"><div><h2 className="sr-only">{pageDefinition.label}</h2><p className="site-editor__help">마지막 임시저장 {formatEditorTime(session?.record.updated_at ?? null)} · 게시 {formatEditorTime(session?.record.published_at ?? null)}</p></div><div className="site-editor__inline-actions">{previewPath ? <Button href={previewPath} target="_blank" rel="noopener noreferrer" variant="secondary" size="sm">{english ? '영어 버전 보기' : '공개 화면 보기'}</Button> : null}<Button href="/admin/photos" size="sm" variant="secondary" showArrow={false} disabled={interactionLocked}>사진 관리</Button></div></div>
+        </details>
+        {!english && pageDefinition.contentLinks.length ? <details className="site-editor__content-links"><summary>콘텐츠 원문 관리 · 새 탭에서 열기</summary><p className="site-editor__help">공연·프로필·입단 안내·후원 원문과 사진은 기존 콘텐츠 관리가 원본입니다.</p><div>{pageDefinition.contentLinks.map((link) => <Button key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" variant="secondary" size="sm">{link.label} · 새 탭</Button>)}</div></details> : null}
       </div>
     </div>
     <div className="site-editor__save-bar">

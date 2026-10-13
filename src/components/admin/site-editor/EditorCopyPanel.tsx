@@ -112,6 +112,7 @@ export function EditorCopyPanel({ definitions, document, baseline, scope, defaul
 
   return (
     <div className="site-editor__copy">
+      <div className="site-editor__copy-browser">
       <div className="site-editor__filters">
         <AdminFormField disabled={composing} id={`${id}-search`} label="문구 찾기" type="search" value={search} onChange={(event) => searchFor(event.target.value)} placeholder="화면에 보이는 문장이나 항목명" />
         <AdminSelect disabled={composing} id={`${id}-section`} label="화면 안 위치" value={activeSection} onChange={(event) => { setSection(event.target.value); setVisibleCount(20) }} options={[{ label: '모든 위치', value: 'all' }, ...sections.map((value) => ({ label: value, value }))]} />
@@ -139,7 +140,9 @@ export function EditorCopyPanel({ definitions, document, baseline, scope, defaul
           </button>)}
         </div>
         {filtered.length > visibleCount ? <Button variant="secondary" size="sm" onClick={() => setVisibleCount(count => count + 20)}>문구 더 보기 · 남은 {filtered.length - visibleCount}개</Button> : null}
-        {field ? <div className="site-editor__field" key={field.key}>
+      </>}
+      </div>
+        {field && filtered.length ? <div className="site-editor__field" key={field.key}>
             <Button size="sm" variant="ghost" disabled={composing} aria-label="선택 문구 즐겨찾기" aria-pressed={favorites.includes(field.key)} onClick={toggleFavorite}>{favorites.includes(field.key) ? '★ 즐겨찾기 해제' : '☆ 즐겨찾기 추가'}</Button>
             <p className="site-editor__help">{field.section} · {isOverride ? '이 범위에서 수정함' : '현재 원문 또는 공통값 사용 중'}</p>
             {field.inputType === 'boolean' ? (
@@ -157,7 +160,6 @@ export function EditorCopyPanel({ definitions, document, baseline, scope, defaul
             {englishTranslation && !canUseSavedTranslation && /[가-힣]/u.test(value) ? <p className="site-editor__help" role="status">이 문구의 저장된 영어 번역이 없습니다. 영어 문장을 직접 입력하면 영문 초안에만 반영됩니다.</p> : null}
             <fieldset disabled={composing}><EditorCopyActions field={field} definitions={filtered} document={document} baseline={baseline} scope={scope} defaults={defaults} query={search} options={options} onReplace={onReplace ? (plan, keys) => { const error = onReplace(plan, keys); if (!error) { rememberMany(keys); searchFor(search) } return error } : undefined} /></fieldset>
           </div> : null}
-      </>}
     </div>
   )
 }

@@ -45,7 +45,7 @@ export function EditorGlobalCopySearch({ documents, defaults, scope, disabled, d
     return findCopyMatches(`${field.label}\n${field.section}\n${copyValue(field, doc, searchScope, searchDefaults)}`, query, { matchCase: false, wholeWord: false }).length > 0
   }) : []
   return <>
-    <Button variant="secondary" size="sm" disabled={disabled} onClick={() => { setOpen(true); setSearchScope(scope) }}>{title}</Button>
+    <Button variant="secondary" size="sm" aria-label={title} title={title} disabled={disabled} onClick={() => { setOpen(true); setSearchScope(scope) }}>전체 찾기</Button>
     <AdminModal isOpen={open} title={title} onClose={() => setOpen(false)}>
       <div className="site-editor copy-tools__global">
         <p className="site-editor__help">현재 창의 미저장 입력과 불러온 임시저장본을 검색합니다. 검색은 홈페이지를 바꾸지 않으며, 결과를 선택하면 해당 문구 편집으로 이동합니다.</p>

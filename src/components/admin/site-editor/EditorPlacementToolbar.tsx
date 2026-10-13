@@ -172,6 +172,7 @@ export function EditorPlacementToolbar({ selected, blocks, value, positionOnly =
       </details>
       <form noValidate aria-label={positionOnly ? '장식 위치' : '문구 위치와 너비 및 줄간격'} onSubmit={event => { event.preventDefault(); commit() }}
         onKeyDown={event => { if (event.key === 'Enter' && event.nativeEvent.isComposing) { event.preventDefault(); event.stopPropagation() } }}>
+        <fieldset className="placement-toolbar__control-group"><legend>위치</legend>
         <div className="placement-toolbar__coordinates">
           <AdminFormField id={`${id}-x`} label="가로 이동 X (px)" type="number" inputMode="decimal" min={-2000} max={2000} step="any"
             value={draft.x} disabled={locked} error={localError?.field === 'x' ? localError.message : undefined}
@@ -187,7 +188,8 @@ export function EditorPlacementToolbar({ selected, blocks, value, positionOnly =
           <Button size="sm" variant="ghost" disabled={locked} aria-label={`${targetLabel} 아래로 이동`} title="아래로 1px · Shift 10px" onClick={event => nudge(0, 1, event.shiftKey)}>↓ 아래</Button>
           <Button size="sm" variant="ghost" disabled={locked} aria-label={`${targetLabel} 오른쪽 이동`} title="오른쪽 1px · Shift 10px" onClick={event => nudge(1, 0, event.shiftKey)}>→ 오른쪽</Button>
         </div>
-        {!positionOnly ? <><div className="placement-toolbar__width-mode" role="group" aria-label="박스 너비 방식">
+        </fieldset>
+        {!positionOnly ? <fieldset className="placement-toolbar__control-group"><legend>크기 · 줄간격</legend><div className="placement-toolbar__width-mode" role="group" aria-label="박스 너비 방식">
           <Button size="sm" variant="ghost" disabled={locked} aria-pressed={draft.automaticWidth} onClick={() => {
             if (draft.x !== baseline.x || draft.y !== baseline.y) { if (!locked) requireApplied(); return }
             commit({ ...draft, automaticWidth: true })
@@ -203,7 +205,7 @@ export function EditorPlacementToolbar({ selected, blocks, value, positionOnly =
           error={localError?.field === 'lineHeight' ? localError.message : undefined} onChange={event => edit({ lineHeight: event.target.value })} />
         <Button size="sm" variant="ghost" disabled={locked || value?.lineHeight === undefined} onClick={() => {
           if (!locked && requireApplied()) commit({ ...baseline, lineHeight: '' })
-        }}>줄간격 기본값</Button></> : null}
+        }}>줄간격 기본값</Button></fieldset> : null}
         <Button type="submit" size="sm" disabled={locked || !dirty}>{positionOnly ? '위치 적용' : '위치·너비·줄간격 적용'}</Button>
       </form>
       {!positionOnly ? <div className="placement-toolbar__section">

@@ -61,3 +61,20 @@ test('embedded editor uses the parent device chooser without a duplicate viewpor
   assert.match(html, /aria-label="미리보기 표시"/)
   assert.match(render(), /aria-label="미리보기 크기"/)
 })
+
+test('first-use instructions are disclosed without hiding the actual preview or its keyboard copy chooser', () => {
+  const html = render()
+  assert.match(html, /<details[^>]*class="site-editor__canvas-guide"/)
+  assert.match(html, /<summary>문구 선택·편집 안내<\/summary>/)
+  assert.match(html, /aria-label="화면에 표시된 문구"/)
+  assert.match(html, /<iframe/)
+})
+
+test('secondary view controls remain available under a labelled disclosure beside canvas commands', () => {
+  const html = render()
+  assert.match(html, /<summary[^>]*>보기 옵션<\/summary>/)
+  assert.match(html, /aria-label="미리보기 표시"/)
+  assert.match(html, /화면에 맞춤/)
+  assert.match(html, /실제 크기/)
+  assert.match(html, /새로고침/)
+})

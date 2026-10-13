@@ -111,6 +111,80 @@ test('composition locks page, scope, global search, preview and save actions but
   p.saveShortcut(); assert.equal(p.saved(), 1)
 })
 
+test('document tools can close and reopen without losing a completed edit or restarting the preview', () => {
+  const p = page({ ...empty(), copy: { 'notices.title': '원문' } })
+  const tools = () => p.find(node => node.props?.id === 'site-editor-document-tools')[0]?.node
+  const toggle = p.button('문서 도구 열기 또는 닫기')
+  assert.ok(toggle, 'Document tools need a labelled toggle beside the canvas commands')
+  assert.equal(tools().props.hidden, true)
+  toggle.props.onClick(); p.render()
+  assert.equal(tools().props.hidden, false)
+  p.start(); p.type('새 문구'); p.end()
+  const previewKey = p.component('EditorPreview').key
+  p.button('문서 도구 닫기').props.onClick(); p.render()
+  assert.equal(tools().props.hidden, true)
+  assert.ok(p.component('EditorCopyPanel'), 'Closing must preserve the mounted input and its selection')
+  assert.equal(p.document().deviceCopy.desktop['notices.title'], '새 문구')
+  p.button('문서 도구 열기 또는 닫기').props.onClick(); p.render()
+  assert.equal(tools().props.hidden, false)
+  assert.equal(p.component('EditorPreview').key, previewKey)
+  p.button('최근 편집 실행 취소').props.onClick(); p.render()
+  assert.equal(p.document().copy['notices.title'], '원문')
+  assert.equal(p.document().deviceCopy.desktop?.['notices.title'], undefined)
+})
+
+test('document tools cannot hide an active input or open over an active canvas buffer', () => {
+  const p = page({ ...empty(), copy: { 'notices.title': '원문' } })
+  const toggle = p.button('문서 도구 열기 또는 닫기')
+  assert.ok(toggle, 'The workspace toggle must share the input safety guard')
+  toggle.props.onClick(); p.render()
+  p.start(); p.type('ㅎ')
+  assert.equal(p.button('문서 도구 닫기').props.disabled, true)
+  p.button('문서 도구 닫기').props.onClick(); p.render()
+  assert.equal(p.find(node => node.props?.id === 'site-editor-document-tools')[0].node.props.hidden, false)
+  p.end(); p.button('문서 도구 닫기').props.onClick(); p.render()
+  p.component('EditorPreview').props.onActiveChange(true); p.render()
+  assert.equal(p.button('문서 도구 열기 또는 닫기').props.disabled, true)
+  p.button('문서 도구 열기 또는 닫기').props.onClick(); p.render()
+  assert.equal(p.find(node => node.props?.id === 'site-editor-document-tools')[0].node.props.hidden, true)
+})
+
+test('closing document tools returns focus to the visible workspace toggle', () => {
+  const p = page()
+  let focused = false
+  const trigger = p.button('문서 도구 열기 또는 닫기')
+  assert.equal(trigger.props.id, 'site-editor-document-toggle')
+  trigger.props.onClick(); p.render()
+  const ownerDocument = { getElementById(id) {
+    assert.equal(id, 'site-editor-document-toggle')
+    return { focus() { focused = true } }
+  } }
+  p.button('문서 도구 닫기').props.onClick({ currentTarget: { ownerDocument } }); p.render()
+  assert.equal(focused, true)
+  assert.equal(p.find(node => node.props?.id === 'site-editor-document-tools')[0].node.props.hidden, true)
+  assert.equal(p.document().copy['notices.title'], undefined)
+})
+
+test('the compact mobile device chooser shares scope state and cannot leave an active composition', () => {
+  const p = page({ ...empty(), copy: { 'notices.title': '원문' } })
+  const chooser = () => p.find(node => node.type === 'select' && node.props['aria-label'] === '편집 적용 기기')[0]?.node
+  assert.ok(chooser(), 'Mobile needs a compact native device chooser, not four stacked choices')
+  chooser().props.onChange({ target: { value: 'tablet' } }); p.render()
+  assert.equal(p.component('EditorPreview').props.device, 'tablet')
+  assert.equal(p.component('EditorCopyPanel').props.scope, 'tablet')
+  chooser().props.onChange({ target: { value: 'shared' } }); p.render()
+  assert.equal(p.component('EditorPreview').props.device, 'tablet', 'Shared scope retains the preview device')
+  assert.equal(p.component('EditorCopyPanel').props.scope, 'shared')
+  p.start()
+  chooser().props.onChange({ target: { value: 'mobile' } }); p.render()
+  assert.equal(p.component('EditorCopyPanel').props.scope, 'shared')
+  p.end()
+  chooser().props.onChange({ target: { value: 'mobile' } }); p.render()
+  assert.equal(p.component('EditorPreview').props.device, 'mobile')
+  chooser().props.onChange({ target: { value: 'unknown' } }); p.render()
+  assert.equal(p.component('EditorPreview').props.device, 'mobile')
+})
+
 test('a live canvas edit blocks destructive reset requests without blocking its own editor', () => {
   const original = { ...empty(), deviceCopy: { desktop: { 'notices.title': '저장된 문구' } } }
   const p = page(original)
