@@ -29,14 +29,15 @@ const approvedMarkupHashes = {
   about: '84bf70717f7e9875902f9e6167e165123ce2ad67ab0a963e23779c1e873e0a97', conductor: '6f214445187ff3db0bf8ef71b9449e901ef53e63d0b1b3d59fd65fbda5ac665e',
   // Members offer current/all-time choices without the retired ordering caption.
   accompanist: '1b4451b43221301500ed45ce3737a0da4af8166e58063ed01311ab948b0ff46b', members: '49a1fffde1f00367936b4237f7cf1a9f29f80e129167d01a4fc2959cc014a5c2',
-  // Spirit also nests the two inert NOW/NEXT dots under their native year labels
-  // so CMS label offsets carry the adjacent ornament without editing its text.
-  history: '49dd95e8e8601b19c93aa4cea85853572b74afff47b6e39cc945800988ac9e49', spirit: '18bfbb71de14555f3022e203dd1fb45a1bd397d1c2b97f6f1bcc25b465fa10a8',
+  // Spirit keeps the dots in stationary placement anchors while only NOW/NEXT
+  // text slides inside them. Its desktop curve is now the approved MOTET rail;
+  // the separate ornament tests protect its original geometry and fill input.
+  history: '49dd95e8e8601b19c93aa4cea85853572b74afff47b6e39cc945800988ac9e49', spirit: '5a7fb441a181dce8cdcb4321fa7a59f6ecffc41da11f366a42c4e504aa842a08',
 }
-function render(page, { copy = (_page, _key, fallback) => fallback, values = props[page], device = 'desktop', preview = false } = {}) {
+function render(page, { copy = (_page, _key, fallback) => fallback, values = props[page], device = 'desktop', preview = false, documents = {} } = {}) {
   const canvas = preview ? { subscribe: () => () => {}, getActiveId: () => null, register: () => () => {} } : undefined
   return renderToStaticMarkup(React.createElement(MemoryRouter, null,
-    React.createElement(SiteEditorContext, { value: { copy, documents: {}, device, isPreview: preview, canvas } }, React.createElement(components[page], values))))
+    React.createElement(SiteEditorContext, { value: { copy, documents, device, isPreview: preview, canvas } }, React.createElement(components[page], values))))
 }
 
 test('Spirit source-owned paragraphs, labels and active education content register editable preview targets', () => {
@@ -60,10 +61,69 @@ test('NOW/NEXT dots belong to their native year labels and register independentl
     assert.equal([...html.matchAll(new RegExp(`data-site-layout="${escaped}"`, 'g'))].length, 1)
     assert.equal([...html.matchAll(new RegExp(`data-site-layout="${escaped}\\.dot"`, 'g'))].length, 1)
     const nativeYear = html.match(new RegExp(`<p[^>]*data-site-layout="${escaped}"[^>]*>([\\s\\S]*?)</p>`))?.[1]
-    assert.ok(nativeYear, `${name} must own its native motion/placement box`)
+    assert.ok(nativeYear, `${name} must own its native placement box`)
     assert.match(nativeYear, new RegExp(`<span[^>]*aria-hidden="true"[^>]*data-site-layout="${escaped}\\.dot"`))
     assert.doesNotMatch(nativeYear, new RegExp(`data-canvas-copy-key="${escaped}\\.dot"`))
     assert.match(nativeYear, new RegExp(`data-canvas-copy-key="${escaped}"`))
+  }
+})
+
+test('NOW/NEXT enter from the side without translating or scaling the adjacent dot anchor', () => {
+  const html = render('spirit', { preview: true })
+  for (const name of ['now', 'next']) {
+    const escaped = `spirit.lineage.${name}`.replaceAll('.', '\\.')
+    const [, opening, content] = html.match(new RegExp(`(<p[^>]*data-site-layout="${escaped}"[^>]*>)([\\s\\S]*?)</p>`)) ?? []
+    assert.ok(opening, `${name} must keep its native placement anchor`)
+    assert.doesNotMatch(opening, /\btransform:/, `${name}'s dot must not inherit the label's entrance transform`)
+    const label = content.match(/<span[^>]*class="spirit-heritage__milestone-label"[^>]*>([\s\S]*?)<\/span>/)?.[0]
+    assert.ok(label, `${name} must animate its text separately from the dot`)
+    assert.match(label, /transform:translateX\(-?[\d.]+px\) scale\([\d.]+\)/)
+    assert.doesNotMatch(label, /spirit-heritage__milestone-dot|aria-hidden/)
+    const dot = content.match(new RegExp(`<span[^>]*data-site-layout="${escaped}\\.dot"[^>]*>`))?.[0]
+    assert.match(dot, /transform:scale\([\d.]+\)/)
+    assert.doesNotMatch(dot, /translateX|translateY/)
+  }
+})
+
+test('separate NOW/NEXT entrance layers retain both label and dot CMS offsets without altering source text', () => {
+  const documents = { spirit: { schemaVersion: 1, copy: {}, deviceCopy: {}, appearance: {}, textLayouts: { desktop: {
+    'spirit.lineage.now': { offsetX: 18, offsetY: -10 },
+    'spirit.lineage.now.dot': { offsetX: 8, offsetY: 5 },
+  } } } }
+  const html = render('spirit', { documents, preview: true })
+  const [, opening, content] = html.match(/(<p[^>]*data-site-layout="spirit\.lineage\.now"[^>]*>)([\s\S]*?)<\/p>/) ?? []
+  assert.match(opening, /translate:18px -10px/)
+  assert.doesNotMatch(opening, /\btransform:/)
+  const dot = content.match(/<span[^>]*data-site-layout="spirit\.lineage\.now\.dot"[^>]*>/)?.[0]
+  assert.match(dot, /translate:8px 5px/)
+  assert.match(content, /data-canvas-copy-key="spirit\.lineage\.now"[^>]*>NOW</)
+})
+
+test('NOW/NEXT text approaches its left-hand marker from the clear side rather than crossing it', () => {
+  const html = render('spirit', { preview: true })
+  for (const name of ['now', 'next']) {
+    const escaped = `spirit.lineage.${name}`.replaceAll('.', '\\.')
+    const content = html.match(new RegExp(`<p[^>]*data-site-layout="${escaped}"[^>]*>([\\s\\S]*?)</p>`))?.[1]
+    const label = content.match(/<span[^>]*class="spirit-heritage__milestone-label"[^>]*>/)?.[0]
+    const offset = Number(label.match(/translateX\((-?[\d.]+)px\)/)?.[1])
+    assert.ok(offset > 0, `${name} must start right of its final position to leave the left-hand dot clear`)
+  }
+})
+
+test('repeated MOTET replaces the lineage line only on desktop, not mobile or tablet', () => {
+  for (const device of ['mobile', 'tablet', 'desktop']) {
+    const html = render('spirit', { device })
+    const rail = html.match(/<svg[^>]*class="spirit-heritage__timeline-curve"[\s\S]*?<\/svg>/)?.[0]
+    assert.ok(rail)
+    if (device === 'desktop') {
+      assert.match(rail, /spirit-heritage__lineage-motet/)
+      const letters = [...rail.matchAll(/<text[^>]*>([MOET])<\/text>/g)].map(match => match[1]).join('')
+      assert.match(letters, /^(?:MOTET){12,}$/)
+    } else {
+      assert.doesNotMatch(rail, /MOTET|spirit-heritage__lineage-motet/)
+      assert.match(rail, /stroke="var\(--spirit-orange\)"/)
+      assert.match(rail, /stroke-width="3"/)
+    }
   }
 })
 

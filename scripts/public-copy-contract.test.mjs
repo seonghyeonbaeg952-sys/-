@@ -113,6 +113,11 @@ test('adding copy adapters preserves every existing JSX default in the captured 
   // The requested NOW/NEXT dot editor intentionally moves only their inert
   // spans into native year boxes. Its native-target SSR test verifies the new
   // nesting and keeps dots out of text editing; other fingerprints stay fixed.
+  // Their follow-up entrance fix moves the transform to text-only spans, so
+  // the dot stays at its placement anchor instead of following the word.
+  // The user-approved desktop MOTET rail replaces only the painted curve.
+  // Its SVG/model tests retain the original path and scroll-progress input;
+  // the mobile/tablet branch still paints the original two-stroke curve.
   const baseline = JSON.parse(readFileSync(new URL('../docs/public-copy-default-baseline.json', import.meta.url), 'utf8'))
   for (const [file, fingerprint] of Object.entries(baseline)) assert.equal(publicMarkupFingerprint(readFileSync(file, 'utf8'), file), fingerprint, file)
 })

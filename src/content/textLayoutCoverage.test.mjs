@@ -63,7 +63,12 @@ test('every registered non-home block consumes only its device layout and keeps 
     const desktop = render(Component, props, false)
     // Composition metadata legitimately differs by viewport. The rendered
     // source text and every actual layout annotation must still be unchanged.
-    const withoutDeviceMetadata = value => page === 'spirit' ? value.replace(/ data-spirit-device="(?:mobile|desktop)"/, '') : value
+    // The desktop-only MOTET ornament legitimately differs from the original
+    // mobile/tablet curve. Its own tests verify that branch; this contract still
+    // compares every source word and all CMS layout annotations outside it.
+    const withoutDeviceMetadata = value => page === 'spirit' ? value
+      .replace(/ data-spirit-device="(?:mobile|desktop)"/, '')
+      .replace(/<svg[^>]*class="spirit-heritage__timeline-curve"[\s\S]*?<\/svg>/, '') : value
     assert.equal(withoutDeviceMetadata(mobile), withoutDeviceMetadata(desktop), page)
   }
 })

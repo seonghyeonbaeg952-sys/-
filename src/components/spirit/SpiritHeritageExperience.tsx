@@ -32,6 +32,8 @@ import {
 } from '../../lib/spiritHeritage'
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion'
 import { OptimizedImage } from '../common/OptimizedImage'
+import { LineageMotetOrnament } from './LineageMotetOrnament'
+import { LINEAGE_CURVE_PATH } from './lineageMotetModel'
 import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
 import { routeLanguageHref } from '../../features/sample-language/sampleLanguageModel'
 
@@ -241,6 +243,7 @@ function LineageMilestone({
 }: LineageMilestoneProps) {
   const { copy: editorCopy } = useSiteEditor()
   const reducedMotion = usePrefersReducedMotion()
+  const yearId = year === '현재' ? 'spirit.lineage.now' : year === '미래' ? 'spirit.lineage.next' : undefined
   const reveal = useTransform(progress, (value) =>
     getMilestoneRevealProgress(value, index, total),
   )
@@ -249,7 +252,7 @@ function LineageMilestone({
   const yearX = useTransform(
     reveal,
     [0, 1],
-    [index % 2 === 0 ? 62 : -62, 0],
+    [yearId || index % 2 === 0 ? 62 : -62, 0],
   )
   const yearScale = useTransform(reveal, [0, 1], [index === 2 ? 0.86 : 0.9, 1])
   const dotScale = useTransform(
@@ -259,7 +262,6 @@ function LineageMilestone({
   )
   const renderedYear = year === '현재' ? editorCopy('spirit', 'spirit.lineage.now', 'NOW')
     : year === '미래' ? editorCopy('spirit', 'spirit.lineage.next', 'NEXT') : year
-  const yearId = year === '현재' ? 'spirit.lineage.now' : year === '미래' ? 'spirit.lineage.next' : undefined
   const dot = <motion.span
     aria-hidden="true"
     className="spirit-heritage__milestone-dot"
@@ -276,10 +278,17 @@ function LineageMilestone({
       <EditableLayout id={yearId ?? ''} nativeTag="p">
         <motion.p
           className="spirit-heritage__milestone-year"
-          style={reducedMotion ? undefined : { scale: yearScale, x: yearX }}
+          style={reducedMotion || yearId ? undefined : { scale: yearScale, x: yearX }}
         >
           {yearId ? <EditableLayout id={`${yearId}.dot`} nativeTag="span">{dot}</EditableLayout> : null}
-          {year === '현재' || year === '미래' ? <FormattedCopy page="spirit" id={year === '현재' ? 'spirit.lineage.now' : 'spirit.lineage.next'} text={renderedYear} layoutTarget={false}>{renderedYear}</FormattedCopy> : renderedYear}
+          {yearId ? (
+            <motion.span
+              className="spirit-heritage__milestone-label"
+              style={reducedMotion ? undefined : { scale: yearScale, x: yearX }}
+            >
+              <FormattedCopy page="spirit" id={yearId} text={renderedYear} layoutTarget={false}>{renderedYear}</FormattedCopy>
+            </motion.span>
+          ) : renderedYear}
         </motion.p>
       </EditableLayout>
       <motion.div
@@ -437,7 +446,7 @@ function SpiritHero({ copy }: { copy: SpiritCopy }) {
 }
 
 function HeritageTimeline() {
-  const { copy: editorCopy } = useSiteEditor()
+  const { copy: editorCopy, device } = useSiteEditor()
   const sectionRef = useRef<HTMLElement>(null)
   const reducedMotion = usePrefersReducedMotion()
   const { scrollYProgress } = useScroll({
@@ -492,29 +501,28 @@ function HeritageTimeline() {
         </div>
 
         <div className="spirit-heritage__lineage-track">
-          <svg
-            aria-hidden="true"
-            className="spirit-heritage__timeline-curve"
-            fill="none"
-            preserveAspectRatio="none"
-            viewBox="0 0 129.825 1040.96"
-          >
-            <path
-              d="M66.4009 0.514496C-23.5991 150.514 -18.5991 250.514 68.4009 345.514C154.401 438.514 146.401 565.514 58.4009 646.514C-18.5991 717.514 -8.59906 858.514 82.4009 1040.51"
-              stroke="currentColor"
-              strokeOpacity="0.18"
-              strokeWidth="2"
-            />
-            <motion.path
-              d="M66.4009 0.514496C-23.5991 150.514 -18.5991 250.514 68.4009 345.514C154.401 438.514 146.401 565.514 58.4009 646.514C-18.5991 717.514 -8.59906 858.514 82.4009 1040.51"
-              data-node-id="2:35"
-              pathLength={1}
-              stroke="var(--spirit-orange)"
-              strokeLinecap="round"
-              strokeWidth="3"
-              style={reducedMotion ? { pathLength: 1 } : { pathLength: pathProgress }}
-            />
-          </svg>
+          {device === 'desktop' ? (
+            <LineageMotetOrnament progress={pathProgress} reducedMotion={reducedMotion} />
+          ) : (
+            <svg
+              aria-hidden="true"
+              className="spirit-heritage__timeline-curve"
+              fill="none"
+              preserveAspectRatio="none"
+              viewBox="0 0 129.825 1040.96"
+            >
+              <path d={LINEAGE_CURVE_PATH} stroke="currentColor" strokeOpacity="0.18" strokeWidth="2" />
+              <motion.path
+                d={LINEAGE_CURVE_PATH}
+                data-node-id="2:35"
+                pathLength={1}
+                stroke="var(--spirit-orange)"
+                strokeLinecap="round"
+                strokeWidth="3"
+                style={reducedMotion ? { pathLength: 1 } : { pathLength: pathProgress }}
+              />
+            </svg>
+          )}
           <div className="spirit-heritage__milestones">
             {legacyFlowSteps.map((item, index) => (
               <LineageMilestone

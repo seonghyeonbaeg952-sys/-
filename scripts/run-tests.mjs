@@ -49,6 +49,8 @@ const tests = [
   'src/lib/publicIntakeIntegration.test.mjs',
   'scripts/check-supabase-live.test.mjs',
   'src/lib/aboutNavigation.test.mjs',
+  'src/components/spirit/LineageMotetOrnament.test.mjs',
+  'src/components/spirit/lineageMotetModel.test.mjs',
   'src/components/about/AboutOverviewExperience.contract.test.mjs',
   'src/components/about/ConductorProfileDocument.contract.test.mjs',
   'src/components/about/HistoryCueSheetExperience.contract.test.mjs',

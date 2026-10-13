@@ -459,6 +459,12 @@
   color: var(--spirit-burgundy);
 }
 
+.spirit-heritage__lineage-motet {
+  font-family: var(--spirit-condensed);
+  font-size: 24px;
+  font-weight: 500;
+}
+
 .spirit-heritage__milestones {
   display: grid;
   grid-template-rows: repeat(4, 260px);
@@ -501,10 +507,14 @@
   white-space: nowrap;
 }
 
-/* These dots belong to the label, including its CMS offsets and reveal motion.
+/* CMS placement carries the dot; only the text layer slides during its reveal.
    Preview hit areas are larger than the visible mark for touch selection. */
 .spirit-heritage__milestone:nth-child(n + 3) .spirit-heritage__milestone-year {
   position: relative;
+}
+
+.spirit-heritage__milestone-label {
+  display: block;
 }
 
 .spirit-heritage__milestone-year > .spirit-heritage__milestone-dot {
@@ -1895,6 +1905,7 @@
   }
 
   .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__timeline-curve {
+    left: -16px;
     width: 128px;
     height: 1040px;
   }
