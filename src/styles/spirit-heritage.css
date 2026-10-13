@@ -1753,34 +1753,34 @@
 }
 
 @media (min-width: 1366px) and (pointer: fine) and (not (any-pointer: coarse)) {
-  .spirit-heritage__faith-copy {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__faith-copy {
     position: relative;
     height: 688px;
   }
 
-  .spirit-heritage__faith-copy > p {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__faith-copy > p {
     position: absolute;
     left: 0;
     margin-top: 0 !important;
   }
 
-  .spirit-heritage__faith-copy > .spirit-heritage__faith-lead {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__faith-copy > .spirit-heritage__faith-lead {
     margin-top: 0 !important;
   }
 
-  .spirit-heritage__faith-copy > p:nth-of-type(1) {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__faith-copy > p:nth-of-type(1) {
     top: 212px;
   }
 
-  .spirit-heritage__faith-copy > p:nth-of-type(2) {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__faith-copy > p:nth-of-type(2) {
     top: 306px;
   }
 
-  .spirit-heritage__faith-copy > p:nth-of-type(3) {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__faith-copy > p:nth-of-type(3) {
     top: 444px;
   }
 
-  .spirit-heritage__faith-copy > p:nth-of-type(4) {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__faith-copy > p:nth-of-type(4) {
     top: 582px;
   }
 }
@@ -1822,52 +1822,52 @@
 }
 
 @media (min-width: 1366px) and (pointer: fine) and (not (any-pointer: coarse)) {
-  .spirit-heritage__lineage-grid {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__lineage-grid {
     position: relative;
     display: block;
     height: 1040px;
   }
 
-  .spirit-heritage__lineage-intro {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__lineage-intro {
     width: 510px;
     height: 1040px;
   }
 
-  .spirit-heritage__lineage-intro > .spirit-heritage__eyebrow,
-  .spirit-heritage__lineage-title,
-  .spirit-heritage__lineage-rule,
-  .spirit-heritage__lineage-lead,
-  .spirit-heritage__heritage-photo {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__lineage-intro > .spirit-heritage__eyebrow,
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__lineage-title,
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__lineage-rule,
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__lineage-lead,
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__heritage-photo {
     position: absolute;
     left: 0;
   }
 
-  .spirit-heritage__lineage-intro > .spirit-heritage__eyebrow {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__lineage-intro > .spirit-heritage__eyebrow {
     top: 0;
   }
 
-  .spirit-heritage__lineage-title {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__lineage-title {
     top: 44px;
     width: 510px;
     margin-top: 0;
   }
 
-  .spirit-heritage__lineage-rule {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__lineage-rule {
     top: 233px;
     margin-top: 0;
   }
 
-  .spirit-heritage__lineage-lead {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__lineage-lead {
     top: 250px;
     margin-top: 0 !important;
   }
 
-  .spirit-heritage__heritage-photo {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__heritage-photo {
     top: 400px;
     margin-top: 0;
   }
 
-  .spirit-heritage__lineage-track {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__lineage-track {
     position: absolute;
     top: 82px;
     left: 524px;
@@ -1876,19 +1876,19 @@
     margin-top: 0;
   }
 
-  .spirit-heritage__timeline-curve {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__timeline-curve {
     width: 128px;
     height: 1040px;
   }
 
-  .spirit-heritage__milestones {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestones {
     position: absolute;
     inset: 0;
     display: block;
     margin-left: 0;
   }
 
-  .spirit-heritage__milestone {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone {
     position: absolute;
     inset: 0;
     display: block;
@@ -1897,89 +1897,89 @@
     padding-top: 0;
   }
 
-  .spirit-heritage__milestone-dot,
-  .spirit-heritage__milestone-year,
-  .spirit-heritage__milestone-copy {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone-dot,
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone-year,
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone-copy {
     position: absolute;
   }
 
-  .spirit-heritage__milestone:nth-child(1) .spirit-heritage__milestone-dot {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(1) .spirit-heritage__milestone-dot {
     top: 12px;
     left: 110px;
   }
 
-  .spirit-heritage__milestone:nth-child(1) .spirit-heritage__milestone-year {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(1) .spirit-heritage__milestone-year {
     top: -62px;
     left: 154px;
   }
 
-  .spirit-heritage__milestone:nth-child(1) .spirit-heritage__milestone-copy {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(1) .spirit-heritage__milestone-copy {
     top: -42px;
     left: 424px;
     width: 340px;
   }
 
-  .spirit-heritage__milestone:nth-child(2) .spirit-heritage__milestone-dot {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(2) .spirit-heritage__milestone-dot {
     top: 280px;
     left: 200px;
   }
 
-  .spirit-heritage__milestone:nth-child(2) .spirit-heritage__milestone-year {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(2) .spirit-heritage__milestone-year {
     top: 208px;
     left: 224px;
   }
 
-  .spirit-heritage__milestone:nth-child(2) .spirit-heritage__milestone-copy {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(2) .spirit-heritage__milestone-copy {
     top: 228px;
     left: 494px;
     width: 300px;
   }
 
-  .spirit-heritage__milestone:nth-child(3) .spirit-heritage__milestone-dot {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(3) .spirit-heritage__milestone-dot {
     top: 588px;
     left: 84px;
   }
 
-  .spirit-heritage__milestone:nth-child(3) .spirit-heritage__milestone-year {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(3) .spirit-heritage__milestone-year {
     top: 500px;
     left: 94px;
     font-size: 120px;
     line-height: 0.88;
   }
 
-  .spirit-heritage__milestone:nth-child(3) .spirit-heritage__milestone-copy {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(3) .spirit-heritage__milestone-copy {
     top: 532px;
     left: 384px;
     width: 360px;
   }
 
-  .spirit-heritage__milestone:nth-child(4) .spirit-heritage__milestone-dot {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(4) .spirit-heritage__milestone-dot {
     top: 878px;
     left: 192px;
   }
 
-  .spirit-heritage__milestone:nth-child(4) .spirit-heritage__milestone-year {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(4) .spirit-heritage__milestone-year {
     top: 790px;
     left: 204px;
     font-size: 116px;
     line-height: 0.88;
   }
 
-  .spirit-heritage__milestone:nth-child(4) .spirit-heritage__milestone-copy {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone:nth-child(4) .spirit-heritage__milestone-copy {
     top: 818px;
     left: 504px;
     width: 280px;
   }
 
-  .spirit-heritage__milestone-copy {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone-copy {
     padding-top: 0;
   }
 
-  .spirit-heritage__milestone-copy h3 {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone-copy h3 {
     font-size: 23px;
   }
 
-  .spirit-heritage__milestone-copy p {
+  .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__milestone-copy p {
     font-size: 16px;
   }
 }
@@ -3125,4 +3125,266 @@
     max-width: 100%;
     margin-top: 48px;
   }
+}
+
+/* Composition follows the same device choice as CMS copy and formatting.
+   A large, tablet-proportioned viewport must not inherit desktop coordinates. */
+@media (min-width: 900px) {
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
+    gap: 40px;
+    min-height: 0;
+    padding: 64px clamp(32px, 4vw, 64px);
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__hero-inner {
+    display: flex;
+    grid-column: 1;
+    grid-row: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    min-height: 0;
+    padding: 0;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] :is(
+    .spirit-heritage__eyebrow--hero, .spirit-heritage__display-title,
+    .spirit-heritage__hero-heading--desktop, .spirit-heritage__hero-body,
+    .spirit-heritage__origin-card
+  ) {
+    position: relative;
+    inset: auto;
+    max-width: 100%;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__eyebrow--hero::before {
+    height: 36px;
+    margin-left: 0;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__display-title {
+    margin: 32px 0 28px;
+    font-size: clamp(90px, 12vw, 172px);
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__hero-heading--desktop {
+    display: block;
+    width: 100%;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__hero-heading--mobile {
+    display: none;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__hero-heading > p:first-child {
+    font-size: 28px;
+    line-height: 1.25;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__hero-promise {
+    margin-top: 12px !important;
+    font-size: 42px;
+    line-height: 1.22;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__hero-promise > span {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-left: 0;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__reading-stroke {
+    display: none;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__hero-body {
+    width: 100%;
+    margin-top: 28px;
+    font-size: 16px;
+    line-height: 1.75;
+    text-wrap: pretty;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__origin-card {
+    width: 100%;
+    height: auto;
+    margin-top: 28px;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] :is(.spirit-heritage__hero-photo, .spirit-heritage__hero-veil) {
+    position: relative;
+    inset: auto;
+    grid-column: 2;
+    grid-row: 1;
+    width: 100%;
+    height: 100%;
+    min-height: 480px;
+    margin: 0;
+    border-radius: 14px;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] :is(
+    .spirit-heritage__lineage-grid, .spirit-heritage__motet-grid,
+    .spirit-heritage__faith-grid, .spirit-heritage__values-grid,
+    .spirit-heritage__education-grid
+  ) {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 40px;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__milestones {
+    grid-template-rows: repeat(4, minmax(260px, auto));
+    margin-left: 42px;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__milestone {
+    grid-template-columns: minmax(0, 0.6fr) minmax(0, 1.4fr);
+    gap: 20px;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__milestone-year {
+    font-size: clamp(49px, 5vw, 76px);
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__timeline-curve {
+    width: 48px;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__value-panel-wrap {
+    min-height: 0;
+    padding-top: 180px;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__value-panel {
+    height: auto;
+    min-height: 500px;
+    padding: 28px;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] :is(
+    .spirit-heritage__value-panel h3, .spirit-heritage__value-panel > strong,
+    .spirit-heritage__value-panel > p, .spirit-heritage__faith-copy > p
+  ) {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__education-lead {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    margin-top: 28px !important;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__motet-glass {
+    height: auto;
+    min-height: 0;
+    padding: 32px 28px;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__calligraphic-note {
+    margin-left: 0;
+    font-size: 32px;
+    line-height: 1.25;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__motet-body {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    margin-top: 28px !important;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__quote-card {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    margin-top: 28px;
+    padding: 24px;
+  }
+
+  .spirit-heritage[data-spirit-device='tablet'] .spirit-heritage__quote-card blockquote {
+    width: 100%;
+    font-size: 22px;
+    line-height: 1.5;
+    text-wrap: pretty;
+  }
+}
+
+/* Sized CMS runs need their own line box, not the old Korean pixel height. */
+.spirit-heritage:not([data-spirit-device='desktop']) :is(h1, h2, h3) smyc-copy[data-site-copy-size],
+html[data-sample-language='en'] .spirit-heritage :is(h1, h2, h3) smyc-copy[data-site-copy-size] {
+  line-height: 1.2;
+}
+
+.spirit-heritage:not([data-spirit-device='desktop']) :is(
+  .spirit-heritage__motet-line, .spirit-heritage__manifesto-line,
+  .spirit-heritage__faith-line, .spirit-heritage__values-line,
+  .spirit-heritage__community-line, .spirit-heritage__faith-title h2 .spirit-heritage__faith-line--last
+) {
+  height: auto;
+  line-height: 1.2;
+}
+
+html[data-sample-language='en'] .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__reading-stroke {
+  top: 616px;
+  left: 96px;
+}
+
+/* Retain the large-screen overlap, but give the English display title a
+   visible outer margin when the desktop canvas has no centered side gutter. */
+@media (min-width: 1366px) and (max-width: 1631px) {
+  html[data-sample-language='en'] .spirit-heritage[data-spirit-device='desktop'] .spirit-heritage__display-title {
+    left: 76px;
+  }
+}
+
+html[data-sample-language='en'] .public-shell .spirit-heritage__hero-promise > span {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+html[data-sample-language='en'] .public-shell .spirit-heritage__closing-copy {
+  position: relative;
+  width: min(620px, 100%);
+}
+
+html[data-sample-language='en'] .public-shell .spirit-heritage__closing-copy :is(
+  .spirit-heritage__eyebrow, h2, .spirit-heritage__closing-actions
+),
+html[data-sample-language='en'] .public-shell .spirit-heritage__closing-copy > p:not(.spirit-heritage__eyebrow) {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  max-width: 100%;
+}
+
+html[data-sample-language='en'] .public-shell .spirit-heritage__closing-copy h2 {
+  margin-top: 24px;
+}
+
+html[data-sample-language='en'] .public-shell .spirit-heritage__closing-copy > p:not(.spirit-heritage__eyebrow),
+html[data-sample-language='en'] .public-shell .spirit-heritage__closing-actions {
+  margin-top: 24px;
+}
+
+html[data-sample-language='en'] .public-shell .spirit-heritage__closing-copy h2 :is(span, strong) {
+  line-height: 1.25;
+}
+
+/* Preserve the authored Korean desktop title placements. Only give their
+   supporting paragraph and actions the breathing room the longer copy needs. */
+.spirit-heritage[data-spirit-device='desktop']:lang(ko) .spirit-heritage__education-lead {
+  top: 282px;
+}
+
+.spirit-heritage[data-spirit-device='desktop']:lang(ko) .spirit-heritage__closing-actions {
+  top: 393px;
 }

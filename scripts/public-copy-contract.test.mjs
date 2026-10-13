@@ -100,6 +100,13 @@ test('adding copy adapters preserves every existing JSX default in the captured 
   // HomeHeroSlideshow.image and ArchivePageStack.motion regression tests.
   // Only those two reviewed snapshots changed; all other fingerprints and
   // adapter/mutation checks remain unchanged.
+  // The 2026-10-13 Spirit composition adds only data-spirit-device to its
+  // existing root. Removing that metadata matches the pre-change HEAD
+  // fingerprint exactly; the real public device audit checks its CSS effect.
+  // AboutPage's snapshot also reflects the user-approved directions removal
+  // already shipped in 4e01207; no AboutPage code changes are made here.
+  // The member snapshot reflects the already-approved compact roster/order
+  // changes in c6a2f9c and 6cbf9cd, not a new roster implementation.
   const baseline = JSON.parse(readFileSync(new URL('../docs/public-copy-default-baseline.json', import.meta.url), 'utf8'))
   for (const [file, fingerprint] of Object.entries(baseline)) assert.equal(publicMarkupFingerprint(readFileSync(file, 'utf8'), file), fingerprint, file)
 })

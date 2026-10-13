@@ -946,10 +946,11 @@ export function SpiritHeritageExperience({
   values,
 }: SpiritHeritageExperienceProps) {
   useSpiritAnchorNavigation()
+  const { device } = useSiteEditor()
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="spirit-heritage">
+      <div className="spirit-heritage" data-spirit-device={device}>
       <SpiritHero copy={hero} />
         <HeritageTimeline />
         <MotetMeaning copy={motetMeaning} />

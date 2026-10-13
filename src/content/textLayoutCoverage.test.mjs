@@ -53,7 +53,12 @@ test('every registered non-home block consumes only its device layout and keeps 
       assert.match(opening, /width:47%/, id)
       assert.match(opening, /text-align:center/, id)
     }
-    assert.equal(render(Component, props, false, documents, 'mobile'), render(Component, props, false), page)
+    const mobile = render(Component, props, false, documents, 'mobile')
+    const desktop = render(Component, props, false)
+    // Composition metadata legitimately differs by viewport. The rendered
+    // source text and every actual layout annotation must still be unchanged.
+    const withoutDeviceMetadata = value => page === 'spirit' ? value.replace(/ data-spirit-device="(?:mobile|desktop)"/, '') : value
+    assert.equal(withoutDeviceMetadata(mobile), withoutDeviceMetadata(desktop), page)
   }
 })
 

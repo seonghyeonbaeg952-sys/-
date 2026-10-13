@@ -29,11 +29,12 @@ const approvedMarkupHashes = {
   about: '84bf70717f7e9875902f9e6167e165123ce2ad67ab0a963e23779c1e873e0a97', conductor: '6f214445187ff3db0bf8ef71b9449e901ef53e63d0b1b3d59fd65fbda5ac665e',
   // Members offer current/all-time choices without the retired ordering caption.
   accompanist: '1b4451b43221301500ed45ce3737a0da4af8166e58063ed01311ab948b0ff46b', members: '49a1fffde1f00367936b4237f7cf1a9f29f80e129167d01a4fc2959cc014a5c2',
-  history: '49dd95e8e8601b19c93aa4cea85853572b74afff47b6e39cc945800988ac9e49', spirit: '86009e4bedec6a759ec050ac401e09ee02e9b82e9a5ec61029790e352fe6a94d',
+  // Spirit includes the user-approved image dimensions from 5a065d7.
+  history: '49dd95e8e8601b19c93aa4cea85853572b74afff47b6e39cc945800988ac9e49', spirit: 'bd31b232e84b272f22e13f43a1aa274c51709bdb34b1db7c880eb695001fc42c',
 }
-function render(page, { copy = (_page, _key, fallback) => fallback, values = props[page] } = {}) {
+function render(page, { copy = (_page, _key, fallback) => fallback, values = props[page], device = 'desktop' } = {}) {
   return renderToStaticMarkup(React.createElement(MemoryRouter, null,
-    React.createElement(SiteEditorContext, { value: { copy, documents: {}, device: 'desktop', isPreview: false } }, React.createElement(components[page], values))))
+    React.createElement(SiteEditorContext, { value: { copy, documents: {}, device, isPreview: false } }, React.createElement(components[page], values))))
 }
 
 for (const [page, text] of Object.entries({ about: '청소년의 목소리로', conductor: '지휘자 소개', accompanist: '반주자 소개', members: '함께한 모든 이름이', history: '한 줄의 기록이', spirit: '정신은 선언이 아니라' })) {
@@ -46,9 +47,22 @@ for (const [page, text] of Object.entries({ about: '청소년의 목소리로', 
     assert.ok(call.key.startsWith(`${page}.`))
   })
   test(`${page} without overrides preserves every original rendered character, tag and line break`, () => {
-    assert.equal(createHash('sha256').update(render(page)).digest('hex'), approvedMarkupHashes[page])
+    const html = render(page)
+    // Device metadata scopes CSS without changing any source word or tag.
+    const unchangedMarkup = page === 'spirit' ? html.replace(' data-spirit-device="desktop"', '') : html
+    assert.equal(createHash('sha256').update(unchangedMarkup).digest('hex'), approvedMarkupHashes[page])
   })
 }
+
+test('Spirit composition and copy share the selected CMS device instead of separate CSS breakpoints', () => {
+  for (const device of ['mobile', 'tablet', 'desktop']) {
+    const html = render('spirit', { device })
+    assert.match(html, new RegExp(`<div class="spirit-heritage" data-spirit-device="${device}">`))
+    assert.equal((html.match(/data-spirit-device=/g) ?? []).length, 1)
+    assert.ok(html.includes('CMS 첫 화면 본문'))
+    assert.match(html, /href="\/join"/)
+  }
+})
 
 test('catalog entries are unique and every observed consumer carries the original catalog fallback', () => {
   assert.ok(definitions.length > 80, 'the fixed-copy catalog must cover the six assigned components')
