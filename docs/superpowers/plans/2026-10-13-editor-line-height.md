@@ -38,5 +38,5 @@ File: `src/components/spirit/SpiritHeritageExperience.tsx`; test: `src/content/s
 
 - [x] Exercise line-height change/default, invalid input, input cancel, undo/redo, text editing and navigation/save locks locally without publishing test data.
 - [x] Check Korean/English 390, 768 and 1440 layouts, numeric keyboard input and console health; also check 1024 landscape and 1920 desktop.
-- [ ] After release, verify actual draft save/reload, publication review (cancel only), and restoration of only the temporary line-spacing override. Keep production content unchanged; record the result in the session's verification artifacts.
-- [ ] Run affected/full tests, lint and build. Commit/push only verified relevant changes under standing delivery instructions; report any unrelated test-process failure honestly.
+- [x] After release, verify actual draft save/reload, publication review (cancel only), and restoration of only the temporary line-spacing override. Production KO version 114→115→116 and EN version 83 confirmed; final whole-document hashes match the originals. Record the result in the session's verification artifacts and `docs/qa/2026-10-13-cms-editor-validation.md`.
+- [x] Run affected/full tests, lint and build. Commit/push only verified relevant changes under standing delivery instructions; report intermediate test-process failures and their test-harness repair honestly. Final full run: 1,168 passed, 0 failed, 11 skipped; lint/build passed. Code commit `8183dbf` pushed to main and production READY confirmed.
