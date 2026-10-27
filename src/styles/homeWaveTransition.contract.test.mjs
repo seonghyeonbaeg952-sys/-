@@ -37,7 +37,9 @@ function findStationaryFinalePaint({ fileName, source }) {
     }
 
     selectors.forEach((selector) => {
-      if (selector.endsWith('.home-flow-sample-chunk--finale')) {
+      // Tablet uses ordinary document flow and hides the moving surface.
+      const staticTablet = selector.includes("[data-home-viewport='tablet']")
+      if (!staticTablet && selector.endsWith('.home-flow-sample-chunk--finale')) {
         violations.push(`${fileName}: ${selector}`)
       }
     })

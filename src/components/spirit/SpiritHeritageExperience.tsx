@@ -524,15 +524,6 @@ function CommunitySection() {
             <span className="spirit-heritage__image-label"><SiteCopy page="spirit" id="spirit.community.centerLabel" fallback={voiceConstellationCopy.centerLabel} lineBreaks={false} /></span>
           </OptimizedImage>
         </Reveal>
-        <div className="spirit-heritage__voices">
-          {voiceConstellationCopy.voices.map((voice, index) => (
-            <Reveal className="spirit-heritage__voice" delay={index * 0.05} key={voice.part} y={18}>
-              <small>{String(index + 1).padStart(2, '0')}</small>
-              <h3><SiteCopy page="spirit" id={`spirit.voices.${index}.part`} fallback={voice.part} lineBreaks={false} /></h3>
-              <p><SiteCopy page="spirit" id={`spirit.voices.${index}.meaning`} fallback={voice.meaning} lineBreaks={false} /></p>
-            </Reveal>
-          ))}
-        </div>
         <Reveal className="spirit-heritage__community-closing" y={24}>
           <SiteCopy page="spirit" id="spirit.community.closing" fallback={voiceConstellationCopy.closing.replace(' 서로를', '\n서로를')} lineBreaks={false} />
         </Reveal>

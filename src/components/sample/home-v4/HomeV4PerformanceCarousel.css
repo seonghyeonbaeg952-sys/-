@@ -1,9 +1,9 @@
 .public-shell-home-sample-v4 .home-v4-performance-carousel {
   --v4-performance-ivory-extension: clamp(6rem, 10vw, 11rem);
   display: grid;
-  grid-template-columns: minmax(17rem, 0.68fr) minmax(34rem, 1.32fr);
+  grid-template-columns: minmax(20rem, 0.8fr) minmax(0, 1.2fr);
   width: min(calc(100% - clamp(8rem, 15vw, 16rem)), 78rem);
-  min-height: min(72rem, 78vw);
+  min-height: min(56rem, 100svh);
   margin-inline: auto;
   overflow: hidden;
   background: transparent;
@@ -333,8 +333,9 @@
   display: flex;
   min-width: 0;
   flex-direction: column;
-  padding: clamp(4.5rem, 8.2vw, 9rem) clamp(2rem, 4.4vw, 5.25rem)
-    clamp(3rem, 5vw, 6rem) max(2rem, calc((100vw - 90rem) / 2 + 1rem));
+  /* This column is already inside a centered, bounded grid. Viewport side
+     margins here consumed the text width on wide screens. */
+  padding: clamp(4rem, 4.5vw, 5.5rem) clamp(1.75rem, 2.2vw, 2.5rem) 3rem;
   border-right: 1px solid rgb(250 74 18 / 20%);
 }
 
@@ -377,22 +378,22 @@
     'Malgun Gothic',
     serif
   );
-  font-size: clamp(2.75rem, 3.65vw, 4rem);
+  font-size: clamp(2.5rem, 2.8vw, 3.25rem);
   font-weight: 500;
   letter-spacing: -0.055em;
-  line-height: 0.98;
-  white-space: nowrap;
+  line-height: 1.15;
+  text-wrap: balance;
 }
 
 .public-shell-home-sample-v4 .home-v4-performance-carousel__description {
-  margin-top: 2.25rem;
+  margin-top: 1.5rem;
   color: rgb(61 11 47 / 72%);
   font-size: clamp(0.85rem, 1vw, 1rem);
-  line-height: 1.9;
+  line-height: 1.8;
 }
 
 .public-shell-home-sample-v4 .home-v4-performance-carousel__active-copy {
-  margin-top: clamp(3.5rem, 6.2vw, 7rem);
+  margin-top: 3rem;
 }
 
 .public-shell-home-sample-v4 .home-v4-performance-carousel__active-copy > p::after {
@@ -416,7 +417,7 @@
     'Malgun Gothic',
     serif
   );
-  font-size: clamp(1.75rem, 2.7vw, 3.1rem);
+  font-size: clamp(1.75rem, 2.25vw, 2.75rem);
   font-weight: 500;
   letter-spacing: -0.04em;
   line-height: 1.16;
@@ -468,7 +469,7 @@
   gap: 0;
   margin-top: auto;
   margin-bottom: clamp(1.75rem, 2.5vw, 2.25rem);
-  padding-top: 4rem;
+  padding-top: 2.5rem;
   list-style: none;
 }
 
@@ -540,7 +541,7 @@
   display: grid;
   min-width: 0;
   place-items: center;
-  padding: clamp(2rem, 4vw, 4rem) max(1.25rem, calc((100vw - 90rem) / 2));
+  padding: clamp(2rem, 3vw, 3rem) clamp(1.5rem, 2vw, 2.5rem);
   background: transparent;
 }
 

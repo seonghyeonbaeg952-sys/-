@@ -122,6 +122,9 @@ test('adding copy adapters preserves every existing JSX default in the captured 
   // member staff/accompanist rosters, and four-section Spirit with tour photos.
   // Only those four captured files changed; rendered and data-boundary tests
   // cover the new defaults, classification, privacy and retained CMS targets.
+  // The follow-up request removes four current-member part buttons and the
+  // Spirit community's five voice cards, and separates all-time staff names.
+  // Their rendered/partition tests cover the newly approved defaults.
   const baseline = JSON.parse(readFileSync(new URL('../docs/public-copy-default-baseline.json', import.meta.url), 'utf8'))
   for (const [file, fingerprint] of Object.entries(baseline)) assert.equal(publicMarkupFingerprint(readFileSync(file, 'utf8'), file), fingerprint, file)
 })

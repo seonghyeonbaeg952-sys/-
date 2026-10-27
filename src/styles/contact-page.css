@@ -14,7 +14,7 @@
 .contact-atelier__intro { padding-block: 72px 40px; }
 .contact-atelier__eyebrow { margin: 0 0 20px; font-size: 12px; font-weight: 600; letter-spacing: .09em; line-height: 1.7; color: var(--contact-muted); }
 .contact-atelier__title-row { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center; padding-bottom: 40px; border-bottom: 1px solid var(--contact-border); }
-.contact-atelier h1 { margin: 0; font: 600 clamp(42px, 5vw, 76px)/1.35 var(--font-heading-kr); letter-spacing: -.045em; }
+.contact-atelier h1 { margin: 0; font: 600 clamp(42px, 4vw, 64px)/1.22 var(--font-heading-kr); letter-spacing: -.035em; }
 .contact-atelier__title-row > p { margin: 0; color: var(--contact-muted); font-size: 20px; line-height: 1.8; word-break: keep-all; }
 .contact-atelier__navigation { display: flex; flex-wrap: wrap; gap: 12px 20px; padding-bottom: 40px; }
 .contact-atelier__navigation a { display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 10px 22px; border-bottom: 2px solid transparent; color: inherit; text-decoration: none; font-size: 15px; }

@@ -106,3 +106,15 @@ test('명단 오른쪽 아래의 정렬 안내 문구는 표시하지 않는다'
   assert.ok(footer, 'the existing archive closing note should remain')
   assert.doesNotMatch(footer, /가나다순|PART INDEX/)
 })
+
+test('현단원은 성부별 명단을 유지하면서 네 성부 필터 버튼을 표시하지 않는다', () => {
+  const html = renderToStaticMarkup(React.createElement(MembersArchiveExperience, { members: [
+    { id: 'singer', display_name: '공개 단원', part: 'soprano', group_type: 'high', member_status: 'active', display_order: 0 },
+  ] }))
+  const buttons = [...html.matchAll(/<button\b[^>]*>(.*?)<\/button>/gs)].map(match => match[1])
+  for (const label of ['소프라노', '알토', '테너', '베이스']) assert.ok(!buttons.includes(label), `${label} filter is retired`)
+  assert.ok(buttons.includes('스태프'))
+  assert.ok(buttons.includes('반주자'))
+  assert.match(html, /id="member-group-soprano"/)
+  assert.ok(html.includes('공개 단원'))
+})

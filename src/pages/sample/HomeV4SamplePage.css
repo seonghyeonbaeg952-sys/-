@@ -1317,7 +1317,7 @@
 
 /* V4-only desktop wave handoffs.
    Mobile keeps the shared static section flow from home-section-flow-sample.css. */
-@media (min-width: 1366px) and (min-aspect-ratio: 151/100) and (pointer: fine) and (not (any-pointer: coarse)) {
+@media (min-width: 1366px) and (min-aspect-ratio: 151/100) and (pointer: fine) and (not (any-pointer: coarse)) and (prefers-reduced-motion: no-preference) {
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
     .home-flow-sample-chunk--stage {
     margin-top: calc(

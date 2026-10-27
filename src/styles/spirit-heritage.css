@@ -701,45 +701,6 @@
   min-height: 60px;
 }
 
-.spirit-heritage__voices {
-  position: relative;
-  display: grid;
-  width: 100%;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 24px;
-  margin-top: 56px;
-}
-
-.spirit-heritage__voice {
-  min-height: 132px;
-  padding-top: 22px;
-  border-top: 1px solid rgb(36 91 131 / 0.2);
-}
-
-.spirit-heritage__voice:first-child {
-  border-top: 2px solid var(--spirit-orange);
-}
-
-.spirit-heritage__voice small {
-  color: var(--spirit-orange);
-  font-size: 0.68rem;
-  font-weight: 800;
-}
-
-.spirit-heritage__voice h3 {
-  margin-top: 24px;
-  font-family: var(--spirit-accent);
-  font-size: 1.375rem;
-  font-weight: 400;
-}
-
-.spirit-heritage__voice p {
-  margin-top: 12px !important;
-  color: var(--spirit-muted);
-  font-size: 0.8rem;
-  line-height: 1.55;
-}
-
 .spirit-heritage__community-closing {
   position: relative;
   width: min(100%, 860px);
@@ -1404,15 +1365,6 @@
     min-height: 42px;
   }
 
-  .spirit-heritage__voices {
-    grid-template-columns: repeat(2, 1fr);
-    margin-top: 36px;
-  }
-
-  .spirit-heritage__voice:last-child {
-    grid-column: span 2;
-  }
-
   .spirit-heritage__community-closing {
     margin: 40px auto 0;
   }
@@ -1559,10 +1511,6 @@
 
   .spirit-heritage__section-shell {
     width: calc(100% - 48px);
-  }
-
-  .spirit-heritage__voices {
-    gap: 16px;
   }
 
   .spirit-heritage__closing-actions {

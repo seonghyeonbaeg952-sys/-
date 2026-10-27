@@ -183,3 +183,20 @@ test('운영진 직무는 CMS 역할로 분류하고 반주자는 직무 명단�
   ])
   assert.equal(JSON.stringify(rows), before)
 })
+
+test('역대 명단은 일반 단원·스태프·반주자를 겹치지 않게 분리하고 CMS 순서를 유지한다', () => {
+  assert.equal(typeof memberArchive.partitionPublicMemberArchive, 'function')
+  const rows = [
+    { ...members[0], id: 'member-b', display_name: '나단원', display_order: 1 },
+    { ...members[0], id: 'member-a', display_name: '가단원', display_order: 1 },
+    { ...members[0], id: 'staff', group_type: 'staff', part: 'tenor', member_status: 'alumni', display_order: 0 },
+    { ...members[0], id: 'pianist', group_type: 'staff', part: 'accompanist', display_order: 0 },
+  ]
+  const before = JSON.stringify(rows)
+  const result = memberArchive.partitionPublicMemberArchive(rows)
+  assert.deepEqual(result.members.map(row => row.id), ['member-a', 'member-b'])
+  assert.deepEqual(result.staff.map(row => row.id), ['staff'])
+  assert.deepEqual(result.accompanists.map(row => row.id), ['pianist'])
+  assert.equal(Object.values(result).flat().length, rows.length)
+  assert.equal(JSON.stringify(rows), before)
+})

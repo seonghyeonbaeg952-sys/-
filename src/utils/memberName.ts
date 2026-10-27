@@ -165,6 +165,18 @@ export function filterPublicMembersForArchive(
     .sort(comparePublicMembers)
 }
 
+export function partitionPublicMemberArchive(members: PublicMemberRow[]) {
+  const archive: Record<'members' | 'staff' | 'accompanists', PublicMemberRow[]> = {
+    members: [], staff: [], accompanists: [],
+  }
+  for (const member of [...members].sort(comparePublicMembers)) {
+    if (member.part === 'accompanist') archive.accompanists.push(member)
+    else if (member.group_type === 'staff') archive.staff.push(member)
+    else archive.members.push(member)
+  }
+  return archive
+}
+
 export function groupPublicStaffForArchive(members: PublicMemberRow[]) {
   const staff = members
     .filter(member => member.group_type === 'staff' && member.part !== 'accompanist')

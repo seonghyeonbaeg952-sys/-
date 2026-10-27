@@ -220,6 +220,14 @@ html[data-sample-language='en'] .public-shell .join-open-score .join-open-score_
     padding-block: 82px 64px;
   }
   html[data-sample-language='en'] .public-shell .about-overview__intro-stage { grid-template-areas: 'copy photo' 'lyric lyric' 'rule rule'; }
+  html[data-sample-language='en'] .public-shell .about-overview__spirit-copy h2 {
+    font-size: 44px;
+    line-height: 1.28;
+  }
+  html[data-sample-language='en'] .public-shell .about-overview__spirit-copy h2 span {
+    font-size: 1.08em;
+    line-height: inherit;
+  }
   html[data-sample-language='en'] .public-shell .about-overview__founding-stage { grid-template-areas: 'heading copy' 'photo copy' 'meta meta'; grid-template-rows: auto 1fr auto; }
   html[data-sample-language='en'] .public-shell .about-overview__education-stage { grid-template-areas: 'heading script' 'photo sequence' 'statement statement' 'programs programs' 'rule rule'; }
   html[data-sample-language='en'] .public-shell :is(

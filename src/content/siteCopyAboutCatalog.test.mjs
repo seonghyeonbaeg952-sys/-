@@ -28,11 +28,12 @@ const props = {
 const approvedMarkupHashes = {
   // 2026-10-27: requested Dr. name, artistic role and source-specific choir crop.
   about: '84bf70717f7e9875902f9e6167e165123ce2ad67ab0a963e23779c1e873e0a97', conductor: '25d5d341506ff407bf052ebfac264811025e4741f04403480971cdcf8a429725',
-  // Members offer current/all-time choices without the retired ordering caption.
-  accompanist: '1b4451b43221301500ed45ce3737a0da4af8166e58063ed01311ab948b0ff46b', members: '49a1fffde1f00367936b4237f7cf1a9f29f80e129167d01a4fc2959cc014a5c2',
+  // Current members retain grouped names without the four retired SATB buttons.
+  accompanist: '1b4451b43221301500ed45ce3737a0da4af8166e58063ed01311ab948b0ff46b', members: '1bbe0d03fd345decbb7db7b8a716ab103bf0013a1fb20dcc40aea05cfe8f1d0e',
   // 2026-10-27: only hero, lineage, community and closing remain, with the
   // approved tour images. Native NOW/NEXT anchors and MOTET rail are retained.
-  history: '49dd95e8e8601b19c93aa4cea85853572b74afff47b6e39cc945800988ac9e49', spirit: '0d0b8d2c167b14af67542a979679d756a47c2a2f28c3cff199703178f5ed4997',
+  // The five community voice cards were explicitly removed by the owner.
+  history: '49dd95e8e8601b19c93aa4cea85853572b74afff47b6e39cc945800988ac9e49', spirit: '1a07b6fd6cba4bafba2a39c1223e602989a62b1c012cf1d4e1ad2250b4deea19',
 }
 function render(page, { copy = (_page, _key, fallback) => fallback, values = props[page], device = 'desktop', preview = false, documents = {} } = {}) {
   const canvas = preview ? { subscribe: () => () => {}, getActiveId: () => null, register: () => () => {} } : undefined
@@ -45,7 +46,6 @@ test('retained Spirit lineage and community content register editable preview ta
   const keys = [
     ...Array.from({ length: 4 }, (_, i) => [`spirit.lineage.${i}.title`, `spirit.lineage.${i}.body`]).flat(),
     'spirit.community.lead', 'spirit.community.centerLabel', 'spirit.community.closing',
-    ...Array.from({ length: 5 }, (_, i) => [`spirit.voices.${i}.part`, `spirit.voices.${i}.meaning`]).flat(),
   ]
   for (const key of keys) assert.ok(html.includes(`data-canvas-copy-key="${key}"`), `missing canvas source: ${key}`)
 })
@@ -55,6 +55,13 @@ test('Spirit retains exactly the requested opening, lineage, community and closi
   const ids = [...html.matchAll(/<section[^>]*\bid="([^"]+)"/g)].map(match => match[1])
   assert.deepEqual(ids, ['spirit-overview', 'spirit-lineage', 'spirit-community', 'spirit-join'])
   assert.doesNotMatch(html, /id="spirit-(?:motet|manifesto|faith|values|education)"/)
+})
+
+test('Spirit community keeps its photograph and closing copy without the retired part-description cards', () => {
+  const html = render('spirit', { preview: true })
+  assert.match(html, /singing-together\.webp/)
+  assert.match(html, /data-canvas-copy-key="spirit\.community\.closing"/)
+  assert.doesNotMatch(html, /class="spirit-heritage__voices"|class="spirit-heritage__voice"|data-canvas-copy-key="spirit\.voices\./)
 })
 
 test('NOW/NEXT dots belong to their native year labels and register independently without duplicate text targets', () => {

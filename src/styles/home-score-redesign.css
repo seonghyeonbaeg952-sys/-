@@ -341,7 +341,9 @@
   left: 50%;
   display: block;
   width: 108%;
-  height: auto;
+  /* Keep the decorative staff inside its vertical slot as the viewport widens. */
+  height: 8.5%;
+  max-height: 96px;
   max-width: none;
   opacity: var(--staff-reveal);
   transform: translateX(-50%) scaleX(calc(0.02 + var(--staff-reveal) * 0.98));
@@ -481,6 +483,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* The final sheet is absolutely positioned. Its stage must retain a real
+     height after the earlier motion stylesheet switches height to auto. */
+  .motet-score-scroll-section .motet-score-sticky-stage {
+    min-height: max(720px, calc(100svh - 72px));
+  }
+
   .motet-score-final-sheet {
     opacity: 1 !important;
     transform: none !important;

@@ -3,6 +3,7 @@ import type { SiteCopyDefinition } from '../types/siteEditor'
 // Stable explicit keys; defaults retain the original JSX text, including whitespace.
 export const aboutCopyDefinitions: SiteCopyDefinition[] = [
   { key: 'members.archive.accompanists', page: 'members', section: '단원 · 반주자', label: '역대 반주자 명단 제목', defaultValue: '반주자', multiline: false },
+  { key: 'members.archive.staff', page: 'members', section: '단원 · 스태프', label: '역대 스태프 명단 제목', defaultValue: '스태프', multiline: false },
   { key: 'members.staffRole.playing_coach', page: 'members', section: '단원 · 스태프', label: '플레잉 코치', defaultValue: '플레잉 코치', multiline: false },
   { key: 'members.staffRole.planning_pr', page: 'members', section: '단원 · 스태프', label: '기획·홍보', defaultValue: '기획·홍보', multiline: false },
   { key: 'members.staffRole.treasurer', page: 'members', section: '단원 · 스태프', label: '총무', defaultValue: '총무', multiline: false },

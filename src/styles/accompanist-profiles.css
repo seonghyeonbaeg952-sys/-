@@ -233,10 +233,17 @@
 
 .accompanist-profile__copy h2 {
   font-family: Hahmlet, 'Noto Serif KR', serif;
-  font-size: 56px;
+  font-size: 44px;
   font-weight: 760;
   letter-spacing: -0.06em;
   line-height: 1.14;
+  overflow-wrap: break-word;
+}
+
+html[data-sample-language='en'] .accompanist-profile__copy h2 {
+  font-size: 32px;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
 }
 
 .accompanist-profile__role-en {

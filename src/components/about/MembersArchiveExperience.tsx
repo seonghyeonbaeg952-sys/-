@@ -10,6 +10,7 @@ import {
   getPublicMemberName,
   groupPublicMembersForArchive,
   groupPublicStaffForArchive,
+  partitionPublicMemberArchive,
   type MemberArchivePartFilter,
   type MemberArchiveStatusFilter,
 } from '../../utils/memberName'
@@ -34,10 +35,6 @@ const statusFilters: Array<FilterOption<PublicMemberStatusFilter>> = [
 
 const partFilters: Array<FilterOption<MemberArchivePartFilter>> = [
   { label: '전체 파트', value: 'all' },
-  { label: '소프라노', value: 'soprano' },
-  { label: '알토', value: 'alto' },
-  { label: '테너', value: 'tenor' },
-  { label: '베이스', value: 'bass' },
   { label: '스태프', value: 'staff' },
   { label: '반주자', value: 'accompanist' },
 ]
@@ -84,8 +81,7 @@ export function MembersArchiveExperience({
   )
   const staffGroups = statusFilter === 'active' && (partFilter === 'all' || partFilter === 'staff')
     ? groupPublicStaffForArchive(filteredMembers) : []
-  const archiveMembers = filteredMembers.filter(member => member.part !== 'accompanist')
-  const archiveAccompanists = filteredMembers.filter(member => member.part === 'accompanist')
+  const archive = useMemo(() => partitionPublicMemberArchive(filteredMembers), [filteredMembers])
   const Heading = headingLevel
   const ArchiveHeading = headingLevel === 'h1' ? 'h2' : 'h3'
 
@@ -176,10 +172,14 @@ export function MembersArchiveExperience({
 
           {filteredMembers.length > 0 ? statusFilter === 'alumni' ? (
             <>
-              {archiveMembers.length > 0 && <MemberNameList alumni members={archiveMembers} />}
-              {archiveAccompanists.length > 0 && <section className="members-archive__separate-roster" aria-labelledby="archive-accompanists-title">
+              {archive.members.length > 0 && <MemberNameList alumni members={archive.members} />}
+              {archive.staff.length > 0 && <section className="members-archive__separate-roster" aria-labelledby="archive-staff-title">
+                <h3 className="members-archive__group-title" id="archive-staff-title">{editorCopy('members', 'members.archive.staff', '스태프')}</h3>
+                <MemberNameList alumni members={archive.staff} />
+              </section>}
+              {archive.accompanists.length > 0 && <section className="members-archive__separate-roster" aria-labelledby="archive-accompanists-title">
                 <h3 className="members-archive__group-title" id="archive-accompanists-title">{editorCopy('members', 'members.archive.accompanists', '반주자')}</h3>
-                <MemberNameList alumni members={archiveAccompanists} />
+                <MemberNameList alumni members={archive.accompanists} />
               </section>}
             </>
           ) : (

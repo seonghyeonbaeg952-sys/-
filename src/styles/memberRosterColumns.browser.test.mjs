@@ -127,16 +127,24 @@ test('member names keep row-major reading order with more alumni columns', { ski
       assert.equal(await status.getByRole('button').count(), 2)
       assert.equal(await page.locator('.members-archive__member').count(), 3, 'singing staff also appear in their responsibility roster')
       assert.equal(await status.getByRole('button', { name: current, exact: true }).getAttribute('aria-pressed'), 'true')
-      await page.locator('.members-archive__part-filters').getByRole('button', { name: language === 'ko' ? '소프라노' : 'Soprano', exact: true }).click()
+      const staffLabel = language === 'ko' ? '스태프' : 'Staff'
+      for (const label of language === 'ko' ? ['소프라노', '알토', '테너', '베이스'] : ['Soprano', 'Alto', 'Tenor', 'Bass']) {
+        assert.equal(await page.locator('.members-archive__part-filters').getByRole('button', { name: label, exact: true }).count(), 0)
+      }
+      await page.locator('.members-archive__part-filters').getByRole('button', { name: staffLabel, exact: true }).click()
       assert.equal(await page.locator('.members-archive__member').count(), 1)
       await status.getByRole('button', { name: archive, exact: true }).click()
       assert.equal(await page.locator('.members-archive__member').count(), archiveRows.length)
-      assert.equal(await page.locator('.members-archive__member-list').count(), 2)
+      assert.equal(await page.locator('.members-archive__member-list').count(), 3)
       assert.equal(await page.locator('.members-archive__part-filters').count(), 0)
-      assert.equal(await page.locator('.members-archive__group-title').count(), 1, 'only the separate accompanists heading remains')
+      assert.equal(await page.locator('.members-archive__group-title').count(), 2, 'staff and accompanists have their own headings')
       const visibleNames = await page.locator('.members-archive__member strong').allTextContents()
       const orderedRows = [archiveRows[0], archiveRows[2], archiveRows[1], ...archiveRows.slice(3)]
-      const expectedNames = [...orderedRows.filter(row => row.part !== 'accompanist'), ...orderedRows.filter(row => row.part === 'accompanist')].map(row => language === 'ko' ? row.display_name : row.display_name_en)
+      const expectedNames = [
+        ...orderedRows.filter(row => row.part !== 'accompanist' && row.group_type !== 'staff'),
+        ...orderedRows.filter(row => row.part !== 'accompanist' && row.group_type === 'staff'),
+        ...orderedRows.filter(row => row.part === 'accompanist'),
+      ].map(row => language === 'ko' ? row.display_name : row.display_name_en)
       assert.deepEqual(visibleNames, expectedNames, 'CMS order must precede safe Korean name ordering on ties')
       assert.doesNotMatch(await page.locator('.members-archive__directory').innerText(), /PRIVATE ORIGINAL NAME|PART INDEX/)
       assert.doesNotMatch(await page.locator('.members-archive__directory-footer').innerText(), /가나다순|ALPHABETICAL|alphabetical|PART INDEX/)
@@ -146,7 +154,7 @@ test('member names keep row-major reading order with more alumni columns', { ski
       await status.getByRole('button', { name: current, exact: true }).click()
       assert.doesNotMatch(await page.locator('.members-archive__directory-footer').innerText(), /가나다순|ALPHABETICAL|alphabetical|PART INDEX/)
       assert.equal(await page.locator('.members-archive__member').count(), 1, 'returning to current members retains their own part choice')
-      assert.equal(await page.locator('.members-archive__part-filters').getByRole('button', { name: language === 'ko' ? '소프라노' : 'Soprano', exact: true }).getAttribute('aria-pressed'), 'true')
+      assert.equal(await page.locator('.members-archive__part-filters').getByRole('button', { name: staffLabel, exact: true }).getAttribute('aria-pressed'), 'true')
     })
     await t.test('an empty all-time archive hides parts and explains the empty state', async () => {
       await page.goto(`${vite.resolvedUrls.local[0]}${archivePath.slice(1)}?empty`)
