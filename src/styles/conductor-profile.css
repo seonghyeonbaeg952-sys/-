@@ -188,7 +188,7 @@
   display: grid;
   gap: 50px;
   grid-template-columns: 380px minmax(0, 1fr);
-  margin-top: 44px;
+  margin-top: 32px;
 }
 
 .conductor-profile__identity {
@@ -250,19 +250,19 @@ html[data-sample-language='en'] .conductor-profile__identity h2 {
 
 .conductor-profile__biography {
   display: grid;
-  gap: 34px;
+  gap: 16px;
 }
 
 .conductor-profile__biography p {
   font-size: 16px;
   letter-spacing: -0.01em;
-  line-height: 1.85;
+  line-height: 1.7;
   overflow-wrap: break-word;
   white-space: pre-wrap;
 }
 
 .conductor-profile__current {
-  margin-top: 46px;
+  margin-top: 24px;
 }
 
 .conductor-profile__current > p {
@@ -273,24 +273,19 @@ html[data-sample-language='en'] .conductor-profile__identity h2 {
 
 .conductor-profile__current ul {
   color: var(--conductor-muted);
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
   font-size: 14px;
-  line-height: 1.7;
+  line-height: 1.6;
   list-style: none;
-  margin-top: 22px;
+  margin-top: 12px;
   padding: 0;
 }
 
 .conductor-profile__current li {
-  align-items: center;
-  display: flex;
-}
-
-.conductor-profile__current li:not(:last-child)::after {
-  color: rgb(85 84 79 / 0.55);
-  content: "·";
-  margin-inline: 8px;
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .conductor-profile__footer-note {
@@ -298,7 +293,7 @@ html[data-sample-language='en'] .conductor-profile__identity h2 {
   color: var(--conductor-burgundy);
   font-size: 10px;
   line-height: 1;
-  margin-top: 70px;
+  margin-top: 40px;
   padding-top: 22px;
 }
 
@@ -353,7 +348,7 @@ html[data-sample-language='en'] .conductor-profile__identity h2 {
   .conductor-profile__details {
     gap: 40px;
     grid-template-columns: 220px minmax(0, 1fr);
-    margin-top: 40px;
+    margin-top: 32px;
   }
 
   .conductor-profile__identity > p {
@@ -379,27 +374,8 @@ html[data-sample-language='en'] .conductor-profile__identity h2 {
     font-size: 22px;
   }
 
-  .conductor-profile__biography {
-    gap: 32px;
-  }
-
   .conductor-profile__biography p {
     font-size: 15px;
-    line-height: 1.75;
-  }
-
-  .conductor-profile__current {
-    margin-top: 42px;
-  }
-
-  .conductor-profile__current ul {
-    display: grid;
-    font-size: 14px;
-    gap: 2px;
-  }
-
-  .conductor-profile__current li::after {
-    display: none;
   }
 }
 
@@ -450,12 +426,12 @@ html[data-sample-language='en'] .conductor-profile__identity h2 {
 
   .conductor-profile__details {
     display: block;
-    margin-top: 34px;
+    margin-top: 28px;
   }
 
   .conductor-profile__identity {
     border-bottom: 1px solid var(--conductor-rule);
-    padding-bottom: 34px;
+    padding-bottom: 24px;
   }
 
   .conductor-profile__identity > p {
@@ -482,33 +458,21 @@ html[data-sample-language='en'] .conductor-profile__identity h2 {
   }
 
   .conductor-profile__copy {
-    margin-top: 34px;
-  }
-
-  .conductor-profile__biography {
-    gap: 38px;
+    margin-top: 24px;
   }
 
   .conductor-profile__biography p {
     font-size: 14px;
-    line-height: 1.75;
-  }
-
-  .conductor-profile__current {
-    margin-top: 52px;
   }
 
   .conductor-profile__current ul {
     color: #67645f;
-    font-size: 14px;
-    gap: 4px;
-    line-height: 1.7;
   }
 
   .conductor-profile__footer-note {
     font-size: 9px;
     line-height: 1.4;
-    margin-top: 82px;
+    margin-top: 36px;
     padding-top: 22px;
   }
 }
