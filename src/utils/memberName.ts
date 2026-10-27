@@ -1,5 +1,11 @@
 import type { MemberRow, PublicMemberRow } from '../types/cms'
 
+export const memberStaffRoleOptions = [
+  { value: 'playing_coach', label: '플레잉 코치' },
+  { value: 'planning_pr', label: '기획·홍보' },
+  { value: 'treasurer', label: '총무' },
+] as const
+
 export type MemberArchiveStatusFilter = 'all' | 'active' | 'alumni'
 export type MemberArchivePartFilter =
   | 'all'
@@ -151,12 +157,29 @@ export function filterPublicMembersForArchive(
       }
 
       if (partFilter === 'staff') {
-        return member.group_type === 'staff'
+        return member.group_type === 'staff' && member.part !== 'accompanist'
       }
 
       return member.part === partFilter
     })
     .sort(comparePublicMembers)
+}
+
+export function groupPublicStaffForArchive(members: PublicMemberRow[]) {
+  const staff = members
+    .filter(member => member.group_type === 'staff' && member.part !== 'accompanist')
+    .sort(comparePublicMembers)
+  return [
+    ...memberStaffRoleOptions.map(role => ({
+      key: role.value as string,
+      label: role.label as string,
+      members: staff.filter(member => member.staff_role === role.value),
+    })),
+    {
+      key: 'other', label: '스태프',
+      members: staff.filter(member => !memberStaffRoleOptions.some(role => role.value === member.staff_role)),
+    },
+  ].filter(group => group.members.length > 0)
 }
 
 export function groupPublicMembersForArchive(

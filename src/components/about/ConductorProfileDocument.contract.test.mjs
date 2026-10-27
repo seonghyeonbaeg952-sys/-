@@ -45,12 +45,38 @@ function renderEnglish(person = null) {
 
 test('sample English translates known fallback biography and roles while retaining both approved images', () => {
   const html = renderEnglish()
-  assert.ok(html.includes('Conductor Kim Hyung-su leads Seoul Motet Youth Choir'))
+  assert.ok(html.includes('Dr. Hyung-Su Kim'))
+  assert.ok(html.includes('Artistic Director'))
   assert.ok(html.includes('Executive director, Seoul Motet Music Foundation'))
-  assert.ok(html.includes('KIM HYUNG-SU'))
-  assert.match(html, /<h2 lang="ko">김형수<\/h2>/)
+  assert.match(html, /<h2[^>]*>Dr\. Hyung-Su Kim<\/h2>/)
   assert.match(html, /src="\/images\/about\/conductor\/kim-hyung-su-profile.jpg"/)
   assert.match(html, /src="\/images\/about\/conductor\/smyc-performance-2026.jpg"/)
+})
+
+test('the published English identity uses the requested name and artistic title without changing CMS biography', () => {
+  const person = {
+    name: 'Kim Hyung-su',
+    profile_summary: 'Professor Kim teaches choral conducting and serves as a music director.',
+    current_roles: 'Professor of choral conducting\nMusic Director, approved ensemble',
+  }
+  const before = JSON.stringify(person)
+  const html = renderEnglish(person)
+  assert.match(html, /<h2[^>]*>Dr\. Hyung-Su Kim<\/h2>/)
+  assert.ok(html.includes('Artistic Director · Conductor'))
+  assert.ok(html.includes(person.profile_summary))
+  assert.ok(html.includes('Professor of choral conducting'))
+  assert.ok(html.includes('Music Director, approved ensemble'))
+  assert.equal(JSON.stringify(person), before)
+})
+
+test('the previously published English biography retains the requested artistic and professor titles', () => {
+  const html = renderEnglish({
+    name: 'Kim Hyung-su',
+    profile_summary: "Conductor Kim Hyung-su leads Seoul Motet Youth Choir, founded in 2014 alongside Seoul Motet Music Foundation. For 35 years he has been a member and principal associate conductor of the professional Seoul Motet Choir. He also teaches at the foundation's Youth Academy and Youth Choir.",
+    current_roles: 'Conductor, Seoul Motet Youth Choir\nLecturer in music (conducting), Baekseok Arts Graduate School',
+  })
+  assert.ok(html.includes('Artistic Director and Conductor Dr. Hyung-Su Kim'))
+  assert.ok(html.includes('Professor of music (conducting), Baekseok Arts Graduate School'))
 })
 
 test('sample English keeps unknown CMS wording and names without inventing an English identity', () => {
@@ -72,12 +98,19 @@ test('sample English never assigns the default conductor biography or portrait t
   assert.doesNotMatch(html, /Kim Hyung-su|KIM HYUNG-SU|kim-hyung-su-profile|Executive director|2014 — PRESENT/)
 })
 
+test('a different Korean conductor keeps their own role without borrowing the default identity', () => {
+  const html = render({ name: '새 지휘자', role: '음악감독' })
+  assert.match(html, /<h2[^>]*>새 지휘자<\/h2>/)
+  assert.ok(html.includes('음악감독'))
+  assert.doesNotMatch(html, /Dr\. Hyung-Su Kim|Artistic Director|2014 — PRESENT|kim-hyung-su-profile|지난 35년/)
+})
+
 test('CMS 내용이 없으면 승인된 두 문단을 글자 그대로 표시한다', () => {
   const markup = render()
 
   assert.ok(markup.includes(exactParagraphOne))
   assert.ok(markup.includes(exactParagraphTwo))
-  assert.ok(markup.includes('KIM HYUNG-SU'))
+  assert.ok(markup.includes('Dr. Hyung-Su Kim'))
 })
 
 test('단일 프로필 섹션에 프로필과 합창단 사진만 한 장씩 표시한다', () => {

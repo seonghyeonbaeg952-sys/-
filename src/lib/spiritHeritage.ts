@@ -2,6 +2,17 @@ function clampUnit(value: number) {
   return Math.min(1, Math.max(0, value))
 }
 
+export function resolveSpiritSectionId(id: string) {
+  const aliases: Record<string, string> = {
+    'spirit-motet': 'spirit-lineage',
+    'spirit-faith': 'spirit-lineage',
+    'spirit-values': 'spirit-lineage',
+    'spirit-education': 'spirit-lineage',
+    'spirit-manifesto': 'spirit-community',
+  }
+  return Object.hasOwn(aliases, id) ? aliases[id] : id
+}
+
 export function getSpiritAnchorScrollTop(
   currentScrollY: number,
   targetViewportTop: number,

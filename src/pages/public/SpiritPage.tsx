@@ -4,15 +4,9 @@ import { SpiritHeritageExperience } from '../../components/spirit/SpiritHeritage
 import {
   defaultSpiritCta,
   defaultSpiritHero,
-  defaultMotetMeaning,
   getAboutSectionCopy,
-  getAboutSectionText,
-  spiritManifestoCopy,
-  spiritValues,
 } from '../../constants/spiritContent'
 import { useSpiritPageData } from '../../hooks/usePublicData'
-
-const manifestoFallback = spiritManifestoCopy.paragraphs.join('\n\n')
 
 export function SpiritPage() {
   const { copy: copyText } = useSiteEditor()
@@ -24,17 +18,7 @@ export function SpiritPage() {
     ctaUrl: '/spirit',
     title: '마음을 담은 음악으로\n다음 세대를 세웁니다',
   })
-  const motetMeaning = getAboutSectionCopy(
-    aboutSections,
-    'spirit_motet',
-    defaultMotetMeaning,
-  )
   const cta = getAboutSectionCopy(aboutSections, 'spirit_cta', defaultSpiritCta)
-  const manifesto = getAboutSectionText(
-    aboutSections,
-    'spirit_manifesto',
-    manifestoFallback,
-  )
   const heroImage = heroSlides.find((slide) => slide.image_url.trim())?.image_url ?? null
 
   return (
@@ -48,10 +32,6 @@ export function SpiritPage() {
       <SpiritHeritageExperience
         cta={cta}
         hero={hero}
-        heroImageUrl={heroImage}
-        manifestoText={manifesto}
-        motetMeaning={motetMeaning}
-        values={spiritValues}
       />
     </>
   )

@@ -30,15 +30,13 @@ test('keeps the merged spirit content out of the About submenu', () => {
   )
 })
 
-test('links to the spirit anchor inside the merged overview', () => {
+test('Spirit navigation points only to the four retained sections', () => {
   const spiritMenu = navigation.publicNavigation.find(
     (item) => item.href === '/spirit',
   )
-  const mergedOverviewLink = spiritMenu?.children?.find(
-    (item) => item.label === '소개 안에서 보기',
-  )
-
-  assert.equal(mergedOverviewLink?.href, '/about?section=overview#spirit')
+  assert.deepEqual(spiritMenu.children.map(item => item.href), [
+    '/spirit#spirit-overview', '/spirit#spirit-lineage', '/spirit#spirit-community', '/spirit#spirit-join',
+  ])
 })
 
 test('does not keep user-facing links to the legacy separate spirit query', async () => {

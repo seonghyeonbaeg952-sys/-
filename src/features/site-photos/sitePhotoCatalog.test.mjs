@@ -5,6 +5,15 @@ import ts from 'typescript'
 const source = await readFile(new URL('./sitePhotoCatalog.ts', import.meta.url), 'utf8')
 const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext } }).outputText
 const { SITE_PHOTO_ASSETS, getSitePhotoAsset } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`)
+
+test('the Spirit tour photographs retain editable slots without replacing home brochure artwork', () => {
+  assert.equal(getSitePhotoAsset('/images/spirit/tour-2025/choir-performance.webp')?.key, 'spirit-tour-performance')
+  assert.equal(getSitePhotoAsset('/images/spirit/tour-2025/choir-rehearsal.webp')?.key, 'spirit-practice')
+  assert.equal(getSitePhotoAsset('/images/spirit/tour-2025/singing-together.webp')?.key, 'spirit-community')
+  assert.equal(getSitePhotoAsset('/images/home-v6/practice-rehearsal.jpg')?.key, 'spirit-practice')
+  assert.equal(getSitePhotoAsset('/images/home-v6/community-rehearsal.jpg')?.key, 'spirit-community')
+  assert.equal(getSitePhotoAsset('/images/home-v6/hero-performance.jpg')?.key, 'spirit-performance')
+})
 test('each managed primary photo exists and legacy source aliases resolve unambiguously to its CMS slot', async () => {
   const sources = new Set()
   for (const asset of SITE_PHOTO_ASSETS) {

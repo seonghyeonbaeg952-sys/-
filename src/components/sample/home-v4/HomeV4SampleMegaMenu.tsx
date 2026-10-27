@@ -46,10 +46,10 @@ const aboutMenuGroups: MegaMenuGroup[] = [
     code: '02',
     label: '모테트 정신',
     links: [
-      { href: '/spirit#spirit-faith', label: '정직한 음악' },
-      { href: '/spirit#spirit-values', label: '교회음악의 바른 이상' },
-      { href: '/spirit#spirit-education', label: '다음 세대 교육' },
+      { href: '/spirit#spirit-overview', label: '합창단 정신 전체 보기' },
+      { href: '/spirit#spirit-lineage', label: '이어 온 정신과 연혁' },
       { href: '/spirit#spirit-community', label: '함께 부르는 공동체' },
+      { href: '/spirit#spirit-join', label: '함께하기' },
     ],
   },
   {
@@ -70,29 +70,27 @@ const spiritMenuGroups: MegaMenuGroup[] = [
     label: '합창단 정신',
     links: [
       { href: '/spirit#spirit-overview', label: '합창단 정신 전체 보기' },
-      { href: '/spirit#spirit-lineage', label: '이어 온 정신과 연혁' },
     ],
   },
   {
     code: '02',
-    label: '핵심 가치',
+    label: '이어 온 정신',
     links: [
-      { href: '/spirit#spirit-faith', label: '정직한 음악' },
-      { href: '/spirit#spirit-values', label: '교회음악의 바른 이상' },
+      { href: '/spirit#spirit-lineage', label: '이어 온 정신과 연혁' },
     ],
   },
   {
     code: '03',
-    label: '교육 방향',
+    label: '함께하기',
     links: [
-      { href: '/spirit#spirit-education', label: '다음 세대 교육' },
       { href: '/spirit#spirit-community', label: '함께 부르는 공동체' },
+      { href: '/spirit#spirit-join', label: '함께하기' },
     ],
   },
 ]
 
 const contextualGroupLabels: Record<string, [string, string, string]> = {
-  '/spirit': ['합창단 정신', '핵심 가치', '교육 방향'],
+  '/spirit': ['합창단 정신', '이어 온 정신', '함께하기'],
   '/concerts': ['공연 안내', '일정과 기록', '공지와 소식'],
   '/gallery': ['갤러리', '사진과 영상', '포스터 기록'],
   '/join': ['입단 안내', '지원 준비', '절차와 문의'],

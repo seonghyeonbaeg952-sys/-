@@ -2785,11 +2785,20 @@
    Desktop only: the established tablet/mobile information list remains intact. */
 @media (min-width: 1366px) and (min-aspect-ratio: 151/100) and (pointer: fine) and (not (any-pointer: coarse)) {
   .public-shell-home-sample-v4[data-design-candidate='home-v4'] {
-    --home-v4-guide-rest-height: 168px;
-    --home-v4-guide-after-hero: -86px;
-    --home-v4-guide-flow-compensation: 118px;
+    --home-v4-guide-rest-height: clamp(144px, calc(20svh - 3vw), 168px);
+    --home-v4-guide-after-hero: calc(-1 * (var(--home-v4-guide-rest-height) - 16px) * var(--public-home-density, 1) - 24px);
+    --home-v4-guide-flow-compensation: calc(32px - var(--home-v4-guide-after-hero));
     --home-v4-guide-inner-offset: 0px;
     --home-v4-hero-handoff-hold: clamp(200px, 26svh, 260px);
+  }
+
+  .public-shell-home-sample-v4[data-design-candidate='home-v4'] .home-hero-layout {
+    align-items: flex-start !important;
+    padding-top: clamp(88px, 12svh, 144px) !important;
+  }
+
+  .public-shell-home-sample-v4[data-design-candidate='home-v4'] .home-hero-copy .type-hero-title.home-hero-title-en {
+    font-size: clamp(4.4rem, min(8.4vw, 11svh), 7.8rem) !important;
   }
 
   .public-shell-home-sample-v4[data-design-candidate='home-v4']
@@ -3091,9 +3100,9 @@
     position: relative;
     isolation: isolate;
     display: flex;
-    min-height: 132px;
+    min-height: 0;
     height: 100%;
-    padding: 14px 22px 12px;
+    padding: clamp(10px, 1.3svh, 14px) 22px clamp(8px, 1svh, 12px);
     overflow: hidden;
     border: 1px solid rgb(243 237 228 / 0.18) !important;
     border-radius: 0 !important;
@@ -3156,7 +3165,7 @@
     margin: 0;
     color: var(--quick-ink) !important;
     font-family: var(--font-sans-kr);
-    font-size: clamp(18px, 1.35vw, 21px);
+    font-size: clamp(16px, 2svh, 21px);
     font-weight: 600;
     line-height: 1.32;
     letter-spacing: -0.025em;

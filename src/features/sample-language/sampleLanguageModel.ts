@@ -98,7 +98,7 @@ export function createTranslationLookup(entries: readonly TranslationEntry[]) {
   }
 }
 
-const structuralField = /^(?:id|key|uuid|href|url|src|srcset|image_url|poster_url|thumbnail_url|link_url|video_url|youtube_url|email|phone|contact_phone|contact_email|date|created_at|updated_at|published_at|start_at|end_at|status|category|part|group|display_order|is_visible|is_active|siteTexts|site_texts|styles|appearance|textStyles|textLayouts)$/
+const structuralField = /^(?:id|key|uuid|href|url|src|srcset|image_url|poster_url|thumbnail_url|link_url|video_url|youtube_url|email|phone|contact_phone|contact_email|date|created_at|updated_at|published_at|start_at|end_at|status|category|part|group|staff_role|display_order|is_visible|is_active|siteTexts|site_texts|styles|appearance|textStyles|textLayouts)$/
 type DisplayTranslator = (source: string, key?: string) => string
 const displayTranslationCaches = new WeakMap<DisplayTranslator, WeakMap<object, unknown>>()
 

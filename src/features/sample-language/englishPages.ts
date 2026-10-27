@@ -3,6 +3,14 @@ import type { TranslationEntry } from './types'
 /** Reviewed display copy for the sample only. Sources retain their original
  * whitespace. Short heading fragments follow the existing element order. */
 export const englishPages: readonly TranslationEntry[] = [
+  { source: '2025 유스비전투어에서 지휘에 맞춰 악보를 보며 함께 노래하는 합창단', target: 'The choir following the conductor and singing from their scores during the 2025 Youth Vision Tour' },
+  { source: '2025 유스비전투어에서 나란히 앉아 악보를 보며 소리를 맞추는 단원들', target: 'Choir members rehearsing together from their scores during the 2025 Youth Vision Tour' },
+  { source: '2025 유스비전투어에서 야외에 모여 함께 노래하는 단원들', target: 'Choir members singing together outdoors during the 2025 Youth Vision Tour' },
+  { source: '플레잉 코치', target: 'Playing coaches' },
+  { source: '기획·홍보', target: 'Planning & Publicity' },
+  { source: '총무', target: 'Administration' },
+  { source: '이어 온 정신', target: 'Our tradition' },
+  { source: '함께하기', target: 'Get involved' },
   // Shared navigation, accessibility names and feedback.
   { source: '홈', target: 'Home' },
   { source: '합창단 정신', target: 'Our Spirit' },
@@ -443,16 +451,19 @@ export const englishPages: readonly TranslationEntry[] = [
   { source: '제120, 121회 서울모테트합창단 공연 협연', target: 'Joint performances at Seoul Motet Choir’s 120th and 121st concerts' },
   { source: 'tvN 드라마 삽입곡 녹음', target: 'Recording music for a tvN drama' },
   { source: '서울모테트청소년합창단의 지휘자, 반주자, 단원과 연혁을 소개합니다.', target: 'Meet the conductor, accompanists and members of Seoul Motet Youth Choir, and explore its history.' },
-  // Kim Hyung-su is evidenced by the existing KIM HYUNG-SU profile label.
-  // Unconfirmed institution and church names remain in Korean. The ambiguous
-  // doctoral-course wording is not promoted to a claim of an awarded doctorate.
+  // The owner approved Dr. Hyung-Su Kim, Artistic Director · Conductor and
+  // professor terminology on 2026-10-27. Keep unknown CMS wording untouched.
+  { source: "Conductor Kim Hyung-su leads Seoul Motet Youth Choir, founded in 2014 alongside Seoul Motet Music Foundation. For 35 years he has been a member and principal associate conductor of the professional Seoul Motet Choir. He also teaches at the foundation's Youth Academy and Youth Choir.", target: 'Artistic Director and Conductor Dr. Hyung-Su Kim leads Seoul Motet Youth Choir, founded in 2014 alongside Seoul Motet Music Foundation. For 35 years, he has served as a member and principal associate conductor of the professional Seoul Motet Choir. He also teaches at the foundation’s Youth Academy and Youth Choir.' },
+  { source: 'Conductor, Seoul Motet Youth Choir', target: 'Artistic Director and Conductor, Seoul Motet Youth Choir' },
+  { source: 'Lecturer in music (conducting), Baekseok Arts Graduate School', target: 'Professor of music (conducting), Baekseok Arts Graduate School' },
   { source: '2014년 서울모테트음악재단 설립과 함께 창단된 서울모테트청소년합창단을 지도하고 있는 지휘자 김형수는 지난 35년 동안 서울모테트합창단(프로단체) 단원 겸 수석 부지휘자로 활동해 왔으며  특별히 미래 사회와 음악계를 이끌어 갈 다음 세대를 위한 창조적인 대한으로 모테트 음악재단 산하에 설립된 청소년 아카데미와 청소년합창단을 교육하고 있다.', target: 'Conductor Kim Hyung-su leads Seoul Motet Youth Choir, founded in 2014 alongside Seoul Motet Music Foundation. Over the past 35 years, he has served as a member and principal associate conductor of the professional Seoul Motet Choir. He teaches at the foundation’s Youth Academy and Youth Choir, established as a creative approach to educating the next generation of society and the musical world.' },
   { source: '학부에서는 성악을, 대학원에서 지휘(합창)를 공부하였고 Midwest University 교회음악 박사과정을 취득했다. 또한 교회음악의 성경적 이해와 연구를 위해 신대원에서 신학(M.Div)을 졸업하고 해오름교회, 길교회 음악목사를 역임하였으며, 침신대학교, 남부대학교대학원, 동양대학교, 백석문화대학, 남부대학교 대학원에서 강사를 역임하였다.', target: 'He studied vocal music as an undergraduate and choral conducting at postgraduate level, and completed doctoral studies in church music at Midwest University. He also completed an M.Div. at a theological seminary to study biblical approaches to church music. He served as a music pastor at 해오름교회 and 길교회 and taught at 침신대학교, 남부대학교대학원, 동양대학교, 백석문화대학 and 남부대학교 대학원.' },
-  { source: '서울모테트청소년합창단 지휘자', target: 'Conductor, Seoul Motet Youth Choir' },
+  { source: '서울모테트청소년합창단 지휘자', target: 'Artistic Director and Conductor, Seoul Motet Youth Choir' },
   { source: '(재)서울모테트음악재단 상임이사', target: 'Executive director, Seoul Motet Music Foundation' },
   { source: '서울모테트합창단 수석부지휘자', target: 'Principal associate conductor, Seoul Motet Choir' },
   { source: '주님의교회 샬롬찬양대 지휘자', target: 'Conductor, 샬롬찬양대 at 주님의교회' },
-  { source: '백석예술대학원 음악학(지휘) 출강', target: 'Lecturer in music (conducting), 백석예술대학원' },
+  { source: '백석예술대학원 음악학(지휘) 출강', target: 'Professor of music (conducting), Baekseok Arts Graduate School' },
+  { source: '백석예술대학원 음악학(지휘)출강', target: 'Professor of music (conducting), Baekseok Arts Graduate School' },
 
   // Exact-source variants from the reviewed Figma bilingual reference. These
   // do not replace the current defaults or publish the Spirit v8 draft.

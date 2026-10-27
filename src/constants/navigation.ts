@@ -34,29 +34,14 @@ export const publicNavigation = [
         description: '창단에서 오늘까지 이어진 정신',
       },
       {
-        label: '정직한 음악',
-        href: '/spirit#spirit-faith',
-        description: '음악과 신앙을 대하는 태도',
-      },
-      {
-        label: '교회음악의 바른 이상',
-        href: '/spirit#spirit-values',
-        description: '합창단이 지키는 네 가지 핵심 가치',
-      },
-      {
-        label: '다음 세대 교육',
-        href: '/spirit#spirit-education',
-        description: '듣고 조율하며 성장하는 교육 과정',
-      },
-      {
         label: '함께 부르는 공동체',
         href: '/spirit#spirit-community',
         description: '서로 다른 목소리가 이루는 공동체',
       },
       {
-        label: '소개 안에서 보기',
-        href: '/about?section=overview#spirit',
-        description: '소개 페이지의 요약형 정신 섹션',
+        label: '함께하기',
+        href: '/spirit#spirit-join',
+        description: '입단과 후원 안내',
       },
     ],
   },

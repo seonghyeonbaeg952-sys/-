@@ -181,12 +181,15 @@ export interface PersonProfileRow extends CmsRecord {
   is_visible: boolean
 }
 
+export type MemberStaffRole = 'playing_coach' | 'planning_pr' | 'treasurer'
+
 export interface MemberRow extends CmsRecord {
   name: string | null
   name_en: string | null
   part: MemberPart
   group_type: MemberGroupType | 'alumni'
   member_status?: 'active' | 'alumni'
+  staff_role?: MemberStaffRole | null
   photo_url: string | null
   description: string | null
   is_visible: boolean
@@ -201,6 +204,7 @@ export type PublicMemberRow = Pick<
   display_name: string | null
   display_name_en: string | null
   member_status: NonNullable<MemberRow['member_status']>
+  staff_role?: MemberStaffRole | null
 }
 
 export interface ConcertRow extends CmsRecord {

@@ -562,6 +562,31 @@
   margin: 18px 0 12px;
 }
 
+.members-archive__separate-roster {
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid var(--members-line);
+}
+
+.members-archive__staff-roles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 20px 32px;
+  margin-top: 18px;
+}
+
+.members-archive__staff-roles h4 {
+  margin: 0 0 8px;
+  color: var(--members-ink);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.members-archive__staff-roles .members-archive__member-list {
+  grid-template-columns: repeat(auto-fit, minmax(5rem, max-content));
+  column-gap: 18px;
+}
+
 .members-archive__member-list--alumni:lang(en) {
   --members-alumni-column-width: 8rem;
 }

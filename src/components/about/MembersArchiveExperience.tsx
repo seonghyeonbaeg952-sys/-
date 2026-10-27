@@ -9,6 +9,7 @@ import {
   filterPublicMembersForArchive,
   getPublicMemberName,
   groupPublicMembersForArchive,
+  groupPublicStaffForArchive,
   type MemberArchivePartFilter,
   type MemberArchiveStatusFilter,
 } from '../../utils/memberName'
@@ -76,11 +77,15 @@ export function MembersArchiveExperience({
   )
   const visibleGroups = useMemo(
     () =>
-      statusFilter === 'alumni' ? [] : groupPublicMembersForArchive(filteredMembers).filter(
-        (group) => group.members.length > 0,
+      statusFilter === 'alumni' || partFilter === 'staff' ? [] : groupPublicMembersForArchive(filteredMembers).filter(
+        (group) => group.key !== 'staff' && group.members.length > 0,
       ),
-    [filteredMembers, statusFilter],
+    [filteredMembers, partFilter, statusFilter],
   )
+  const staffGroups = statusFilter === 'active' && (partFilter === 'all' || partFilter === 'staff')
+    ? groupPublicStaffForArchive(filteredMembers) : []
+  const archiveMembers = filteredMembers.filter(member => member.part !== 'accompanist')
+  const archiveAccompanists = filteredMembers.filter(member => member.part === 'accompanist')
   const Heading = headingLevel
   const ArchiveHeading = headingLevel === 'h1' ? 'h2' : 'h3'
 
@@ -170,7 +175,13 @@ export function MembersArchiveExperience({
           <p aria-live="polite" className="members-archive__sr-only"><SiteCopy page="members" id="members.membersArchiveExperience.text11" fallback={"조건에 맞는 공개 단원 "} />{filteredMembers.length}{editorCopy("members", "members.fixed.MembersArchiveExperience.9f96b8e22c", "명")}</p>
 
           {filteredMembers.length > 0 ? statusFilter === 'alumni' ? (
-            <MemberNameList alumni members={filteredMembers} />
+            <>
+              {archiveMembers.length > 0 && <MemberNameList alumni members={archiveMembers} />}
+              {archiveAccompanists.length > 0 && <section className="members-archive__separate-roster" aria-labelledby="archive-accompanists-title">
+                <h3 className="members-archive__group-title" id="archive-accompanists-title">{editorCopy('members', 'members.archive.accompanists', '반주자')}</h3>
+                <MemberNameList alumni members={archiveAccompanists} />
+              </section>}
+            </>
           ) : (
             <div className="members-archive__groups">
               {visibleGroups.map((group) => (
@@ -197,6 +208,16 @@ export function MembersArchiveExperience({
                 : <SiteCopy page="members" id="members.membersArchiveExperience.text13" fallback="활동 상태나 파트 필터를 바꾸어 다시 살펴보세요." />}</p>
             </div>
           )}
+
+          {staffGroups.length > 0 && <section className="members-archive__separate-roster" aria-labelledby="member-group-staff">
+            <h3 className="members-archive__group-title" id="member-group-staff">{editorCopy('members', 'members.groupHeading.staff', 'STAFF')}</h3>
+            <div className="members-archive__staff-roles">
+              {staffGroups.map(group => <div key={group.key}>
+                {group.key !== 'other' && <h4>{editorCopy('members', `members.staffRole.${group.key}`, group.label)}</h4>}
+                <MemberNameList members={group.members} />
+              </div>)}
+            </div>
+          </section>}
 
           <div className="members-archive__directory-footer">
             <p><SiteCopy page="members" id="members.membersArchiveExperience.text14" fallback={"모든 활동 시기와 파트가 한 아카이브 안에서 이어집니다."} /></p>

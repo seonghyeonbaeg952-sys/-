@@ -48,6 +48,15 @@ test('positions Spirit hash targets directly below the shared header', () => {
   assert.equal(spiritHeritage.getSpiritAnchorScrollTop(500, 20, 72), 448)
 })
 
+test('retired Spirit section bookmarks resolve to retained content', () => {
+  assert.equal(spiritHeritage.resolveSpiritSectionId('spirit-values'), 'spirit-lineage')
+  assert.equal(spiritHeritage.resolveSpiritSectionId('spirit-faith'), 'spirit-lineage')
+  assert.equal(spiritHeritage.resolveSpiritSectionId('spirit-education'), 'spirit-lineage')
+  assert.equal(spiritHeritage.resolveSpiritSectionId('spirit-motet'), 'spirit-lineage')
+  assert.equal(spiritHeritage.resolveSpiritSectionId('spirit-manifesto'), 'spirit-community')
+  assert.equal(spiritHeritage.resolveSpiritSectionId('spirit-community'), 'spirit-community')
+})
+
 test('presents the education journey as five focused stages', () => {
   assert.equal(spiritContent.educationJourneySteps.length, 5)
   assert.deepEqual(

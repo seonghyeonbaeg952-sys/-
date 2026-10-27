@@ -7,6 +7,7 @@ import {
   getMemberPartLabel,
   getMemberStatusLabel,
   getProtectedMemberName,
+  memberStaffRoleOptions,
 } from '../../utils/memberName'
 
 const partOptions = [
@@ -42,15 +43,16 @@ const displayOptions = [
 const fields = [
   { name: 'name', label: '한국어 이름', type: 'text' },
   { name: 'name_en', label: '영문 이름', type: 'text', description: '공식 영문 표기를 확인한 뒤 입력하세요. 공개 화면에는 한국어 이름과 동일한 이름 공개 방식이 적용됩니다.' },
-  { name: 'part', label: '파트', type: 'select', options: partOptions, required: true, description: '스태프도 지정한 성부·반주 파트 명단에 함께 표시됩니다. 미표시·기타 파트의 스태프만 스태프 분류에 남습니다. 이름 공개 방식과 단원 공개 여부는 유지됩니다.' },
+  { name: 'part', label: '파트', type: 'select', options: partOptions, required: true, description: '스태프도 지정한 성부 명단에 표시됩니다. 반주자는 스태프와 분리합니다. 이름 공개 방식과 단원 공개 여부는 유지됩니다.' },
   {
     name: 'group_type',
     label: '그룹',
     type: 'select',
     options: groupOptions,
     required: true,
-    description: '그룹은 관리용입니다. 스태프도 파트가 있으면 해당 파트에, 파트가 없으면 스태프 분류에 표시됩니다. 홈페이지에는 개인별 설명 없이 이름만 표시됩니다.',
+    description: '스태프는 홈페이지에서 직무별로 표시됩니다. 성부가 있으면 파트 명단에도 표시되며, 반주자는 별도 명단에만 표시됩니다.',
   },
+  { name: 'staff_role', label: '스태프 직무', type: 'select', options: [{ label: '미지정', value: '' }, ...memberStaffRoleOptions], description: '그룹이 스태프일 때 홈페이지 직무 분류에 사용합니다. 반주자는 이 분류에서 제외됩니다.' },
   {
     name: 'member_status',
     label: '활동 상태',
@@ -95,6 +97,7 @@ const columns = [
       row.name_display_type,
   },
   { header: '순서', value: 'display_order' },
+  { header: '직무', render: row => memberStaffRoleOptions.find(role => role.value === row.staff_role)?.label ?? '미지정' },
 ] satisfies Array<AdminTableColumn<MemberRow>>
 
 export function AdminMembersPage() {
@@ -141,7 +144,7 @@ export function AdminMembersPage() {
           ],
         },
       ]}
-      info="방문자 화면에는 공개 상태가 켜진 단원만 표시됩니다. 한국어·영문 이름 모두 같은 전체·부분·비공개 설정을 따릅니다. 영문 이름이 없으면 영어 화면도 보호된 한국어 이름을 표시합니다. 현단원 탭은 현재 활동 단원을 파트별로 표시합니다. 역대단원 탭은 현단원까지 포함한 모든 공개 단원을 파트 구분 없이 표시합니다. 두 명단 모두 표시 순서가 작은 숫자부터 나오며, 같은 숫자는 공개 한국어 이름의 가나다순으로 표시됩니다."
+      info="방문자 화면에는 공개 상태가 켜진 단원만 표시됩니다. 한국어·영문 이름 모두 같은 전체·부분·비공개 설정을 따릅니다. 영문 이름이 없으면 영어 화면도 보호된 한국어 이름을 표시합니다. 현단원 탭은 현재 활동 단원을 파트별로 표시하고, 스태프는 직무별 명단에도 표시합니다. 역대단원 탭은 현단원까지 포함한 이름을 파트 구분 없이 표시하며, 반주자는 별도로 모아 표시합니다. 두 명단 모두 표시 순서가 작은 숫자부터 나오며, 같은 숫자는 공개 한국어 이름의 가나다순으로 표시됩니다."
       order={{ column: 'display_order', ascending: true }}
       searchColumn="name"
       searchPlaceholder="단원 이름 검색"

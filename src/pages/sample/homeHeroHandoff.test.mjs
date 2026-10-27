@@ -22,7 +22,15 @@ function mount() {
   const pieces = Array.from({ length: 26 }, () => ({ style: { removeProperty(key) { delete this[key] } } }))
   const hero = { dataset: {}, querySelectorAll: () => pieces, removeAttribute() { delete this.dataset.paperTransition } }
   const intro = { querySelector: () => hero, getBoundingClientRect: () => ({ top: -window.scrollY }) }
-  const shell = { querySelector: () => intro, style: { setProperty: (key, value) => properties.set(key, value), removeProperty: key => properties.delete(key) } }
+  const grid = { offsetHeight: 152 }
+  const shell = { querySelector: selector => selector === '.home-quick-action-grid' ? grid : intro, style: { setProperty: (key, value) => properties.set(key, value), removeProperty: key => properties.delete(key) } }
+  let resizeGrid
+  class ResizeObserver {
+    constructor(callback) { resizeGrid = callback }
+    observe() {}
+    disconnect() { resizeGrid = null }
+  }
+  class MutationObserver { observe() {} disconnect() {} }
   const window = {
     innerHeight: 900, scrollY: 0,
     matchMedia: query => query.includes('reduced-motion') ? reduced : desktop,
@@ -33,14 +41,29 @@ function mount() {
     removeEventListener: name => listeners.delete(name),
   }
   const exports = {}
-  vm.runInNewContext(ts.transpileModule(`export const effect = ${effect}`, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, { exports, window, shellRef: { current: shell }, performance: { now: () => clock } })
+  vm.runInNewContext(ts.transpileModule(`export const effect = ${effect}`, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, { exports, window, ResizeObserver, MutationObserver, shellRef: { current: shell }, performance: { now: () => clock } })
   const cleanup = exports.effect()
   return {
     properties, pieces, hero, frames, desktop, reduced, cleanup,
+    resizeCard(height) { grid.offsetHeight = height; resizeGrid?.() },
     scroll(y) { window.scrollY = y; listeners.get('scroll')?.() },
     advance(ms) { clock += ms; const callbacks = [...frames.values()]; frames.clear(); callbacks.forEach(callback => callback(clock)) },
   }
 }
+
+test('responsive card height updates its containing guide without restarting the collage', () => {
+  const h = mount()
+  try {
+    h.resizeCard(128)
+    assert.equal(h.properties.get('--home-v4-guide-exit-height'), '144px')
+    h.scroll(100)
+    h.advance(1400)
+    h.resizeCard(152)
+    h.advance(1880)
+    assert.equal(h.properties.get('--home-v4-paper-seal-opacity'), '1')
+    assert.equal(h.frames.size, 0)
+  } finally { h.cleanup() }
+})
 
 test('the collage retains its authored assembly and reverse pacing without truncating the final logo', () => {
   const h = mount()

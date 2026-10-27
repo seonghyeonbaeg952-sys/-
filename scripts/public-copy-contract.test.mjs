@@ -118,6 +118,10 @@ test('adding copy adapters preserves every existing JSX default in the captured 
   // The user-approved desktop MOTET rail replaces only the painted curve.
   // Its SVG/model tests retain the original path and scroll-progress input;
   // the mobile/tablet branch still paints the original two-stroke curve.
+  // 2026-10-27: user-approved Dr./artistic title and choir crop, separate
+  // member staff/accompanist rosters, and four-section Spirit with tour photos.
+  // Only those four captured files changed; rendered and data-boundary tests
+  // cover the new defaults, classification, privacy and retained CMS targets.
   const baseline = JSON.parse(readFileSync(new URL('../docs/public-copy-default-baseline.json', import.meta.url), 'utf8'))
   for (const [file, fingerprint] of Object.entries(baseline)) assert.equal(publicMarkupFingerprint(readFileSync(file, 'utf8'), file), fingerprint, file)
 })

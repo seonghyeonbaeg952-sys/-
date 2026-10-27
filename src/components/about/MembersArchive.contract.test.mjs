@@ -78,7 +78,7 @@ test('명단은 분류 제목을 유지하고 각 단원은 이름만 표시한�
   assert.match(html, /id="member-group-staff"/)
   assert.doesNotMatch(html, /BASS · STAFF/)
   const rows = [...html.matchAll(/<li\b[^>]*>(.*?)<\/li>/gs)].map(match => match[1])
-  assert.equal(rows.length, 3)
+  assert.equal(rows.length, 4, 'a singing staff member also appears in the separate responsibility roster')
   assert.doesNotMatch(html, /반주자 예시/)
   for (const name of ['베이스 예시', '스태프 예시', '파트 없는 예시']) {
     assert.equal(rows.find(row => row.includes(name)), `<div class="members-archive__member-copy"><strong>${name}</strong></div>`)

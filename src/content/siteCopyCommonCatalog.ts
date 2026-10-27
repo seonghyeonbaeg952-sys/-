@@ -22,7 +22,7 @@ export function navigationLabelKey(href: string, originalLabel: string) {
 }
 
 const megaGroupDefaults = {
-  about: ['합창단 소개', '모테트 정신', '활동과 기록'], spirit: ['합창단 정신', '핵심 가치', '교육 방향'],
+  about: ['합창단 소개', '모테트 정신', '활동과 기록'], spirit: ['합창단 정신', '이어 온 정신', '함께하기'],
   concerts: ['공연 안내', '일정과 기록', '공지와 소식'], gallery: ['갤러리', '사진과 영상', '포스터 기록'],
   join: ['입단 안내', '지원 준비', '절차와 문의'], contact: ['후원·문의', '후원 안내', '문의와 위치'],
 } as const

@@ -24,15 +24,15 @@ const props = {
     manifestoText: 'CMS 문단1\n\nCMS 문단2\n\nCMS 문단3\n\nCMS 문단4', values: [{ number: '01', title: 'CMS 가치', summary: 'CMS 요약', description: 'CMS 설명' }],
     cta: { title: 'CMS 참여 표제', body: 'CMS 참여 본문', ctaLabel: 'CMS 입단', ctaUrl: '/join', secondaryCtaLabel: 'CMS 후원', secondaryCtaUrl: '/contact?section=support' } },
 }
-// Captured from the original components before connecting any editor consumers.
+// Reviewed default markup; approved identity/photo/section changes are explicit below.
 const approvedMarkupHashes = {
-  about: '84bf70717f7e9875902f9e6167e165123ce2ad67ab0a963e23779c1e873e0a97', conductor: '6f214445187ff3db0bf8ef71b9449e901ef53e63d0b1b3d59fd65fbda5ac665e',
+  // 2026-10-27: requested Dr. name, artistic role and source-specific choir crop.
+  about: '84bf70717f7e9875902f9e6167e165123ce2ad67ab0a963e23779c1e873e0a97', conductor: '25d5d341506ff407bf052ebfac264811025e4741f04403480971cdcf8a429725',
   // Members offer current/all-time choices without the retired ordering caption.
   accompanist: '1b4451b43221301500ed45ce3737a0da4af8166e58063ed01311ab948b0ff46b', members: '49a1fffde1f00367936b4237f7cf1a9f29f80e129167d01a4fc2959cc014a5c2',
-  // Spirit keeps the dots in stationary placement anchors while only NOW/NEXT
-  // text slides inside them. Its desktop curve is now the approved MOTET rail;
-  // the separate ornament tests protect its original geometry and fill input.
-  history: '49dd95e8e8601b19c93aa4cea85853572b74afff47b6e39cc945800988ac9e49', spirit: '5a7fb441a181dce8cdcb4321fa7a59f6ecffc41da11f366a42c4e504aa842a08',
+  // 2026-10-27: only hero, lineage, community and closing remain, with the
+  // approved tour images. Native NOW/NEXT anchors and MOTET rail are retained.
+  history: '49dd95e8e8601b19c93aa4cea85853572b74afff47b6e39cc945800988ac9e49', spirit: '0d0b8d2c167b14af67542a979679d756a47c2a2f28c3cff199703178f5ed4997',
 }
 function render(page, { copy = (_page, _key, fallback) => fallback, values = props[page], device = 'desktop', preview = false, documents = {} } = {}) {
   const canvas = preview ? { subscribe: () => () => {}, getActiveId: () => null, register: () => () => {} } : undefined
@@ -40,17 +40,21 @@ function render(page, { copy = (_page, _key, fallback) => fallback, values = pro
     React.createElement(SiteEditorContext, { value: { copy, documents, device, isPreview: preview, canvas } }, React.createElement(components[page], values))))
 }
 
-test('Spirit source-owned paragraphs, labels and active education content register editable preview targets', () => {
+test('retained Spirit lineage and community content register editable preview targets', () => {
   const html = render('spirit', { preview: true })
   const keys = [
-    ...Array.from({ length: 4 }, (_, i) => [`spirit.lineage.${i}.title`, `spirit.lineage.${i}.body`, `spirit.manifesto.label${i}`]).flat(),
-    'spirit.faith.lead', ...Array.from({ length: 3 }, (_, i) => `spirit.faith.paragraph${i}`),
-    ...Array.from({ length: 2 }, (_, i) => ['label', 'text', 'note'].map(part => `spirit.scripture.${i}.${part}`)).flat(),
+    ...Array.from({ length: 4 }, (_, i) => [`spirit.lineage.${i}.title`, `spirit.lineage.${i}.body`]).flat(),
     'spirit.community.lead', 'spirit.community.centerLabel', 'spirit.community.closing',
-    ...Array.from({ length: 5 }, (_, i) => [`spirit.voices.${i}.part`, `spirit.voices.${i}.meaning`, `spirit.learning.${i}.step`]).flat(),
-    'spirit.learning.2.title', 'spirit.learning.2.body',
+    ...Array.from({ length: 5 }, (_, i) => [`spirit.voices.${i}.part`, `spirit.voices.${i}.meaning`]).flat(),
   ]
   for (const key of keys) assert.ok(html.includes(`data-canvas-copy-key="${key}"`), `missing canvas source: ${key}`)
+})
+
+test('Spirit retains exactly the requested opening, lineage, community and closing sections', () => {
+  const html = render('spirit')
+  const ids = [...html.matchAll(/<section[^>]*\bid="([^"]+)"/g)].map(match => match[1])
+  assert.deepEqual(ids, ['spirit-overview', 'spirit-lineage', 'spirit-community', 'spirit-join'])
+  assert.doesNotMatch(html, /id="spirit-(?:motet|manifesto|faith|values|education)"/)
 })
 
 test('NOW/NEXT dots belong to their native year labels and register independently without duplicate text targets', () => {
@@ -181,14 +185,14 @@ test('copy overrides never replace domain CMS originals, private member names or
   const history = render('history', { copy: changed })
   assert.ok(history.includes('CMS 기록 본문')); assert.ok(!history.includes('EDITED:CMS 기록'))
   const spirit = render('spirit', { copy: changed })
-  for (const text of ['CMS 첫 화면 본문', 'CMS 모테트 본문', 'CMS 인용 원문', 'CMS 문단1', 'CMS 가치', 'CMS 참여 본문']) assert.ok(spirit.includes(text))
+  for (const text of ['CMS 첫 화면 본문', 'CMS 참여 본문']) assert.ok(spirit.includes(text))
   assert.ok(spirit.includes('EDITED:CMS 첫 화면 본문'), 'Explicit editorial fields now support draft overrides while their CMS source remains the fallback')
   assert.match(spirit, /href="\/join"/)
   assert.match(spirit, /href="\/contact\?section=support"/)
 })
 
 test('static array labels and disclosure actions are editable without changing their functional values', () => {
-  for (const [page, original] of [['about', '음악적 역량과 예술성'], ['about', '정기연주회'], ['members', '현단원'], ['history', '모두 접기'], ['spirit', '합창 기본기'], ['spirit', '조율하기'], ['spirit', '서울모테트합창단의 시작']]) {
+  for (const [page, original] of [['about', '음악적 역량과 예술성'], ['about', '정기연주회'], ['members', '현단원'], ['history', '모두 접기'], ['spirit', '서울모테트합창단의 시작']]) {
     const html = render(page, { copy: (_page, _key, fallback) => fallback === original ? 'ARRAY-OVERRIDE' : fallback })
     assert.ok(html.includes('ARRAY-OVERRIDE'), `${page}: ${original}`)
   }
@@ -210,7 +214,7 @@ test('English roles, decorative labels and accessible names are editable in thei
     ['about', 'VOICES'], ['conductor', 'CURRENT'],
     ['accompanist', 'Piano Accompanist', { people: [{ id: 'fixture', name: 'CMS 반주자' }] }],
     ['members', 'All voices.'], ['members', 'All voices. One archive.'],
-    ['history', 'PERFORMANCE INDEX'], ['spirit', 'MOTET'],
+    ['history', 'PERFORMANCE INDEX'], ['spirit', 'SPIRIT'],
   ]) {
     const html = render(page, { values: values ?? props[page], copy: (_page, _key, fallback) => fallback === original ? 'ENGLISH-EDIT' : fallback })
     assert.ok(html.includes('ENGLISH-EDIT'), `${page}: ${original}`)
@@ -225,19 +229,17 @@ test('English array captions and profile labels are editable while functional gr
     copy: (_page, _key, fallback) => fallback === 'SOPRANO' ? 'GROUP-CAPTION' : fallback })
   assert.ok(members.includes('GROUP-CAPTION')); assert.match(members, /id="member-group-soprano"/)
   const conductor = render('conductor', { copy: (_page, _key, fallback) => `EDIT:${fallback}` })
-  assert.ok(conductor.includes('2014 — PRESENT')); assert.ok(conductor.includes('KIM HYUNG-SU'))
-  assert.ok(conductor.includes('EDIT:KIM HYUNG-SU'), 'The formerly hardcoded English profile label now has its own explicit editor key')
+  assert.ok(conductor.includes('2014 — PRESENT')); assert.ok(conductor.includes('Dr. Hyung-Su Kim'))
+  assert.ok(conductor.includes('EDIT:Dr. Hyung-Su Kim'), 'The approved English profile label keeps its explicit editor key')
 })
 
 test('explicit spirit content keys edit CMS-provided paragraphs without changing unrelated values or destinations', () => {
-  const replacements = { 'spirit.content.hero.body': '교육 소개 교체', 'spirit.content.motet.body': '모테트 설명 교체',
-    'spirit.content.motet.quote': '인용 교체', 'spirit.content.manifesto.0.body': '첫 단계 교체',
-    'spirit.content.values.0.title': '가치 제목 교체', 'spirit.content.values.0.description': '가치 본문 교체',
+  const replacements = { 'spirit.content.hero.body': '교육 소개 교체',
     'spirit.content.cta.body': '참여 설명 교체', 'spirit.content.cta.supportLabel': '후원 안내' }
   const html = render('spirit', { copy: (_page, key, fallback) => replacements[key] ?? fallback })
   for (const text of Object.values(replacements)) assert.ok(html.includes(text), `not rendered: ${text}`)
-  assert.ok(html.includes('CMS 문단2'))
-  assert.ok(html.includes('CMS 요약'))
+  assert.ok(!html.includes('CMS 문단2'), 'The retired manifesto no longer renders')
+  assert.ok(!html.includes('CMS 요약'), 'The retired values section no longer renders')
   assert.match(html, /href="\/join"/)
   assert.match(html, /href="\/contact\?section=support"/)
 })

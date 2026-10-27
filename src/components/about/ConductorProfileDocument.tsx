@@ -139,8 +139,10 @@ export function ConductorProfileDocument({ person }: { person?: PersonProfileRow
   const { enabled, language, translate } = useSampleLanguage()
   const isSampleEnglish = enabled && language === 'en'
   const name = person?.name?.trim() || '김형수'
+  const isDefaultConductor = ['김형수', 'Kim Hyung-su', 'KIM HYUNG-SU', 'Dr. Hyung-Su Kim'].includes(name)
+  const displayedName = isSampleEnglish && isDefaultConductor ? 'Dr. Hyung-Su Kim' : name
   const role = translate(person?.role?.trim() || '지휘자')
-  const showDefaultIdentity = !isSampleEnglish || name === '김형수'
+  const showDefaultIdentity = isDefaultConductor
   const sourceLanguage = (source: string, displayed: string) =>
     isSampleEnglish && source === displayed && /[가-힣]/.test(source) ? 'ko' : undefined
   const profileSummary = splitParagraphs(person?.profile_summary)
@@ -208,7 +210,7 @@ export function ConductorProfileDocument({ person }: { person?: PersonProfileRow
               </div>
             </figure>
 
-            <figure className="conductor-profile__performance">
+            <figure className="conductor-profile__performance" data-performance-crop={performanceImage.src === defaultPerformanceImage ? 'choir' : undefined}>
               <span aria-hidden="true" className="conductor-profile__media-rule" />
               <SiteImage
                 alt={displayedPerformanceImageAlt}
@@ -228,10 +230,10 @@ export function ConductorProfileDocument({ person }: { person?: PersonProfileRow
           <div className="conductor-profile__details">
             <div className="conductor-profile__identity">
               <p>{<FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.f34c03131f" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.f34c03131f", "SEOUL MOTET YOUTH CHOIR")}</FormattedCopy>}</p>
-              <small><SiteCopy page="conductor" id="conductor.conductorProfileDocument.english2" fallback={"CONDUCTOR"} />{showDefaultIdentity ? <FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.8a191edde4" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.8a191edde4", " · 2014 — PRESENT")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.8a191edde4", " · 2014 — PRESENT")}</FormattedCopy> : null}</small>
+              <small>{isDefaultConductor ? <SiteCopy page="conductor" id="conductor.conductorProfileDocument.english2" fallback="Artistic Director · Conductor" /> : role}{showDefaultIdentity ? <FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.8a191edde4" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.8a191edde4", " · 2014 — PRESENT")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.8a191edde4", " · 2014 — PRESENT")}</FormattedCopy> : null}</small>
               <span aria-hidden="true" className="conductor-profile__identity-rule" />
-              <EditableLayout id="conductor.profile.name"><h2 lang={sourceLanguage(name, name)}>{name}</h2></EditableLayout>
-              {showDefaultIdentity ? <strong><FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.ab3fd80626" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.ab3fd80626", "KIM HYUNG-SU")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.ab3fd80626", "KIM HYUNG-SU")}</FormattedCopy></strong> : null}
+              <EditableLayout id="conductor.profile.name"><h2 lang={sourceLanguage(name, displayedName)}>{displayedName}</h2></EditableLayout>
+              {showDefaultIdentity && !isSampleEnglish ? <strong><FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.ab3fd80626" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.ab3fd80626", "Dr. Hyung-Su Kim")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.ab3fd80626", "Dr. Hyung-Su Kim")}</FormattedCopy></strong> : null}
             </div>
 
             <div className="conductor-profile__copy">
@@ -255,7 +257,7 @@ export function ConductorProfileDocument({ person }: { person?: PersonProfileRow
             </div>
           </div>
 
-          <footer className="conductor-profile__footer-note"><SiteCopy page="conductor" id="conductor.conductorProfileDocument.english4" fallback={"SMYC CONDUCTOR PROFILE"} />{showDefaultIdentity ? <FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.daecd7d7b9" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.daecd7d7b9", " · KIM HYUNG-SU")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.daecd7d7b9", " · KIM HYUNG-SU")}</FormattedCopy> : null}</footer>
+          <footer className="conductor-profile__footer-note"><SiteCopy page="conductor" id="conductor.conductorProfileDocument.english4" fallback={"SMYC CONDUCTOR PROFILE"} />{showDefaultIdentity ? <FormattedCopy page="conductor" id="conductor.fixed.ConductorProfileDocument.daecd7d7b9" text={copyText("conductor", "conductor.fixed.ConductorProfileDocument.daecd7d7b9", " · Dr. Hyung-Su Kim")}>{copyText("conductor", "conductor.fixed.ConductorProfileDocument.daecd7d7b9", " · Dr. Hyung-Su Kim")}</FormattedCopy> : null}</footer>
         </section>
       </div>
     </div>

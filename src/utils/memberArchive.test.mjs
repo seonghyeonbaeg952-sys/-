@@ -132,10 +132,10 @@ test('파트가 지정된 스태프를 해당 파트에 합치고 미표시·기
     ['accompanist', 'bass', 'hidden', 'other', 'staff-accompanist', 'staff-bass', 'staff-hidden'])
 })
 
-test('반주자 필터는 스태프 반주자도 찾고 스태프 필터는 모든 스태프 파트를 유지한다', () => {
+test('반주자 필터는 스태프 반주자도 찾고 스태프 필터는 반주자를 제외한다', () => {
   const ids = filter => memberArchive.filterPublicMembersForArchive(additionalMembers, 'all', filter).map(member => member.id).sort()
   assert.deepEqual(ids('bass'), ['bass', 'staff-bass'])
-  assert.deepEqual(ids('staff'), ['staff-accompanist', 'staff-bass', 'staff-hidden'])
+  assert.deepEqual(ids('staff'), ['staff-bass', 'staff-hidden'])
   assert.deepEqual(ids('accompanist'), ['accompanist', 'staff-accompanist'])
 })
 
@@ -149,7 +149,7 @@ test('모든 성부와 반주 파트의 스태프는 해당 명단에 한 번만
   }
   assert.equal(groups.find(group => group.key === 'staff')?.members.length, 0)
   assert.equal(groups.flatMap(group => group.members).length, 5)
-  assert.equal(memberArchive.filterPublicMembersForArchive(members, 'all', 'staff').length, 5)
+  assert.equal(memberArchive.filterPublicMembersForArchive(members, 'all', 'staff').length, 4)
 })
 
 test('미표시 파트는 이름 공개 설정을 바꾸지 않고 이름 비공개 시 중립적인 이름을 쓴다', () => {
@@ -160,4 +160,26 @@ test('미표시 파트는 이름 공개 설정을 바꾸지 않고 이름 비공
   assert.equal(memberArchive.getPublicMemberName(hidden, 'en'), 'Choir member')
   assert.equal(memberArchive.getPublicMemberName({ ...hidden, display_name: '공개 이름' }, 'ko'), '공개 이름')
   assert.equal(memberArchive.getPublicMemberName({ ...hidden, part: 'accompanist' }, 'en'), 'Accompanist')
+})
+
+test('스태프 필터에서 반주자를 제외하고 성부가 있는 운영진은 유지한다', () => {
+  const result = memberArchive.filterPublicMembersForArchive(additionalMembers, 'all', 'staff')
+  assert.deepEqual(result.map(member => member.id).sort(), ['staff-bass', 'staff-hidden'])
+})
+
+test('운영진 직무는 CMS 역할로 분류하고 반주자는 직무 명단에 중복하지 않는다', () => {
+  const rows = [
+    { ...members[2], id: 'coach-b', display_name: '이나영', display_order: 0, part: 'soprano', staff_role: 'playing_coach' },
+    { ...members[2], id: 'coach-a', display_name: '이준식', display_order: 0, part: 'tenor', staff_role: 'playing_coach' },
+    { ...members[2], id: 'planning', staff_role: 'planning_pr' },
+    { ...members[2], id: 'treasurer', staff_role: 'treasurer' },
+    { ...members[2], id: 'pianist', part: 'accompanist', staff_role: 'playing_coach' },
+    { ...members[0], id: 'not-staff', staff_role: 'treasurer' },
+  ]
+  const before = JSON.stringify(rows)
+  const groups = memberArchive.groupPublicStaffForArchive(rows)
+  assert.deepEqual(groups.map(group => [group.key, group.members.map(member => member.id)]), [
+    ['playing_coach', ['coach-b', 'coach-a']], ['planning_pr', ['planning']], ['treasurer', ['treasurer']],
+  ])
+  assert.equal(JSON.stringify(rows), before)
 })

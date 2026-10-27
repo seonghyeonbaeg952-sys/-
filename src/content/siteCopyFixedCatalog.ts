@@ -952,15 +952,15 @@ export const fixedCopyDefinitions: SiteCopyDefinition[] = [
     "key": "conductor.fixed.ConductorProfileDocument.ab3fd80626",
     "page": "conductor",
     "section": "지휘자 보조 표기",
-    "label": "KIM HYUNG-SU",
-    "defaultValue": "KIM HYUNG-SU"
+    "label": "Dr. Hyung-Su Kim",
+    "defaultValue": "Dr. Hyung-Su Kim"
   },
   {
     "key": "conductor.fixed.ConductorProfileDocument.daecd7d7b9",
     "page": "conductor",
     "section": "지휘자 보조 표기",
-    "label": "· KIM HYUNG-SU",
-    "defaultValue": " · KIM HYUNG-SU"
+    "label": "· Dr. Hyung-Su Kim",
+    "defaultValue": " · Dr. Hyung-Su Kim"
   },
   {
     "key": "members.fixed.MembersArchiveExperience.9f96b8e22c",

@@ -277,6 +277,7 @@ create table if not exists public.members (
   part text not null default 'other',
   group_type text not null default 'middle',
   member_status text not null default 'active',
+  staff_role text check (staff_role is null or staff_role in ('playing_coach', 'planning_pr', 'treasurer')),
   photo_url text,
   description text,
   is_visible boolean not null default true,
@@ -566,7 +567,8 @@ returns table (
   part text,
   group_type text,
   member_status text,
-  display_order integer
+  display_order integer,
+  staff_role text
 )
 language sql
 stable
@@ -580,7 +582,9 @@ as $$
     member.part,
     member.group_type,
     member.member_status,
-    member.display_order
+    member.display_order,
+    case when member.group_type = 'staff' and member.part <> 'accompanist'
+      then member.staff_role else null end
   from public.members as member
   where member.is_visible = true
   order by member.display_order asc, member.id asc;

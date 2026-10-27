@@ -162,6 +162,14 @@
   object-position: center 54%;
 }
 
+/* Crop the approved wide concert record toward the choir, without zooming a
+   later CMS replacement or overriding its configured focal point. */
+.conductor-profile__performance[data-performance-crop='choir'] > img:not([data-site-photo]) {
+  object-position: center bottom;
+  transform: scale(1.2);
+  transform-origin: center bottom;
+}
+
 .conductor-profile__media-rule {
   background: var(--conductor-orange);
   height: 4px;
@@ -196,7 +204,7 @@
   color: var(--conductor-burgundy);
   display: block;
   font-size: 12px;
-  line-height: 1;
+  line-height: 1.6;
   margin-top: 9px;
 }
 
@@ -210,11 +218,18 @@
 
 .conductor-profile__identity h2 {
   font-family: "Hahmlet", var(--font-heading-kr);
-  font-size: 55px;
+  font-size: 42px;
   font-weight: 700;
   letter-spacing: -0.04em;
   line-height: 1.08;
   margin-top: 35px;
+  overflow-wrap: break-word;
+}
+
+html[data-sample-language='en'] .conductor-profile__identity h2 {
+  font-size: 30px;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
 }
 
 .conductor-profile__identity strong {
@@ -356,7 +371,7 @@
   }
 
   .conductor-profile__identity h2 {
-    font-size: 43px;
+    font-size: 36px;
     margin-top: 27px;
   }
 
@@ -458,7 +473,7 @@
   }
 
   .conductor-profile__identity h2 {
-    font-size: 44px;
+    font-size: 36px;
     margin-top: 28px;
   }
 

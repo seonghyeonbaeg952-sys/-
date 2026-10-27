@@ -910,6 +910,8 @@ async function getPublicMembers(client: SupabaseClient) {
 }
 
 export function mapPublicMember(row: PublicMemberQueryRow): PublicMemberRow {
+  const staffRole = row.group_type === 'staff' && row.part !== 'accompanist' &&
+    ['playing_coach', 'planning_pr', 'treasurer'].includes(row.staff_role ?? '') ? row.staff_role : undefined
   return {
     display_order: row.display_order,
     display_name: row.public_display_name?.trim() || null,
@@ -918,6 +920,7 @@ export function mapPublicMember(row: PublicMemberQueryRow): PublicMemberRow {
     id: row.id,
     member_status: row.member_status,
     part: row.part,
+    ...(staffRole ? { staff_role: staffRole } : {}),
   }
 }
 

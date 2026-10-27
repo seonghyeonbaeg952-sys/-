@@ -64,7 +64,7 @@ test('every mega-menu and mobile menu link keeps its query, fragment and languag
     assert.equal(new URL(href, 'https://sample.invalid').searchParams.get('lang'), 'en')
     assert.ok(!href.includes('/sample/sample'), href)
   }
-  assert.ok(hrefs(mega).includes('/sample/spirit?lang=en#spirit-faith'))
+  assert.ok(hrefs(mega).includes('/sample/spirit?lang=en#spirit-lineage'))
   assert.ok(hrefs(mobile).includes('/sample/join?section=contact&lang=en#application'))
 })
 

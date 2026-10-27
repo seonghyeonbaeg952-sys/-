@@ -318,10 +318,16 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
     let guideHeight = 148
 
     const syncGuideHeight = () => {
+      // Resolve the responsive CSS height through layout rather than parsing a
+      // custom property containing clamp(). The grid stays at its rest height
+      // while its enclosing section collapses during the existing handoff.
+      const grid = shell.querySelector<HTMLElement>('.home-quick-action-grid')
       const restHeight = Number.parseFloat(
         window.getComputedStyle(shell).getPropertyValue('--home-v4-guide-rest-height'),
       )
-      guideHeight = Number.isFinite(restHeight) && restHeight > 0 ? restHeight : 148
+      guideHeight = grid && grid.offsetHeight > 0
+        ? grid.offsetHeight + 16
+        : Number.isFinite(restHeight) && restHeight > 0 ? restHeight : 148
     }
 
     const reset = () => {
@@ -515,6 +521,20 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
       queueUpdate()
     }
 
+    const guideSizeObserver = new ResizeObserver(resizeGuide)
+    const connectGuideSize = () => {
+      const grid = shell.querySelector<HTMLElement>('.home-quick-action-grid')
+      if (!grid) return
+      guideSizeObserver.observe(grid)
+      guideMountObserver.disconnect()
+      resizeGuide()
+    }
+    // The responsive quick-menu branch can mount after this parent's layout
+    // effect. Observe that boundary once, then track only its stable rest grid.
+    const guideMountObserver = new MutationObserver(connectGuideSize)
+    guideMountObserver.observe(shell, { childList: true, subtree: true })
+    connectGuideSize()
+
     syncGuideHeight()
     if (desktopQuery.matches && !reducedMotionQuery.matches) {
       applyProgress(0)
@@ -531,6 +551,8 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
       window.cancelAnimationFrame(frame)
       window.removeEventListener('scroll', queueUpdate)
       window.removeEventListener('resize', resizeGuide)
+      guideSizeObserver.disconnect()
+      guideMountObserver.disconnect()
       desktopQuery.removeEventListener('change', resizeGuide)
       reducedMotionQuery.removeEventListener('change', queueUpdate)
       reset()
