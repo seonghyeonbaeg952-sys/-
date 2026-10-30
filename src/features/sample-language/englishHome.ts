@@ -4,6 +4,31 @@ import type { TranslationEntry } from './types'
  * verbatim; the later group also covers the published home copy in the Figma
  * copybook without replacing the fallback or CMS source records. */
 export const englishHome: readonly TranslationEntry[] = [
+  // Home narrative: the published Spirit page's musical practice, in plain language.
+  { source: '작품의 뜻을 살피고,\n서로의 소리를 들으며\n함께 노래합니다.', target: 'We study the music,\nlisten to each other\nand sing together.' },
+  { source: '음표와 가사를 읽고, 호흡을 맞춥니다.\n매주 연습에서 함께 부르는 법을 배웁니다.', target: 'We read the notes and words, and learn to breathe together. Each week, we practise singing as a choir.' },
+  { source: '연습실에서\n무대까지', target: 'From rehearsal\nto the stage' },
+  { source: '한 곡을 함께 연습하고\n그 노래로 무대에 섭니다', target: 'We rehearse each piece,\nthen sing it on stage' },
+  { source: '공연과 교류 현장의 모습을\n사진과 영상으로 만나보세요.', target: 'See our performances and exchanges in photos and videos.' },
+  { source: '사진·영상 보기', target: 'View photos & videos' },
+  { source: '음정과 박자를 맞추고,\n가사의 뜻을 살핍니다', target: 'We learn the notes\nand the words' },
+  { source: '발성과 악보 읽기부터 파트 연습까지,\n한 곡을 차근차근 익힙니다.', target: 'We work on vocal technique, read the score and practise our parts, learning each piece step by step.' },
+  { source: '한 곡을 익히는 시간', target: 'Learning a piece' },
+  { source: '함께 맞추는 연습', target: 'Rehearsing together' },
+  { source: '다른 파트의 소리를\n들으며 함께 부릅니다', target: 'We sing our parts\nand listen to the others' },
+  { source: '내 파트를 부르며 다른 성부도 듣습니다.\n함께 연습한 곡으로 무대에 섭니다.', target: 'We sing our own parts while listening to the other voices, then take the music we have rehearsed onto the stage.' },
+  { source: '듣기 · 호흡 · 합창', target: 'Listening · Breath · Singing' },
+  { source: '함께 준비한 무대', target: 'Taking the stage together' },
+  { source: '합창과 교회음악의 전통을 배웁니다.', target: 'We learn from Motet’s choral tradition.' },
+  { source: '서울모테트가 이어 온 합창과 교회음악을 배웁니다.\n작품을 이해하고 함께 부르는 경험을\n청소년들과 나눕니다.', target: 'Young singers learn from Seoul Motet’s experience in choral and church music, studying each work and singing it together.' },
+  { source: '음표와 가사의 뜻부터 살핍니다.', target: 'We begin with the notes and words.' },
+  { source: '음정과 박자를 맞추고, 가사가 전하는 뜻을 생각합니다.\n작곡가가 악보에 담은 것을 놓치지 않도록\n반복해서 듣고 연습합니다.', target: 'We work on pitch and rhythm, and consider what the words mean. Listening and rehearsing help us understand what the composer put on the page.' },
+  { source: '찬송의 말을 생각하며 부릅니다.', target: 'We think about the words we sing.' },
+  { source: '교회음악에 담긴 말씀과 신앙을 배웁니다.\n찬송의 가사를 읽고 뜻을 생각하며,\n노래를 통해 신앙을 돌아봅니다.', target: 'We explore the scripture and faith found in church music. Reading and singing the words of hymns gives us time to reflect on our faith.' },
+  { source: '내 파트를 부르며 다른 파트도 듣습니다.', target: 'We sing our part and listen to the others.' },
+  { source: '옆 사람의 호흡과 다른 성부의 선율을 듣습니다.\n내 소리가 어우러지도록 맞추며\n서로 배려하고 맡은 파트를 책임집니다.', target: 'We listen to the breath of the singer beside us and the melodies in other parts. We adjust our voices, look out for one another and take responsibility for our own part.' },
+  { source: '연습실에서 배운 것을 무대에서 나눕니다.', target: 'We take what we learn onto the stage.' },
+  { source: '매주 연습한 곡으로 무대에 서고,\n국내외 교류를 통해 다른 문화와 사람을 만납니다.\n함께 노래하며 음악을 보는 시야를 넓힙니다.', target: 'We perform the pieces we rehearse each week and meet people through exchanges at home and abroad. Singing together broadens how we hear and understand music.' },
   // Raw defaults inside the existing join score and support letter objects.
   { source: '유소년반 · 청소년반 · 대학부', target: 'Children · Youth · University' },
   { source: '정기 연습에 참여할 수 있는 청소년', target: 'Young people who can attend regular rehearsals' },

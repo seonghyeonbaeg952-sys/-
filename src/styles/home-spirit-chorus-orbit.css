@@ -832,12 +832,10 @@
       .home-spirit-chorus-orbit__datum i,
       .home-spirit-chorus-orbit__ring,
       .home-spirit-chorus-orbit__breath,
-      .home-spirit-chorus-orbit__watermark,
       .home-spirit-chorus-orbit__eyebrow,
       .home-spirit-chorus-orbit__headline > span,
       .home-spirit-chorus-orbit__signature,
       .home-spirit-chorus-orbit__value-motion,
-      .home-spirit-chorus-orbit__value-halo,
       .home-spirit-chorus-orbit__action
     ) {
     animation: none !important;
@@ -845,7 +843,8 @@
     transform: none !important;
   }
 
-  .home-spirit-chorus-orbit__watermark {
+  .home-spirit-chorus-orbit .home-spirit-chorus-orbit__watermark {
+    animation: none !important;
     opacity: 0.055 !important;
     transform: translate(-50%, -50%) !important;
   }
@@ -855,7 +854,8 @@
     transition: none !important;
   }
 
-  .home-spirit-chorus-orbit__value-halo {
+  .home-spirit-chorus-orbit .home-spirit-chorus-orbit__value-halo {
+    animation: none !important;
     opacity: 0.18 !important;
     transform: translate(-50%, -50%) !important;
   }
