@@ -147,11 +147,11 @@ export const HOME_CONTENT_DEFAULTS_V2: HomeContentV2 = {
   },
   scoreBook: {
     responsiveEyebrow: '04    MOTET SCORE',
-    responsiveTitle: '서로 듣고 맞추면\n화음이 됩니다.',
+    responsiveTitle: '연습에서 삶으로\n이어지는 합창교육',
     responsiveLeftTitle: '발성 · 악보 · 파트',
     responsiveLeftBody: '매주 정기 연습과 공연, 국내외 교류를 통해\n음악적 기량과 공동체성을 함께 배웁니다.',
-    responsiveRightTitle: '듣기 · 호흡 · 합창',
-    responsiveRightBody: '혼자 부르면 한 사람의 소리입니다.\n서로 듣고 맞추면 화음이 됩니다.\n함께 책임질 때 공동체가 됩니다.',
+    responsiveRightTitle: '합창단 소개',
+    responsiveRightBody: '정기 연습과 공연, 국내외 교류를 통해 음악을 배우는\n서울모테트청소년합창단입니다.',
     eyebrowKo: '악보',
     cover: {
       titleLines: ['연습에서', '삶으로'],
@@ -219,9 +219,9 @@ export const HOME_CONTENT_DEFAULTS_V2: HomeContentV2 = {
       },
     ],
     final: {
-      titleLines: ['서로 듣고 맞추면', '화음이 됩니다'],
+      titleLines: ['연습에서 삶으로', '이어지는 합창교육'],
       summary:
-        '함께 책임질 때 공동체가 됩니다.',
+        '정기 연습과 공연, 국내외 교류를 통해 음악을 배우는\n서울모테트청소년합창단입니다.',
       primaryCtaLabel: '사진·영상 보기',
       secondaryCtaLabel: '공연 일정 보기',
     },

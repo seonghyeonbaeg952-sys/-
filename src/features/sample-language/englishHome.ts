@@ -4,6 +4,15 @@ import type { TranslationEntry } from './types'
  * verbatim; the later group also covers the published home copy in the Figma
  * copybook without replacing the fallback or CMS source records. */
 export const englishHome: readonly TranslationEntry[] = [
+  // The score finale pairs the Spirit education caption with a choir introduction.
+  { key: 'home.scoreBook.final.titleLines', source: '연습에서 삶으로\n이어지는 합창교육', target: 'Choral education,\nfrom rehearsal to everyday life' },
+  { key: 'home.scoreBook.final.summary', source: '정기 연습과 공연, 국내외 교류를 통해 음악을 배우는\n서울모테트청소년합창단입니다.', target: 'At Seoul Motet Youth Choir, young people learn music through regular rehearsals, performances and exchanges at home and abroad.' },
+  { key: 'home.scoreBook.responsiveTitle', source: '연습에서 삶으로\n이어지는 합창교육', target: 'Choral education,\nfrom rehearsal to everyday life' },
+  { key: 'home.tablet.scoreBook.responsiveTitle', source: '연습에서 삶으로\n이어지는 합창교육', target: 'Choral education,\nfrom rehearsal to everyday life' },
+  { key: 'home.scoreBook.responsiveRightTitle', source: '합창단 소개', target: 'About the Choir' },
+  { key: 'home.tablet.scoreBook.responsiveRightTitle', source: '합창단 소개', target: 'About the Choir' },
+  { key: 'home.scoreBook.responsiveRightBody', source: '정기 연습과 공연, 국내외 교류를 통해 음악을 배우는\n서울모테트청소년합창단입니다.', target: 'At Seoul Motet Youth Choir, young people learn music through regular rehearsals, performances and exchanges at home and abroad.' },
+  { key: 'home.tablet.scoreBook.responsiveRightBody', source: '정기 연습과 공연, 국내외 교류를 통해 음악을 배우는\n서울모테트청소년합창단입니다.', target: 'At Seoul Motet Youth Choir, young people learn music through regular rehearsals, performances and exchanges at home and abroad.' },
   // Home excerpts quote the published Spirit page in each language. Source-bound
   // keys preserve that wording without changing translations on the Spirit page.
   {"key":"home.spiritWrapper.responsiveTitle","source":"시대를 잇는 정신,\n평화를 빚는 목소리.","target":"A spirit across generations,\nvoices that shape peace."},
