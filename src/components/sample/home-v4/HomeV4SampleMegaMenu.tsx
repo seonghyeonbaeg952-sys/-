@@ -37,7 +37,8 @@ const aboutMenuGroups: MegaMenuGroup[] = [
     label: '합창단 소개',
     links: [
       { href: '/about', label: '합창단 소개' },
-      { href: '/about?section=conductor', label: '지휘자·반주자' },
+      { href: '/about?section=conductor', label: '지휘자 소개' },
+      { href: '/about?section=accompanist', label: '반주자 소개' },
       { href: '/about?section=members', label: '단원 소개' },
       { href: '/about?section=history', label: '연혁과 활동' },
     ],
