@@ -11,6 +11,7 @@ after(() => vite.close())
 const formattedCopy = await vite.ssrLoadModule('/src/components/site-editor/FormattedCopy.tsx')
 const workflowHelpers = await vite.ssrLoadModule('/src/components/common/workflowCopy.ts')
 const sampleSubmission = await vite.ssrLoadModule('/src/lib/sampleSubmissionGuard.ts')
+const contactFormModel = await vite.ssrLoadModule('/src/components/contact/contactFormModel.ts')
 const { translateEnglish } = await vite.ssrLoadModule('/src/features/sample-language/englishRegistry.ts')
 
 const require = createRequire(import.meta.url)
@@ -52,6 +53,7 @@ async function loadForm(overrides = {}, submit = async () => ({ data: true, erro
     '../../features/sample-language/useSampleLanguage': { useSampleLanguage: () => ({ isSample: languageState.enabled, ...languageState, translate }) },
     '../../features/sample-language/SampleDateInput': { SampleDateInput: 'sample-date-input' },
     '../common/workflowCopy': workflowHelpers,
+    './contactFormModel': contactFormModel,
     '../../constants/spiritContent': { supportSpiritCopy: { title: '후원 제목', body: '후원 본문', notice: '후원 안내', eyebrow: 'SUPPORT' }, donorCareItems: [], supportMethodItems: [] },
     '../site-editor/useSiteEditor': { useSiteEditor: () => ({ copy: (_page, key, fallback) => translate(Object.hasOwn(editorCopy, key) ? editorCopy[key] : fallback, key) }) },
     '../site-editor/FormattedCopy': formattedCopy,
@@ -122,7 +124,7 @@ test('changing sample language preserves donor answers, consent and the review s
   languageState.language = 'ko'
   form.render()
   assert.ok(form.text().includes('작성 내용을 확인해 주세요.'))
-  assert.ok(form.text().includes('월 10,000원'))
+  assert.ok(form.text().includes('월 1만원'))
   assert.equal(form.writes.length, 0)
 })
 

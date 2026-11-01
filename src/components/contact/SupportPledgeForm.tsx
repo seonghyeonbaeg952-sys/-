@@ -17,6 +17,7 @@ import { createIntakeSubmissionTracker } from '../../lib/intakeModel'
 import type { SiteSettings, SupportSettings } from '../../types/content'
 import { Button } from '../common/Button'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
+import { formatSupportAmount } from './contactFormModel'
 import '../../styles/support-pledge.css'
 
 type SupportPledgeFormProps = {
@@ -97,7 +98,8 @@ function normalizeSupportDisplayText(value: string | null | undefined) {
   return trimmedValue
 }
 
-function formatAmount(amount: number, translate: WorkflowTranslate) {
+function formatAmount(amount: number, language: 'ko' | 'en', translate: WorkflowTranslate) {
+  if (language === 'ko') return `월 ${formatSupportAmount(amount)}`
   return workflowCopy(translate, '월 {amount}원', { amount: amount.toLocaleString('ko-KR') })
 }
 
@@ -408,7 +410,7 @@ export function SupportPledgeForm({
   )
   const selectedAmountLabel =
     Number.isFinite(selectedAmount) && selectedAmount > 0
-      ? formatAmount(selectedAmount, translate)
+      ? formatAmount(selectedAmount, language, translate)
       : translate('선택 예정')
   const memberTypeLabel =
     translate(values.memberType === 'individual' ? '개인회원' : '기업회원')
@@ -678,7 +680,7 @@ export function SupportPledgeForm({
                 {amountOptions.map((amount) => (
                   <label className={`support-pledge__option${values.amount === String(amount) ? ' is-selected' : ''}`} key={amount}>
                     <input checked={values.amount === String(amount)} className="sr-only" name="support-amount" onChange={() => { setValue('amount', String(amount)); setValue('customAmount', '') }} type="radio" value={amount} />
-                    {formatAmount(amount, translate)}
+                    {formatAmount(amount, language, translate)}
                   </label>
                 ))}
                 {settings.allow_custom_amount ? (

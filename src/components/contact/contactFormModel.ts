@@ -47,37 +47,13 @@ export function buildContactMessageInput(values: ContactFormValues): ContactMess
   }
 }
 
-const koreanDigits = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'] as const
-const koreanPlaces = ['', '십', '백', '천'] as const
-const koreanGroups = ['', '만', '억', '조'] as const
-
-function spellFourDigits(value: number): string {
-  let result = ''
-  for (let place = 3; place >= 0; place -= 1) {
-    const digit = Math.floor(value / (10 ** place)) % 10
-    if (!digit) continue
-    result += (digit === 1 && place > 0 ? '' : koreanDigits[digit]) + koreanPlaces[place]
+export function formatSupportAmount(amount: number): string {
+  if (Number.isSafeInteger(amount) && amount >= 10000 && amount % 10000 === 0) {
+    return `${(amount / 10000).toLocaleString('ko-KR')}만원`
   }
-  return result
-}
-
-function spellKoreanWon(amount: number): string {
-  if (!Number.isSafeInteger(amount) || amount < 0) return `${amount.toLocaleString('ko-KR')}원`
-  if (amount === 0) return '영 원'
-
-  const parts: string[] = []
-  let remaining = amount
-  for (let group = 0; remaining > 0; group += 1) {
-    const digits = remaining % 10000
-    if (digits) {
-      const word = digits === 1 && group > 0 ? '' : spellFourDigits(digits)
-      parts.unshift(`${word}${koreanGroups[group]}`)
-    }
-    remaining = Math.floor(remaining / 10000)
-  }
-  return `${parts.join(' ')} 원`
+  return `${amount.toLocaleString('ko-KR')}원`
 }
 
 export function formatSupportAmounts(amounts: readonly number[]): string {
-  return amounts.map(spellKoreanWon).join(' · ')
+  return amounts.map(formatSupportAmount).join(' · ')
 }
