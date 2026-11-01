@@ -58,6 +58,27 @@ function MemberNameList({
   )
 }
 
+function StaffRoleGroups({
+  groups,
+  alumni = false,
+}: {
+  groups: ReturnType<typeof groupPublicStaffForArchive>
+  alumni?: boolean
+}) {
+  const { copy: editorCopy } = useSiteEditor()
+
+  return (
+    <div className="members-archive__staff-roles">
+      {groups.map(group => (
+        <div key={group.key}>
+          {group.key !== 'other' && <h4>{editorCopy('members', `members.staffRole.${group.key}`, group.label)}</h4>}
+          <MemberNameList alumni={alumni} members={group.members} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export function MembersArchiveExperience({
   headingLevel = 'h1',
   members,
@@ -79,8 +100,10 @@ export function MembersArchiveExperience({
       ),
     [filteredMembers, partFilter, statusFilter],
   )
-  const staffGroups = statusFilter === 'active' && (partFilter === 'all' || partFilter === 'staff')
-    ? groupPublicStaffForArchive(filteredMembers) : []
+  const staffGroups = useMemo(
+    () => groupPublicStaffForArchive(filteredMembers),
+    [filteredMembers],
+  )
   const archive = useMemo(() => partitionPublicMemberArchive(filteredMembers), [filteredMembers])
   const Heading = headingLevel
   const ArchiveHeading = headingLevel === 'h1' ? 'h2' : 'h3'
@@ -175,7 +198,7 @@ export function MembersArchiveExperience({
               {archive.members.length > 0 && <MemberNameList alumni members={archive.members} />}
               {archive.staff.length > 0 && <section className="members-archive__separate-roster" aria-labelledby="archive-staff-title">
                 <h3 className="members-archive__group-title" id="archive-staff-title">{editorCopy('members', 'members.archive.staff', '스태프')}</h3>
-                <MemberNameList alumni members={archive.staff} />
+                <StaffRoleGroups alumni groups={staffGroups} />
               </section>}
               {archive.accompanists.length > 0 && <section className="members-archive__separate-roster" aria-labelledby="archive-accompanists-title">
                 <h3 className="members-archive__group-title" id="archive-accompanists-title">{editorCopy('members', 'members.archive.accompanists', '반주자')}</h3>
@@ -209,14 +232,9 @@ export function MembersArchiveExperience({
             </div>
           )}
 
-          {staffGroups.length > 0 && <section className="members-archive__separate-roster" aria-labelledby="member-group-staff">
+          {statusFilter === 'active' && (partFilter === 'all' || partFilter === 'staff') && staffGroups.length > 0 && <section className="members-archive__separate-roster" aria-labelledby="member-group-staff">
             <h3 className="members-archive__group-title" id="member-group-staff">{editorCopy('members', 'members.groupHeading.staff', 'STAFF')}</h3>
-            <div className="members-archive__staff-roles">
-              {staffGroups.map(group => <div key={group.key}>
-                {group.key !== 'other' && <h4>{editorCopy('members', `members.staffRole.${group.key}`, group.label)}</h4>}
-                <MemberNameList members={group.members} />
-              </div>)}
-            </div>
+            <StaffRoleGroups groups={staffGroups} />
           </section>}
 
           <div className="members-archive__directory-footer">

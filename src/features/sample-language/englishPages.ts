@@ -7,6 +7,8 @@ export const englishPages: readonly TranslationEntry[] = [
   { source: '2025 유스비전투어에서 나란히 앉아 악보를 보며 소리를 맞추는 단원들', target: 'Choir members rehearsing together from their scores during the 2025 Youth Vision Tour' },
   { source: '2025 유스비전투어에서 야외에 모여 함께 노래하는 단원들', target: 'Choir members singing together outdoors during the 2025 Youth Vision Tour' },
   { source: '플레잉 코치', target: 'Playing coaches' },
+  { source: '트레이너', target: 'Trainers' },
+  { source: '행정·기획', target: 'Administration & Planning' },
   { source: '기획·홍보', target: 'Planning & Publicity' },
   { source: '총무', target: 'Administration' },
   { source: '이어 온 정신', target: 'Our tradition' },

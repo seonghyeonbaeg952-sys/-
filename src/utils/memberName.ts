@@ -2,6 +2,8 @@ import type { MemberRow, PublicMemberRow } from '../types/cms'
 
 export const memberStaffRoleOptions = [
   { value: 'playing_coach', label: '플레잉 코치' },
+  { value: 'trainer', label: '트레이너' },
+  { value: 'administration_planning', label: '행정·기획' },
   { value: 'planning_pr', label: '기획·홍보' },
   { value: 'treasurer', label: '총무' },
 ] as const

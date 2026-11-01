@@ -214,7 +214,7 @@ test('maps a public member to the explicit safe field set only', () => {
 
 test('public staff roles allow only approved classifications for non-accompanist staff', () => {
   const row = { id: 'staff', public_display_name: '공개 이름', group_type: 'staff', part: 'tenor', member_status: 'active', display_order: 0 }
-  for (const staff_role of ['playing_coach', 'planning_pr', 'treasurer']) {
+  for (const staff_role of ['playing_coach', 'trainer', 'administration_planning', 'planning_pr', 'treasurer']) {
     const member = publicData.mapPublicMember({ ...row, staff_role, description: 'PRIVATE ROLE NOTES', name: 'PRIVATE NAME' })
     assert.equal(member.staff_role, staff_role)
     assert.equal('description' in member, false)

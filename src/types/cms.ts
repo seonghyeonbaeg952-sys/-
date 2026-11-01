@@ -181,7 +181,7 @@ export interface PersonProfileRow extends CmsRecord {
   is_visible: boolean
 }
 
-export type MemberStaffRole = 'playing_coach' | 'planning_pr' | 'treasurer'
+export type MemberStaffRole = 'playing_coach' | 'trainer' | 'administration_planning' | 'planning_pr' | 'treasurer'
 
 export interface MemberRow extends CmsRecord {
   name: string | null

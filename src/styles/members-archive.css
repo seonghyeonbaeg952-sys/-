@@ -569,10 +569,16 @@
 }
 
 .members-archive__staff-roles {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
-  gap: 20px 32px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 20px 40px;
   margin-top: 18px;
+}
+
+.members-archive__staff-roles > div {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .members-archive__staff-roles h4 {
@@ -582,9 +588,19 @@
   font-weight: 500;
 }
 
-.members-archive__staff-roles .members-archive__member-list {
-  grid-template-columns: repeat(auto-fit, minmax(5rem, max-content));
-  column-gap: 18px;
+.members-archive__separate-roster .members-archive__member-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 0 20px;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.members-archive__separate-roster .members-archive__member {
+  flex: 0 0 auto;
+  min-width: var(--members-alumni-column-width, 4.5rem);
+  max-width: 100%;
 }
 
 .members-archive__member-list--alumni:lang(en) {

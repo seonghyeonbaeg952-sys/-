@@ -171,6 +171,9 @@ test('운영진 직무는 CMS 역할로 분류하고 반주자는 직무 명단�
   const rows = [
     { ...members[2], id: 'coach-b', display_name: '이나영', display_order: 0, part: 'soprano', staff_role: 'playing_coach' },
     { ...members[2], id: 'coach-a', display_name: '이준식', display_order: 0, part: 'tenor', staff_role: 'playing_coach' },
+    { ...members[2], id: 'coach-c', display_name: '최하은', display_order: 0, member_status: 'alumni', staff_role: 'playing_coach' },
+    { ...members[2], id: 'trainer', member_status: 'alumni', staff_role: 'trainer' },
+    { ...members[2], id: 'admin-planning', member_status: 'alumni', staff_role: 'administration_planning' },
     { ...members[2], id: 'planning', staff_role: 'planning_pr' },
     { ...members[2], id: 'treasurer', staff_role: 'treasurer' },
     { ...members[2], id: 'pianist', part: 'accompanist', staff_role: 'playing_coach' },
@@ -179,7 +182,8 @@ test('운영진 직무는 CMS 역할로 분류하고 반주자는 직무 명단�
   const before = JSON.stringify(rows)
   const groups = memberArchive.groupPublicStaffForArchive(rows)
   assert.deepEqual(groups.map(group => [group.key, group.members.map(member => member.id)]), [
-    ['playing_coach', ['coach-b', 'coach-a']], ['planning_pr', ['planning']], ['treasurer', ['treasurer']],
+    ['playing_coach', ['coach-b', 'coach-a', 'coach-c']], ['trainer', ['trainer']],
+    ['administration_planning', ['admin-planning']], ['planning_pr', ['planning']], ['treasurer', ['treasurer']],
   ])
   assert.equal(JSON.stringify(rows), before)
 })

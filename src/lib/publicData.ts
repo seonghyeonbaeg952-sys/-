@@ -44,6 +44,7 @@ import type {
   VideoRow,
 } from '../types/cms'
 import { softenPublicCopy } from '../utils/softenPublicCopy'
+import { memberStaffRoleOptions } from '../utils/memberName'
 
 export type PublicDataResult<TData> =
   | { data: TData; error: null }
@@ -911,7 +912,7 @@ async function getPublicMembers(client: SupabaseClient) {
 
 export function mapPublicMember(row: PublicMemberQueryRow): PublicMemberRow {
   const staffRole = row.group_type === 'staff' && row.part !== 'accompanist' &&
-    ['playing_coach', 'planning_pr', 'treasurer'].includes(row.staff_role ?? '') ? row.staff_role : undefined
+    memberStaffRoleOptions.some(role => role.value === row.staff_role) ? row.staff_role : undefined
   return {
     display_order: row.display_order,
     display_name: row.public_display_name?.trim() || null,

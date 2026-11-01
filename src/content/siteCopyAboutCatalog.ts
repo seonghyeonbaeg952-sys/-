@@ -5,6 +5,8 @@ export const aboutCopyDefinitions: SiteCopyDefinition[] = [
   { key: 'members.archive.accompanists', page: 'members', section: '단원 · 반주자', label: '역대 반주자 명단 제목', defaultValue: '반주자', multiline: false },
   { key: 'members.archive.staff', page: 'members', section: '단원 · 스태프', label: '역대 스태프 명단 제목', defaultValue: '스태프', multiline: false },
   { key: 'members.staffRole.playing_coach', page: 'members', section: '단원 · 스태프', label: '플레잉 코치', defaultValue: '플레잉 코치', multiline: false },
+  { key: 'members.staffRole.trainer', page: 'members', section: '단원 · 스태프', label: '트레이너', defaultValue: '트레이너', multiline: false },
+  { key: 'members.staffRole.administration_planning', page: 'members', section: '단원 · 스태프', label: '행정·기획', defaultValue: '행정·기획', multiline: false },
   { key: 'members.staffRole.planning_pr', page: 'members', section: '단원 · 스태프', label: '기획·홍보', defaultValue: '기획·홍보', multiline: false },
   { key: 'members.staffRole.treasurer', page: 'members', section: '단원 · 스태프', label: '총무', defaultValue: '총무', multiline: false },
   {"key":"about.introduction.text1","page":"about","section":"소개 · 첫 화면","label":"청소년의 목소리로","defaultValue":"청소년의 목소리로","multiline":false},

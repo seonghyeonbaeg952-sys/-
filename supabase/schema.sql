@@ -277,7 +277,7 @@ create table if not exists public.members (
   part text not null default 'other',
   group_type text not null default 'middle',
   member_status text not null default 'active',
-  staff_role text check (staff_role is null or staff_role in ('playing_coach', 'planning_pr', 'treasurer')),
+  staff_role text check (staff_role is null or staff_role in ('playing_coach', 'trainer', 'administration_planning', 'planning_pr', 'treasurer')),
   photo_url text,
   description text,
   is_visible boolean not null default true,
