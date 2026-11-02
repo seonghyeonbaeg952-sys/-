@@ -28,50 +28,9 @@ test('Spirit uses a scalable SMY vector while keeping raster social fallbacks', 
   assert.doesNotMatch(sCurve, /\sL\s/)
 })
 
-test('Spirit closing typography fits phone width', async () => {
-  const cssSource = await read('./spirit-heritage.css')
-  assert.match(
-    cssSource,
-    /@media \(max-width: 479px\) \{[\s\S]*\.spirit-heritage__one-voice \{[\s\S]*font-size: 57px;/,
-  )
-})
-
-test('Spirit closing ornaments and baselines follow the Figma CTA geometry', async () => {
-  const cssSource = await read('./spirit-heritage.css')
-
-  assert.match(
-    cssSource,
-    /\.spirit-heritage__closing-copy > p:not\(\.spirit-heritage__eyebrow\)/,
-  )
-  assert.match(
-    cssSource,
-    /\.spirit-heritage__closing-card::before\s*\{[\s\S]*width:\s*164px;/,
-  )
-  assert.match(
-    cssSource,
-    /\.spirit-heritage__closing-card::after\s*\{[\s\S]*height:\s*76px;/,
-  )
-  assert.match(
-    cssSource,
-    /\.spirit-heritage__one-voice\s*\{[\s\S]*position:\s*absolute;[\s\S]*top:\s*175px;[\s\S]*left:\s*759px;/,
-  )
-  assert.match(
-    cssSource,
-    /\.spirit-heritage__one-voice::before\s*\{[\s\S]*width:\s*390px;/,
-  )
-  assert.match(
-    cssSource,
-    /\.spirit-heritage__one-voice::after\s*\{[\s\S]*width:\s*82px;/,
-  )
-  assert.match(
-    cssSource,
-    /@media \(max-width: 899px\) \{[\s\S]*\.spirit-heritage__closing-glow\s*\{[\s\S]*display:\s*none;/,
-  )
-  assert.match(
-    cssSource,
-    /@media \(max-width: 479px\) \{[\s\S]*\.spirit-heritage__one-voice\s*\{[\s\S]*top:\s*409px;[\s\S]*left:\s*21px;/,
-  )
-})
+// Closing uses content flow instead of the retired fixed Figma coordinates.
+// Copy editing and semantics are covered in siteCopyAboutCatalog.test.mjs;
+// phone/tablet/wide layout is checked against rendered viewport evidence.
 
 test('desktop Spirit retains the opening and lineage composition', async () => {
   const cssSource = await read('./spirit-heritage.css')

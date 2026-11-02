@@ -37,7 +37,7 @@ test('CMS exposes responsive fields and retains editable concert-card label on r
 
 test('missing or unsafe responsive CMS copy falls back to the approved readable design', () => {
   const content = normalizeHomeContentV2({ 'home.spiritWrapper.responsiveTitle': '<script>alert(1)</script>', 'home.spiritWrapper.responsiveLabel1': '' })
-  assert.equal(content.spiritWrapper.responsiveTitle, '서로 다른 목소리,\n하나의 음악.')
+  assert.equal(content.spiritWrapper.responsiveTitle, '시대를 잇는 정신,\n평화를 빚는 목소리.')
   assert.equal(content.spiritWrapper.responsiveLabel1, '이름')
   assert.equal(content.concertProgram.responsiveCardEyebrow, 'NEXT CONCERT')
 })

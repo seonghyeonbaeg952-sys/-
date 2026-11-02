@@ -144,6 +144,7 @@ export function HomeV4SampleMobileMenu({
                 className="home-v4-mobile-menu__accordion"
                 data-expanded={isExpanded}
                 id={accordionId}
+                inert={!isExpanded}
               >
                 {section.links.map((link) => (
                   <a

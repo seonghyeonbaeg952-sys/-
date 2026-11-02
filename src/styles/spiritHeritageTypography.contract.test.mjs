@@ -18,10 +18,8 @@ test('Spirit maps the Figma typography roles to their original font families', a
   assert.match(cssSource, /--spirit-sans:\s*"Noto Sans KR"/)
 
   assert.match(cssSource, /\.spirit-heritage__display-title\s*\{[\s\S]*font-family:\s*var\(--spirit-display\)/)
-  assert.match(cssSource, /\.spirit-heritage__backdrop-word\s*\{[\s\S]*font-family:\s*var\(--spirit-editorial\)/)
-  assert.match(cssSource, /\.spirit-heritage__education-label\s*\{[\s\S]*font-family:\s*var\(--spirit-condensed\)/)
-  assert.match(cssSource, /\.spirit-heritage__manifesto-row h3\s*\{[\s\S]*font-family:\s*var\(--spirit-statement\)/)
-  assert.match(cssSource, /\.spirit-heritage__education-panel > p\s*\{[\s\S]*font-family:\s*var\(--spirit-brush\)/)
+  // The owner retired the manifesto, education and watermark sections.
+  // Keep role contracts on the four sections that are still rendered.
   assert.match(cssSource, /\.spirit-heritage__one-voice\s*\{[\s\S]*font-family:\s*var\(--spirit-editorial\)/)
 
   for (const family of [

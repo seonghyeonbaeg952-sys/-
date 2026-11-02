@@ -80,6 +80,6 @@ test('박정화 프로필 사진만 반응형 compact 크기를 사용한다', a
   )
   assert.match(
     css,
-    /@media \(max-width: 700px\)[\s\S]*\[data-portrait-size='compact'\][^{]*\.accompanist-profile__portrait\s*\{[^}]*width:\s*min\(232px, 100%\)/,
+    /@media \(max-width: 700px\)[\s\S]*\[data-portrait-size='compact'\][^{]*\.accompanist-profile__portrait\s*\{[^}]*width:\s*min\(208px, 100%\)/,
   )
 })

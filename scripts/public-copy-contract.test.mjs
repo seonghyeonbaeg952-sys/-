@@ -125,6 +125,11 @@ test('adding copy adapters preserves every existing JSX default in the captured 
   // The follow-up request removes four current-member part buttons and the
   // Spirit community's five voice cards, and separates all-time staff names.
   // Their rendered/partition tests cover the newly approved defaults.
+  // 2026-11-03: approved public refinement makes collapsed menu panels inert,
+  // moves duplicate member guidance below the roster, and gives the closing
+  // one CMS sentence instead of four independently positioned fragments.
+  // The SupportPledgeForm baseline includes the already shipped c8dbb24
+  // request to format Korean amounts with Arabic numerals and 만원.
   const baseline = JSON.parse(readFileSync(new URL('../docs/public-copy-default-baseline.json', import.meta.url), 'utf8'))
   for (const [file, fingerprint] of Object.entries(baseline)) assert.equal(publicMarkupFingerprint(readFileSync(file, 'utf8'), file), fingerprint, file)
 })

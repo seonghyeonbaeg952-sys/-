@@ -114,9 +114,9 @@ export const defaultPeaceCopy: SpiritCopy = {
 
 export const defaultSpiritCta: SpiritCopy = {
   eyebrow: 'JOIN THE HARMONY',
-  title: '함께 부르는 다음 세대의 울림에 동참하세요.',
+  title: '서울모테트청소년합창단과\n함께하세요.',
   body:
-    '입단은 청소년에게 성장의 자리가 되고, 후원은 그 성장을 가능하게 하는 동행이 됩니다.',
+    '함께 노래하고 싶다면 입단 안내를 살펴보세요.\n후원으로 합창단의 연습과 공연을 응원하실 수도 있습니다.',
   ctaLabel: '입단 안내',
   ctaUrl: '/join',
   secondaryCtaLabel: '후원 참여',

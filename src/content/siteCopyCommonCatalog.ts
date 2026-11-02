@@ -72,10 +72,12 @@ const catalogueOnlyKeys = new Set([
   // Sample feedback controls are editable ordinary copy, like native menu
   // labels; they are not character-formatting leaves on the original site.
   'common.languageContentError', 'common.languageContentRetry', 'common.languageContentRetrying',
-  // Retained legacy keys without a current visible consumer. Actual short or
-  // contextual labels now use the explicit variant keys above.
-  navigationCopyKey('/about?section=overview#spirit'), navigationCopyKey('/about?section=conductor'),
-  navigationCopyKey('/about?section=accompanist'), navigationCopyKey('/about?section=history'),
+  // Keep saved legacy copy compatible without promising character formatting
+  // for labels that no longer render. Separate desktop profile labels use
+  // their canonical keys; mobile labels retain their independent short keys.
+  navigationCopyKey('/about?section=overview#spirit'),
+  navigationLabelKey('/about?section=conductor', '지휘자·반주자'),
+  navigationCopyKey('/about?section=history'),
 ])
 export const commonRichCopyKeys: ReadonlySet<string> = new Set(commonCopyDefinitions
   .filter(field => !catalogueOnlyKeys.has(field.key))

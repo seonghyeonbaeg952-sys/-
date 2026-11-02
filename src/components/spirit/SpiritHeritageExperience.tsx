@@ -319,7 +319,7 @@ function SpiritHero({ copy }: { copy: SpiritCopy }) {
           className="spirit-heritage__display-title"
           data-node-id="45:2"
           id="spirit-heritage-title"
-          initial={reducedMotion ? false : { opacity: 0, scale: 0.955, x: -150 }}
+          initial={reducedMotion ? false : { opacity: 0, scale: 0.985, x: 20 }}
           animate={reducedMotion ? undefined : { opacity: 1, scale: 1, x: 0 }}
           transition={{ duration: 0.92, ease: EASE_OUT }}
         ><SiteCopy page="spirit" id="spirit.spiritHero.english2" fallback={"SPIRIT"} /></motion.h1></EditableLayout>
@@ -535,31 +535,12 @@ function CommunitySection() {
 function ClosingCta({ copy }: { copy: SpiritCopy }) {
   const { copy: editorCopy } = useSiteEditor()
   const { language, translate } = useSampleLanguage()
-  const reducedMotion = usePrefersReducedMotion()
 
   return (
     <section className="spirit-heritage__closing" id="spirit-join" tabIndex={-1}>
-      <motion.div
-        aria-hidden="true"
-        className="spirit-heritage__closing-glow"
-        initial={reducedMotion ? false : { opacity: 0, scale: 0.78 }}
-        viewport={{ amount: 0.3, once: true }}
-        whileInView={reducedMotion ? undefined : { opacity: 0.78, scale: 1 }}
-        transition={{ duration: 0.86, ease: EASE_OUT }}
-      />
       <Reveal className="spirit-heritage__closing-card spirit-heritage__open-frame" scale={0.985} y={44}>
-        <SiteImage
-          alt=""
-          aria-hidden="true"
-          className="spirit-heritage__closing-logo"
-          src="/images/brand/smyc-symbol-vector.svg"
-        />
         <div className="spirit-heritage__closing-copy">
-          <p className="spirit-heritage__eyebrow">{copy.eyebrow || editorCopy('spirit', 'spirit.action.eyebrowFallback', 'JOIN THE HARMONY')}</p>
-          <h2 aria-label={translate(copy.title)}><SiteCopy page="spirit" id="spirit.closingCta.text1" fallback={"함께 부르는"} /><span><SiteCopy page="spirit" id="spirit.closingCta.text2" fallback={"다음 세대의"} /></span>
-            <span><SiteCopy page="spirit" id="spirit.closingCta.text3" fallback={"울림에"} /></span>
-            <strong><SiteCopy page="spirit" id="spirit.closingCta.text4" fallback={"동참하세요."} /></strong>
-          </h2>
+          <h2><SiteCopy page="spirit" id="spirit.content.cta.title" fallback={copy.title} /></h2>
           <p><SiteCopy page="spirit" id="spirit.content.cta.body" fallback={copy.body} /></p>
           <div className="spirit-heritage__closing-actions">
             <Link className="spirit-heritage__button spirit-heritage__button--primary" to={routeLanguageHref(copy.ctaUrl || '/join', language)}>
@@ -573,10 +554,13 @@ function ClosingCta({ copy }: { copy: SpiritCopy }) {
             </Link>
           </div>
         </div>
-        <Reveal className="spirit-heritage__one-voice" scale={0.94} x={84} y={0}>
-          <span><SiteCopy page="spirit" id="spirit.closingCta.english1" fallback={"ONE"} /></span>
-          <span><SiteCopy page="spirit" id="spirit.closingCta.english2" fallback={"VOICE"} /></span>
-        </Reveal>
+        <div aria-hidden="true" className="spirit-heritage__closing-mark">
+          <SiteImage alt="" className="spirit-heritage__closing-logo" src="/images/brand/smyc-symbol-vector.svg" />
+          <Reveal className="spirit-heritage__one-voice" scale={0.98} x={20} y={0}>
+            <span><SiteCopy page="spirit" id="spirit.closingCta.english1" fallback={"ONE"} /></span>
+            <span><SiteCopy page="spirit" id="spirit.closingCta.english2" fallback={"VOICE"} /></span>
+          </Reveal>
+        </div>
       </Reveal>
     </section>
   )

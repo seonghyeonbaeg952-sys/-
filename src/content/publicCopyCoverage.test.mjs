@@ -68,14 +68,27 @@ test('distinct labels sharing a destination have independently editable defaults
   }
 })
 
-test('changing a desktop menu variant does not rename the mobile short label or the route label', () => {
-  const key = labelKey('/about?section=conductor', '지휘자·반주자')
-  const desktop = render(mega(), { [key]: '음악 지도진' })
-  const handheld = render(mobile(), { [key]: '음악 지도진' })
-  assert.match(desktop, /음악 지도진/)
-  assert.doesNotMatch(handheld, /음악 지도진/)
-  assert.match(handheld, />지휘자</)
-  assert.match(render(mega()), />지휘자·반주자</)
+test('separate profile menu labels keep desktop names and mobile short names independently editable', () => {
+  for (const [href, shortLabel, desktopLabel] of [
+    ['/about?section=conductor', '지휘자', '지휘자 소개'],
+    ['/about?section=accompanist', '반주자', '반주자 소개'],
+  ]) {
+    const desktopKey = common.navigationCopyKey(href)
+    const mobileKey = labelKey(href, shortLabel)
+    const desktopEdit = { [desktopKey]: `${desktopLabel} 변경` }
+    const mobileEdit = { [mobileKey]: `${shortLabel} 변경` }
+    assert.ok(render(mega(), desktopEdit).includes(`>${desktopLabel} 변경<`))
+    assert.ok(render(mobile(), desktopEdit).includes(`>${shortLabel}<`))
+    assert.ok(!render(mobile(), desktopEdit).includes(`${desktopLabel} 변경`))
+    assert.ok(render(mobile(), mobileEdit).includes(`>${shortLabel} 변경<`))
+    assert.ok(render(mega(), mobileEdit).includes(`>${desktopLabel}<`))
+    assert.ok(!render(mega(), mobileEdit).includes(`${shortLabel} 변경`))
+  }
+
+  const legacyKey = labelKey('/about?section=conductor', '지휘자·반주자')
+  assert.equal(fields.get(legacyKey)?.defaultValue, '지휘자·반주자')
+  assert.doesNotMatch(render(mega(), { [legacyKey]: '음악 지도진' }), /음악 지도진/)
+  assert.doesNotMatch(render(mobile(), { [legacyKey]: '음악 지도진' }), /음악 지도진/)
 })
 
 test('top-level labels no longer inherit conflicting child-route edits', () => {
@@ -86,12 +99,19 @@ test('top-level labels no longer inherit conflicting child-route edits', () => {
   assert.doesNotMatch(html, /공연 일정 변경|입단 전체 변경/)
 })
 
-test('menu variants expose actual rich and preview leaves rather than catalogue-only formatting promises', () => {
-  const key = labelKey('/about?section=conductor', '지휘자·반주자')
-  assert.equal(richCopyKeys.has(key), true)
-  const html = render(mega(), {}, { shared: { [key]: { text: '지휘자·반주자', runs: [{ start: 0, end: 3, style: { fontSize: 32 } }] } } }, true)
-  assert.match(html, /data-canvas-target=/)
-  assert.match(html, /font-size:32px[^>]*>지휘자<\/smyc-copy>/)
+test('separate desktop profile labels expose their advertised rich and preview editing leaves', () => {
+  for (const [href, label] of [
+    ['/about?section=conductor', '지휘자 소개'],
+    ['/about?section=accompanist', '반주자 소개'],
+  ]) {
+    const key = common.navigationCopyKey(href)
+    assert.equal(richCopyKeys.has(key), true, `${label} must support the CMS character-formatting controls`)
+    const html = render(mega(), {}, { shared: { [key]: { text: label, runs: [{ start: 0, end: 3, style: { fontSize: 32 } }] } } }, true)
+    assert.match(html, /data-canvas-target=/)
+    assert.ok(html.includes(`data-canvas-copy-key="${key}"`))
+    assert.match(html, new RegExp(`font-size:32px[^>]*>${label.slice(0, 3)}</smyc-copy>`))
+  }
+  assert.equal(richCopyKeys.has(labelKey('/about?section=conductor', '지휘자·반주자')), false)
 })
 
 test('every visible mega-menu group heading is editable without changing default labels', () => {

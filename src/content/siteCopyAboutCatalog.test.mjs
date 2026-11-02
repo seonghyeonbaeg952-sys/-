@@ -29,11 +29,11 @@ const approvedMarkupHashes = {
   // 2026-10-27: requested Dr. name, artistic role and source-specific choir crop.
   about: '84bf70717f7e9875902f9e6167e165123ce2ad67ab0a963e23779c1e873e0a97', conductor: '25d5d341506ff407bf052ebfac264811025e4741f04403480971cdcf8a429725',
   // Current members retain grouped names without the four retired SATB buttons.
-  accompanist: '1b4451b43221301500ed45ce3737a0da4af8166e58063ed01311ab948b0ff46b', members: '1bbe0d03fd345decbb7db7b8a716ab103bf0013a1fb20dcc40aea05cfe8f1d0e',
+  accompanist: '1b4451b43221301500ed45ce3737a0da4af8166e58063ed01311ab948b0ff46b', members: '604ef4ac15cd60216a1262567b7a310b347848c63a08e1f2e3a9ab8226aed149',
   // 2026-10-27: only hero, lineage, community and closing remain, with the
   // approved tour images. Native NOW/NEXT anchors and MOTET rail are retained.
   // The five community voice cards were explicitly removed by the owner.
-  history: '49dd95e8e8601b19c93aa4cea85853572b74afff47b6e39cc945800988ac9e49', spirit: '1a07b6fd6cba4bafba2a39c1223e602989a62b1c012cf1d4e1ad2250b4deea19',
+  history: '49dd95e8e8601b19c93aa4cea85853572b74afff47b6e39cc945800988ac9e49', spirit: '5db961505ecbccd399c1447f679a3034d4cda3e44c8ad3ac280598719b8921fa',
 }
 function render(page, { copy = (_page, _key, fallback) => fallback, values = props[page], device = 'desktop', preview = false, documents = {} } = {}) {
   const canvas = preview ? { subscribe: () => () => {}, getActiveId: () => null, register: () => () => {} } : undefined
@@ -55,6 +55,21 @@ test('Spirit retains exactly the requested opening, lineage, community and closi
   const ids = [...html.matchAll(/<section[^>]*\bid="([^"]+)"/g)].map(match => match[1])
   assert.deepEqual(ids, ['spirit-overview', 'spirit-lineage', 'spirit-community', 'spirit-join'])
   assert.doesNotMatch(html, /id="spirit-(?:motet|manifesto|faith|values|education)"/)
+})
+
+test('closing heading edits replace the complete visible sentence without a stale accessible label', () => {
+  for (const device of ['mobile', 'tablet', 'desktop']) {
+    const html = render('spirit', { device, preview: true,
+      copy: (_page, key, fallback) => key === 'spirit.content.cta.title' ? 'CMS에서 바꾼 제목\n함께하세요.' : fallback,
+    })
+    const closing = html.slice(html.indexOf('id="spirit-join"'))
+    assert.match(closing, /data-canvas-copy-key="spirit.content.cta.title"/)
+    assert.match(closing, /CMS에서 바꾼 제목/)
+    assert.doesNotMatch(closing, /spirit.closingCta.text[1-4]/)
+    assert.doesNotMatch(closing.match(/<h2[^>]*>/)?.[0] ?? '', /aria-label/)
+    assert.match(closing, /href="\/join"/)
+    assert.match(closing, /href="\/contact\?section=support"/)
+  }
 })
 
 test('Spirit community keeps its photograph and closing copy without the retired part-description cards', () => {

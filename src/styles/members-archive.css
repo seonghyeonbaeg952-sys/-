@@ -83,7 +83,6 @@
 }
 
 .members-archive__eyebrow,
-.members-archive__directory-eyebrow,
 .members-archive__statement small,
 .members-archive__group-title {
   color: var(--members-burgundy);
@@ -187,8 +186,8 @@
 .members-archive__directory-header {
   border-bottom: 1px solid var(--members-line);
   display: grid;
-  gap: 16px;
-  padding-bottom: 20px;
+  gap: 12px;
+  padding-bottom: 16px;
 }
 
 .members-archive__directory-title {
@@ -198,15 +197,6 @@
   letter-spacing: -0.025em;
   line-height: 1.12;
   margin: 8px 0 0;
-}
-
-.members-archive__directory-copy > p:not([class]) {
-  color: var(--members-muted);
-  font-size: 12px;
-  line-height: 1.7;
-  margin: 8px 0 0;
-  max-width: 520px;
-  word-break: keep-all;
 }
 
 .members-archive__filters {
@@ -343,8 +333,7 @@
   align-items: flex-start;
   border-top: 1px solid var(--members-line);
   color: var(--members-muted);
-  display: flex;
-  flex-direction: column;
+  display: grid;
   font-size: 10px;
   gap: 8px;
   line-height: 1.7;
@@ -471,9 +460,8 @@
   }
 
   .members-archive__directory-footer {
-    align-items: center;
-    flex-direction: row;
-    justify-content: space-between;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 32px;
   }
 }
 
@@ -529,8 +517,8 @@
   }
 
   .members-archive__directory-header {
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-    gap: 24px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
     padding-bottom: 20px;
   }
 
@@ -609,7 +597,7 @@
 
 @media (max-width: 767px) {
   .members-archive__statement {
-    margin-left: auto;
+    display: none;
   }
 
   .members-archive__filter-button--part {

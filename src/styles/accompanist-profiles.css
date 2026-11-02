@@ -54,7 +54,7 @@
   color: var(--accompanist-ink);
   font-family: 'Accompanist Gothic', 'Pretendard Variable', sans-serif;
   font-synthesis: none;
-  padding: clamp(76px, 7vw, 112px) 0 clamp(72px, 8vw, 124px);
+  padding: clamp(32px, 3.5vw, 56px) 0 clamp(56px, 6vw, 88px);
 }
 
 .accompanist-profile__shell {
@@ -64,31 +64,33 @@
 
 .accompanist-profile__intro {
   position: relative;
-  height: 220px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+  align-items: end;
+  gap: 40px;
+  padding-bottom: 28px;
 }
 
 .accompanist-profile__intro-copy {
-  position: static;
+  min-width: 0;
 }
 
 .accompanist-profile__rail {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 72px;
-  height: 4px;
+  display: block;
+  width: 44px;
+  height: 2px;
+  margin-bottom: 14px;
   background: var(--accompanist-orange);
 }
 
 .accompanist-profile__eyebrow,
 .accompanist-profile__role,
 .accompanist-profile__current > p,
-.accompanist-profile__folio,
 .accompanist-profile__folio {
-  color: var(--accompanist-orange);
+  color: var(--accompanist-burgundy);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.17em;
+  letter-spacing: 0.1em;
   line-height: 1.5;
 }
 
@@ -98,29 +100,23 @@
 }
 
 .accompanist-profile__eyebrow {
-  position: absolute;
-  top: 20px;
-  left: 0;
+  margin: 0;
 }
 
 .accompanist-profile__intro h1,
 .accompanist-profile__intro h2 {
-  position: absolute;
-  top: 64px;
-  left: 0;
+  margin: 16px 0 0;
   font-family: Hahmlet, 'Noto Serif KR', serif;
-  font-size: 58px;
+  font-size: clamp(32px, 3.2vw, 46px);
   font-weight: 750;
-  letter-spacing: -0.055em;
+  letter-spacing: -0.04em;
   line-height: 1.17;
+  overflow-wrap: break-word;
 }
 
 .accompanist-profile__summary {
-  position: absolute;
-  top: 150px;
-  left: 4px;
-  max-width: 470px;
-  margin: 0;
+  max-width: 58ch;
+  margin: 18px 0 0;
   color: var(--accompanist-muted);
   font-size: 16px;
   letter-spacing: -0.018em;
@@ -129,23 +125,22 @@
 }
 
 .accompanist-profile__display {
-  position: absolute;
-  top: 0;
-  right: -16px;
+  min-width: 0;
+  justify-self: end;
   margin: 0;
   color: var(--accompanist-burgundy);
   font-family: 'Accompanist Cormorant', Georgia, serif;
-  font-size: 132px;
+  font-size: clamp(64px, 7vw, 96px);
   font-style: italic;
   font-weight: 600;
-  letter-spacing: -0.055em;
+  letter-spacing: -0.04em;
   line-height: 0.82;
   white-space: nowrap;
 }
 
 .accompanist-profile__baseline {
   height: 1px;
-  margin-bottom: 92px;
+  margin-bottom: 32px;
   background: var(--accompanist-border);
 }
 
@@ -235,7 +230,7 @@
   font-family: Hahmlet, 'Noto Serif KR', serif;
   font-size: 44px;
   font-weight: 760;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.04em;
   line-height: 1.14;
   overflow-wrap: break-word;
 }
@@ -337,13 +332,9 @@ html[data-sample-language='en'] .accompanist-profile__copy h2 {
 }
 
 @media (max-width: 1365px), (min-height: 551px) and (max-width: 1600px) and (any-pointer: coarse) {
-  .accompanist-profile__shell {
-    width: min(968px, calc(100% - 56px));
-  }
-
   .accompanist-profile__intro {
-    grid-template-columns: minmax(0, 0.9fr) minmax(350px, 1.1fr);
-    gap: 36px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+    gap: 32px;
   }
 
   .accompanist-profile__card,
@@ -356,11 +347,8 @@ html[data-sample-language='en'] .accompanist-profile__copy h2 {
   .accompanist-profile__card[data-image-side='right'] {
     grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
   }
-}
-
-@media (max-width: 1365px), (min-height: 551px) and (max-width: 1600px) and (any-pointer: coarse) {
   .accompanist-profile {
-    padding-top: 68px;
+    padding-top: 36px;
   }
 
   .accompanist-profile__shell {
@@ -368,14 +356,12 @@ html[data-sample-language='en'] .accompanist-profile__copy h2 {
   }
 
   .accompanist-profile__intro {
-    grid-template-columns: minmax(0, 1fr) auto;
     gap: 24px;
-    min-height: 210px;
-    padding-bottom: 46px;
+    padding-bottom: 26px;
   }
 
   .accompanist-profile__display {
-    font-size: clamp(64px, 10.5vw, 86px);
+    font-size: clamp(56px, 7vw, 80px);
   }
 
   .accompanist-profile__card,
@@ -412,7 +398,7 @@ html[data-sample-language='en'] .accompanist-profile__copy h2 {
 
 @media (max-width: 700px) {
   .accompanist-profile {
-    padding: 58px 0 72px;
+    padding: 24px 0 56px;
   }
 
   .accompanist-profile__shell {
@@ -421,27 +407,22 @@ html[data-sample-language='en'] .accompanist-profile__copy h2 {
 
   .accompanist-profile__intro {
     display: block;
-    height: auto;
-    min-height: 0;
     padding-bottom: 20px;
   }
 
   .accompanist-profile__intro-copy {
-    padding-left: 20px;
-    padding-top: 64px;
+    padding: 0;
   }
 
   .accompanist-profile__intro h1,
   .accompanist-profile__intro h2 {
-    position: static;
     margin-top: 16px;
-    font-size: clamp(40px, 12vw, 50px);
+    font-size: clamp(32px, 8vw, 40px);
   }
 
   .accompanist-profile__summary {
-    position: static;
-    margin-top: 18px;
-    font-size: 14px;
+    margin-top: 14px;
+    font-size: 15px;
     line-height: 1.72;
   }
 
@@ -452,7 +433,7 @@ html[data-sample-language='en'] .accompanist-profile__copy h2 {
   }
 
   .accompanist-profile__baseline {
-    margin-bottom: 26px;
+    margin-bottom: 24px;
   }
 
   .accompanist-profile__list {
@@ -462,7 +443,7 @@ html[data-sample-language='en'] .accompanist-profile__copy h2 {
   .accompanist-profile__card,
   .accompanist-profile__card[data-image-side='right'] {
     grid-template-columns: minmax(0, 1fr);
-    gap: 32px;
+    gap: 20px;
     padding: 20px 20px 30px;
   }
 
@@ -475,14 +456,18 @@ html[data-sample-language='en'] .accompanist-profile__copy h2 {
   }
 
   .accompanist-profile__portrait {
-    width: min(260px, 100%);
+    width: min(220px, 100%);
     justify-self: start;
   }
 
   .accompanist-profile__card[data-portrait-size='compact'] .accompanist-profile__portrait {
-    width: min(232px, 100%);
-    max-width: 232px;
+    width: min(208px, 100%);
+    max-width: 208px;
     justify-self: start;
+  }
+
+  .accompanist-profile__copy {
+    min-height: 0;
   }
 
   .accompanist-profile__portrait figcaption {

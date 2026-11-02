@@ -338,7 +338,7 @@ export const englishHome: readonly TranslationEntry[] = [
   { source: '함께 살아갈 줄 아는 다음 세대를 키웁니다.', target: 'We help the next generation learn to live and grow together.' },
   { source: '서로 다른 목소리가 만나\n하나의 음악을 완성합니다', target: 'Different voices meet,\none song takes shape' },
   { source: '공연·소식', target: 'Concerts & news' },
-  { source: '함께 빚어가는 화음,\n세대의 노래', target: 'Harmony we shape together,\na generation’s song.' },
+  { source: '함께 빚어가는 화음,\n세대의 노래', target: 'Harmony made together,\na song for the next generation.' },
 
   // Fragment translations preserve the meaning and roles of the about heading.
   { source: '함께 빚어가는', target: 'made together', key: 'home.current.about.title' },

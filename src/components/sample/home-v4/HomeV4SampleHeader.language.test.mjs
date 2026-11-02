@@ -68,6 +68,21 @@ test('every mega-menu and mobile menu link keeps its query, fragment and languag
   assert.ok(hrefs(mobile).includes('/sample/join?section=contact&lang=en#application'))
 })
 
+test('collapsed mobile sections keep their destinations inert while the expanded section stays interactive', () => {
+  const html = render(HomeV4SampleMobileMenu, { id: 'mobile', onNavigate() {}, routePrefix: '' })
+  const panels = [...html.matchAll(/<div\b([^>]*class="home-v4-mobile-menu__accordion"[^>]*)>([\s\S]*?)<\/div>/g)]
+
+  assert.equal(panels.length, 6)
+  for (const [, attributes, contents] of panels) {
+    assert.ok(hrefs(contents).length > 0, 'Each panel retains its navigation destinations')
+    if (attributes.includes('data-expanded="true"')) {
+      assert.doesNotMatch(attributes, /\binert(?:=|\s|$)/)
+    } else {
+      assert.match(attributes, /\binert(?:=|\s|$)/, 'Collapsed destinations must not accept keyboard focus')
+    }
+  }
+})
+
 test('sample footer localises router links once and leaves admin outside the sample', () => {
   const html = render(Footer)
   const internal = hrefs(html).filter(href => href.startsWith('/'))

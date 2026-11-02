@@ -125,7 +125,6 @@ export function MembersArchiveExperience({
             </Heading></EditableLayout>
             <span aria-hidden="true" className="members-archive__title-rule" />
             <EditableLayout id="members.intro.description"><p className="members-archive__description"><SiteCopy page="members" id="members.membersArchiveExperience.text3" fallback={"2014년 창단 이후 서울모테트청소년합창단과 함께한 단원을 한 자리에서 소개합니다."} /><br /><SiteCopy page="members" id="members.membersArchiveExperience.text4" fallback={"현재 활동 중인 단원도 이 아카이브에 함께 기록됩니다."} /></p></EditableLayout>
-            <p className="members-archive__privacy-note"><SiteCopy page="members" id="members.membersArchiveExperience.text5" fallback={"이름은 공개 설정에 따라 전체·부분·비공개 방식으로 표시됩니다."} /></p>
           </div>
 
           <div
@@ -146,10 +145,8 @@ export function MembersArchiveExperience({
       <div className="members-archive__directory">
         <div className="members-archive__directory-inner">
           <div className="members-archive__directory-header">
-            <div className="members-archive__directory-copy">
-              <p className="members-archive__directory-eyebrow"><SiteCopy page="members" id="members.membersArchiveExperience.english7" fallback={"ALL MEMBERS / ONE ARCHIVE"} /></p>
+            <div className="members-archive__directory-copy members-archive__sr-only">
               <ArchiveHeading className="members-archive__directory-title"><SiteCopy page="members" id="members.membersArchiveExperience.text6" fallback={"단원 아카이브"} /></ArchiveHeading>
-              <p><SiteCopy page="members" id="members.membersArchiveExperience.text7" fallback={"현재 활동 중인 단원과 이전 활동 단원을 한 명단 안에서 살펴봅니다."} /></p>
             </div>
 
             <div className="members-archive__filters">
@@ -238,6 +235,8 @@ export function MembersArchiveExperience({
           </section>}
 
           <div className="members-archive__directory-footer">
+            <p><SiteCopy page="members" id="members.membersArchiveExperience.text7" fallback={"현재 활동 중인 단원과 이전 활동 단원을 한 명단 안에서 살펴봅니다."} /></p>
+            <p className="members-archive__privacy-note"><SiteCopy page="members" id="members.membersArchiveExperience.text5" fallback={"이름은 공개 설정에 따라 전체·부분·비공개 방식으로 표시됩니다."} /></p>
             <p><SiteCopy page="members" id="members.membersArchiveExperience.text14" fallback={"모든 활동 시기와 파트가 한 아카이브 안에서 이어집니다."} /></p>
           </div>
         </div>

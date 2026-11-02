@@ -6,6 +6,7 @@ export const editorialCopyDefinitions: SiteCopyDefinition[] = [
   { key: 'spirit.content.hero.body', page: 'spirit', section: '정신 · 대표 설명', label: '대표 설명 본문', defaultValue: defaultSpiritHero.body, multiline: true },
   { key: 'spirit.content.motet.body', page: 'spirit', section: '정신 · 모테트의 의미', label: '모테트 설명 본문', defaultValue: defaultMotetMeaning.body, multiline: true },
   { key: 'spirit.content.motet.quote', page: 'spirit', section: '정신 · 모테트의 의미', label: '모테트 강조 문구', defaultValue: defaultMotetMeaning.quote ?? '하나가 되기 위해 같아지는 것이 아니라, 다름을 들으며 정확히 맞춰 갑니다.', multiline: true },
+  { key: 'spirit.content.cta.title', page: 'spirit', section: '정신 · 참여 안내', label: '입단·후원 제목', defaultValue: defaultSpiritCta.title, multiline: true },
   { key: 'spirit.content.cta.body', page: 'spirit', section: '정신 · 참여 안내', label: '입단·후원 설명', defaultValue: defaultSpiritCta.body, multiline: true },
   { key: 'spirit.content.cta.supportLabel', page: 'spirit', section: '정신 · 참여 안내', label: '후원 버튼 이름', defaultValue: defaultSpiritCta.secondaryCtaLabel ?? '후원 참여' },
   ...spiritManifestoCopy.paragraphs.map((body, index): SiteCopyDefinition => ({ key: `spirit.content.manifesto.${index}.body`, page: 'spirit', section: '정신 · 선언문', label: `${index + 1}단계 설명`, defaultValue: body, multiline: true })),

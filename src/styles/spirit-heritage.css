@@ -713,126 +713,6 @@
   white-space: pre-line;
 }
 
-.spirit-heritage__closing {
-  --spirit-orange: #dc4823;
-  position: relative;
-  min-height: 780px;
-  overflow: hidden;
-  padding: 126px 48px 138px;
-  background: #dce9ef;
-  color: var(--spirit-ink);
-}
-
-.spirit-heritage__closing-glow {
-  position: absolute;
-  top: -120px;
-  right: -72px;
-  width: 360px;
-  height: 360px;
-  border: 1px solid rgb(243 239 231 / 0.14);
-  border-radius: 50%;
-  background: none;
-  filter: none;
-  pointer-events: none;
-}
-
-.spirit-heritage__closing-card {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: 1fr 0.9fr;
-  width: min(100%, 1296px);
-  min-height: 516px;
-  margin-inline: auto;
-  padding: 52px 54px;
-  overflow: hidden;
-  background: transparent;
-  backdrop-filter: none;
-}
-
-.spirit-heritage__closing-card::before {
-  width: 164px;
-}
-
-.spirit-heritage__closing-card::after {
-  height: 76px;
-}
-
-.spirit-heritage__closing-logo {
-  filter: brightness(0);
-  position: absolute;
-  top: 43px;
-  right: 73px;
-  width: 150px;
-  height: 150px;
-  object-fit: contain;
-}
-
-.spirit-heritage__closing-copy {
-  position: static;
-  z-index: 2;
-}
-
-.spirit-heritage__closing-copy .spirit-heritage__eyebrow {
-  position: absolute;
-  top: 51px;
-  left: 53px;
-  z-index: 2;
-}
-
-.spirit-heritage__closing-copy h2 {
-  position: absolute;
-  top: 75px;
-  left: 53px;
-  display: grid;
-  width: 620px;
-  font-family: var(--spirit-heading);
-  font-size: 58px;
-  font-weight: 400;
-  letter-spacing: -1.45px;
-  line-height: 68px;
-}
-
-.spirit-heritage__closing-copy h2 span {
-  padding-left: 28px;
-  font-size: 40px;
-  font-weight: 700;
-  letter-spacing: -1px;
-  line-height: 48px;
-}
-
-.spirit-heritage__closing-copy h2 span + span {
-  padding-left: 68px;
-}
-
-.spirit-heritage__closing-copy h2 strong {
-  padding-left: 100px;
-  color: var(--spirit-orange);
-  font-size: 48px;
-  font-weight: 900;
-  letter-spacing: -1.44px;
-  line-height: 48px;
-}
-
-.spirit-heritage__closing-copy > p:not(.spirit-heritage__eyebrow) {
-  position: absolute;
-  top: 309px;
-  left: 53px;
-  width: 620px;
-  color: var(--spirit-ink);
-  font-size: 17px;
-  line-height: 1.72;
-}
-
-.spirit-heritage__closing-actions {
-  position: absolute;
-  top: 369px;
-  left: 53px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
 .spirit-heritage__button {
   display: inline-flex;
   align-items: center;
@@ -867,44 +747,6 @@
 
 .spirit-heritage__button--secondary:hover {
   border-color: var(--spirit-orange);
-}
-
-.spirit-heritage__one-voice {
-  position: absolute;
-  top: 175px;
-  left: 759px;
-  color: var(--spirit-ink);
-  font-family: var(--spirit-editorial);
-  font-size: 126px;
-  font-style: italic;
-  font-optical-sizing: auto;
-  font-weight: 900;
-  letter-spacing: -7.56px;
-  line-height: 0.72;
-}
-
-.spirit-heritage__one-voice::before {
-  position: absolute;
-  top: -16px;
-  left: -38px;
-  width: 390px;
-  height: 1px;
-  background: rgb(19 17 15 / 0.3);
-  content: '';
-}
-
-.spirit-heritage__one-voice::after {
-  position: absolute;
-  top: -17px;
-  left: -38px;
-  width: 82px;
-  height: 2px;
-  background: var(--spirit-ink);
-  content: '';
-}
-
-.spirit-heritage__one-voice span {
-  display: block;
 }
 
 @media (max-width: 1365px), (min-height: 551px) and (max-width: 1600px) and (any-pointer: coarse) {
@@ -1211,8 +1053,7 @@
   }
 
   .spirit-heritage__lineage-grid,
-  .spirit-heritage__community-heading,
-  .spirit-heritage__closing-card {
+  .spirit-heritage__community-heading {
     grid-template-columns: 1fr;
   }
 
@@ -1372,107 +1213,6 @@
   .spirit-heritage__origin-card {
     height: 68px;
   }
-
-  .spirit-heritage__closing {
-    min-height: auto;
-    padding: 76px 16px;
-  }
-
-  .spirit-heritage__closing-card {
-    min-height: 548px;
-    padding: 38px 24px;
-  }
-
-  .spirit-heritage__closing-card::before {
-    width: 92px;
-  }
-
-  .spirit-heritage__closing-card::after {
-    height: 58px;
-  }
-
-  .spirit-heritage__closing-glow {
-    display: none;
-  }
-
-  .spirit-heritage__closing-logo {
-    top: 27px;
-    right: 27px;
-    width: 88px;
-    height: 88px;
-  }
-
-  .spirit-heritage__closing-copy .spirit-heritage__eyebrow {
-    top: 37px;
-    left: 23px;
-    font-size: 11px;
-  }
-
-  .spirit-heritage__closing-copy h2 {
-    top: 78px;
-    left: 23px;
-    width: min(590px, calc(100% - 46px));
-    font-size: clamp(38px, 7vw, 50px);
-    line-height: 1.2;
-  }
-
-  .spirit-heritage__closing-copy h2 span {
-    padding-left: 14px;
-    font-size: clamp(27px, 5vw, 36px);
-    line-height: 1.25;
-  }
-
-  .spirit-heritage__closing-copy h2 span + span,
-  .spirit-heritage__closing-copy h2 strong {
-    padding-left: 52px;
-  }
-
-  .spirit-heritage__closing-copy h2 strong {
-    font-size: clamp(34px, 6vw, 43px);
-    line-height: 1.18;
-  }
-
-  .spirit-heritage__closing-copy > p:not(.spirit-heritage__eyebrow) {
-    top: 272px;
-    left: 23px;
-    width: min(560px, calc(100% - 46px));
-    font-size: 14px;
-    line-height: 1.65;
-  }
-
-  .spirit-heritage__closing-actions {
-    top: 346px;
-    left: 23px;
-    gap: 8px;
-  }
-
-  .spirit-heritage__one-voice {
-    top: auto;
-    bottom: 38px;
-    left: 23px;
-    font-size: clamp(4.3rem, 13vw, 6rem);
-    letter-spacing: -0.06em;
-    line-height: normal;
-  }
-
-  .spirit-heritage__one-voice span {
-    display: inline;
-  }
-
-  .spirit-heritage__one-voice span + span {
-    margin-left: 0.12em;
-  }
-
-  .spirit-heritage__one-voice::before {
-    top: -13px;
-    left: 0;
-    width: min(390px, calc(100vw - 96px));
-  }
-
-  .spirit-heritage__one-voice::after {
-    top: -14px;
-    left: 0;
-  }
 }
 
 @media (max-width: 479px) {
@@ -1513,65 +1253,11 @@
     width: calc(100% - 48px);
   }
 
-  .spirit-heritage__closing-actions {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-  }
-
   .spirit-heritage__button {
     min-width: 0;
     min-height: 48px;
     padding-inline: 12px;
     font-size: 0.78rem;
-  }
-
-  .spirit-heritage__one-voice {
-    top: 409px;
-    bottom: auto;
-    left: 21px;
-    font-size: 57px;
-    letter-spacing: -3.42px;
-  }
-
-  .spirit-heritage__one-voice::before {
-    top: -12px;
-    width: 260px;
-  }
-
-  .spirit-heritage__one-voice::after {
-    top: -13px;
-    width: 64px;
-  }
-
-  .spirit-heritage__closing-logo {
-    right: auto;
-    left: 241px;
-  }
-
-  .spirit-heritage__closing-copy h2 {
-    top: 75px;
-    font-size: 38px;
-    line-height: 46px;
-  }
-
-  .spirit-heritage__closing-copy h2 span {
-    font-size: 27px;
-    line-height: 34px;
-  }
-
-  .spirit-heritage__closing-copy h2 strong {
-    font-size: 34px;
-    line-height: 40px;
-  }
-
-  .spirit-heritage__closing-copy > p:not(.spirit-heritage__eyebrow) {
-    top: 257px;
-    width: 292px;
-  }
-
-  .spirit-heritage__closing-actions {
-    top: 331px;
   }
 }
 
@@ -1676,63 +1362,6 @@
     font-size: clamp(49px, 6.4vw, 78px);
     padding-inline-end: 0.12em;
   }
-
-  .spirit-heritage__closing-card {
-    display: flex;
-    min-height: 0;
-    flex-direction: column;
-    padding: 42px clamp(28px, 5vw, 52px);
-  }
-
-  .spirit-heritage__closing-copy {
-    width: min(100%, 640px);
-  }
-
-  .spirit-heritage__closing-copy .spirit-heritage__eyebrow,
-  .spirit-heritage__closing-copy h2,
-  .spirit-heritage__closing-copy > p:not(.spirit-heritage__eyebrow),
-  .spirit-heritage__closing-actions {
-    position: relative;
-    top: auto;
-    left: auto;
-    width: auto;
-    max-width: 100%;
-  }
-
-  .spirit-heritage__closing-copy h2 {
-    margin-top: 24px;
-    font-size: clamp(36px, 4.4vw, 52px);
-    line-height: 1.12;
-  }
-
-  .spirit-heritage__closing-copy h2 span,
-  .spirit-heritage__closing-copy h2 strong {
-    padding-left: 0;
-    font-size: 0.85em;
-    line-height: 1.18;
-  }
-
-  .spirit-heritage__closing-copy > p:not(.spirit-heritage__eyebrow) {
-    margin-top: 22px;
-  }
-
-  .spirit-heritage__closing-actions {
-    margin-top: 24px;
-  }
-
-  .spirit-heritage__one-voice {
-    position: relative;
-    top: auto;
-    left: auto;
-    align-self: flex-end;
-    margin-top: 42px;
-    font-size: clamp(72px, 10vw, 112px);
-  }
-
-  .spirit-heritage__one-voice::before,
-  .spirit-heritage__one-voice::after {
-    top: -20px;
-  }
 }
 
 /* Full desktop copy needs real flow on portrait tablets and phones. Fixed
@@ -1829,56 +1458,6 @@
 @media (max-width: 479px) and (orientation: portrait) {
   .spirit-heritage__hero-inner {
     padding-bottom: 306px;
-  }
-}
-
-@media (max-width: 899px) {
-  .spirit-heritage__closing-card {
-    display: flex;
-    min-height: 0;
-    flex-direction: column;
-  }
-
-  .spirit-heritage__closing-copy {
-    position: relative;
-    width: 100%;
-    min-width: 0;
-  }
-
-  .spirit-heritage__closing-copy .spirit-heritage__eyebrow,
-  .spirit-heritage__closing-copy h2,
-  .spirit-heritage__closing-copy > p:not(.spirit-heritage__eyebrow),
-  .spirit-heritage__closing-actions {
-    position: relative;
-    inset: auto;
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .spirit-heritage__closing-copy .spirit-heritage__eyebrow {
-    max-width: calc(100% - 100px);
-  }
-
-  .spirit-heritage__closing-copy h2 {
-    margin-top: 64px;
-  }
-
-  .spirit-heritage__closing-copy > p:not(.spirit-heritage__eyebrow),
-  .spirit-heritage__closing-actions {
-    margin-top: 24px;
-  }
-
-  .spirit-heritage__closing-logo {
-    right: 27px;
-    left: auto;
-  }
-
-  .spirit-heritage__one-voice {
-    position: relative;
-    inset: auto;
-    align-self: flex-end;
-    max-width: 100%;
-    margin-top: 48px;
   }
 }
 
@@ -2026,37 +1605,114 @@ html[data-sample-language='en'] .public-shell .spirit-heritage__hero-promise > s
   gap: 8px;
 }
 
-html[data-sample-language='en'] .public-shell .spirit-heritage__closing-copy {
+/* One editable message, followed by its explanation and actions in normal flow. */
+
+.spirit-heritage__closing {
+  --spirit-orange: #dc4823;
+  --spirit-closing-surface: #dce9ef;
+  --spirit-closing-rule: rgb(19 17 15 / 0.2);
   position: relative;
-  width: min(620px, 100%);
+  padding: clamp(64px, 6vw, 96px) 48px;
+  background: var(--spirit-closing-surface);
+  color: var(--spirit-ink);
 }
 
-html[data-sample-language='en'] .public-shell .spirit-heritage__closing-copy :is(
-  .spirit-heritage__eyebrow, h2, .spirit-heritage__closing-actions
-),
-html[data-sample-language='en'] .public-shell .spirit-heritage__closing-copy > p:not(.spirit-heritage__eyebrow) {
-  position: relative;
-  inset: auto;
-  width: 100%;
+.spirit-heritage__closing-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(32px, 4vw, 64px);
+  width: min(100%, 1296px);
+  margin-inline: auto;
+  padding: clamp(32px, 4vw, 56px);
+  border-color: var(--spirit-closing-rule);
+}
+
+.spirit-heritage__closing-card::before { width: 96px; }
+
+.spirit-heritage__closing-card::after { height: 48px; }
+
+.spirit-heritage__closing-copy { min-width: 0; }
+
+.spirit-heritage__closing-copy h2 {
+  font-family: var(--spirit-heading);
+  font-size: clamp(30px, 3.05vw, 44px);
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.03em;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.spirit-heritage__closing-copy > p {
+  max-width: 46ch;
+  margin-top: 24px;
+  font-size: 16px;
+  line-height: 1.85;
+  white-space: pre-line;
+}
+
+.spirit-heritage__closing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.spirit-heritage__closing-mark {
+  display: grid;
+  justify-items: end;
+  gap: 40px;
+  min-width: 0;
+}
+
+.spirit-heritage__closing-logo {
+  width: 80px;
+  height: 88px;
+  object-fit: contain;
+  filter: brightness(0);
+}
+
+.spirit-heritage__one-voice {
+  flex: 0 0 auto;
+  width: max-content;
   max-width: 100%;
+  color: var(--spirit-ink);
+  font-family: var(--spirit-editorial);
+  font-size: clamp(74px, 8vw, 118px);
+  font-style: italic;
+  font-optical-sizing: auto;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.82;
 }
 
-html[data-sample-language='en'] .public-shell .spirit-heritage__closing-copy h2 {
-  margin-top: 24px;
+.spirit-heritage__one-voice span { display: block; white-space: nowrap; }
+
+html[data-sample-language='en'] .spirit-heritage__closing-copy h2 {
+  font-family: var(--spirit-editorial);
+  font-size: clamp(36px, 3.6vw, 52px);
+  line-height: 1.15;
 }
 
-html[data-sample-language='en'] .public-shell .spirit-heritage__closing-copy > p:not(.spirit-heritage__eyebrow),
-html[data-sample-language='en'] .public-shell .spirit-heritage__closing-actions {
-  margin-top: 24px;
+@media (max-width: 899px) {
+  .spirit-heritage__closing { padding-inline: 24px; }
+  .spirit-heritage__closing-card { grid-template-columns: minmax(0, 1fr); padding: 32px; gap: 40px; }
+  .spirit-heritage__closing-copy h2 { font-size: clamp(26px, 4.4vw, 36px); }
+  .spirit-heritage__closing-mark { display: flex; flex-direction: row-reverse; align-items: end; justify-content: space-between; gap: 24px; }
+  .spirit-heritage__closing-logo { width: 56px; height: 62px; }
+  .spirit-heritage__one-voice { font-size: 72px; }
 }
 
-html[data-sample-language='en'] .public-shell .spirit-heritage__closing-copy h2 :is(span, strong) {
-  line-height: 1.25;
-}
-
-/* Preserve the authored Korean desktop title placements. Only give their
-   supporting paragraph and actions the breathing room the longer copy needs. */
-
-.spirit-heritage[data-spirit-device='desktop']:lang(ko) .spirit-heritage__closing-actions {
-  top: 393px;
+@media (max-width: 479px) {
+  .spirit-heritage__closing { padding: 56px 20px; }
+  .spirit-heritage__closing-card { padding: 28px 20px; gap: 36px; }
+  .spirit-heritage__closing-copy h2 { font-size: clamp(18px, 6vw, 27px); }
+  .spirit-heritage__closing-copy > p { font-size: 14px; line-height: 1.8; margin-top: 20px; }
+  .spirit-heritage__closing-actions { margin-top: 24px; gap: 8px; }
+  .spirit-heritage__closing-actions > a { min-width: 0; flex: 1; padding-inline: 14px; }
+  .spirit-heritage__closing-mark { gap: 16px; }
+  .spirit-heritage__one-voice { font-size: clamp(40px, 13vw, 57px); }
+  .spirit-heritage__closing-logo { width: 48px; height: 53px; }
+  html[data-sample-language='en'] .spirit-heritage__closing-copy h2 { font-size: clamp(28px, 8vw, 36px); }
 }
