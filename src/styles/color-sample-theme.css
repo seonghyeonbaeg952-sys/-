@@ -46,39 +46,6 @@
   background-color: var(--color-white) !important;
 }
 
-/* Public route loading uses the same matte burgundy stage as the home intro,
- * so the two consecutive opening states read as one continuous sequence. */
-.route-loading-screen.route-loading-screen--public {
-  background: #3f202b;
-  color: #f2ebe3;
-}
-
-.route-loading-screen.route-loading-screen--public::before {
-  color: rgb(242 235 227 / 0.055);
-}
-
-.route-loading-screen.route-loading-screen--public::after {
-  display: none;
-  background: none;
-}
-
-.route-loading-screen.route-loading-screen--public .route-loading-screen__mark {
-  color: #c18f78;
-  text-shadow: none;
-}
-
-.route-loading-screen.route-loading-screen--public .route-loading-screen__copy::before {
-  background: rgb(242 235 227 / 0.28);
-}
-
-.route-loading-screen.route-loading-screen--public .route-loading-screen__copy p {
-  color: rgb(193 143 120 / 0.9);
-}
-
-.route-loading-screen.route-loading-screen--public .route-loading-screen__copy strong {
-  color: rgb(242 235 227 / 0.92);
-}
-
 /* Home intro: retain the approved word-to-hero motion while replacing the
  * former navy veil with the production white/orange identity. */
 .color-sample-theme .home-intro-launch {

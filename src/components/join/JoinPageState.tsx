@@ -16,7 +16,7 @@ export function JoinPageState({ application, kind, onRetry }: JoinPageStateProps
   const isLoading = kind === 'loading'
 
   return (
-    <div aria-busy={isLoading} className="join-guide join-page-state" data-state={kind}>
+    <div aria-busy={isLoading} className="join-guide join-page-state" data-initial-data-pending={isLoading} data-state={kind}>
       <header className="join-page-state__heading join-guide__container">
         <p className="join-guide__eyebrow">{application ? <FormattedCopy page="join" id="join.fixed.JoinPageState.9bb6e639c7" text={copyText("join", "join.fixed.JoinPageState.9bb6e639c7", "서울모테트청소년합창단")}>{copyText("join", "join.fixed.JoinPageState.9bb6e639c7", "서울모테트청소년합창단")}</FormattedCopy> : <FormattedCopy page="join" id="join.fixed.JoinPageState.bcacfc4004" text={copyText("join", "join.fixed.JoinPageState.bcacfc4004", "입단 안내")}>{copyText("join", "join.fixed.JoinPageState.bcacfc4004", "입단 안내")}</FormattedCopy>}</p>
         <h1>{application ? <FormattedCopy page="join" id="join.applicationTitle" text={t('applicationTitle')}>{t('applicationTitle')}</FormattedCopy> : <FormattedCopy page="join" id="join.guideTitle" text={t('guideTitle')} lineBreaks><CopyLines text={t('guideTitle')} /></FormattedCopy>}</h1>

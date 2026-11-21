@@ -17,6 +17,7 @@ export const englishHome: readonly TranslationEntry[] = [
   // keys preserve that wording without changing translations on the Spirit page.
   {"key":"home.spiritWrapper.responsiveTitle","source":"시대를 잇는 정신,\n평화를 빚는 목소리.","target":"A spirit across generations,\nvoices that shape peace."},
   {"key":"home.spiritWrapper.responsiveDescription","source":"시대를 넘어 이어져 온 음악의 가치를 배우고,\n새로운 세대의 목소리로 그 정신을 이어갑니다.","target":"We learn and carry forward a thoughtful approach to music and the values of community through weekly rehearsals and performances."},
+  { key: 'home.spiritWrapper.responsiveLabel4', source: '입단과 후원', target: 'Joining and support' },
   {"key":"home.scoreBook.responsiveTitle","source":"서로 듣고 맞추면\n화음이 됩니다.","target":"Listening and finding balance\ncreates harmony."},
   {"key":"home.scoreBook.responsiveLeftBody","source":"매주 정기 연습과 공연, 국내외 교류를 통해\n음악적 기량과 공동체성을 함께 배웁니다.","target":"Weekly rehearsals, performances and exchanges at home and abroad develop musicianship and a sense of community."},
   {"key":"home.scoreBook.responsiveRightTitle","source":"듣기 · 호흡 · 합창","target":"Listening · Breath · Singing"},

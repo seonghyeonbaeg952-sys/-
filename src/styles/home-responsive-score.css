@@ -44,7 +44,7 @@
     gap: 32px;
     padding-block: 24px;
     border-block: 1px solid #f0d5c8;
-    background: linear-gradient(rgb(251 248 242 / 0.86), rgb(251 248 242 / 0.86)), var(--site-photo-responsive-paper,url('/images/home/responsive-score-paper.png')) center / cover, #fbf8f2;
+    background: linear-gradient(rgb(251 248 242 / 0.86), rgb(251 248 242 / 0.86)), var(--site-photo-responsive-paper,url('/images/textures/home-score-paper-background.webp')) center / cover, #fbf8f2;
   }
 
   #home-responsive-score .home-responsive-score__page {

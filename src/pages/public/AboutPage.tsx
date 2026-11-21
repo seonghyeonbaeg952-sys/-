@@ -96,7 +96,7 @@ export function AboutPage() {
         />
       )}
 
-      <div className="about-overview-nav">
+      <div className="about-overview-nav" data-initial-data-pending={aboutData.isLoading}>
         <Container className="space-y-4">
           {!shouldShowOverview && aboutData.error ? (
             <ErrorState

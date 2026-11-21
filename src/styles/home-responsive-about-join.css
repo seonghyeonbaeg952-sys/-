@@ -179,7 +179,7 @@
 
   #home-responsive-join.home-responsive-join {
     padding-top: 20px !important;
-    background: #fbf8f2 var(--site-photo-responsive-paper,url('/images/home/responsive-score-paper.png')) center / cover !important;
+    background: #fbf8f2 var(--site-photo-responsive-paper,url('/images/textures/home-score-paper-background.webp')) center / cover !important;
   }
 
   #home-responsive-join .responsive-join__motif {
@@ -316,7 +316,7 @@
     border-block: 1px solid #f0d5c8;
     background:
       linear-gradient(rgb(251 248 242 / 0.92), rgb(251 248 242 / 0.92)),
-      var(--site-photo-responsive-paper,url('/images/home/responsive-score-paper.png')) center / cover,
+      var(--site-photo-responsive-paper,url('/images/textures/home-score-paper-background.webp')) center / cover,
       #fbf8f2 !important;
   }
 

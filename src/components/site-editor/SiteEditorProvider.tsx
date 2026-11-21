@@ -11,11 +11,11 @@ import {
 import type { SiteEditorDocuments } from '../../types/siteEditor'
 import { SiteEditorContext } from './useSiteEditor'
 import previewCss from './site-editor-public.css?inline'
-import editorFontFaces from './site-editor-fonts.css?inline'
 import textStyleCss from './site-editor-text-styles.css?inline'
 import type { createCanvasRuntime } from './canvasRuntime'
 import type { createCanvasPlacementRuntime } from './canvasPlacementRuntime'
 import { AddedTextBoxes } from './AddedTextBoxes'
+import { PublicRouteLoading } from '../layout/PublicRouteLoading'
 import { chooseEditorSectionAnchors } from '../../lib/siteEditorAddedBoxes'
 import { getEditorSectionLabel } from '../../lib/editorSectionLabel'
 import { isPreviewControlActivation } from './previewInteraction'
@@ -273,18 +273,18 @@ export function SiteEditorProvider({ children }: { children: ReactNode }) {
 
   return (
     <SampleLanguageContext value={languageContext}><SiteEditorContext value={context}>
-      {publicationLoading ? <main aria-busy="true" aria-live="polite" className="route-loading-screen route-loading-screen--public" lang={isEnglish ? 'en' : 'ko'} role="status">
-      <div aria-hidden="true" className="route-loading-screen__mark"><span>S</span><span>M</span><span>Y</span><span>C</span></div>
-      <div className="route-loading-screen__copy">
-        <p>{isEnglish ? 'Seoul Motet Youth Choir' : '서울모테트청소년합창단'}</p>
-        <strong>{isEnglish ? 'Loading the English page…' : '홈페이지의 게시 문구를 불러오고 있습니다.'}</strong>
-        {isEnglish ? <button className="sample-language-switch__trigger" lang="ko" onClick={() => sample.setLanguage('ko')} type="button">한국어로 보기</button> : null}
-      </div>
-      </main> : null}
+      {publicationLoading ? (
+        <PublicRouteLoading
+          language={isEnglish ? 'en' : 'ko'}
+          brand={isEnglish ? 'Seoul Motet Youth Choir' : '서울모테트청소년합창단'}
+          message={isEnglish ? 'Loading the English page…' : '홈페이지의 게시 문구를 불러오고 있습니다.'}
+          languageAction={isEnglish ? <button className="sample-language-switch__trigger" lang="ko" onClick={() => sample.setLanguage('ko')} type="button">한국어로 보기</button> : null}
+        />
+      ) : null}
       {/* Preserve unsent forms and submission refs while publication is loading.
           Hidden Activity also pauses page effects without exposing stale copy. */}
       <Activity mode={publicationLoading ? 'hidden' : 'visible'}>
-        {css || isPreview ? <style>{css.includes('"Gothic A1"') || hasTextStyles || isPreview ? editorFontFaces : ''}{isPreview ? previewCss : ''}{css}</style> : null}
+        {css || isPreview ? <style>{isPreview ? previewCss : ''}{css}</style> : null}
         {isPreview ? <div className="site-editor-preview-banner" role="status">초안 미리보기 · 실제 접수는 차단됩니다.{notice ? <span>{notice}</span> : null}</div> : null}
         {children}
         <AddedTextBoxes page={page} document={documents[page]} />

@@ -39,6 +39,7 @@ type SpiritHeritageExperienceProps = {
   cta: SpiritCopy
   hero: SpiritCopy
   heroImageUrl?: string | null
+  initialDataPending?: boolean
 }
 
 type RevealProps = {
@@ -569,13 +570,14 @@ function ClosingCta({ copy }: { copy: SpiritCopy }) {
 export function SpiritHeritageExperience({
   cta,
   hero,
+  initialDataPending,
 }: SpiritHeritageExperienceProps) {
   useSpiritAnchorNavigation()
   const { device } = useSiteEditor()
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="spirit-heritage" data-spirit-device={device}>
+      <div className="spirit-heritage" data-initial-data-pending={initialDataPending} data-spirit-device={device}>
         <SpiritHero copy={hero} />
         <HeritageTimeline />
         <CommunitySection />

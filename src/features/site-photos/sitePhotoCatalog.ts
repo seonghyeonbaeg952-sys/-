@@ -12,7 +12,7 @@ const spirit = [{ label: '합창단 정신', href: '/spirit' }]
 const about = [{ label: '합창단 소개', href: '/about?section=overview' }]
 const conductor = [{ label: '지휘자 소개', href: '/about?section=conductor' }]
 const photo = (key: string, title: string, src: string, usages: SitePhotoAsset['usages'], description = '사진의 비율은 기존 화면 디자인을 유지합니다.'): SitePhotoAsset => ({ key, title, category: 'photo', sources: [src], usages, description })
-const background = (key: string, title: string, src: string): SitePhotoAsset => ({ key, title, category: 'background', sources: [src], usages: home, description: '종이 질감·배경 이미지입니다. 글자 가독성을 위해 밝고 대비가 낮은 이미지를 권장합니다.', cssVariable: `--site-photo-${key}` })
+const background = (key: string, title: string, src: string, ...aliases: string[]): SitePhotoAsset => ({ key, title, category: 'background', sources: [src, ...aliases], usages: home, description: '종이 질감·배경 이미지입니다. 글자 가독성을 위해 밝고 대비가 낮은 이미지를 권장합니다.', cssVariable: `--site-photo-${key}` })
 
 export const SITE_PHOTO_ASSETS: readonly SitePhotoAsset[] = [
   photo('about-europe', '2018 유럽 연주 단체사진', '/images/about/smyc-europe-2018.webp', about),
@@ -41,10 +41,10 @@ export const SITE_PHOTO_ASSETS: readonly SitePhotoAsset[] = [
   background('hero-logo-paper', '홈 히어로 · 로고 바탕', '/images/sample/hero-paper-pieces/paper-center-logo-patch-v2.webp'),
   background('watercolor-paper', '홈 · 수채화 종이 바탕', '/images/sample/home-v4-watercolor-paper.webp'),
   background('archive-paper', '홈 아카이브 · 종이 질감', '/images/textures/smyc-paper-grain.png'),
-  background('score-paper', '홈 정신 · 악보책 종이', '/images/textures/home-score-paper-background.png'),
+  background('score-paper', '홈 정신 · 악보책 종이', '/images/textures/home-score-paper-background.webp', '/images/textures/home-score-paper-background.png'),
   background('responsive-paper', '모바일·태블릿 · 악보 종이', '/images/home/responsive-score-paper.png'),
   background('responsive-concert-paper', '모바일·태블릿 · 공연 종이', '/images/home/responsive-concert-paper.png'),
-  background('brochure-stage', '브로슈어 · 건축 프레임 배경', '/images/sample/performance/architecture-rear-base.png'),
+  background('brochure-stage', '브로슈어 · 건축 프레임 배경', '/images/sample/performance/architecture-rear-base.webp', '/images/sample/performance/architecture-rear-base.png'),
   background('brochure-paper', '브로슈어 · 내지 종이 질감', '/images/sample/performance/template-paper-micrograin.png'),
   background('concert-section-paper', '홈 공연 · 종이 바탕', '/images/sample/performance/performance-section-paper.webp'),
   { key: 'score-staff', title: '악보책 · 오선 장식', category: 'decoration', sources: ['/images/effects/home-score-m-staff.png'], usages: home, description: '사진이 아닌 장식 이미지입니다. 투명 배경을 유지해 주세요.' },

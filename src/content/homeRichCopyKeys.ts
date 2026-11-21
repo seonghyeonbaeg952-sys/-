@@ -12,7 +12,7 @@ const sharedVisible = [
 const responsiveVisible = [
   ...sharedVisible,
   ...fields('home.concertProgram', ['eyebrowEn', 'responsiveDescription', 'responsiveCardEyebrow', 'emptyConcertCtaLabel']),
-  ...fields('home.spiritWrapper', ['responsiveEyebrow', 'responsiveTitle', 'responsiveDescription', 'responsiveCtaLabel', 'responsiveLabel1', 'responsiveLabel2', 'responsiveLabel3', 'responsiveLabel4', 'responsiveLabel5']),
+  ...fields('home.spiritWrapper', ['responsiveEyebrow', 'responsiveTitle', 'responsiveDescription', 'responsiveCtaLabel', 'responsiveLabel1', 'responsiveLabel2', 'responsiveLabel3', 'responsiveLabel4']),
   ...fields('home.supportLetter', ['responsiveTitle', 'responsiveUse1', 'responsiveUse2', 'responsiveUse3']),
 ]
 

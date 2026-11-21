@@ -1,3 +1,24 @@
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600&family=Bodoni+Moda:ital,opsz,wght@0,6..96,900;1,6..96,900&family=Fraunces:ital,opsz,wght@0,9..144,900;1,9..144,900&family=Nanum+Brush+Script&family=Noto+Sans+KR:wght@400;500;700&display=swap");
+
+/* Match the Google Fonts Latin faces used by the masthead. The imported faces still cover other ranges and styles. */
+@font-face {
+  font-family: "Fraunces";
+  src: url("/fonts/Fraunces-Black-Latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 900;
+  font-display: block;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Barlow Condensed";
+  src: url("/fonts/BarlowCondensed-SemiBold-Latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 600;
+  font-display: block;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 .spirit-heritage {
   --spirit-black: #101215;
   --spirit-stage: #245b83;
@@ -18,7 +39,6 @@
   --spirit-condensed: "Barlow Condensed", "Arial Narrow", sans-serif;
   --spirit-heading: "Hahmlet", "AritaBuri", "Noto Serif KR", serif;
   --spirit-accent: "Gowun Batang", "Hahmlet", "Noto Serif KR", serif;
-  --spirit-statement: "Song Myung", "Gowun Batang", "Hahmlet", serif;
   --spirit-brush: "Nanum Brush Script", "Grandiflora One", cursive;
   --spirit-sans: "Noto Sans KR", var(--font-sans-kr);
 

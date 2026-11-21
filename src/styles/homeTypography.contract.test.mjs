@@ -4,6 +4,19 @@ import test from 'node:test'
 
 const read = (path) => readFile(new URL(path, import.meta.url), 'utf8')
 
+test('public and CMS typography discover the same Gothic faces before either page renders', async () => {
+  const [globalsSource, editorSource] = await Promise.all([
+    read('./globals.css'),
+    read('../components/site-editor/SiteEditorProvider.tsx'),
+  ])
+  const gothicFaces = globalsSource.match(/@font-face\s*\{[^}]*font-family:\s*"Gothic A1"[^}]*\}/g) ?? []
+  assert.equal(gothicFaces.length, 3)
+  for (const [file, weight] of [['Regular', 400], ['SemiBold', 600], ['Bold', 700]]) {
+    assert.ok(gothicFaces.some(face => face.includes(`GothicA1-${file}.woff2`) && face.includes(`font-weight: ${weight};`)))
+  }
+  assert.doesNotMatch(editorSource, /site-editor-fonts\.css/)
+})
+
 test('the public home self-hosts its Korean display faces and assigns each a clear role', async () => {
   const [globalsSource, homeSource, indexSource] = await Promise.all([
     read('./globals.css'),
@@ -13,7 +26,7 @@ test('the public home self-hosts its Korean display faces and assigns each a cle
 
   assert.match(
     globalsSource,
-    /@font-face\s*\{[\s\S]*font-family:\s*"Hahmlet";[\s\S]*Hahmlet-Variable\.woff2[\s\S]*font-weight:\s*100 900;[\s\S]*font-display:\s*swap;/,
+    /@font-face\s*\{[^}]*font-family:\s*"Hahmlet";[^}]*Hahmlet-Variable\.woff2[^}]*font-weight:\s*100 900;[^}]*font-display:\s*block;/,
   )
   assert.match(
     globalsSource,

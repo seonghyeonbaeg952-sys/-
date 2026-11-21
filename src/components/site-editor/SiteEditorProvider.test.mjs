@@ -40,6 +40,9 @@ test('first English paint waits for published copy instead of showing an obsolet
     React.createElement(SampleLanguageContext, { value: englishContext }, React.createElement(SiteEditorProvider, null, child))))
   assert.ok(html.includes('role="status"'))
   assert.ok(html.includes('aria-busy="true"'))
+  assert.match(html, /class="route-loading-screen__mark">SMYC</)
+  assert.match(html, /aria-hidden="true" class="route-loading-screen__spinner"/)
+  assert.match(html, /<button[^>]*>한국어로 보기<\/button>/)
   assert.ok(!html.includes('Obsolete default heading'))
 })
 

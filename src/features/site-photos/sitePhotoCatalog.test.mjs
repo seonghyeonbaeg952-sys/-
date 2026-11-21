@@ -14,6 +14,13 @@ test('the Spirit tour photographs retain editable slots without replacing home b
   assert.equal(getSitePhotoAsset('/images/home-v6/community-rehearsal.jpg')?.key, 'spirit-community')
   assert.equal(getSitePhotoAsset('/images/home-v6/hero-performance.jpg')?.key, 'spirit-performance')
 })
+test('optimized paper and frame assets retain their CMS slots and original source aliases', () => {
+  assert.equal(getSitePhotoAsset('/images/textures/home-score-paper-background.webp')?.key, 'score-paper')
+  assert.equal(getSitePhotoAsset('/images/textures/home-score-paper-background.png')?.key, 'score-paper')
+  assert.equal(getSitePhotoAsset('/images/home/responsive-score-paper.png')?.key, 'responsive-paper')
+  assert.equal(getSitePhotoAsset('/images/sample/performance/architecture-rear-base.webp')?.key, 'brochure-stage')
+  assert.equal(getSitePhotoAsset('/images/sample/performance/architecture-rear-base.png')?.key, 'brochure-stage')
+})
 test('each managed primary photo exists and legacy source aliases resolve unambiguously to its CMS slot', async () => {
   const sources = new Set()
   for (const asset of SITE_PHOTO_ASSETS) {

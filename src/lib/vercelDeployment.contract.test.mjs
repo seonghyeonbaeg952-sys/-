@@ -44,9 +44,12 @@ test('Vercel serves the Vite entry point for public, sample, and admin deep link
 })
 
 function headersFor(path) {
+  const url = new URL(path, 'https://example.test')
   const config = JSON.parse(readFileSync(configPath, 'utf8'))
-  return Object.fromEntries((config.headers ?? []).filter(rule => new RegExp(`^${rule.source}$`).test(path))
-    .flatMap(rule => rule.headers.map(({ key, value }) => [key.toLowerCase(), value])))
+  return Object.fromEntries((config.headers ?? []).filter(rule =>
+    new RegExp('^' + rule.source + '$').test(url.pathname) &&
+    !(rule.missing ?? []).some(({ type, key }) => type === 'query' && url.searchParams.has(key)),
+  ).flatMap(rule => rule.headers.map(({ key, value }) => [key.toLowerCase(), value])))
 }
 
 test('search exposure remains on hold for pages and site-hosted media', () => {
@@ -102,10 +105,42 @@ test('the actual Vite server delivers the security policy and maps keep an origi
       assert.equal(response.headers.get('content-security-policy'), "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'")
       assert.equal(response.headers.get('x-content-type-options'), 'nosniff')
       assert.equal(response.headers.get('x-robots-tag'), 'noindex', path)
+      assert.equal(response.headers.get('link'), headersFor('/' + path).link ?? null, path)
     }
+    const origin = vite.resolvedUrls.local[0]
+    const preview = await fetch(new URL('spirit?site-editor-preview=1', origin))
+    assert.equal(preview.headers.get('link'), null)
+    const font = await fetch(new URL('fonts/Hahmlet-Variable.woff2', origin), { method: 'HEAD' })
+    assert.match(font.headers.get('content-type') ?? '', /woff2/)
+    const missing = await fetch(new URL('fonts/missing.woff2', origin), { headers: { accept: 'text/html' } })
+    assert.equal(missing.status, 404)
     const { MapPreview } = await vite.ssrLoadModule('/src/components/common/MapPreview.tsx')
     const html = renderToStaticMarkup(createElement(MapPreview, { embedUrl: 'https://map.naver.com/p/embed/example', placeName: '검증 장소' }))
     assert.match(html, /<iframe[^>]*referrerPolicy="strict-origin-when-cross-origin"/)
     assert.match(html, /src="https:\/\/map\.naver\.com\/p\/embed\/example"/)
   } finally { await vite.close() }
+})
+
+test('public font and cache headers leave search policy and document routing intact', () => {
+  const immutable = 'public, max-age=31536000, immutable'
+  assert.equal(headersFor('/assets/index-D4TvWMmJ.js')['cache-control'], immutable)
+  assert.equal(headersFor('/')['cache-control'], undefined)
+  const config = JSON.parse(readFileSync(configPath, 'utf8'))
+  const [spa] = config.rewrites
+  assert.equal(config.rewrites.length, 1)
+  assert.equal(spa.destination, '/index.html')
+  assert.equal(new RegExp('^' + spa.source + '$').test('/fonts/missing.woff2'), false)
+  for (const path of ['/robots.txt', '/sitemap.xml']) {
+    assert.equal(new RegExp('^' + spa.source + '$').test(path), true)
+    assert.equal(headersFor(path)['x-robots-tag'], 'noindex')
+    assert.equal(headersFor(path).link, undefined)
+  }
+  assert.match(headersFor('/?lang=en').link, /CormorantGaramond-Variable\.woff2.*crossorigin=anonymous/)
+  assert.match(headersFor('/spirit').link, /Fraunces-Black-Latin\.woff2.*BarlowCondensed-SemiBold-Latin\.woff2/)
+  for (const path of ['/about?section=members', '/join', '/concerts/event', '/notices/item?lang=en']) {
+    assert.match(headersFor(path).link, /Hahmlet-Variable\.woff2.*crossorigin=anonymous/, path)
+  }
+  for (const path of ['/admin/login', '/sample/spirit', '/?motionBenchmark=1', '/about?site-editor-preview=1']) {
+    assert.equal(headersFor(path).link, undefined, path)
+  }
 })

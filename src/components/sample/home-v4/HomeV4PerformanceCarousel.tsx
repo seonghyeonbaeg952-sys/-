@@ -42,7 +42,7 @@ const statusLabels: Record<Concert['status'], string> = {
 }
 
 const ARCHITECTURE_ASSET =
-  '/images/sample/performance/architecture-rear-base.png'
+  '/images/sample/performance/architecture-rear-base.webp'
 const PAPER_TEXTURE_ASSET =
   '/images/sample/performance/template-paper-micrograin.png'
 const SYMBOL_ASSET = '/images/sample/performance/smyc-symbol.png'

@@ -2,6 +2,8 @@ import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate, Route, RouterProvider, Routes } from 'react-router'
 
 import { PublicLayout } from './components/layout/PublicLayout'
+import { PublicPageStartup } from './components/layout/PublicPageStartup'
+import { PublicRouteLoading } from './components/layout/PublicRouteLoading'
 import { RouteScrollManager } from './components/layout/RouteScrollManager'
 import { SiteEditorProvider } from './components/site-editor/SiteEditorProvider'
 import { SitePhotosProvider } from './features/site-photos/SitePhotosProvider'
@@ -195,34 +197,20 @@ const AdminAccountPage = lazy(() =>
 
 export function RouteFallback() {
   const { copy: copyText } = useSiteEditor()
-  const isPublicRoute = !window.location.pathname.startsWith('/admin')
-  const englishRequested = isPublicRoute && new URLSearchParams(window.location.search).get('lang') === 'en'
-  const brandFallback = englishRequested ? 'Seoul Motet Youth Choir' : '서울모테트청소년합창단'
-  const loadingFallback = englishRequested ? 'Preparing the page' : '페이지를 준비하고 있습니다'
-
-  if (!isPublicRoute) {
+  if (/^\/admin(?:\/|$)/.test(window.location.pathname)) {
     return <main className="admin-shell flex min-h-screen items-center justify-center px-5" aria-busy="true" aria-live="polite" role="status"><p>관리자 화면을 불러오고 있습니다</p></main>
   }
 
+  const englishRequested = new URLSearchParams(window.location.search).get('lang') === 'en'
+  const brand = copyText('common', 'common.route.brand', englishRequested ? 'Seoul Motet Youth Choir' : '서울모테트청소년합창단')
+  const message = copyText('common', 'common.route.loading', englishRequested ? 'Preparing the page' : '페이지를 준비하고 있습니다')
+
   return (
-    <main
-      aria-busy="true"
-      aria-live="polite"
-      className={`route-loading-screen${isPublicRoute ? ' route-loading-screen--public' : ''}`}
-      lang={englishRequested ? 'en' : undefined}
-      role="status"
-    >
-      <div aria-hidden="true" className="route-loading-screen__mark">
-        <span>S</span>
-        <span>M</span>
-        <span>Y</span>
-        <span>C</span>
-      </div>
-      <div className="route-loading-screen__copy">
-        <p><FormattedCopy page="common" id="common.route.brand" text={copyText('common', 'common.route.brand', brandFallback)}>{copyText('common', 'common.route.brand', brandFallback)}</FormattedCopy></p>
-        <strong><FormattedCopy page="common" id="common.route.loading" text={copyText('common', 'common.route.loading', loadingFallback)}>{copyText('common', 'common.route.loading', loadingFallback)}</FormattedCopy></strong>
-      </div>
-    </main>
+    <PublicRouteLoading
+      language={englishRequested ? 'en' : 'ko'}
+      brand={<FormattedCopy page="common" id="common.route.brand" text={brand}>{brand}</FormattedCopy>}
+      message={<FormattedCopy page="common" id="common.route.loading" text={message}>{message}</FormattedCopy>}
+    />
   )
 }
 
@@ -241,6 +229,7 @@ function AppRouteContent() {
       <SitePhotosProvider><SiteEditorProvider>
       <RouteScrollManager />
       <Suspense fallback={<RouteFallback />}>
+        <PublicPageStartup fallback={<RouteFallback />}>
         <Routes>
           {isColorSample ? (
             <Route path="home-v4" element={<HomeV4SamplePage />} />
@@ -299,6 +288,7 @@ function AppRouteContent() {
             <Route path="account" element={<AdminAccountPage />} />
           </Route>
         </Routes>
+        </PublicPageStartup>
       </Suspense>
       </SiteEditorProvider></SitePhotosProvider>
   )

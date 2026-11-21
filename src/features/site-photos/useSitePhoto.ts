@@ -4,6 +4,7 @@ import { getSitePhotoAsset } from './sitePhotoCatalog'
 import { resolveSitePhoto, type SitePhotoMap } from './sitePhotoModel'
 
 export const SitePhotosContext = createContext<SitePhotoMap>({})
+export const SitePhotosInitialLoadingContext = createContext(false)
 export function useSitePhoto(src: string | null | undefined, alt = '') {
   const records = useContext(SitePhotosContext)
   const { language } = useSampleLanguage()

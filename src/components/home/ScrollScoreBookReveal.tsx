@@ -698,7 +698,7 @@ export function ScrollScoreBookReveal({
             alt=""
             aria-hidden="true"
             className="motet-score-final-paper"
-            src="/images/textures/home-score-paper-background.png"
+            src="/images/textures/home-score-paper-background.webp"
           />
           <div className="motet-score-final-sheet-content">
             <h2 id="motet-score-final-title">

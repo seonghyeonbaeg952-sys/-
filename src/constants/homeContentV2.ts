@@ -227,15 +227,14 @@ export const HOME_CONTENT_DEFAULTS_V2: HomeContentV2 = {
     },
   },
   spiritWrapper: {
-    responsiveEyebrow: '04 / FIVE VOICES · ONE CHORUS',
+    responsiveEyebrow: 'MOTET SPIRIT',
     responsiveTitle: '시대를 잇는 정신,\n평화를 빚는 목소리.',
     responsiveDescription: '시대를 넘어 이어져 온 음악의 가치를 배우고,\n새로운 세대의 목소리로 그 정신을 이어갑니다.',
     responsiveCtaLabel: '합창단 정신 자세히 보기',
-    responsiveLabel1: '이름',
-    responsiveLabel2: '정직한 음악',
-    responsiveLabel3: '교회음악',
-    responsiveLabel4: '공동체',
-    responsiveLabel5: '다음 세대',
+    responsiveLabel1: '합창단 정신',
+    responsiveLabel2: '이어 온 정신과 연혁',
+    responsiveLabel3: '함께 부르는 공동체',
+    responsiveLabel4: '입단과 후원',
     backgroundPosterUrl: '/videos/spirit/spirit-cinematic-orbit-poster.webp',
     backgroundVideoUrl: '/videos/spirit/spirit-cinematic-orbit-1600.mp4',
     eyebrowKo: 'FIVE MOVEMENTS · MOTET SPIRIT',
@@ -722,11 +721,10 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
       ['responsiveTitle', '모바일·태블릿 정신 제목'],
       ['responsiveDescription', '모바일·태블릿 정신 설명'],
       ['responsiveCtaLabel', '모바일·태블릿 정신 CTA'],
-      ['responsiveLabel1', '모바일·태블릿 정신 01'],
-      ['responsiveLabel2', '모바일·태블릿 정신 02'],
-      ['responsiveLabel3', '모바일·태블릿 정신 03'],
-      ['responsiveLabel4', '모바일·태블릿 정신 04'],
-      ['responsiveLabel5', '모바일·태블릿 정신 05'],
+      ['responsiveLabel1', '모바일·태블릿 정신 항목 · 소개'],
+      ['responsiveLabel2', '모바일·태블릿 정신 항목 · 연혁'],
+      ['responsiveLabel3', '모바일·태블릿 정신 항목 · 공동체'],
+      ['responsiveLabel4', '모바일·태블릿 정신 항목 · 입단과 후원'],
     ] as const
   ).map(([property, label], index) =>
     field({
@@ -734,7 +732,7 @@ export const homeContentSiteTextDefinitions: HomeContentSiteTextDefinition[] = [
       label,
       description:
         property.startsWith('responsive')
-          ? '1023px 이하 홈의 다섯 줄 정신 시안에만 적용됩니다. 데스크톱 정신 문구와 별도로 저장됩니다.'
+          ? '모바일·태블릿 홈의 합창단 정신 안내에 적용됩니다.'
           : property === 'backgroundVideoUrl'
           ? '음소거 자동 재생용 MP4 주소입니다. 데스크톱 V4 정신 섹션에만 적용됩니다.'
           : property === 'backgroundPosterUrl'
@@ -982,6 +980,10 @@ export const HOME_CONTENT_DEPRECATED_KEYS: Record<
   string,
   HomeContentDeprecatedKeyDefinition
 > = {
+  'home.spiritWrapper.responsiveLabel5': {
+    policy: 'deactivate',
+    reason: '합창단 정신 페이지의 네 구간에 맞춰 홈 안내를 줄였습니다.',
+  },
   'home.hero.title': {
     policy: 'managed_elsewhere',
     reason: '슬라이드 제목은 hero_slides가 소유합니다.',

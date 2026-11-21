@@ -34,7 +34,6 @@ import { editorLanguageHref } from '../../features/sample-language/sampleLanguag
 import type { EditorDevice, EditorPageId, EditorTextRun, EditorTextLayout, SiteCopyDefinition, SiteEditorDocument, SiteEditorDocuments, SiteEditorRevision } from '../../types/siteEditor'
 import '../../styles/admin-site-editor.css'
 import '../../styles/admin-site-editor-workspace.css'
-import '../../components/site-editor/site-editor-fonts.css'
 
 type Confirmation = { kind: 'publish' | 'reset-page' | 'reset-scope' | 'reset-appearance' } | { kind: 'restore'; revision: SiteEditorRevision }
 const scopeLabels: Record<EditorScope, string> = { shared: '공통', mobile: '모바일', tablet: '태블릿', desktop: '데스크톱' }

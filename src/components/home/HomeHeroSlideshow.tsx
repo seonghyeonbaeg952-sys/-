@@ -4,7 +4,7 @@ import { HomeCopy } from './HomeCopy'
 import { SiteCopy } from '../site-editor/SiteCopy'
 import { useEffect, useMemo, useState } from 'react'
 
-import { HOME_HERO_REFERENCE_COPY } from '../../constants/homeHeroReference'
+import { HOME_DESKTOP_HERO_IMAGE_SIZES, HOME_DESKTOP_HERO_IMAGE_TRANSFORM, HOME_HERO_REFERENCE_COPY } from '../../constants/homeHeroReference'
 import type { HeroSlide } from '../../types/content'
 import { Button } from '../common/Button'
 import { Container } from '../common/Container'
@@ -36,7 +36,6 @@ const fallbackSlide: HeroSlide = {
   is_visible: true,
 }
 
-const heroImageWidths = [960, 1440, 1920, 2560, 3200, 3840]
 const heroPaperPieceIds = [
   1, 2, 3, 4,
   5, 6, 7, 8,
@@ -108,19 +107,14 @@ function warmHeroImage(imageUrl: string, useOriginalImage: boolean) {
     return
   }
 
-  const targetWidth = Math.min(
-    heroImageWidths.at(-1) ?? 3840,
-    Math.max(heroImageWidths[0], window.innerWidth * window.devicePixelRatio),
-  )
-  const preloadWidth =
-    heroImageWidths.find((width) => width >= targetWidth) ??
-    heroImageWidths.at(-1) ??
-    3840
+  const { width: maxWidth, widths, quality, resize } = HOME_DESKTOP_HERO_IMAGE_TRANSFORM
+  const targetWidth = Math.min(maxWidth, Math.max(widths[0], window.innerWidth * window.devicePixelRatio))
+  const preloadWidth = widths.find((width) => width >= targetWidth) ?? maxWidth
   const warmedUrl = useOriginalImage
     ? normalizedUrl
     : getStorageImageUrl(normalizedUrl, {
-        quality: 92,
-        resize: 'contain',
+        quality,
+        resize,
         width: preloadWidth,
       })
 
@@ -385,14 +379,9 @@ export function HomeHeroSlideshow({
                   })
                 }}
                 priority={isPrioritySlide}
-                sizes="100vw"
+                sizes={HOME_DESKTOP_HERO_IMAGE_SIZES}
                 src={slide.image_url}
-                transform={useOriginalImage ? undefined : {
-                  quality: 92,
-                  resize: 'contain',
-                  width: 3840,
-                  widths: heroImageWidths,
-                }}
+                transform={useOriginalImage ? undefined : HOME_DESKTOP_HERO_IMAGE_TRANSFORM}
               />
             ) : null}
           </div>

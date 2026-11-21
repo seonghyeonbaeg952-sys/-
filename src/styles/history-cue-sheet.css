@@ -1,14 +1,14 @@
 @font-face {
   font-family: "History Cormorant";
-  src: url("/fonts/CormorantGaramond-Italic-Variable.ttf") format("truetype");
+  src: url("/fonts/CormorantGaramond-Italic-Variable.woff2") format("woff2");
   font-style: italic;
   font-weight: 100 900;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
   font-family: "History Gothic A1";
-  src: url("/fonts/GothicA1-Regular.ttf") format("truetype");
+  src: url("/fonts/GothicA1-Regular.woff2") format("woff2");
   font-style: normal;
   font-weight: 400;
   font-display: swap;
@@ -16,7 +16,7 @@
 
 @font-face {
   font-family: "History Gothic A1";
-  src: url("/fonts/GothicA1-Bold.ttf") format("truetype");
+  src: url("/fonts/GothicA1-Bold.woff2") format("woff2");
   font-style: normal;
   font-weight: 700;
   font-display: swap;

@@ -10,12 +10,20 @@
   src: url("/fonts/Hahmlet-Variable.woff2") format("woff2");
   font-weight: 100 900;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
   font-family: "Grandiflora One";
   src: url("/fonts/GrandifloraOne-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gowun Batang";
+  src: url("/fonts/GowunBatang-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -38,19 +46,43 @@
 }
 
 @font-face {
-  font-family: "Cormorant Garamond";
-  src: url("/fonts/CormorantGaramond-Variable.ttf") format("truetype");
-  font-weight: 300 700;
+  font-family: "Gothic A1";
+  src: url("/fonts/GothicA1-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gothic A1";
+  src: url("/fonts/GothicA1-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gothic A1";
+  src: url("/fonts/GothicA1-Bold.woff2") format("woff2");
+  font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
   font-family: "Cormorant Garamond";
-  src: url("/fonts/CormorantGaramond-Italic-Variable.ttf") format("truetype");
+  src: url("/fonts/CormorantGaramond-Variable.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("/fonts/CormorantGaramond-Italic-Variable.woff2") format("woff2");
   font-weight: 300 700;
   font-style: italic;
-  font-display: swap;
+  font-display: block;
 }
 
 @theme {

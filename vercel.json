@@ -21,6 +21,25 @@
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
       ]
+    },
+    {
+      "source": "/assets/(.*-[A-Za-z0-9_-]{8}\\.(?:js|css|woff2))",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/",
+      "missing": [{ "type": "query", "key": "site-editor-preview" }, { "type": "query", "key": "motionBenchmark" }],
+      "headers": [{ "key": "Link", "value": "</fonts/CormorantGaramond-Variable.woff2>; rel=preload; as=font; type=\"font/woff2\"; crossorigin=anonymous" }]
+    },
+    {
+      "source": "/(spirit/?)",
+      "missing": [{ "type": "query", "key": "site-editor-preview" }, { "type": "query", "key": "motionBenchmark" }],
+      "headers": [{ "key": "Link", "value": "</fonts/Fraunces-Black-Latin.woff2>; rel=preload; as=font; type=\"font/woff2\"; crossorigin=anonymous, </fonts/BarlowCondensed-SemiBold-Latin.woff2>; rel=preload; as=font; type=\"font/woff2\"; crossorigin=anonymous, <https://fonts.googleapis.com>; rel=preconnect, <https://fonts.gstatic.com>; rel=preconnect; crossorigin=anonymous" }]
+    },
+    {
+      "source": "/((?:about|concerts|notices|gallery|join|contact|(?:concerts|notices)/[^/]+)/?)",
+      "missing": [{ "type": "query", "key": "site-editor-preview" }, { "type": "query", "key": "motionBenchmark" }],
+      "headers": [{ "key": "Link", "value": "</fonts/Hahmlet-Variable.woff2>; rel=preload; as=font; type=\"font/woff2\"; crossorigin=anonymous" }]
     }
   ],
   "redirects": [
@@ -33,7 +52,7 @@
   ],
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/((?!assets/|fonts/|fonts$).*)",
       "destination": "/index.html"
     }
   ]

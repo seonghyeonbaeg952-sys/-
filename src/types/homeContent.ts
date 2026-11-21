@@ -184,7 +184,6 @@ export interface HomeContentV2 {
     responsiveLabel2: string
     responsiveLabel3: string
     responsiveLabel4: string
-    responsiveLabel5: string
     backgroundPosterUrl: string
     backgroundVideoUrl: string
     ctaLabel: string

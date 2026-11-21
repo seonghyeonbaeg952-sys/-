@@ -17,6 +17,7 @@ const vite = await createServer({
 const { HomeHeroSlideshow } = await vite.ssrLoadModule(
   '/src/components/home/HomeHeroSlideshow.tsx',
 )
+const { AboutPreview } = await vite.ssrLoadModule('/src/components/home/AboutPreview.tsx')
 const { SampleLanguageContext } = await vite.ssrLoadModule(
   '/src/features/sample-language/useSampleLanguage.ts',
 )
@@ -38,7 +39,7 @@ const firstSlide = {
   is_visible: true,
 }
 
-function render(width, slides = [firstSlide], { coarse = false, height = 900, language = 'ko' } = {}) {
+function render(width, slides = [firstSlide], { coarse = false, height = 900, language = 'ko', includePortrait = false } = {}) {
   const originalWindow = globalThis.window
   globalThis.window = {
     innerWidth: width,
@@ -54,7 +55,11 @@ function render(width, slides = [firstSlide], { coarse = false, height = 900, la
     }
     return renderToStaticMarkup(createElement(MemoryRouter, null,
       createElement(SampleLanguageContext, { value: languageContext },
-        createElement(HomeHeroSlideshow, { slides })),
+        createElement(HomeHeroSlideshow, { slides }),
+        includePortrait ? createElement(AboutPreview, {
+          presentation: 'collective-portrait',
+          collectivePortraitImage: { src: firstSlide.image_url, alt: firstSlide.image_alt, caption: '' },
+        }) : null),
     ))
   } finally {
     if (originalWindow === undefined) delete globalThis.window
@@ -90,6 +95,19 @@ for (const width of [1366, 1440]) {
     assert.match(image, /srcSet="[^\"]*960w[^\"]*3840w"/)
   })
 }
+
+test('the desktop portrait reuses the hero photo candidates to avoid a second full-size download', () => {
+  const html = render(1536, [firstSlide], { includePortrait: true })
+  const hero = heroImage(html)
+  const portrait = html.match(/<img\b[^>]*class="size-full object-cover people-photo-tone"[^>]*>/)?.[0] ?? ''
+  assert.match(portrait, /alt="CMS choir photo"/)
+  assert.match(portrait, /loading="lazy"/)
+  for (const attribute of ['sizes', 'src', 'srcSet']) {
+    const pattern = new RegExp(`\\b${attribute}="([^"]+)"`)
+    assert.ok(hero.match(pattern)?.[1], attribute)
+    assert.equal(portrait.match(pattern)?.[1], hero.match(pattern)[1], attribute)
+  }
+})
 
 test('original-image selection still filters hidden slides and does not eagerly render every slide', () => {
   const html = render(390, [

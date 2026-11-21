@@ -26,7 +26,7 @@ test('CMS responsive spirit copy round-trips without changing desktop spirit cop
 })
 
 test('CMS exposes responsive fields and retains editable concert-card label on readback', () => {
-  for (const key of ['responsiveEyebrow', 'responsiveTitle', 'responsiveDescription', 'responsiveCtaLabel', 'responsiveLabel1', 'responsiveLabel2', 'responsiveLabel3', 'responsiveLabel4', 'responsiveLabel5']) {
+  for (const key of ['responsiveEyebrow', 'responsiveTitle', 'responsiveDescription', 'responsiveCtaLabel', 'responsiveLabel1', 'responsiveLabel2', 'responsiveLabel3', 'responsiveLabel4']) {
     assert.ok(homeFieldDefinitions.some(field => field.key === `home.spiritWrapper.${key}`), key)
   }
   const content = normalizeHomeContentV2({ 'home.concertProgram.responsiveCardEyebrow': '다음 무대', 'home.concertProgram.responsiveNoticeEyebrow': '새 소식' })
@@ -38,7 +38,7 @@ test('CMS exposes responsive fields and retains editable concert-card label on r
 test('missing or unsafe responsive CMS copy falls back to the approved readable design', () => {
   const content = normalizeHomeContentV2({ 'home.spiritWrapper.responsiveTitle': '<script>alert(1)</script>', 'home.spiritWrapper.responsiveLabel1': '' })
   assert.equal(content.spiritWrapper.responsiveTitle, '시대를 잇는 정신,\n평화를 빚는 목소리.')
-  assert.equal(content.spiritWrapper.responsiveLabel1, '이름')
+  assert.equal(content.spiritWrapper.responsiveLabel1, '합창단 정신')
   assert.equal(content.concertProgram.responsiveCardEyebrow, 'NEXT CONCERT')
 })
 

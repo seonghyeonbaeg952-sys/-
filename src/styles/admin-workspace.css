@@ -1,7 +1,7 @@
 /* Figma Quiet Workspace. Every visual rule is scoped to CMS or its portal. */
-@font-face{font-family:"SMYC Admin";src:url('/fonts/GothicA1-Regular.ttf') format('truetype');font-style:normal;font-weight:400;font-display:swap}
-@font-face{font-family:"SMYC Admin";src:url('/fonts/GothicA1-SemiBold.ttf') format('truetype');font-style:normal;font-weight:600;font-display:swap}
-@font-face{font-family:"SMYC Admin";src:url('/fonts/GothicA1-Bold.ttf') format('truetype');font-style:normal;font-weight:700 900;font-display:swap}
+@font-face{font-family:"SMYC Admin";src:url('/fonts/GothicA1-Regular.woff2') format('woff2');font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:"SMYC Admin";src:url('/fonts/GothicA1-SemiBold.woff2') format('woff2');font-style:normal;font-weight:600;font-display:swap}
+@font-face{font-family:"SMYC Admin";src:url('/fonts/GothicA1-Bold.woff2') format('woff2');font-style:normal;font-weight:700 900;font-display:swap}
 .admin-shell,.admin-modal{
   --admin-paper:#fcfaf5;--admin-canvas:#f2efe8;--admin-ink:#17171a;--admin-muted:#68665f;--admin-accent:#68233a;--admin-line:#d8d2c7;
   --color-navy-deep:var(--admin-ink);--color-navy-midnight:var(--admin-ink);--color-text-charcoal:var(--admin-ink);--color-text-muted:var(--admin-muted);

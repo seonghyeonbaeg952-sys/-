@@ -32,6 +32,7 @@ export function SpiritPage() {
       <SpiritHeritageExperience
         cta={cta}
         hero={hero}
+        initialDataPending={spiritData.isLoading}
       />
     </>
   )

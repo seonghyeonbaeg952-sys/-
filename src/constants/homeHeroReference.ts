@@ -17,3 +17,13 @@ export const HOME_HERO_REFERENCE_COPY = {
   },
   titleLines: ['SEOUL', 'MOTET', 'YOUTH', 'CHOIR'],
 } as const
+
+// The desktop intro portrait repeats the first hero photo. Matching both image
+// policies lets the browser reuse its chosen download across the two sections.
+export const HOME_DESKTOP_HERO_IMAGE_SIZES = '100vw'
+export const HOME_DESKTOP_HERO_IMAGE_TRANSFORM = {
+  quality: 92,
+  resize: 'contain',
+  width: 3840,
+  widths: [960, 1440, 1920, 2560, 3200, 3840],
+} as const satisfies { resize: 'contain'; width: number; widths: number[]; quality: number }

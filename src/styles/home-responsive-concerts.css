@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'Responsive Concert Gothic';
-  src: url('/fonts/GothicA1-Regular.ttf') format('truetype');
+  src: url('/fonts/GothicA1-Regular.woff2') format('woff2');
   font-style: normal;
   font-weight: 400;
   font-display: swap;
@@ -8,7 +8,7 @@
 
 @font-face {
   font-family: 'Responsive Concert Gothic';
-  src: url('/fonts/GothicA1-Bold.ttf') format('truetype');
+  src: url('/fonts/GothicA1-Bold.woff2') format('woff2');
   font-style: normal;
   font-weight: 700;
   font-display: swap;
@@ -16,10 +16,10 @@
 
 @font-face {
   font-family: 'Responsive Concert Cormorant';
-  src: url('/fonts/CormorantGaramond-Variable.ttf') format('truetype');
+  src: url('/fonts/CormorantGaramond-Variable.woff2') format('woff2');
   font-style: normal;
   font-weight: 300 700;
-  font-display: swap;
+  font-display: block;
 }
 
 /* This presentation is mounted only below the unchanged desktop breakpoint. */

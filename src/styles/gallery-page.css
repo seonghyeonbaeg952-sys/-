@@ -3,21 +3,21 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("/fonts/GothicA1-Regular.ttf") format("truetype");
+  src: url("/fonts/GothicA1-Regular.woff2") format("woff2");
 }
 @font-face {
   font-family: "Gallery Gothic A1";
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url("/fonts/GothicA1-SemiBold.ttf") format("truetype");
+  src: url("/fonts/GothicA1-SemiBold.woff2") format("woff2");
 }
 @font-face {
   font-family: "Gallery Gothic A1";
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url("/fonts/GothicA1-Bold.ttf") format("truetype");
+  src: url("/fonts/GothicA1-Bold.woff2") format("woff2");
 }
 
 .gallery-journal {

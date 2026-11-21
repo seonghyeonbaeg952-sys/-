@@ -222,7 +222,7 @@ export function HomePage({
         title={siteSettings.site_title || '서울모테트청소년합창단'}
       />
       <HomeFlowProvider>
-        <div className="home-intro-real-sample">
+        <div className="home-intro-real-sample" data-initial-data-pending={homeData.isLoading}>
           <HomeHeroSlideshow
             description={homeContent.heroSupplement.fallbackDescription}
             mottoChips={homeContent.heroSupplement.mottoChips}

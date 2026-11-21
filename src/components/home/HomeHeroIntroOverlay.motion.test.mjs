@@ -45,6 +45,7 @@ function mount({ scrollY = 0, animate = true, fontsPending = false, viewport = '
     removeEventListener(type, callback) { listeners.get(type)?.delete(callback) },
   }
   const react = {
+    useContext() { return false },
     useRef(initial) { const index = cursor++; return slots[index] ??= { current: initial } },
     useState(initial) {
       const index = cursor++
@@ -74,6 +75,7 @@ function mount({ scrollY = 0, animate = true, fontsPending = false, viewport = '
       if (name === 'react') return react
       if (name === 'react/jsx-runtime') return { jsx, jsxs: jsx }
       if (name === './useHomeResponsiveViewport') return { useHomeResponsiveViewport: () => viewport }
+      if (name === '../layout/publicPageLoadingContext') return { PublicPageLoadingContext: {} }
       throw new Error(`Unexpected import ${name}`)
     },
   })

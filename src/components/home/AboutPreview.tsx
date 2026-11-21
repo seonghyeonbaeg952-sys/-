@@ -8,6 +8,7 @@ import { splitHomeCopyLines, splitHomeParagraphCopy } from '../../lib/homeCopySl
 import type { GalleryImage } from '../../types/content'
 import type { SiteSettings } from '../../types/content'
 import type { HomeProgramItem } from '../../types/homeContent'
+import { HOME_DESKTOP_HERO_IMAGE_SIZES, HOME_DESKTOP_HERO_IMAGE_TRANSFORM } from '../../constants/homeHeroReference'
 import { HOME_TITLE_ACCENTS } from '../../constants/homeTypography'
 import { getColorSampleHref } from '../../utils/colorSamplePath'
 import { Button } from '../common/Button'
@@ -237,8 +238,9 @@ function CollectivePortrait({
                 height={720}
                 imgClassName="people-photo-tone"
                 objectFit="cover"
-                sizes="(min-width: 1440px) 1312px, (min-width: 1024px) calc(100vw - 96px), calc(100vw - 32px)"
+                sizes={HOME_DESKTOP_HERO_IMAGE_SIZES}
                 src={portraitImage.src}
+                transform={HOME_DESKTOP_HERO_IMAGE_TRANSFORM}
                 width={960}
               />
               <span

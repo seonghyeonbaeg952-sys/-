@@ -35,7 +35,7 @@ const commonResponsiveKeys = [
   ]),
   ...fieldsUnder('home.spiritWrapper', [
     'responsiveEyebrow', 'responsiveTitle', 'responsiveDescription', 'responsiveCtaLabel',
-    'responsiveLabel1', 'responsiveLabel2', 'responsiveLabel3', 'responsiveLabel4', 'responsiveLabel5',
+    'responsiveLabel1', 'responsiveLabel2', 'responsiveLabel3', 'responsiveLabel4',
   ]),
   ...fieldsUnder('home.current.archive', ['eyebrowEn', 'desktopTitle', 'ctaLabel', 'emptyTitle', 'emptyDescription', 'title']),
   ...fieldsUnder('home.supportLetter', [

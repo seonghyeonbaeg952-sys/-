@@ -1,4 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { PublicPageLoadingContext } from '../layout/publicPageLoadingContext'
 import { useHomeResponsiveViewport } from './useHomeResponsiveViewport'
 
 const desktopIntroQuery =
@@ -8,6 +9,7 @@ const introPrepareDeadline = 1200
 const introHoldDeadline = 1900
 
 export function HomeHeroIntroOverlay() {
+  const pageLoading = useContext(PublicPageLoadingContext)
   const viewport = useHomeResponsiveViewport()
   const launchRef = useRef<HTMLDivElement>(null)
   const introPreparedAtRef = useRef<number | null>(null)
@@ -19,7 +21,7 @@ export function HomeHeroIntroOverlay() {
   const [isDismissed, setIsDismissed] = useState(() =>
     typeof window !== 'undefined' && window.scrollY > introScrollTolerance,
   )
-  const canShowIntro = viewport === 'desktop' && shouldRenderIntro && !isDismissed
+  const canShowIntro = !pageLoading && viewport === 'desktop' && shouldRenderIntro && !isDismissed
 
   useEffect(() => {
     const query = window.matchMedia(desktopIntroQuery)

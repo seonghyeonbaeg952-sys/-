@@ -3,11 +3,12 @@ import { useLocation } from 'react-router'
 import { invalidateSitePhotoCache, loadPublicSitePhotos } from './sitePhotoApi'
 import { SITE_PHOTO_ASSETS } from './sitePhotoCatalog'
 import { retainPublishedSitePhotos, type SitePhotoMap } from './sitePhotoModel'
-import { SitePhotosContext } from './useSitePhoto'
+import { SitePhotosContext, SitePhotosInitialLoadingContext } from './useSitePhoto'
 
 export function SitePhotosProvider({ children }: { children: ReactNode }) {
   const isAdmin = useLocation().pathname.startsWith('/admin')
   const [photos, setPhotos] = useState<SitePhotoMap>({})
+  const [initialLoading, setInitialLoading] = useState(true)
   useEffect(() => {
     if (isAdmin) return
     let active = true
@@ -16,9 +17,12 @@ export function SitePhotosProvider({ children }: { children: ReactNode }) {
       const currentSequence = ++sequence
       if (invalidate) invalidateSitePhotoCache()
       const result = await loadPublicSitePhotos()
-      if (active && currentSequence === sequence && result.data) {
-        const incoming = result.data
-        setPhotos(current => retainPublishedSitePhotos(current, incoming))
+      if (active && currentSequence === sequence) {
+        if (result.data) {
+          const incoming = result.data
+          setPhotos(current => retainPublishedSitePhotos(current, incoming))
+        }
+        setInitialLoading(false)
       }
     }
     const reload = () => { void refresh(true) }
@@ -43,6 +47,8 @@ export function SitePhotosProvider({ children }: { children: ReactNode }) {
     .map(asset => `${asset.cssVariable}:url(${JSON.stringify(photos[asset.key].published!.src)})`).join(';')
   return <SitePhotosContext.Provider value={isAdmin ? {} : photos}>
     {!isAdmin && backgroundRules ? <style>{`:root{${backgroundRules}}`}</style> : null}
-    {children}
+    <SitePhotosInitialLoadingContext value={!isAdmin && initialLoading}>
+      {children}
+    </SitePhotosInitialLoadingContext>
   </SitePhotosContext.Provider>
 }

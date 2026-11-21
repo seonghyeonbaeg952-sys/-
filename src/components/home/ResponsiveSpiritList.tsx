@@ -14,7 +14,6 @@ export function ResponsiveSpiritList({ wrapper }: ResponsiveSpiritListProps) {
     wrapper.responsiveLabel2,
     wrapper.responsiveLabel3,
     wrapper.responsiveLabel4,
-    wrapper.responsiveLabel5,
   ]
 
   return (
