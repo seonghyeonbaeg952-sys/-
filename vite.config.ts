@@ -6,6 +6,7 @@ import deployment from './vercel.json'
 // Exercise the deployment policy locally too; keep one canonical definition.
 const securityHeaders = Object.fromEntries(deployment.headers.filter(rule => rule.source === '/(.*)').flatMap(rule =>
   rule.headers.map(({ key, value }) => [key, value])))
+const localHeaders = { ...securityHeaders, 'X-Robots-Tag': 'noindex' }
 
 const fontHeaderRules = deployment.headers.flatMap(rule => {
   const link = rule.headers.find(({ key }) => key === 'Link')
@@ -55,9 +56,9 @@ export default defineConfig({
     configureServer: useFontHeaders,
     configurePreviewServer: useFontHeaders,
   }],
-  preview: { headers: securityHeaders },
+  preview: { headers: localHeaders },
   server: {
-    headers: securityHeaders,
+    headers: localHeaders,
     host: '127.0.0.1',
     port: 5175,
     strictPort: true,

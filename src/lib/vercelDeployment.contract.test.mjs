@@ -52,10 +52,35 @@ function headersFor(path) {
   ).flatMap(rule => rule.headers.map(({ key, value }) => [key.toLowerCase(), value])))
 }
 
-test('search exposure remains on hold for pages and site-hosted media', () => {
-  for (const path of ['/', '/spirit', '/about', '/about?section=members', '/join', '/contact', '/admin/login', '/images/brand/smyc-symbol-vector.svg']) {
+test('internal pages and site-hosted media remain out of search', () => {
+  for (const path of ['/spirit', '/about', '/about?section=members', '/join', '/contact', '/admin/login', '/index.html', '/images/brand/smyc-symbol-vector.svg']) {
     assert.equal(headersFor(path)['x-robots-tag'], 'noindex', path)
   }
+})
+
+test('only Google Search can index the homepage on the production domain', async () => {
+  const config = JSON.parse(readFileSync(configPath, 'utf8'))
+  assert.deepEqual(config.proxy, { entrypoint: 'search-indexing-proxy.ts', matcher: ['/'] })
+  assert.equal(headersFor('/')['x-robots-tag'], undefined, 'The generic noindex would override the Google exception')
+  const { default: proxy } = await import('../../search-indexing-proxy.ts')
+  const origin = 'https://seoulmotetyouthchoir.com'
+  const google = 'Mozilla/5.0 (Linux; Android 6.0.1) AppleWebKit/537.36 Chrome/131.0.0.0 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+  const inspection = 'Mozilla/5.0 (compatible; Google-InspectionTool/1.0;)'
+  const request = (url, agent, method = 'GET') => proxy(new Request(url, { method, headers: { 'User-Agent': agent } }))
+  for (const agent of [google, inspection, 'Googlebot/2.1 (+http://www.google.com/bot.html)']) {
+    const response = request(origin, agent)
+    assert.equal(response.headers.get('X-Robots-Tag'), 'noimageindex, max-image-preview: none, max-video-preview: 0, max-snippet: 80')
+    assert.match(response.headers.get('Vary') ?? '', /User-Agent/i)
+  }
+  for (const agent of ['Mozilla/5.0', 'bingbot/2.0', 'Yeti/1.1', 'Googlebot-Image/1.0', 'NotGooglebot/2.1', 'GoogleOther/1.0', '']) {
+    assert.equal(request(origin, agent).headers.get('X-Robots-Tag'), 'noindex', agent)
+  }
+  for (const url of [origin + '/?lang=en', origin + '/?lang=ko', origin + '/?anything=1', origin + '/?motionBenchmark=1', origin + '/?site-editor-preview=1', origin + '/spirit', 'https://motet-homepage.vercel.app/', 'http://seoulmotetyouthchoir.com/']) {
+    assert.equal(request(url, google).headers.get('X-Robots-Tag'), 'noindex', url)
+  }
+  assert.equal(request(origin, google, 'POST').headers.get('X-Robots-Tag'), 'noindex')
+  assert.match(request(origin, google, 'HEAD').headers.get('X-Robots-Tag') ?? '', /max-snippet: 80/)
+  assert.equal(readFileSync(new URL('../../public/robots.txt', import.meta.url), 'utf8').replaceAll('\r\n', '\n').trim(), 'User-agent: *\nDisallow:')
 })
 
 test('Vercel aliases redirect to the owned domain without redirecting the domain or local CMS', () => {
@@ -110,6 +135,8 @@ test('the actual Vite server delivers the security policy and maps keep an origi
     const origin = vite.resolvedUrls.local[0]
     const preview = await fetch(new URL('spirit?site-editor-preview=1', origin))
     assert.equal(preview.headers.get('link'), null)
+    const googleHome = await fetch(origin, { headers: { 'User-Agent': 'Googlebot/2.1' } })
+    assert.equal(googleHome.headers.get('x-robots-tag'), 'noindex', 'Vite previews may not be indexed')
     const font = await fetch(new URL('fonts/Hahmlet-Variable.woff2', origin), { method: 'HEAD' })
     assert.match(font.headers.get('content-type') ?? '', /woff2/)
     const missing = await fetch(new URL('fonts/missing.woff2', origin), { headers: { accept: 'text/html' } })
