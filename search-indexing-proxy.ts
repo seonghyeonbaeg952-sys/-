@@ -1,12 +1,17 @@
 import { next } from '@vercel/functions'
+import deployment from './vercel.json' with { type: 'json' }
 
-const publicOrigin = 'https://seoulmotetyouthchoir.com'
+const publicHomepage = 'https://seoulmotetyouthchoir.com/'
 const googleSearchAgent = /(?:^|[\s;(])(?:Googlebot|Google-InspectionTool)\/[\d.]+(?=$|[\s;)])/
 const limitedSearchPreview = 'noimageindex, max-image-preview: none, max-video-preview: 0, max-snippet: 80'
+const homepageFontPreload = deployment.headers
+  .find(rule => rule.source === '/')
+  ?.headers.find(header => header.key === 'Link')?.value
+const homepageLinks = [homepageFontPreload, `<${publicHomepage}>; rel="canonical"`].filter(Boolean).join(', ')
 
 export default function searchIndexingProxy(request: Request) {
   const url = new URL(request.url)
-  const isHomepage = url.origin === publicOrigin && url.pathname === '/' && url.search === ''
+  const isHomepage = url.href === publicHomepage
   const isPageFetch = request.method === 'GET' || request.method === 'HEAD'
   const allowsIndexing = isHomepage && isPageFetch &&
     googleSearchAgent.test(request.headers.get('user-agent') ?? '')
@@ -17,6 +22,7 @@ export default function searchIndexingProxy(request: Request) {
       'X-Robots-Tag': allowsIndexing ? limitedSearchPreview : 'noindex',
       'Vary': 'User-Agent',
       'Cache-Control': 'private, no-store',
+      ...(isHomepage && { Link: homepageLinks }),
     },
   })
 }

@@ -71,16 +71,28 @@ test('only Google Search can index the homepage on the production domain', async
     const response = request(origin, agent)
     assert.equal(response.headers.get('X-Robots-Tag'), 'noimageindex, max-image-preview: none, max-video-preview: 0, max-snippet: 80')
     assert.match(response.headers.get('Vary') ?? '', /User-Agent/i)
+    assert.match(response.headers.get('Link') ?? '', /CormorantGaramond-Variable\.woff2/)
+    assert.match(response.headers.get('Link') ?? '', /<https:\/\/seoulmotetyouthchoir\.com\/>; rel="canonical"/)
   }
   for (const agent of ['Mozilla/5.0', 'bingbot/2.0', 'Yeti/1.1', 'Googlebot-Image/1.0', 'NotGooglebot/2.1', 'GoogleOther/1.0', '']) {
     assert.equal(request(origin, agent).headers.get('X-Robots-Tag'), 'noindex', agent)
   }
   for (const url of [origin + '/?lang=en', origin + '/?lang=ko', origin + '/?anything=1', origin + '/?motionBenchmark=1', origin + '/?site-editor-preview=1', origin + '/spirit', 'https://motet-homepage.vercel.app/', 'http://seoulmotetyouthchoir.com/']) {
     assert.equal(request(url, google).headers.get('X-Robots-Tag'), 'noindex', url)
+    assert.equal(request(url, google).headers.get('Link'), null, url)
   }
   assert.equal(request(origin, google, 'POST').headers.get('X-Robots-Tag'), 'noindex')
   assert.match(request(origin, google, 'HEAD').headers.get('X-Robots-Tag') ?? '', /max-snippet: 80/)
-  assert.equal(readFileSync(new URL('../../public/robots.txt', import.meta.url), 'utf8').replaceAll('\r\n', '\n').trim(), 'User-agent: *\nDisallow:')
+})
+
+test('the crawlable sitemap advertises just the approved Korean homepage', () => {
+  const robots = readFileSync(new URL('../../public/robots.txt', import.meta.url), 'utf8').replaceAll('\r\n', '\n')
+  assert.match(robots, /^User-agent: \*\nDisallow:\n/m)
+  assert.deepEqual(robots.match(/^Sitemap: .+$/gm), ['Sitemap: https://seoulmotetyouthchoir.com/sitemap.xml'])
+
+  const sitemap = readFileSync(new URL('../../public/sitemap.xml', import.meta.url), 'utf8')
+  assert.match(sitemap, /<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">/)
+  assert.deepEqual([...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(([, url]) => url), ['https://seoulmotetyouthchoir.com/'])
 })
 
 test('Vercel aliases redirect to the owned domain without redirecting the domain or local CMS', () => {
@@ -137,6 +149,9 @@ test('the actual Vite server delivers the security policy and maps keep an origi
     assert.equal(preview.headers.get('link'), null)
     const googleHome = await fetch(origin, { headers: { 'User-Agent': 'Googlebot/2.1' } })
     assert.equal(googleHome.headers.get('x-robots-tag'), 'noindex', 'Vite previews may not be indexed')
+    const sitemap = await fetch(new URL('sitemap.xml', origin))
+    assert.match(sitemap.headers.get('content-type') ?? '', /xml/)
+    assert.match(await sitemap.text(), /<loc>https:\/\/seoulmotetyouthchoir\.com\/<\/loc>/)
     const font = await fetch(new URL('fonts/Hahmlet-Variable.woff2', origin), { method: 'HEAD' })
     assert.match(font.headers.get('content-type') ?? '', /woff2/)
     const missing = await fetch(new URL('fonts/missing.woff2', origin), { headers: { accept: 'text/html' } })
