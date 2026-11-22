@@ -228,6 +228,8 @@ export interface NoticeRow extends CmsRecord {
   category: 'notice' | 'join' | 'concert' | 'rehearsal' | 'press' | 'news'
   content: string | null
   cover_image_url: string | null
+  external_url?: string | null
+  attachments?: string[]
   is_important: boolean
   is_visible: boolean
 }

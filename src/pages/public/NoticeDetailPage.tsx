@@ -10,6 +10,7 @@ import { LoadingState } from '../../components/common/LoadingState'
 import { SeoHead } from '../../components/common/SeoHead'
 import { OptimizedImage } from '../../components/common/OptimizedImage'
 import { formatNoticeDate, getNoticeCategoryLabel } from '../../components/notices/noticeViewModel'
+import { NoticeResources } from '../../components/notices/NoticeResources'
 import { useNoticeDetailData } from '../../hooks/usePublicData'
 import { usePageCopy } from '../../components/site-editor/usePageCopy'
 import '../../styles/notices-page.css'
@@ -82,7 +83,10 @@ export function NoticeDetailPage() {
                 transform={{ quality: 85, resize: 'contain', width: 1280, widths: [640, 960, 1280] }}
               />
             ) : null}
-            <div className="notices-page__body" lang={workflowTextLanguage(notice.content, english)}>{notice.content || <FormattedCopy page="notice-detail" id="notice-detail.bodyEmpty" text={t('bodyEmpty')}>{t('bodyEmpty')}</FormattedCopy>}</div>
+            {notice.content || (!notice.external_url && !notice.attachments?.length) ? (
+              <div className="notices-page__body" lang={workflowTextLanguage(notice.content, english)}>{notice.content || <FormattedCopy page="notice-detail" id="notice-detail.bodyEmpty" text={t('bodyEmpty')}>{t('bodyEmpty')}</FormattedCopy>}</div>
+            ) : null}
+            <NoticeResources english={english} key={notice.id} notice={notice} />
           </article>
         )}
         <div className="notices-page__back">

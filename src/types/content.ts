@@ -256,6 +256,8 @@ export interface Notice {
   category: NoticeCategory
   content: string
   cover_image_url: string
+  external_url?: string
+  attachments?: string[]
   is_important: boolean
   is_visible: boolean
   created_at: ISODateTime

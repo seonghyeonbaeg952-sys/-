@@ -64,7 +64,7 @@ type AdminCrudListPageProps<TTable extends CmsTableName> = {
   preparePayload?: (
     payload: CmsMutationPayload,
     row: CmsRowFor<TTable> | null,
-  ) => CmsMutationPayload
+  ) => CmsMutationPayload | Promise<CmsMutationPayload>
   prepareInitialData?: (row: CmsRowFor<TTable>) => Partial<CmsRowFor<TTable>>
   prepareRows?: (rows: Array<CmsRowFor<TTable>>) => Array<CmsRowFor<TTable>>
   renderBeforeForm?: (row: CmsRowFor<TTable>) => ReactNode
@@ -114,6 +114,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
   const [deleteTarget, setDeleteTarget] = useState<CmsRowFor<TTable> | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
+  const [isPreparing, setIsPreparing] = useState(false)
   const [isFormDirty, setIsFormDirty] = useState(false)
   const [englishRow, setEnglishRow] = useState<CmsRowFor<TTable> | null>(null)
   const [englishFilter, setEnglishFilter] = useState<PageEnglishFilter>('all')
@@ -149,9 +150,10 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
     pageSize: 25,
   })
 
+  const isSaving = isPreparing || crud.isMutating
   useUnsavedChangesGuard({
-    enabled: isFormOpen && (isFormDirty || crud.isMutating),
-    message: crud.isMutating
+    enabled: isFormOpen && (isFormDirty || isSaving),
+    message: isSaving
       ? '저장 중입니다. 지금 이동하면 저장이 완료되지 않을 수 있습니다. 페이지를 이동할까요?'
       : undefined,
   })
@@ -164,7 +166,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
   }, [])
 
   const requestCloseForm = useCallback(() => {
-    if (crud.isMutating) {
+    if (isSaving) {
       return
     }
 
@@ -178,7 +180,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
     }
 
     resetAndCloseForm()
-  }, [crud.isMutating, isFormDirty, resetAndCloseForm])
+  }, [isSaving, isFormDirty, resetAndCloseForm])
 
   const formInitialData =
     editingRow && prepareInitialData ? prepareInitialData(editingRow) : editingRow
@@ -205,28 +207,31 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
   }] : columns
 
   const handleSubmit = async (payload: CmsMutationPayload) => {
-    const preparedPayload = preparePayload
-      ? preparePayload(payload, editingRow)
-      : payload
-    const validationError = validatePayload?.(preparedPayload, editingRow) ?? null
-
-    if (validationError) {
-      setFormError(validationError)
-      return false
-    }
-
     setFormError(null)
-    const result = editingRow
-      ? await crud.updateItem(editingRow.id, preparedPayload)
-      : await crud.createItem(preparedPayload)
+    setIsPreparing(true)
+    try {
+      const preparedPayload = preparePayload ? await preparePayload(payload, editingRow) : payload
+      const validationError = validatePayload?.(preparedPayload, editingRow) ?? null
+      if (validationError) {
+        setFormError(validationError)
+        return false
+      }
 
-    if (result.error) {
-      setFormError(result.error)
+      const result = editingRow
+        ? await crud.updateItem(editingRow.id, preparedPayload)
+        : await crud.createItem(preparedPayload)
+      if (result.error) {
+        setFormError(result.error)
+        return false
+      }
+      resetAndCloseForm()
+      return true
+    } catch (error) {
+      setFormError(error instanceof Error ? error.message : '저장을 준비하지 못했습니다. 연결을 확인한 뒤 다시 시도해 주세요.')
       return false
+    } finally {
+      setIsPreparing(false)
     }
-
-    resetAndCloseForm()
-    return true
   }
 
   const handleDelete = async () => {
@@ -364,7 +369,7 @@ export function AdminCrudListPage<TTable extends CmsTableName>({
         ) : null}
         <AdminRecordForm
           defaultValues={defaultValues}
-          disabled={crud.isMutating}
+          disabled={isSaving}
           fields={fields}
           initialData={formInitialData}
           key={editingRow?.id ?? 'new'}

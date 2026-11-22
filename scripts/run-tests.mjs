@@ -64,6 +64,7 @@ const tests = [
   'src/pages/admin/AdminMembersPage.test.mjs',
   'src/components/about/MembersArchive.contract.test.mjs',
   'src/components/gallery/galleryViewModel.test.mjs',
+  'src/lib/noticeResources.test.mjs',
   'src/components/join/joinApplicationModel.test.mjs',
   'src/lib/joinApplications.test.mjs',
   'src/lib/joinRecruitment.test.mjs',

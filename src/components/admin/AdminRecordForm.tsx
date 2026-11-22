@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
-import type { FormEvent } from 'react'
+import type { FormEvent, ReactNode } from 'react'
 
 import { cleanPayload } from '../../lib/cms'
 import { isSignaturePng } from '../../lib/intakeModel'
@@ -12,6 +12,7 @@ import { AdminSwitch } from './AdminSwitch'
 import { AdminTextarea } from './AdminTextarea'
 
 export type AdminFieldType =
+  | 'custom'
   | 'date'
   | 'datetime-local'
   | 'email'
@@ -23,6 +24,19 @@ export type AdminFieldType =
   | 'text'
   | 'textarea'
   | 'url'
+
+type CustomFieldProps = {
+  disabled: boolean
+  id: string
+  value: CmsValue | undefined
+  onChange: (value: CmsValue) => void
+}
+
+function CustomField({ renderControl, ...props }: CustomFieldProps & {
+  renderControl?: (props: CustomFieldProps) => ReactNode
+}) {
+  return renderControl?.(props) ?? null
+}
 
 export type AdminFieldConfig<TRow extends CmsRecord> = {
   accept?: string
@@ -37,6 +51,7 @@ export type AdminFieldConfig<TRow extends CmsRecord> = {
   name: Extract<keyof TRow, string>
   options?: AdminSelectOption[]
   placeholder?: string
+  renderControl?: (props: CustomFieldProps) => ReactNode
   readOnly?: boolean
   required?: boolean
   rows?: number
@@ -268,6 +283,18 @@ export function AdminRecordForm<TRow extends CmsRecord>({
       label: field.label,
       name: field.name,
       required: field.required,
+    }
+
+    if (field.type === 'custom') {
+      return <div className={field.fullWidth ? 'md:col-span-2' : undefined} key={field.name}>
+        <CustomField
+          disabled={Boolean(commonProps.disabled)}
+          id={fieldId}
+          onChange={next => setValue(field.name, next)}
+          renderControl={field.renderControl}
+          value={value}
+        />
+      </div>
     }
 
     if (field.type === 'textarea') {

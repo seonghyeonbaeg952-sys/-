@@ -2,6 +2,7 @@ import { SUPABASE_SETUP_MESSAGE, getSupabaseClientSafe } from './auth'
 import { videoArtworkSources } from '../features/site-photos/videoArtwork'
 import { submitContactIntake, submitSupportIntake } from './intakeApi'
 import { isSiteEditorPreview, PREVIEW_SUBMISSION_MESSAGE } from './siteEditorPreview'
+import { getNoticeAttachmentPaths, getNoticeExternalUrl } from './noticeResources'
 import {
   mockSiteSettings,
   mockSupportSettings,
@@ -792,6 +793,8 @@ function mapNotice(row: NoticeRow): Notice {
     category: mapNoticeCategory(row.category),
     content: nullableString(row.content),
     cover_image_url: nullableString(row.cover_image_url),
+    ...(row.external_url && { external_url: getNoticeExternalUrl(row.external_url) ?? undefined }),
+    ...(row.attachments?.length && { attachments: getNoticeAttachmentPaths(row.attachments) }),
     created_at: row.created_at ?? '',
     is_important: row.is_important,
     is_visible: row.is_visible,
@@ -1299,12 +1302,16 @@ export async function getPublicNoticeById(
     return { data: null, error: clientResult.error ?? SUPABASE_SETUP_MESSAGE }
   }
 
-  const { data, error } = await clientResult.data
-    .from('notices')
-    .select(NOTICE_SELECT)
-    .eq('id', id)
-    .eq('is_visible', true)
-    .maybeSingle()
+  const client = clientResult.data
+  const readNotice = (columns: string) => client.from('notices')
+    .select(columns).eq('id', id).eq('is_visible', true).maybeSingle()
+  let { data, error } = await readNotice(`${NOTICE_SELECT},external_url,attachments`)
+  if (error && ['42703', 'PGRST204'].includes(error.code)
+    && /\b(external_url|attachments)\b/.test(getErrorMessage(error))) {
+    const legacy = await readNotice(NOTICE_SELECT)
+    data = legacy.data
+    error = legacy.error
+  }
 
   if (error) {
     return { data: null, error: toPublicError(error, '공지 상세를 불러오지 못했습니다.') }
