@@ -81,6 +81,7 @@ const tests = [
   'src/pages/public/homeHoldScroll.test.mjs',
   'src/pages/public/HomePage.handoff.test.mjs',
   'src/hooks/useHomeMotionDirector.test.mjs',
+  'src/components/home/homeQuickActionsScroll.test.mjs',
   'src/components/contact/contactFormModel.test.mjs',
   'src/components/contact/SupportPledgeForm.test.mjs',
   'src/lib/homeContent.contract.test.mjs',

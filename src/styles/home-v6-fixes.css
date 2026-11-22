@@ -2547,13 +2547,11 @@
   z-index: 1;
 }
 
-.home-quick-action-card:hover::before,
 .home-quick-action-card:focus-visible::before {
   opacity: 0.62;
   transform: scaleX(1);
 }
 
-.home-quick-action-card:hover::after,
 .home-quick-action-card:focus-visible::after {
   animation: home-card-sheen 880ms ease-out 1;
 }
@@ -2897,7 +2895,6 @@
     animation: none !important;
   }
 
-  .home-quick-action-card:hover::after,
   .home-quick-action-card:focus-visible::after {
     animation: none !important;
   }

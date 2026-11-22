@@ -1,5 +1,22 @@
 /* Figma 10:20: compact code/title rows. The tablet extends the same pattern
    with 48px side padding; desktop uses the separate matte guide band. */
+.public-shell-home-sample-v4 .home-quick-actions[data-quick-scroll-hidden] {
+  transition: opacity 160ms ease-out, visibility 0s;
+}
+
+.public-shell-home-sample-v4 .home-quick-actions[data-quick-scroll-hidden='true'] {
+  opacity: 0 !important;
+  visibility: hidden;
+  pointer-events: none !important;
+  transition: opacity 160ms ease-out, visibility 0s 160ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .public-shell-home-sample-v4 .home-quick-actions[data-quick-scroll-hidden] {
+    transition: none;
+  }
+}
+
 @media (max-width: 1365px), (any-pointer: coarse),
   (min-width: 1366px) and (max-width: 1600px) and (max-aspect-ratio: 3/2) {
   .public-shell-home-sample-v4[data-design-candidate='home-v4'].color-sample-theme.public-shell-home

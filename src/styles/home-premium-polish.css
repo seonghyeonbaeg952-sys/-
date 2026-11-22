@@ -129,7 +129,6 @@
 .home-quick-action-card {
   min-height: 136px;
   transition:
-    transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
     border-color 280ms ease,
     box-shadow 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -148,7 +147,6 @@
   box-shadow:
     0 24px 54px rgb(var(--home-premium-navy) / 0.11),
     0 1px 0 rgb(255 255 255 / 0.78) inset !important;
-  transform: translateY(-3px);
 }
 
 .home-flow-root .interactive-card {
@@ -479,42 +477,6 @@
 
 .home-flow-body [data-motion-phase="current"] .motion-program-slot:nth-child(3) {
   animation: home-motion-program-cue 780ms var(--home-motion-ease-entrance) 200ms both;
-}
-
-.home-quick-action-card::after {
-  display: block;
-  inset: -35% auto -35% 24%;
-  width: 44%;
-  background: linear-gradient(
-    104deg,
-    transparent 4%,
-    rgb(255 253 248 / 0.04) 30%,
-    rgb(var(--home-premium-gold) / 0.2) 50%,
-    rgb(255 253 248 / 0.08) 70%,
-    transparent 96%
-  );
-  opacity: 0;
-  transform: translate3d(calc(var(--motion-pointer-x-percent, 0%) - 50%), 0, 0)
-    skewX(-10deg);
-  transition:
-    opacity 220ms ease,
-    transform 90ms linear;
-}
-
-.home-quick-action-card[data-motion-pointer="true"] {
-  transform: perspective(1200px)
-    rotateX(var(--motion-pointer-tilt-x, 0deg))
-    rotateY(var(--motion-pointer-tilt-y, 0deg))
-    translateY(-4px);
-  will-change: transform;
-}
-
-.home-quick-action-card[data-motion-pointer="true"]::after {
-  opacity: 0.62;
-}
-
-.home-quick-action-card:focus-visible::after {
-  animation: home-motion-surface-sheen 900ms var(--home-motion-ease-settle) both;
 }
 
 [data-flow-section="join-letter"]
@@ -881,7 +843,6 @@
     animation: none !important;
   }
 
-  .home-quick-action-card[data-motion-pointer="true"],
   [data-flow-section="join-letter"]
     > .mx-auto
     > .reveal-motion

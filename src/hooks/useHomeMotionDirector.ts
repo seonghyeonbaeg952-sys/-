@@ -2,7 +2,6 @@ import { useEffect, type RefObject } from 'react'
 
 const motionSurfaceSelector = [
   '.home-hero-section',
-  '.home-quick-action-card',
   '.home-flow-body .interactive-card',
   '.home-about-grid a.group',
   '.home-about-grid [class*="min-h-44"]',

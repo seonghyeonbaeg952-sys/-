@@ -25,8 +25,8 @@ function mount() {
     removeAttribute(name) { if (name === 'data-motion-pointer') delete this.dataset.motionPointer }
     getBoundingClientRect() { return { left: 0, top: 0, width: 1000, height: 800, bottom: 800 } }
   }
-  const hero = new Element('home-hero-section'), card = new Element('home-quick-action-card')
-  const root = { dataset: {}, querySelectorAll: () => [], contains: element => element === hero || element === card,
+  const hero = new Element('home-hero-section'), card = new Element('home-quick-action-card'), support = new Element('support-letter-card')
+  const root = { dataset: {}, querySelectorAll: () => [], contains: element => element === hero || element === card || element === support,
     addEventListener: (name, callback) => rootListeners.set(name, callback), removeEventListener: name => rootListeners.delete(name) }
   const media = matches => ({ matches, addEventListener(_, callback) { this.change = callback }, removeEventListener() { delete this.change } })
   const reduced = media(false), fine = media(true)
@@ -41,7 +41,7 @@ function mount() {
   })
   exports.useHomeMotionDirector({ current: root })
   const frame = () => { const callbacks = [...frames.values()]; frames.clear(); callbacks.forEach(callback => callback()) }
-  return { hero, card, reduced, fine, frames, frame,
+  return { hero, card, support, reduced, fine, frames, frame,
     move(target = hero, x = 750, y = 200) { rootListeners.get('pointermove')?.({ target, clientX: x, clientY: y, pointerType: 'mouse' }); frame() },
     queueMove(target = hero) { rootListeners.get('pointermove')?.({ target, clientX: 750, clientY: 200, pointerType: 'mouse' }) },
     scroll() { windowListeners.get('scroll')?.() },
@@ -67,8 +67,19 @@ test('a visible collage never reactivates photographic parallax or gradient repa
     for (let n = 0; n < 20; n++) h.move(h.hero, n * 30, n * 20)
     assert.equal(h.hero.dataset.motionPointer, undefined)
     assert.equal(h.hero.properties.size, 0, 'Do not rewrite ten inherited pointer variables underneath the settled paper layers')
-    h.move(h.card)
-    assert.equal(h.card.dataset.motionPointer, 'true', 'Other intentional pointer surfaces are unchanged')
+    h.move(h.support)
+    assert.equal(h.support.dataset.motionPointer, 'true', 'Other intentional pointer surfaces are unchanged')
+  } finally { h.cleanup() }
+})
+
+test('moving the pointer over quick links never assigns tilt or translation coordinates', () => {
+  const h = mount()
+  try {
+    h.move(h.hero)
+    for (const [x, y] of [[0, 0], [500, 400], [999, 799]]) h.move(h.card, x, y)
+    assert.equal(h.card.dataset.motionPointer, undefined)
+    assert.equal(h.card.properties.size, 0)
+    assert.equal(h.hero.dataset.motionPointer, undefined, 'Leaving the hero for a quick link clears its previous pointer state')
   } finally { h.cleanup() }
 })
 

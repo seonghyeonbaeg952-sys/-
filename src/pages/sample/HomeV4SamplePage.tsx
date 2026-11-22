@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef } from 'react'
 
 import { HomeV4SampleHeader } from '../../components/sample/home-v4/HomeV4SampleHeader'
 import { useHomeResponsiveViewport } from '../../components/home/useHomeResponsiveViewport'
+import { observeHomeQuickActionsScroll } from '../../components/home/homeQuickActionsScroll'
 import { Footer } from '../../components/layout/Footer'
 import { SiteCopy } from '../../components/site-editor/SiteCopy'
 import { HomeRoute } from '../public/HomeRoute'
@@ -19,6 +20,11 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
   const isSample = mode === 'sample'
   const viewport = useHomeResponsiveViewport()
   const shellRef = useRef<HTMLDivElement>(null)
+
+  useLayoutEffect(() => {
+    const shell = shellRef.current
+    if (shell) return observeHomeQuickActionsScroll(shell)
+  }, [])
 
   useEffect(() => {
     if (!isSample) {
@@ -310,40 +316,20 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
       -1,
     ] as const
     let frame = 0
+    let updateFrame = 0
     let targetProgress = 0
     let renderedProgress = 0
     let animationStart = 0
     let animationFrom = 0
-    let scrollGuideProgress = 0
-    let guideHeight = 148
-
-    const syncGuideHeight = () => {
-      // Resolve the responsive CSS height through layout rather than parsing a
-      // custom property containing clamp(). The grid stays at its rest height
-      // while its enclosing section collapses during the existing handoff.
-      const grid = shell.querySelector<HTMLElement>('.home-quick-action-grid')
-      const restHeight = Number.parseFloat(
-        window.getComputedStyle(shell).getPropertyValue('--home-v4-guide-rest-height'),
-      )
-      guideHeight = grid && grid.offsetHeight > 0
-        ? grid.offsetHeight + 16
-        : Number.isFinite(restHeight) && restHeight > 0 ? restHeight : 148
-    }
-
+    let lastAppliedProgress: number | null = null
+    let introVisible = false
+    let motionEnabled = false
     const reset = () => {
-      scrollGuideProgress = 0
+      lastAppliedProgress = null
       shell.style.removeProperty('--home-v4-hero-retreat-scale')
       shell.style.removeProperty('--home-v4-hero-retreat-y')
       shell.style.removeProperty('--home-v4-hero-retreat-radius')
       shell.style.removeProperty('--home-v4-hero-retreat-shadow')
-      shell.style.removeProperty('--home-v4-guide-exit-opacity')
-      shell.style.removeProperty('--home-v4-guide-exit-y')
-      shell.style.removeProperty('--home-v4-guide-exit-scale')
-      shell.style.removeProperty('--home-v4-guide-pointer-events')
-      shell.style.removeProperty('--home-v4-guide-exit-height')
-      shell.style.removeProperty('--home-v4-guide-exit-margin-top')
-      shell.style.removeProperty('--home-v4-guide-exit-margin-bottom')
-      shell.style.removeProperty('--home-v4-guide-exit-padding-bottom')
       shell.style.removeProperty('--home-v4-paper-seal-opacity')
       hero.removeAttribute('data-paper-transition')
       paperPieces.forEach((piece) => {
@@ -352,26 +338,10 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
       })
     }
 
-    const getScrollMetrics = () => {
-      const triggerDistance = Math.min(window.innerHeight * 0.11, 84)
-      const travelled = Math.max(0, -intro.getBoundingClientRect().top)
-
-      return {
-        travelled,
-        triggerDistance,
-      }
-    }
-
     const applyProgress = (progress: number) => {
-      const handoffHold = Math.min(
-        260,
-        Math.max(200, window.innerHeight * 0.26),
-      )
+      if (!introVisible || progress === lastAppliedProgress) return
+      lastAppliedProgress = progress
       const curtainProgress = progress * progress * (3 - 2 * progress)
-      const guideProgress = Math.max(
-        scrollGuideProgress,
-        Math.min(1, Math.max(0, (progress - 0.08) / 0.66)),
-      )
 
       paperPieces.forEach((piece, index) => {
         const delay = paperPieceDelays[index] ?? 0
@@ -428,39 +398,6 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
         '0',
       )
       shell.style.setProperty(
-        '--home-v4-guide-exit-opacity',
-        `${1 - guideProgress}`,
-      )
-      shell.style.setProperty(
-        '--home-v4-guide-exit-y',
-        `${guideProgress * -14}px`,
-      )
-      shell.style.setProperty(
-        '--home-v4-guide-exit-scale',
-        `${1 - guideProgress * 0.018}`,
-      )
-      shell.style.setProperty(
-        '--home-v4-guide-pointer-events',
-        guideProgress >= 0.98 ? 'none' : 'auto',
-      )
-      shell.style.setProperty(
-        '--home-v4-guide-exit-height',
-        `${(1 - guideProgress) * guideHeight}px`,
-      )
-      shell.style.setProperty(
-        '--home-v4-guide-exit-margin-top',
-        `${(1 - guideProgress) * -(guideHeight + handoffHold)}px`,
-      )
-      shell.style.setProperty(
-        '--home-v4-guide-exit-margin-bottom',
-        `${(1 - guideProgress) * 118}px`,
-      )
-      shell.style.setProperty(
-        '--home-v4-guide-exit-padding-bottom',
-        `${(1 - guideProgress) * 16}px`,
-      )
-
-      shell.style.setProperty(
         '--home-v4-paper-seal-opacity',
         progress >= 0.995 ? '1' : '0',
       )
@@ -485,20 +422,24 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
       if (renderedProgress === 0) hero.dataset.paperTransition = 'idle'
     }
 
-    const queueUpdate = () => {
+    const updateTarget = () => {
+      updateFrame = 0
       if (!desktopQuery.matches || reducedMotionQuery.matches) {
         window.cancelAnimationFrame(frame)
         frame = 0
         targetProgress = 0
         renderedProgress = 0
-        reset()
+        if (motionEnabled) reset()
+        motionEnabled = false
         return
       }
-
-      const { travelled, triggerDistance } = getScrollMetrics()
+      motionEnabled = true
+      const rect = intro.getBoundingClientRect()
+      introVisible = rect.bottom > 0 && rect.top < window.innerHeight
+      const travelled = Math.max(0, -rect.top)
+      const triggerDistance = Math.min(window.innerHeight * 0.11, 84)
       const nextTarget =
         travelled >= triggerDistance ? 1 : travelled <= 2 ? 0 : targetProgress
-      scrollGuideProgress = Math.min(1, travelled / 190)
 
       if (nextTarget !== targetProgress) {
         targetProgress = nextTarget
@@ -516,44 +457,24 @@ function HomeV4Experience({ mode }: HomeV4ExperienceProps) {
       }
     }
 
-    const resizeGuide = () => {
-      syncGuideHeight()
-      queueUpdate()
+    const queueUpdate = () => {
+      if (!updateFrame) updateFrame = window.requestAnimationFrame(updateTarget)
     }
 
-    const guideSizeObserver = new ResizeObserver(resizeGuide)
-    const connectGuideSize = () => {
-      const grid = shell.querySelector<HTMLElement>('.home-quick-action-grid')
-      if (!grid) return
-      guideSizeObserver.observe(grid)
-      guideMountObserver.disconnect()
-      resizeGuide()
-    }
-    // The responsive quick-menu branch can mount after this parent's layout
-    // effect. Observe that boundary once, then track only its stable rest grid.
-    const guideMountObserver = new MutationObserver(connectGuideSize)
-    guideMountObserver.observe(shell, { childList: true, subtree: true })
-    connectGuideSize()
-
-    syncGuideHeight()
-    if (desktopQuery.matches && !reducedMotionQuery.matches) {
-      applyProgress(0)
-      queueUpdate()
-    } else {
-      reset()
-    }
+    updateTarget()
     window.addEventListener('scroll', queueUpdate, { passive: true })
-    window.addEventListener('resize', resizeGuide)
-    desktopQuery.addEventListener('change', resizeGuide)
+    window.addEventListener('resize', queueUpdate)
+    window.addEventListener('pageshow', queueUpdate)
+    desktopQuery.addEventListener('change', queueUpdate)
     reducedMotionQuery.addEventListener('change', queueUpdate)
 
     return () => {
       window.cancelAnimationFrame(frame)
+      window.cancelAnimationFrame(updateFrame)
       window.removeEventListener('scroll', queueUpdate)
-      window.removeEventListener('resize', resizeGuide)
-      guideSizeObserver.disconnect()
-      guideMountObserver.disconnect()
-      desktopQuery.removeEventListener('change', resizeGuide)
+      window.removeEventListener('resize', queueUpdate)
+      window.removeEventListener('pageshow', queueUpdate)
+      desktopQuery.removeEventListener('change', queueUpdate)
       reducedMotionQuery.removeEventListener('change', queueUpdate)
       reset()
     }

@@ -3058,12 +3058,9 @@
       var(--home-v4-guide-exit-padding-bottom, 24px);
     overflow: clip;
     background: transparent !important;
-    opacity: var(--home-v4-guide-exit-opacity, 1);
-    pointer-events: var(--home-v4-guide-pointer-events, auto);
-    transform: translateY(var(--home-v4-guide-exit-y, 0))
-      scale(var(--home-v4-guide-exit-scale, 1));
-    transform-origin: center top;
-    will-change: opacity, transform;
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
   }
 
   .public-shell-home-sample-v4[data-design-candidate='home-v4']

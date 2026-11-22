@@ -55,7 +55,17 @@
   overscroll-behavior: contain;
 }
 
+/* Use a small subset of Gowun Batang for the default Korean loading labels. */
+@font-face {
+  font-family: "Gowun Batang Loading";
+  src: url("/fonts/GowunBatang-Loading.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: optional;
+}
+
 .route-loading-screen {
+  --route-loading-korean-family: Batang, AppleMyungjo, serif;
   display: grid;
   min-height: 100svh;
   place-items: center;
@@ -85,6 +95,22 @@
   display: grid;
   justify-items: center;
   gap: 6px;
+}
+
+.route-loading-screen[data-korean-font="ready"] {
+  --route-loading-korean-family: "Gowun Batang Loading", Batang, AppleMyungjo, serif;
+}
+
+.route-loading-screen__copy:lang(ko),
+.route-loading-screen__content .sample-language-switch__trigger:lang(ko) {
+  font-family: var(--route-loading-korean-family);
+}
+
+.route-loading-screen[data-korean-font="pending"] :is(
+  .route-loading-screen__copy:lang(ko) > :is(p, strong),
+  .sample-language-switch__trigger:lang(ko)
+) {
+  visibility: hidden;
 }
 
 .route-loading-screen__spinner {
