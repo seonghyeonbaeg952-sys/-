@@ -2,7 +2,7 @@ import { useSampleLanguage } from '../../features/sample-language/useSampleLangu
 import { workflowCopy, workflowDate, workflowTextLanguage } from '../common/workflowCopy'
 import { FormattedCopy } from '../site-editor/FormattedCopy'
 import { useSiteEditor } from '../site-editor/useSiteEditor'
-import { useEffect, useId, useRef } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 
 import { OptimizedImage } from '../common/OptimizedImage'
@@ -17,6 +17,64 @@ type GalleryViewerProps = {
   count: number
   onClose: () => void
   onMove: (direction: 'next' | 'previous') => void
+}
+
+const imageSizes = '(min-width: 1536px) 1440px, calc(100vw - 96px)'
+const zoomedImageSizes = '(min-width: 1148px) 2200px, calc(200vw - 96px)'
+const imageTransform = { quality: 90, resize: 'contain' as const, width: 2200, widths: [760, 1440, 2200] }
+
+function GalleryImagePanel({ item }: { item: GalleryImage | Poster }) {
+  const { copy: copyText } = useSiteEditor()
+  const { enabled, language, translate } = useSampleLanguage()
+  const english = enabled && language === 'en'
+  const [zoomed, setZoomed] = useState(false)
+  const [unavailable, setUnavailable] = useState(false)
+  const canvasRef = useRef<HTMLDivElement>(null)
+  const canvasId = useId()
+  const canZoom = Boolean(item.image_url.trim()) && !unavailable
+
+  useLayoutEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    canvas.scrollLeft = zoomed ? (canvas.scrollWidth - canvas.clientWidth) / 2 : 0
+    canvas.scrollTop = zoomed ? (canvas.scrollHeight - canvas.clientHeight) / 2 : 0
+  }, [zoomed])
+
+  return (
+    <div className="gallery-viewer__media">
+      <div className="gallery-viewer__zoom">
+        <button aria-controls={canvasId} disabled={!canZoom} onClick={() => setZoomed(value => !value)} type="button">
+          <span aria-hidden="true">{zoomed ? '−' : '+'}</span>
+          {workflowCopy(translate, zoomed ? '화면에 맞추기' : '확대')}
+        </button>
+      </div>
+      <div
+        aria-label={english ? 'Image preview' : '이미지 미리보기'}
+        className="gallery-viewer__canvas"
+        data-zoomed={zoomed || undefined}
+        id={canvasId}
+        onKeyDown={event => {
+          if (zoomed && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) event.stopPropagation()
+        }}
+        ref={canvasRef}
+        role="region"
+        tabIndex={zoomed ? 0 : undefined}
+      >
+        <OptimizedImage
+          alt={'image_alt' in item ? item.image_alt : workflowCopy(translate, '{title} 포스터', { title: item.title })}
+          className="gallery-viewer__image"
+          fallbackLabel={copyText('gallery', 'gallery.fixed.GalleryViewer.7f6db8b4d5', '이미지를 불러올 수 없습니다')}
+          fallbackVariant="gallery"
+          objectFit="contain"
+          onError={() => { setUnavailable(true); setZoomed(false) }}
+          priority
+          sizes={zoomed ? zoomedImageSizes : imageSizes}
+          src={item.image_url}
+          transform={imageTransform}
+        />
+      </div>
+    </div>
+  )
 }
 
 export function GalleryViewer({ item, index, count, onClose, onMove }: GalleryViewerProps) {
@@ -69,7 +127,7 @@ export function GalleryViewer({ item, index, count, onClose, onMove }: GalleryVi
       onClick={event => { if (backdropPress.current && isBackdrop(event)) onClose(); backdropPress.current = false }}
       onKeyDown={event => {
         if (event.key === 'Tab') {
-          const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], iframe'))
+          const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], iframe, [tabindex="0"]'))
           const first = controls[0], last = controls.at(-1)
           if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus() }
           else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus() }
@@ -99,17 +157,7 @@ export function GalleryViewer({ item, index, count, onClose, onMove }: GalleryVi
             />
           </div>
         ) : 'image_url' in item ? (
-          <OptimizedImage
-            alt={'image_alt' in item ? item.image_alt : workflowCopy(translate, '{title} 포스터', { title: item.title })}
-            className="gallery-viewer__image"
-            fallbackLabel={copyText("gallery", "gallery.fixed.GalleryViewer.7f6db8b4d5", "이미지를 불러올 수 없습니다")}
-            fallbackVariant="gallery"
-            objectFit="contain"
-            priority
-            sizes="(min-width: 1536px) 1440px, calc(100vw - 96px)"
-            src={item.image_url}
-            transform={{ quality: 90, resize: 'contain', width: 2200, widths: [760, 1440, 2200] }}
-          />
+          <GalleryImagePanel item={item} key={item.id} />
         ) : null}
         <div className="gallery-viewer__details">
           <p className="gallery-viewer__title" lang={workflowTextLanguage(item.title, english)}>{item.title}</p>

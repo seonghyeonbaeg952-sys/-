@@ -5,18 +5,26 @@ import test from 'node:test'
 const read = (path) => readFile(new URL(path, import.meta.url), 'utf8')
 
 test('Spirit uses a scalable SMY vector while keeping raster social fallbacks', async () => {
-  const [componentSource, brandSource, indexSource, svgSource, seoSource] =
+  const [componentSource, brandSource, indexSource, svgSource, seoSource, favicon, fallbackIcon] =
     await Promise.all([
       read('../components/spirit/SpiritHeritageExperience.tsx'),
       read('../constants/brand.ts'),
       read('../../index.html'),
       read('../../public/images/brand/smyc-symbol-vector.svg'),
       read('../components/common/SeoHead.tsx'),
+      readFile(new URL('../../public/favicon.png', import.meta.url)),
+      readFile(new URL('../../public/favicon.ico', import.meta.url)),
     ])
 
   assert.match(componentSource, /src="\/images\/brand\/smyc-symbol-vector\.svg"/)
   assert.match(brandSource, /symbolTransparentPath: '\/images\/brand\/smyc-symbol-vector\.svg'/)
-  assert.match(indexSource, /type="image\/svg\+xml" href="\/images\/brand\/smyc-symbol-vector\.svg"/)
+  assert.match(indexSource, /rel="icon" type="image\/png" sizes="96x96" href="\/favicon\.png"/)
+  assert.equal(favicon.subarray(0, 8).toString('hex'), '89504e470d0a1a0a')
+  assert.equal(favicon.readUInt32BE(16), 96)
+  assert.equal(favicon.readUInt32BE(20), 96)
+  assert.equal(fallbackIcon.readUInt16LE(2), 1)
+  assert.equal(fallbackIcon.readUInt16LE(4), 4)
+  assert.deepEqual([6, 22, 38, 54].map(offset => [fallbackIcon[offset], fallbackIcon[offset + 1]]), [[16, 16], [32, 32], [48, 48], [96, 96]])
   assert.match(indexSource, /rel="apple-touch-icon" href="\/images\/brand\/smyc-symbol-transparent-hd\.png"/)
   assert.match(seoSource, /smyc-symbol-transparent-hd\.png/)
   assert.match(svgSource, /viewBox="0 0 111 122"/)
