@@ -45,7 +45,7 @@ function GalleryImagePanel({ item }: { item: GalleryImage | Poster }) {
       <div className="gallery-viewer__zoom">
         <button aria-controls={canvasId} disabled={!canZoom} onClick={() => setZoomed(value => !value)} type="button">
           <span aria-hidden="true">{zoomed ? '−' : '+'}</span>
-          {workflowCopy(translate, zoomed ? '화면에 맞추기' : '확대')}
+          {workflowCopy(translate, zoomed ? '화면에 맞추기' : '확대', {})}
         </button>
       </div>
       <div
