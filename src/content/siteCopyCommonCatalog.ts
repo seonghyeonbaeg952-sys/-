@@ -50,6 +50,8 @@ const fixed = [
   ['common.footer.address', '푸터', '주소 라벨', '주소'],
   ['common.footer.phone', '푸터', '전화 라벨', '전화'],
   ['common.footer.email', '푸터', '이메일 라벨', '이메일'],
+  ['common.footer.bugReportPrefix', '푸터', '버그 제보 문구 앞부분', '버그 제보는'],
+  ['common.footer.bugReportSuffix', '푸터', '버그 제보 문구 뒷부분', '으로 해주세요.'],
   ['common.footer.explore', '푸터', '둘러보기 표제', 'EXPLORE'],
   ['common.footer.participate', '푸터', '참여 표제', 'TAKE PART'],
   ['common.footer.connect', '푸터', '채널 표제', 'CONNECT'],

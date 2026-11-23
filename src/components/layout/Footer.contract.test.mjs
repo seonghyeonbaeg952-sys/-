@@ -21,10 +21,12 @@ test('simple utility footer keeps the approved functional groups', () => {
   }
 })
 
-test('public footer shows configured email as text and omits fax or mail action', () => {
+test('public footer keeps the configured address as text and links the dedicated bug-report address', () => {
   assert.match(footerSource, /settings\.email/)
-  assert.match(footerSource, /이메일/)
-  assert.doesNotMatch(footerSource, /settings\.fax|FAX|mailto:/)
+  assert.match(footerSource, /<p className="[^"]*footer-utility__contact-email">\s*\{email\}/)
+  assert.match(footerSource, /BUG_REPORT_EMAIL = 'peach4072@naver\.com'/)
+  assert.match(footerSource, /href=\{`mailto:\$\{BUG_REPORT_EMAIL\}`\}/)
+  assert.doesNotMatch(footerSource, /settings\.fax|FAX/)
 })
 
 test('footer links and controls keep minimum touch targets', () => {

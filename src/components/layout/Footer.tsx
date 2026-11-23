@@ -20,6 +20,7 @@ type SocialLink = {
 }
 
 const FALLBACK_ADDRESS = '서울특별시 서초구 사임당로 8길 17 서주빌딩 B1'
+const BUG_REPORT_EMAIL = 'peach4072@naver.com'
 
 const EXPLORE_LINKS = [
   { href: '/spirit', label: '합창단 정신' },
@@ -209,6 +210,16 @@ export function Footer() {
                 </div>
               ) : null}
             </address>
+            <a
+              className="footer-utility__contact-value footer-utility__contact-link"
+              href={`mailto:${BUG_REPORT_EMAIL}`}
+            >
+              <span>
+                {copy('common', 'common.footer.bugReportPrefix', '버그 제보는')}{' '}
+                <span className="footer-utility__contact-email underline underline-offset-2">{BUG_REPORT_EMAIL}</span>
+                {copy('common', 'common.footer.bugReportSuffix', '으로 해주세요.')}
+              </span>
+            </a>
           </section>
 
           <FooterLinkGroup

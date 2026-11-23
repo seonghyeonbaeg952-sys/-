@@ -54,6 +54,8 @@ export const englishPages: readonly TranslationEntry[] = [
   { source: '주소', target: 'Address' },
   { source: '전화', target: 'Phone' },
   { source: '이메일', target: 'Email' },
+  { source: '버그 제보는', target: 'Report bugs to', key: 'common.footer.bugReportPrefix' },
+  { source: '으로 해주세요.', target: '.', key: 'common.footer.bugReportSuffix' },
   { source: '공식 채널 준비 중', target: 'Official channels coming soon' },
   { source: '관리자 로그인', target: 'Admin sign in' },
   { source: '공연·소식', target: 'Concerts & News' },
