@@ -14,7 +14,7 @@
   scroll-margin-top: 0;
 }
 .join-application :is(h1,h2,h3,p,fieldset,dl,dd) { margin: 0; }
-.join-application :is(button,input,textarea) { font: inherit; }
+.join-application :is(button,input,select,textarea) { font: inherit; }
 .join-application fieldset { min-width: 0; padding: 0; border: 0; }
 .join-application__container { width: min(1368px, calc(100% - 168px)); margin-inline: auto; }
 .join-application__heading { display: grid; gap: 16px; padding-block: 64px 48px; }
@@ -32,14 +32,25 @@
 .join-application__field { display: grid; min-width: 0; gap: 12px; }
 .join-application__field > label,
 .join-application__parts > legend { font-size: 15px; font-weight: 600; line-height: 23px; }
-.join-application__field :is(input,textarea) { display: block; min-width: 0; width: 100%; min-height: 48px; padding: 12px 16px; border: 1px solid var(--application-border); border-radius: 4px; background: transparent; color: var(--application-ink); font-size: 16px; line-height: 24px; }
+.join-application__field :is(input:not([type="file"]),select,textarea) { display: block; min-width: 0; width: 100%; min-height: 48px; padding: 12px 16px; border: 1px solid var(--application-border); border-radius: 4px; background: transparent; color: var(--application-ink); font-size: 16px; line-height: 24px; }
 html[data-sample-language='en'] .join-application__field .sample-date-input select { display: block; min-width: 0; width: 100%; min-height: 48px; padding: 10px; border: 1px solid var(--application-border); border-radius: 4px; background: transparent; color: var(--application-ink); font-size: 16px; }
 .join-application__field textarea { min-height: 104px; resize: vertical; }
 .join-application__field input[type="date"] { appearance: auto; }
 .join-application__field :is(input,textarea)::placeholder { color: #77746d; opacity: 1; }
-.join-application :is(input,textarea,button,a):focus-visible { outline: 2px solid var(--application-burgundy); outline-offset: 3px; }
-.join-application [aria-invalid="true"]:is(input,textarea) { border-color: #9a2e2e; }
+.join-application :is(input,select,textarea,button,a):focus-visible,
+.join-application__file-input:focus-visible + .join-application__file-picker { outline: 2px solid var(--application-burgundy); outline-offset: 3px; }
+.join-application [aria-invalid="true"]:is(input,select,textarea),
+.join-application__file-input[aria-invalid="true"] + .join-application__file-picker { border-color: #9a2e2e; }
 .join-application__field-error { color: #9a2e2e; font-size: 14px; line-height: 22px; }
+.join-application__optional,
+.join-application__field-help { color: var(--application-muted); font-size: 14px; font-weight: 400; line-height: 22px; }
+.join-application__file-row { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.join-application__file-picker,
+.join-application__file-clear { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 14px; border: 1px solid var(--application-border); border-radius: 4px; color: var(--application-burgundy); background: transparent; cursor: pointer; font-size: 14px; }
+.join-application__file-picker:hover,
+.join-application__file-clear:hover { background: #f0ebe4; }
+.join-application__file-summary { display: flex; align-items: center; gap: 12px; min-width: 0; font-size: 14px; }
+.join-application__photo-preview { width: 60px; aspect-ratio: 3 / 4; flex: 0 0 auto; object-fit: contain; border: 1px solid var(--application-border); border-radius: 4px; }
 .join-application__parts > p { margin-top: 8px; color: var(--application-muted); font-size: 14px; line-height: 22px; }
 .join-application__part-options { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px 24px; margin-top: 16px; }
 .join-application__part-options label { display: flex; min-height: 44px; gap: 12px; align-items: center; font-size: 16px; line-height: 24px; cursor: pointer; }

@@ -355,9 +355,10 @@ export interface JoinApplicationRow extends CmsRecord {
   birth_date: string | null
   choir_experience: 'no' | 'yes' | null
   contact_time: string | null
+  department?: string | null
   desired_part: string | null
   desired_parts?: string[] | null
-  form_version?: 1 | 2
+  form_version?: 1 | 2 | 3
   submission_id?: string | null
   join_info_id?: string | null
   email: string | null
@@ -377,6 +378,7 @@ export interface JoinApplicationRow extends CmsRecord {
   recommender_reason: string | null
   region: string | null
   school: string | null
+  school_level?: string | null
   status: JoinApplicationStatus
   vision: string | null
   created_at: string

@@ -21,7 +21,7 @@ let unavailable = false
 globalThis[transportKey] = {
   getClient() {
     return unavailable ? { data: null, error: 'private configuration detail' } : {
-      data: { async rpc(...args) { calls.push(args); if (result instanceof Error) throw result; return result } },
+      data: { async rpc(...args) { calls.push(args); if (result instanceof Error) throw result; return typeof result === 'function' ? result(...args) : result } },
       error: null,
     }
   },
@@ -38,7 +38,9 @@ after(() => { delete globalThis[transportKey] })
 const joinId = '11111111-1111-4111-8111-111111111111'
 const submissionId = '22222222-2222-4222-8222-222222222222'
 const values = {
-  applicant_name: '  TEST  ', birth_date: '2010-01-01', school: ' TEST SCHOOL 2 ',
+  applicant_name: '  TEST  ', birth_date: '2010-01-01', school: ' TEST SCHOOL ',
+  school_level: 'university', grade: ' 2 ', department: ' MUSIC ', gender: 'not_specified',
+  photo_file: null, recommendation_file: null,
   applicant_phone: '+82 (10) 1234-5678', guardian_phone: '010-1234-5678',
   desired_parts: ['bass', 'soprano', 'bass'], motivation: ' TEST MOTIVATION ',
   privacy_agreed: true, website: '',
@@ -60,13 +62,22 @@ test('Korean and English sample applications never reach the intake RPC', async 
   }
 })
 
-test('readiness uses only the published guide GET RPC and returns no extra server fields', async () => {
-  reset({ data: [{ form_version: 2, server_now: '2026-09-08T12:00:00Z', recruitment_starts_at: null,
+test('readiness uses the published guide v3 GET RPC and returns no extra server fields', async () => {
+  reset({ data: [{ form_version: 3, server_now: '2026-09-08T12:00:00Z', recruitment_starts_at: null,
     recruitment_ends_at: '2026-09-30T09:00:00Z', private_sentinel: 'must not expose' }], error: null })
   assert.deepEqual(await api.getJoinApplicationConfig(joinId), {
-    data: { form_version: 2, server_now: '2026-09-08T12:00:00Z', recruitment_starts_at: null, recruitment_ends_at: '2026-09-30T09:00:00Z' }, error: null,
+    data: { form_version: 3, server_now: '2026-09-08T12:00:00Z', recruitment_starts_at: null, recruitment_ends_at: '2026-09-30T09:00:00Z' }, error: null,
   })
-  assert.deepEqual(calls, [['get_join_application_config', { p_join_info_id: joinId }, { get: true }]])
+  assert.deepEqual(calls, [['get_join_application_config_v3', { p_join_info_id: joinId }, { get: true }]])
+})
+
+test('legacy server keeps the form visible but never accepts a submission missing new fields or files', async () => {
+  reset(name => name === 'get_join_application_config'
+    ? { data: [{ form_version: 2, server_now: '2026-09-08T12:00:00Z' }], error: null }
+    : { data: null, error: { code: 'PGRST202', message: 'private SQL detail' } })
+  assert.equal((await api.getJoinApplicationConfig(joinId)).data.form_version, 2)
+  assert.match((await api.submitJoinApplication(values, joinId, submissionId)).error, /서버 연결을 준비하고/)
+  assert.deepEqual(calls.map(([name]) => name), ['get_join_application_config_v3', 'get_join_application_config', 'submit_join_application_v3'])
 })
 
 test('missing migration, invisible guide and invalid capability never become a ready form', async () => {
@@ -82,17 +93,34 @@ test('missing migration, invisible guide and invalid capability never become a r
   }
 })
 
-test('submission preserves the opaque request ID and emits only normalized seven answers plus consent', async () => {
+test('submission preserves the opaque request ID and emits normalized individual answers', async () => {
   reset({ data: true, error: null })
   const original = structuredClone(values)
   assert.deepEqual(await api.submitJoinApplication(values, joinId, submissionId), { data: true, error: null })
-  assert.deepEqual(calls[0], ['submit_join_application_v2', {
+  assert.deepEqual(calls[0], ['submit_join_application_v3', {
     p_join_info_id: joinId, p_submission_id: submissionId, p_applicant_name: 'TEST',
     p_birth_date: '2010-01-01', p_applicant_phone: '+821012345678', p_guardian_phone: '01012345678',
-    p_school: 'TEST SCHOOL 2', p_desired_parts: ['soprano', 'bass'], p_motivation: 'TEST MOTIVATION', p_privacy_agreed: true,
+    p_school: 'TEST SCHOOL', p_school_level: 'university', p_grade: '2', p_department: 'MUSIC', p_gender: 'not_specified',
+    p_desired_parts: ['soprano', 'bass'], p_motivation: 'TEST MOTIVATION', p_privacy_agreed: true, p_photo: null, p_recommendation: null,
   }])
   await api.submitJoinApplication(values, joinId, submissionId)
   assert.deepEqual(calls[1], calls[0]); assert.deepEqual(values, original)
+})
+
+test('optional files are sent once with content and returned as bounded administrator download Blobs', async () => {
+  reset({ data: true, error: null })
+  const photo = new File(['fixture'], 'photo.jpg', { type: 'image/jpeg' })
+  const recommendation = new File(['%PDF-fixture'], 'recommendation.pdf', { type: 'application/pdf' })
+  assert.deepEqual(await api.submitJoinApplication({ ...values, photo_file: photo, recommendation_file: recommendation }, joinId, submissionId), { data: true, error: null })
+  assert.deepEqual(calls[0][1].p_photo, { media_type: 'image/jpeg', base64: btoa('fixture') })
+  assert.deepEqual(calls[0][1].p_recommendation, { media_type: 'application/pdf', base64: btoa('%PDF-fixture') })
+  reset({ data: { media_type: 'application/pdf', base64: btoa('%PDF-fixture') }, error: null })
+  const downloaded = await api.getJoinApplicationAttachment(submissionId, 'recommendation')
+  assert.equal(downloaded.data.filename, '추천서.pdf')
+  assert.equal(await downloaded.data.blob.text(), '%PDF-fixture')
+  assert.deepEqual(calls[0], ['get_join_application_attachment_v3', { p_application_id: submissionId, p_kind: 'recommendation' }])
+  reset({ data: { media_type: 'text/html', base64: btoa('fixture') }, error: null })
+  assert.equal((await api.getJoinApplicationAttachment(submissionId, 'recommendation')).data, null)
 })
 
 test('legacy seeded PostgreSQL guide UUIDs remain valid independently of generated submission UUID versions', async () => {

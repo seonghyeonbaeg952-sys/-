@@ -8,16 +8,18 @@ import ts from 'typescript'
 
 const require = createRequire(import.meta.url)
 const dataModule = source => `data:text/javascript;base64,${Buffer.from(source).toString('base64')}`
+const reactUrl = pathToFileURL(require.resolve('react')).href
 const source = await readFile(new URL('./AdminJoinApplicationsPage.tsx', import.meta.url), 'utf8')
 let { outputText } = ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
 })
 const imports = {
-  react: pathToFileURL(require.resolve('react')).href,
+  react: reactUrl,
   'react-dom': pathToFileURL(require.resolve('react-dom')).href,
   'react/jsx-runtime': pathToFileURL(require.resolve('react/jsx-runtime')).href,
   '../../components/admin/AdminCrudListPage': dataModule('export function AdminCrudListPage(){ return null }'),
-  '../../components/common/Button': dataModule('export function Button(){ return null }'),
+  '../../components/common/Button': dataModule(`import { createElement } from ${JSON.stringify(reactUrl)}; export function Button({children, showArrow, variant, ...props}) { return createElement(props.href ? 'a' : 'button', props, children) }`),
+  '../../lib/joinApplications': dataModule(`export const joinApplicationAttachmentMarkers = { photo: 'join-intake-v3:photo', recommendation: 'join-intake-v3:recommendation' }; export function getJoinApplicationAttachment(){ throw new Error('SSR must not request files') }`),
   '../../lib/storage': dataModule('export function getSignedStorageUrl(){ throw new Error("SSR must not request storage") }'),
 }
 outputText = outputText.replace(/^import ['"][^'"]+\.css['"];?\s*$/gm, '')
@@ -36,6 +38,18 @@ const row = {
   music_experience: null, awards: null, recommender_name: null, recommender_affiliation: null,
   recommender_reason: null, vision: null, photo_file_path: null, recommendation_file_path: null,
   privacy_agreed: true, created_at: '2026-09-08T00:00:00Z', status: 'new', is_archived: false, admin_notes: null,
+}
+
+const universityRow = {
+  ...row,
+  form_version: 3,
+  school_level: 'university',
+  school: '모테트대학교',
+  grade: '2학년',
+  gender: 'not_specified',
+  department: '음악학과',
+  photo_file_path: 'join-intake-v3:photo',
+  recommendation_file_path: 'join-intake-v3:recommendation',
 }
 
 test('v2 detail presents the seven submitted items first without showing uncollected legacy fields', () => {
@@ -60,6 +74,37 @@ test('legacy detail retains its old sections and the list still labels a single 
   const column = props.columns.find(column => column.header === '지원 파트')
   assert.equal(column.render(legacy), '테너')
   assert.equal(column.render({ ...row, desired_parts: ['bass', 'bass', 'custom-part'] }), '베이스, custom-part')
+})
+
+test('v3 shows the independent school, grade, gender and university department in the list and detail', () => {
+  const cell = (header) => props.columns.find(column => column.header === header).render(universityRow)
+  assert.match(renderToStaticMarkup(cell('학교')), /모테트대학교.*음악학과/)
+  assert.equal(cell('학년'), '2학년')
+  assert.equal(cell('성별'), '응답 안 함')
+  assert.equal(cell('사진 여부'), '있음')
+  assert.equal(cell('추천서 여부'), '있음')
+
+  const html = renderToStaticMarkup(props.renderBeforeForm(universityRow))
+  const labels = [...html.matchAll(/<dt[^>]*>(.*?)<\/dt>/g)].map(match => match[1])
+  assert.deepEqual(labels.slice(0, 7), ['이름', '생년월일', '성별', '학교 구분', '학교', '학년', '학과'])
+  assert.match(html, /온라인 입단지원서 \(v3\)/)
+  assert.match(html, /aria-expanded="false"[^>]*>반명함판 사진 보기<\/button>/)
+  assert.match(html, />추천서 다운로드<\/button>/)
+  assert.doesNotMatch(html, /학교·학년|legacy guardian sentinel|join-intake-v3:|blob:/)
+})
+
+test('v3 print preserves university answers and attachment indicators without making files mandatory', () => {
+  const print = (record) => renderToStaticMarkup(module.JoinApplicationPrintDocument({ row: record }))
+  const html = print(universityRow)
+  for (const text of ['성별', '응답 안 함', '대학교', '모테트대학교', '2학년', '음악학과', '반명함판 사진', '추천서 파일']) assert.ok(html.includes(text), text)
+  assert.equal((html.match(/>첨부됨</g) ?? []).length, 2)
+  assert.doesNotMatch(html, /join-intake-v3:|<a |<button|첨부파일 링크를 준비/)
+
+  const secondary = { ...universityRow, school_level: 'high', school: '모테트고등학교', department: null, photo_file_path: null, recommendation_file_path: null }
+  const detail = renderToStaticMarkup(props.renderBeforeForm(secondary))
+  assert.match(detail, /사진 파일 없음/)
+  assert.match(detail, /추천서 없음/)
+  assert.doesNotMatch(detail, />학과</)
 })
 
 test('admin status updates retain a strict mutation whitelist', () => {

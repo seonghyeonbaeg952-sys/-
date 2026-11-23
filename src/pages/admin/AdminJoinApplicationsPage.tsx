@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import { AdminCrudListPage } from '../../components/admin/AdminCrudListPage'
 import { Button } from '../../components/common/Button'
+import { getJoinApplicationAttachment, joinApplicationAttachmentMarkers } from '../../lib/joinApplications'
 import { getSignedStorageUrl } from '../../lib/storage'
 import type { AdminFieldConfig } from '../../components/admin/AdminRecordForm'
 import type { AdminTableColumn } from '../../components/admin/AdminTable'
@@ -10,6 +11,8 @@ import type { CmsMutationPayload, JoinApplicationRow } from '../../types/cms'
 import '../../components/admin/join/join-application-print.css'
 
 const JOIN_APPLICATION_FILES_BUCKET = 'join-application-files'
+const photoPathKeys = ['photo_file_path', 'photo_path', 'photo_url']
+const recommendationPathKeys = ['recommendation_file_path', 'recommendation_path', 'recommendation_file_url']
 
 const statusOptions = [
   { label: '신규', value: 'new' },
@@ -31,15 +34,26 @@ const fields = [
 
 const columns = [
   { header: '이름', value: 'applicant_name' },
-  { header: '학교', render: (row) => displayText(row.school) },
+  {
+    header: '학교',
+    render: (row) => {
+      const department = getUniversityDepartment(row)
+      if (!department) return displayText(row.school)
+
+      return <span className="block wrap-anywhere">
+        {displayText(row.school)}
+        <span className="mt-1 block text-xs text-text-muted">학과 {department}</span>
+      </span>
+    },
+  },
   { header: '학년', render: (row) => row.form_version === 2 ? '—' : displayText(row.grade) },
   { header: '성별', render: (row) => row.form_version === 2 ? '—' : getGenderLabel(row.gender) },
   { header: '보호자 연락처', render: (row) => displayText(row.guardian_phone) },
   { header: '지원 파트', render: (row) => getDesiredPartsLabel(row) },
-  { header: '사진 여부', render: (row) => row.photo_file_path ? '있음' : row.form_version === 2 ? '—' : '없음' },
+  { header: '사진 여부', render: (row) => getFirstTextValue(row, photoPathKeys) ? '있음' : row.form_version === 2 ? '—' : '없음' },
   {
     header: '추천서 여부',
-    render: (row) => row.recommendation_file_path ? '있음' : row.form_version === 2 ? '—' : '없음',
+    render: (row) => getFirstTextValue(row, recommendationPathKeys) ? '있음' : row.form_version === 2 ? '—' : '없음',
   },
   { header: '접수일', render: (row) => formatDate(row.created_at) },
   {
@@ -50,6 +64,22 @@ const columns = [
 
 function displayText(value: string | null | undefined) {
   return value?.trim() ? value : '미입력'
+}
+
+const schoolLevelLabels: Record<string, string> = {
+  elementary: '초등학교',
+  middle: '중학교',
+  high: '고등학교',
+  university: '대학교',
+  other: '기타',
+}
+
+function getSchoolLevelLabel(value: string | null | undefined) {
+  return value && Object.hasOwn(schoolLevelLabels, value) ? schoolLevelLabels[value] : displayText(value)
+}
+
+function getUniversityDepartment(row: JoinApplicationRow) {
+  return row.form_version === 3 && row.school_level === 'university' ? row.department?.trim() : undefined
 }
 
 const partLabels: Record<string, string> = {
@@ -108,7 +138,7 @@ function getGenderLabel(value: string | null | undefined) {
     return '남'
   }
 
-  if (value === 'none') {
+  if (value === 'none' || value === 'not_specified') {
     return '응답 안 함'
   }
 
@@ -231,7 +261,7 @@ function JoinAttachmentAction({
   return (
     <Button
       href={signedUrl}
-      rel="noreferrer"
+      rel="noopener noreferrer"
       showArrow={false}
       target="_blank"
       variant="secondary"
@@ -251,26 +281,120 @@ function attachmentFileName(path: string | null) {
   }
 }
 
+type AttachmentKind = keyof typeof joinApplicationAttachmentMarkers
+
+function IntakeAttachmentAction({ applicationId, kind, label }: {
+  applicationId: string
+  kind: AttachmentKind
+  label: string
+}) {
+  const previewId = useId()
+  const [preview, setPreview] = useState<{ url: string; filename: string } | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const mounted = useRef(false)
+  const pending = useRef(false)
+  const isPhoto = kind === 'photo'
+
+  useEffect(() => {
+    mounted.current = true
+    return () => { mounted.current = false }
+  }, [])
+
+  useEffect(() => {
+    return () => { if (preview) URL.revokeObjectURL(preview.url) }
+  }, [preview])
+
+  async function openAttachment() {
+    if (pending.current) return
+    if (preview) {
+      setPreview(null)
+      return
+    }
+
+    pending.current = true
+    setLoading(true)
+    setError(null)
+    try {
+      const result = await getJoinApplicationAttachment(applicationId, kind)
+      if (!mounted.current) return
+      if (!result.data) {
+        setError(result.error ?? '첨부파일을 불러오지 못했습니다. 다시 시도해 주세요.')
+        return
+      }
+      const { blob, filename } = result.data
+      const url = URL.createObjectURL(blob)
+      if (isPhoto) {
+        setPreview({ url, filename })
+      } else {
+        const link = document.createElement('a')
+        link.href = url
+        link.download = filename
+        document.body.append(link)
+        try {
+          link.click()
+        } finally {
+          link.remove()
+          window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+        }
+      }
+    } catch {
+      if (mounted.current) setError('첨부파일을 불러오지 못했습니다. 다시 시도해 주세요.')
+    } finally {
+      pending.current = false
+      if (mounted.current) setLoading(false)
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      <Button
+        aria-controls={isPhoto ? previewId : undefined}
+        aria-disabled={loading}
+        aria-expanded={isPhoto ? Boolean(preview) : undefined}
+        onClick={() => { void openAttachment() }}
+        showArrow={false}
+        type="button"
+        variant="secondary"
+      >
+        {loading ? '첨부파일 불러오는 중…' : preview ? '사진 닫기' : label}
+      </Button>
+      {error ? <p className="text-sm leading-6 text-state-error" role="alert">{error}</p> : null}
+      {isPhoto ? (
+        <div hidden={!preview} id={previewId}>
+          {preview ? (
+            <>
+              <img
+                alt="지원자가 제출한 반명함판 사진"
+                className="aspect-[3/4] w-32 rounded-button border border-line-default object-contain"
+                src={preview.url}
+              />
+              <a className="mt-2 inline-flex min-h-11 items-center text-sm underline" download={preview.filename} href={preview.url}>사진 다운로드</a>
+            </>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+function attachmentReference(path: string | null, kind: AttachmentKind) {
+  return path === joinApplicationAttachmentMarkers[kind] ? '첨부됨' : attachmentFileName(path)
+}
+
 function JoinApplicationAttachments({ row, forPrint = false }: { row: JoinApplicationRow; forPrint?: boolean }) {
-  const photoPath = getFirstTextValue(row, [
-    'photo_file_path',
-    'photo_path',
-    'photo_url',
-  ])
-  const recommendationPath = getFirstTextValue(row, [
-    'recommendation_file_path',
-    'recommendation_path',
-    'recommendation_file_url',
-  ])
+  const photoPath = getFirstTextValue(row, photoPathKeys)
+  const recommendationPath = getFirstTextValue(row, recommendationPathKeys)
+  const photoLabel = row.form_version === 3 ? '반명함판 사진' : '사진 파일'
 
   if (forPrint) {
     return (
       <DetailSection
         title="첨부파일 참조"
         items={[
-          { label: '사진 파일', value: attachmentFileName(photoPath) },
-          { label: '추천서 파일', value: attachmentFileName(recommendationPath) },
-          { label: '원본 확인', value: '첨부파일 원본은 CMS 상세 화면에서 별도로 확인합니다. 이 인쇄물에는 파일명만 표시됩니다.', multiline: true },
+          { label: photoLabel, value: attachmentReference(photoPath, 'photo') },
+          { label: '추천서 파일', value: attachmentReference(recommendationPath, 'recommendation') },
+          { label: '원본 확인', value: '첨부파일 원본은 CMS 상세 화면에서 별도로 확인합니다.', multiline: true },
         ]}
       />
     )
@@ -280,24 +404,22 @@ function JoinApplicationAttachments({ row, forPrint = false }: { row: JoinApplic
     <section className="rounded-formal border border-line-default bg-bg-warm-white p-5">
       <h3 className="text-sm font-semibold text-navy-deep">첨부파일 확인</h3>
       <p className="mt-1 text-xs leading-5 text-text-muted">
-        첨부파일 링크는 관리자 권한으로만 짧은 시간 동안 열립니다. public 화면에는 표시되지 않습니다.
+        {row.form_version === 3
+          ? '관리자 권한으로 지원자가 첨부한 파일을 열 수 있습니다.'
+          : '첨부파일 링크는 관리자 권한으로만 짧은 시간 동안 열립니다.'}
       </p>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div>
-          <p className="mb-2 text-xs font-semibold text-text-muted">사진 파일</p>
-          <JoinAttachmentAction
-            emptyText="사진 파일 없음"
-            label="사진 보기"
-            path={photoPath}
-          />
+          <p className="mb-2 text-xs font-semibold text-text-muted">{photoLabel}</p>
+          {photoPath === joinApplicationAttachmentMarkers.photo
+            ? <IntakeAttachmentAction applicationId={row.id} kind="photo" label="반명함판 사진 보기" />
+            : <JoinAttachmentAction emptyText="사진 파일 없음" key={photoPath} label="사진 보기" path={photoPath} />}
         </div>
         <div>
           <p className="mb-2 text-xs font-semibold text-text-muted">추천서 파일</p>
-          <JoinAttachmentAction
-            emptyText="추천서 없음"
-            label="추천서 확인"
-            path={recommendationPath}
-          />
+          {recommendationPath === joinApplicationAttachmentMarkers.recommendation
+            ? <IntakeAttachmentAction applicationId={row.id} kind="recommendation" label="추천서 다운로드" />
+            : <JoinAttachmentAction emptyText="추천서 없음" key={recommendationPath} label="추천서 확인" path={recommendationPath} />}
         </div>
       </div>
     </section>
@@ -470,12 +592,16 @@ function JoinApplicationReview({ row }: { row: JoinApplicationRow }) {
 }
 
 function JoinApplicationReceiptMetadata({ row }: { row: JoinApplicationRow }) {
+  const versionLabel = row.form_version === 2 || row.form_version === 3
+    ? `온라인 입단지원서 (v${row.form_version})`
+    : '기존 입단지원서 (v1)'
+
   return (
     <DetailSection
       title="접수 식별 정보"
       items={[
         { label: '접수 번호', value: row.id },
-        { label: '지원서 양식', value: row.form_version === 2 ? '온라인 입단지원서 (v2)' : '기존 입단지원서 (v1)' },
+        { label: '지원서 양식', value: versionLabel },
         ...(row.submission_id ? [{ label: '제출 식별자', value: row.submission_id }] : []),
         ...(row.join_info_id ? [{ label: '모집 안내 식별자', value: row.join_info_id }] : []),
       ]}
@@ -484,7 +610,18 @@ function JoinApplicationReceiptMetadata({ row }: { row: JoinApplicationRow }) {
 }
 
 function JoinApplicationContent({ row, forPrint = false }: { row: JoinApplicationRow; forPrint?: boolean }) {
-  if (row.form_version !== 2) return <LegacyJoinApplicationDetails row={row} forPrint={forPrint} />
+  const expanded = row.form_version === 3
+  if (!expanded && row.form_version !== 2) return <LegacyJoinApplicationDetails row={row} forPrint={forPrint} />
+
+  const education: DetailItem[] = expanded ? [
+    { label: '성별', value: getGenderLabel(row.gender) },
+    { label: '학교 구분', value: getSchoolLevelLabel(row.school_level) },
+    { label: '학교', value: displayText(row.school) },
+    { label: '학년', value: displayText(row.grade) },
+    ...(row.school_level === 'university' ? [{ label: '학과', value: displayText(getUniversityDepartment(row)) }] : []),
+  ] : [{ label: '학교·학년', value: displayText(row.school) }]
+  const hasAttachments = getFirstTextValue(row, photoPathKeys) || getFirstTextValue(row, recommendationPathKeys)
+
   return (
     <div className="space-y-5">
       <DetailSection
@@ -492,7 +629,7 @@ function JoinApplicationContent({ row, forPrint = false }: { row: JoinApplicatio
         items={[
           { label: '이름', value: displayText(row.applicant_name) },
           { label: '생년월일', value: formatDate(row.birth_date) },
-          { label: '학교·학년', value: displayText(row.school) },
+          ...education,
           { label: '지원자 연락처', value: displayText(row.applicant_phone) },
           { label: '보호자 연락처', value: displayText(row.guardian_phone) },
           { label: '지원 파트', value: getDesiredPartsLabel(row) },
@@ -506,7 +643,7 @@ function JoinApplicationContent({ row, forPrint = false }: { row: JoinApplicatio
           { label: '접수일', value: formatDateTime(row.created_at) },
         ]}
       />
-      {getFirstTextValue(row, ['photo_file_path', 'photo_path', 'photo_url', 'recommendation_file_path', 'recommendation_path', 'recommendation_file_url'])
+      {expanded || hasAttachments
         ? <JoinApplicationAttachments row={row} forPrint={forPrint} /> : null}
       <JoinApplicationReceiptMetadata row={row} />
       {!forPrint ? <JoinApplicationReview row={row} /> : null}
@@ -587,7 +724,7 @@ export function AdminJoinApplicationsPage() {
       order={{ column: 'created_at', ascending: false }}
       preparePayload={preparePayload}
       validatePayload={validatePayload}
-      renderBeforeForm={(row) => <JoinApplicationDetails row={row} />}
+      renderBeforeForm={(row) => <JoinApplicationDetails key={row.id} row={row} />}
       searchColumn="applicant_name"
       searchPlaceholder="지원자 이름 검색"
       showVisibility={false}
