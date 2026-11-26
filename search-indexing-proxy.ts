@@ -2,7 +2,7 @@ import { next } from '@vercel/functions'
 import deployment from './vercel.json' with { type: 'json' }
 
 const publicHomepage = 'https://seoulmotetyouthchoir.com/'
-const googleSearchAgent = /(?:^|[\s;(])(?:Googlebot|Google-InspectionTool)\/[\d.]+(?=$|[\s;)])/
+const supportedSearchAgent = /(?:^|[\s;(])(?:Googlebot|Google-InspectionTool|Yeti|Daum)\/[\d.]+(?=$|[\s;)])/
 const limitedSearchPreview = 'noimageindex, max-image-preview: none, max-video-preview: 0, max-snippet: 80'
 const homepageFontPreload = deployment.headers
   .find(rule => rule.source === '/')
@@ -14,7 +14,7 @@ export default function searchIndexingProxy(request: Request) {
   const isHomepage = url.href === publicHomepage
   const isPageFetch = request.method === 'GET' || request.method === 'HEAD'
   const allowsIndexing = isHomepage && isPageFetch &&
-    googleSearchAgent.test(request.headers.get('user-agent') ?? '')
+    supportedSearchAgent.test(request.headers.get('user-agent') ?? '')
 
   // The visible page is the same for everyone. Only the indexing directive varies.
   return next({

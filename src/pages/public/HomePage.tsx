@@ -189,26 +189,20 @@ export function HomePage({
   const seoSlide = [...heroSlides]
     .filter((slide) => slide.is_visible && slide.image_url.trim())
     .sort((first, second) => first.display_order - second.display_order)[0]
-  const homeStructuredData = useMemo(() => {
+  const choirSocialStructuredData = useMemo(() => {
     const sameAs = [siteSettings.youtube_url, siteSettings.instagram_url].filter(
       (url) => url.trim(),
     )
 
+    if (!sameAs.length) return undefined
+
     return {
       '@context': 'https://schema.org',
-      '@type': 'WebSite',
-      name: siteSettings.site_title || '서울모테트청소년합창단',
-      alternateName: 'Seoul Motet Youth Choir',
-      url: window.location.origin,
-      publisher: {
-        '@type': 'MusicGroup',
-        name: '서울모테트청소년합창단',
-        ...(sameAs.length > 0 ? { sameAs } : {}),
-      },
+      '@id': 'https://seoulmotetyouthchoir.com/#choir',
+      sameAs,
     }
   }, [
     siteSettings.instagram_url,
-    siteSettings.site_title,
     siteSettings.youtube_url,
   ])
 
@@ -217,7 +211,7 @@ export function HomePage({
       <SeoHead
         description={homeContent.heroSupplement.fallbackDescription}
         image={seoSlide?.image_url}
-        jsonLd={homeStructuredData}
+        jsonLd={choirSocialStructuredData}
         path="/"
         title={siteSettings.site_title || '서울모테트청소년합창단'}
       />

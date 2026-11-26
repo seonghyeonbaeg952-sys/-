@@ -19,7 +19,7 @@
     <meta name="theme-color" content="#07111f" />
     <meta property="og:locale" content="ko_KR" />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Seoul Motet Youth Choir" />
+    <meta property="og:site_name" content="서울모테트청소년합창단" />
     <meta property="og:title" content="서울모테트청소년합창단 | Seoul Motet Youth Choir" />
     <meta
       property="og:description"
@@ -30,17 +30,30 @@
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "MusicGroup",
-        "name": "서울모테트청소년합창단",
-        "alternateName": "Seoul Motet Youth Choir",
-        "foundingDate": "2014",
-        "genre": ["Choral music", "Sacred music", "Youth music education"],
-        "description": "서울모테트음악재단 청소년아카데미 부설 합창단으로 청소년 합창교육과 공연 활동을 이어갑니다.",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Seoul",
-          "addressCountry": "KR"
-        }
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "name": "서울모테트청소년합창단",
+            "alternateName": "Seoul Motet Youth Choir",
+            "url": "https://seoulmotetyouthchoir.com/",
+            "publisher": { "@id": "https://seoulmotetyouthchoir.com/#choir" }
+          },
+          {
+            "@type": "MusicGroup",
+            "@id": "https://seoulmotetyouthchoir.com/#choir",
+            "name": "서울모테트청소년합창단",
+            "alternateName": "Seoul Motet Youth Choir",
+            "url": "https://seoulmotetyouthchoir.com/",
+            "foundingDate": "2014",
+            "genre": ["Choral music", "Sacred music", "Youth music education"],
+            "description": "서울모테트음악재단 청소년아카데미 부설 합창단으로 청소년 합창교육과 공연 활동을 이어갑니다.",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Seoul",
+              "addressCountry": "KR"
+            }
+          }
+        ]
       }
     </script>
   </head>

@@ -47,7 +47,7 @@ test('original public links retain their path while sample links stay isolated',
   assert.equal(language.resolvePublicLanguage('/admin/editor', '?lang=en', 'ko'), 'ko')
 })
 
-test('production English remains indexable and forms remain live while sample stays read-only', async () => {
+test('public forms remain live while the sample stays read-only and out of search', async () => {
   const app = await source('../../App.tsx')
   const seo = await source('../../components/common/SeoHead.tsx')
   const forms = await Promise.all(['../../components/join/JoinApplicationForm.tsx','../../components/contact/ContactInquiryForm.tsx','../../components/contact/SupportPledgeForm.tsx'].map(source))

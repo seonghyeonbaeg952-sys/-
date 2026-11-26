@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useLocation } from 'react-router'
 import { useSitePhoto } from '../../features/site-photos/useSitePhoto'
 import { useSampleLanguage } from '../../features/sample-language/useSampleLanguage'
 
@@ -50,6 +51,8 @@ export function SeoHead({
 }: SeoHeadProps) {
   const photo = useSitePhoto(image || defaultImagePath)
   const { enabled, isSample, language, translate, href: sampleHref } = useSampleLanguage()
+  const { pathname, search } = useLocation()
+  const isHomepageAddress = pathname === '/' && !search
   useEffect(() => {
     const origin = window.location.origin
     const canonicalPath = path || window.location.pathname
@@ -112,8 +115,10 @@ export function SeoHead({
 
     document.title = pageTitle
     setMeta('name', 'description', pageDescription)
-    setMeta('name', 'robots', noIndex || isSample ? 'noindex, nofollow' : 'index, follow')
+    const pageRobots = noIndex || isSample ? 'noindex, nofollow' : 'noindex, follow'
+    if (!isHomepageAddress || noIndex || isSample) setMeta('name', 'robots', pageRobots)
     if (enabled) setMeta('property', 'og:locale', language === 'en' ? 'en_GB' : 'ko_KR')
+    if (enabled) setMeta('property', 'og:site_name', displaySiteName)
     setMeta('property', 'og:title', pageTitle)
     setMeta('property', 'og:description', pageDescription)
     setMeta('property', 'og:type', type)
@@ -140,7 +145,7 @@ export function SeoHead({
       structuredDataScript.remove()
       restorers.reverse().forEach((restore) => restore())
     }
-  }, [description, enabled, isSample, image, photo.src, jsonLd, language, noIndex, path, sampleHref, title, translate, type])
+  }, [description, enabled, isHomepageAddress, isSample, image, photo.src, jsonLd, language, noIndex, path, sampleHref, title, translate, type])
 
   return null
 }

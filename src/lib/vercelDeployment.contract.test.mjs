@@ -58,31 +58,36 @@ test('internal pages and site-hosted media remain out of search', () => {
   }
 })
 
-test('only Google Search can index the homepage on the production domain', async () => {
+test('Google, Naver, and Daum can index the canonical production homepage', async () => {
   const config = JSON.parse(readFileSync(configPath, 'utf8'))
   assert.deepEqual(config.proxy, { entrypoint: 'search-indexing-proxy.ts', matcher: ['/'] })
-  assert.equal(headersFor('/')['x-robots-tag'], undefined, 'The generic noindex would override the Google exception')
+  assert.equal(headersFor('/')['x-robots-tag'], undefined, 'The generic noindex would override the crawler exceptions')
   const { default: proxy } = await import('../../search-indexing-proxy.ts')
   const origin = 'https://seoulmotetyouthchoir.com'
   const google = 'Mozilla/5.0 (Linux; Android 6.0.1) AppleWebKit/537.36 Chrome/131.0.0.0 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
   const inspection = 'Mozilla/5.0 (compatible; Google-InspectionTool/1.0;)'
+  const naver = 'Mozilla/5.0 (compatible; Yeti/1.1; +https://naver.me/spd)'
+  const daum = 'Mozilla/5.0 (compatible; Daum/4.1; +https://cs.daum.net/faq/service/15/category/4118/detail/28966)'
   const request = (url, agent, method = 'GET') => proxy(new Request(url, { method, headers: { 'User-Agent': agent } }))
-  for (const agent of [google, inspection, 'Googlebot/2.1 (+http://www.google.com/bot.html)']) {
+  for (const agent of [google, inspection, naver, daum, 'Googlebot/2.1 (+http://www.google.com/bot.html)']) {
     const response = request(origin, agent)
-    assert.equal(response.headers.get('X-Robots-Tag'), 'noimageindex, max-image-preview: none, max-video-preview: 0, max-snippet: 80')
+    assert.equal(response.headers.get('X-Robots-Tag'), 'noimageindex, max-image-preview: none, max-video-preview: 0, max-snippet: 80', agent)
     assert.match(response.headers.get('Vary') ?? '', /User-Agent/i)
+    assert.equal(response.headers.get('Cache-Control'), 'private, no-store')
     assert.match(response.headers.get('Link') ?? '', /CormorantGaramond-Variable\.woff2/)
     assert.match(response.headers.get('Link') ?? '', /<https:\/\/seoulmotetyouthchoir\.com\/>; rel="canonical"/)
   }
-  for (const agent of ['Mozilla/5.0', 'bingbot/2.0', 'Yeti/1.1', 'Googlebot-Image/1.0', 'NotGooglebot/2.1', 'GoogleOther/1.0', '']) {
+  for (const agent of ['Mozilla/5.0', 'bingbot/2.0', 'Googlebot-Image/1.0', 'NotGooglebot/2.1', 'GoogleOther/1.0', 'NotYeti/1.1', 'Blueno/1.0', 'Daum-Preview/1.0', 'NotDaum/4.1', '']) {
     assert.equal(request(origin, agent).headers.get('X-Robots-Tag'), 'noindex', agent)
   }
-  for (const url of [origin + '/?lang=en', origin + '/?lang=ko', origin + '/?anything=1', origin + '/?motionBenchmark=1', origin + '/?site-editor-preview=1', origin + '/spirit', 'https://motet-homepage.vercel.app/', 'http://seoulmotetyouthchoir.com/']) {
-    assert.equal(request(url, google).headers.get('X-Robots-Tag'), 'noindex', url)
-    assert.equal(request(url, google).headers.get('Link'), null, url)
+  for (const agent of [google, naver, daum]) {
+    for (const url of [origin + '/?lang=en', origin + '/?lang=ko', origin + '/?anything=1', origin + '/?motionBenchmark=1', origin + '/?site-editor-preview=1', origin + '/spirit', 'https://motet-homepage.vercel.app/', 'http://seoulmotetyouthchoir.com/']) {
+      assert.equal(request(url, agent).headers.get('X-Robots-Tag'), 'noindex', url)
+      assert.equal(request(url, agent).headers.get('Link'), null, url)
+    }
+    assert.equal(request(origin, agent, 'POST').headers.get('X-Robots-Tag'), 'noindex')
+    assert.match(request(origin, agent, 'HEAD').headers.get('X-Robots-Tag') ?? '', /max-snippet: 80/)
   }
-  assert.equal(request(origin, google, 'POST').headers.get('X-Robots-Tag'), 'noindex')
-  assert.match(request(origin, google, 'HEAD').headers.get('X-Robots-Tag') ?? '', /max-snippet: 80/)
 })
 
 test('the crawlable sitemap advertises just the approved Korean homepage', () => {
@@ -93,6 +98,24 @@ test('the crawlable sitemap advertises just the approved Korean homepage', () =>
   const sitemap = readFileSync(new URL('../../public/sitemap.xml', import.meta.url), 'utf8')
   assert.match(sitemap, /<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">/)
   assert.deepEqual([...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(([, url]) => url), ['https://seoulmotetyouthchoir.com/'])
+})
+
+test('the initial HTML identifies the official website and its publisher to search engines', () => {
+  const html = readFileSync(new URL('../../index.html', import.meta.url), 'utf8')
+  const origin = 'https://seoulmotetyouthchoir.com/'
+  const siteName = '서울모테트청소년합창단'
+  const [structuredData] = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+    .map(([, json]) => JSON.parse(json))
+  const website = structuredData['@graph']?.find(node => node['@type'] === 'WebSite')
+  const publisher = structuredData['@graph']?.find(node => node['@type'] === 'MusicGroup')
+
+  assert.ok(website, 'The website identity must be available before JavaScript runs')
+  assert.equal(website.name, siteName)
+  assert.equal(website.alternateName, 'Seoul Motet Youth Choir')
+  assert.equal(website.url, origin)
+  assert.equal(publisher?.name, siteName)
+  assert.equal(website.publisher['@id'], publisher['@id'])
+  assert.ok(html.includes(`<meta property="og:site_name" content="${siteName}" />`))
 })
 
 test('Vercel aliases redirect to the owned domain without redirecting the domain or local CMS', () => {
